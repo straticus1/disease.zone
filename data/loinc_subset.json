@@ -1,0 +1,197 @@
+{
+  "laboratory_tests": {
+    "33747-0": {
+      "name": "General appearance of patient",
+      "loinc_code": "33747-0",
+      "category": "Physical examination",
+      "unit": "Text",
+      "reference_range": "Normal appearance"
+    },
+    "8302-2": {
+      "name": "Body height",
+      "loinc_code": "8302-2",
+      "category": "Vital signs",
+      "unit": "cm",
+      "reference_range": "Variable by age and gender"
+    },
+    "29463-7": {
+      "name": "Body weight",
+      "loinc_code": "29463-7",
+      "category": "Vital signs",
+      "unit": "kg",
+      "reference_range": "Variable by age, gender, and height"
+    },
+    "8480-6": {
+      "name": "Systolic blood pressure",
+      "loinc_code": "8480-6",
+      "category": "Vital signs",
+      "unit": "mm[Hg]",
+      "reference_range": "90-120"
+    },
+    "8462-4": {
+      "name": "Diastolic blood pressure",
+      "loinc_code": "8462-4",
+      "category": "Vital signs",
+      "unit": "mm[Hg]",
+      "reference_range": "60-80"
+    },
+    "8867-4": {
+      "name": "Heart rate",
+      "loinc_code": "8867-4",
+      "category": "Vital signs",
+      "unit": "/min",
+      "reference_range": "60-100"
+    },
+    "9279-1": {
+      "name": "Respiratory rate",
+      "loinc_code": "9279-1",
+      "category": "Vital signs",
+      "unit": "/min",
+      "reference_range": "12-20"
+    },
+    "8310-5": {
+      "name": "Body temperature",
+      "loinc_code": "8310-5",
+      "category": "Vital signs",
+      "unit": "Cel",
+      "reference_range": "36.0-37.5"
+    },
+    "2093-3": {
+      "name": "Cholesterol [Mass/volume] in Serum or Plasma",
+      "loinc_code": "2093-3",
+      "category": "Chemistry",
+      "unit": "mg/dL",
+      "reference_range": "<200"
+    },
+    "2571-8": {
+      "name": "Triglyceride [Mass/volume] in Serum or Plasma",
+      "loinc_code": "2571-8",
+      "category": "Chemistry",
+      "unit": "mg/dL",
+      "reference_range": "<150"
+    },
+    "33743-4": {
+      "name": "Hemoglobin A1c/Hemoglobin.total in Blood",
+      "loinc_code": "33743-4",
+      "category": "Chemistry",
+      "unit": "%",
+      "reference_range": "4.0-5.6"
+    },
+    "2345-7": {
+      "name": "Glucose [Mass/volume] in Serum or Plasma",
+      "loinc_code": "2345-7",
+      "category": "Chemistry",
+      "unit": "mg/dL",
+      "reference_range": "70-99"
+    },
+    "718-7": {
+      "name": "Hemoglobin [Mass/volume] in Blood",
+      "loinc_code": "718-7",
+      "category": "Hematology",
+      "unit": "g/dL",
+      "reference_range": "12.0-15.5"
+    },
+    "4544-3": {
+      "name": "Hematocrit [Volume Fraction] of Blood by Automated count",
+      "loinc_code": "4544-3",
+      "category": "Hematology",
+      "unit": "%",
+      "reference_range": "36.0-46.0"
+    },
+    "26464-8": {
+      "name": "Leukocytes [#/volume] in Blood",
+      "loinc_code": "26464-8",
+      "category": "Hematology",
+      "unit": "10*3/uL",
+      "reference_range": "4.5-11.0"
+    },
+    "26515-7": {
+      "name": "Platelets [#/volume] in Blood",
+      "loinc_code": "26515-7",
+      "category": "Hematology",
+      "unit": "10*3/uL",
+      "reference_range": "150-450"
+    },
+    "38483-4": {
+      "name": "Creatinine [Mass/volume] in Blood",
+      "loinc_code": "38483-4",
+      "category": "Chemistry",
+      "unit": "mg/dL",
+      "reference_range": "0.7-1.3"
+    },
+    "6299-2": {
+      "name": "Urea nitrogen [Mass/volume] in Blood",
+      "loinc_code": "6299-2",
+      "category": "Chemistry",
+      "unit": "mg/dL",
+      "reference_range": "7-20"
+    },
+    "1975-2": {
+      "name": "Bilirubin.total [Mass/volume] in Serum or Plasma",
+      "loinc_code": "1975-2",
+      "category": "Chemistry",
+      "unit": "mg/dL",
+      "reference_range": "0.3-1.2"
+    },
+    "1742-6": {
+      "name": "Alanine aminotransferase [Enzymatic activity/volume] in Serum or Plasma",
+      "loinc_code": "1742-6",
+      "category": "Chemistry",
+      "unit": "U/L",
+      "reference_range": "7-35"
+    },
+    "1920-8": {
+      "name": "Aspartate aminotransferase [Enzymatic activity/volume] in Serum or Plasma",
+      "loinc_code": "1920-8",
+      "category": "Chemistry",
+      "unit": "U/L",
+      "reference_range": "8-40"
+    },
+    "1751-7": {
+      "name": "Albumin [Mass/volume] in Serum or Plasma",
+      "loinc_code": "1751-7",
+      "category": "Chemistry",
+      "unit": "g/dL",
+      "reference_range": "3.5-5.0"
+    },
+    "2160-0": {
+      "name": "Creatinine [Mass/volume] in Urine",
+      "loinc_code": "2160-0",
+      "category": "Urinalysis",
+      "unit": "mg/dL",
+      "reference_range": "20-370"
+    },
+    "33914-3": {
+      "name": "Glomerular filtration rate/1.73 sq M.predicted",
+      "loinc_code": "33914-3",
+      "category": "Chemistry",
+      "unit": "mL/min/{1.73_m2}",
+      "reference_range": ">60"
+    },
+    "3094-0": {
+      "name": "Urea nitrogen [Mass/volume] in Urine",
+      "loinc_code": "3094-0",
+      "category": "Urinalysis",
+      "unit": "mg/dL",
+      "reference_range": "670-2000"
+    }
+  },
+  "test_categories": {
+    "vital_signs": ["8302-2", "29463-7", "8480-6", "8462-4", "8867-4", "9279-1", "8310-5"],
+    "basic_metabolic_panel": ["2345-7", "38483-4", "6299-2"],
+    "lipid_panel": ["2093-3", "2571-8"],
+    "liver_function": ["1975-2", "1742-6", "1920-8", "1751-7"],
+    "kidney_function": ["38483-4", "6299-2", "33914-3"],
+    "diabetes_monitoring": ["2345-7", "33743-4"],
+    "complete_blood_count": ["718-7", "4544-3", "26464-8", "26515-7"]
+  },
+  "critical_values": {
+    "8480-6": ">180 or <90",
+    "8462-4": ">110 or <60",
+    "2345-7": ">400 or <50",
+    "38483-4": ">3.0",
+    "718-7": "<7.0 or >18.0",
+    "26464-8": "<2.0 or >50.0",
+    "26515-7": "<50 or >1000"
+  }
+}

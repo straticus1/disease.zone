@@ -1,0 +1,114 @@
+{
+  "medications": {
+    "161": {
+      "name": "Acetaminophen",
+      "rxnorm_code": "161",
+      "generic_name": "acetaminophen",
+      "brand_names": ["Tylenol", "Panadol", "Paracetamol"],
+      "drug_class": "Analgesic",
+      "interactions": ["warfarin", "isoniazid"],
+      "contraindications": ["liver disease", "alcohol use disorder"]
+    },
+    "5640": {
+      "name": "Ibuprofen",
+      "rxnorm_code": "5640",
+      "generic_name": "ibuprofen",
+      "brand_names": ["Advil", "Motrin", "Nuprin"],
+      "drug_class": "NSAID",
+      "interactions": ["warfarin", "lithium", "ACE inhibitors"],
+      "contraindications": ["peptic ulcer disease", "kidney disease"]
+    },
+    "7052": {
+      "name": "Naproxen",
+      "rxnorm_code": "7052",
+      "generic_name": "naproxen",
+      "brand_names": ["Aleve", "Naprosyn", "Anaprox"],
+      "drug_class": "NSAID",
+      "interactions": ["warfarin", "methotrexate"],
+      "contraindications": ["peptic ulcer disease", "heart disease"]
+    },
+    "1191": {
+      "name": "Aspirin",
+      "rxnorm_code": "1191",
+      "generic_name": "aspirin",
+      "brand_names": ["Bayer", "Bufferin", "Excedrin"],
+      "drug_class": "NSAID/Antiplatelet",
+      "interactions": ["warfarin", "methotrexate"],
+      "contraindications": ["bleeding disorders", "peptic ulcer disease"]
+    },
+    "6809": {
+      "name": "Metformin",
+      "rxnorm_code": "6809",
+      "generic_name": "metformin",
+      "brand_names": ["Glucophage", "Fortamet", "Riomet"],
+      "drug_class": "Biguanide",
+      "interactions": ["contrast dye", "alcohol"],
+      "contraindications": ["kidney disease", "liver disease"]
+    },
+    "29046": {
+      "name": "Lisinopril",
+      "rxnorm_code": "29046",
+      "generic_name": "lisinopril",
+      "brand_names": ["Prinivil", "Zestril"],
+      "drug_class": "ACE Inhibitor",
+      "interactions": ["potassium supplements", "NSAIDs"],
+      "contraindications": ["pregnancy", "angioedema history"]
+    },
+    "1154": {
+      "name": "Albuterol",
+      "rxnorm_code": "1154",
+      "generic_name": "albuterol",
+      "brand_names": ["Proventil", "Ventolin", "ProAir"],
+      "drug_class": "Beta2 Agonist",
+      "interactions": ["beta blockers", "digoxin"],
+      "contraindications": ["hypersensitivity to albuterol"]
+    },
+    "5521": {
+      "name": "Hydroxychloroquine",
+      "rxnorm_code": "5521",
+      "generic_name": "hydroxychloroquine",
+      "brand_names": ["Plaquenil"],
+      "drug_class": "Antimalarial/DMARD",
+      "interactions": ["digoxin", "insulin"],
+      "contraindications": ["retinal disease", "G6PD deficiency"]
+    },
+    "135447": {
+      "name": "Donepezil",
+      "rxnorm_code": "135447",
+      "generic_name": "donepezil",
+      "brand_names": ["Aricept"],
+      "drug_class": "Cholinesterase Inhibitor",
+      "interactions": ["anticholinergics", "NSAIDs"],
+      "contraindications": ["sick sinus syndrome", "GI bleeding"]
+    },
+    "187832": {
+      "name": "Gabapentin",
+      "rxnorm_code": "187832",
+      "generic_name": "gabapentin",
+      "brand_names": ["Neurontin", "Gralise"],
+      "drug_class": "Anticonvulsant",
+      "interactions": ["morphine", "hydrocodone"],
+      "contraindications": ["hypersensitivity to gabapentin"]
+    }
+  },
+  "drug_interactions": {
+    "warfarin": {
+      "interacts_with": ["acetaminophen", "ibuprofen", "naproxen", "aspirin"],
+      "severity": "major",
+      "mechanism": "increased bleeding risk"
+    },
+    "nsaid_combinations": {
+      "interacts_with": ["ibuprofen + naproxen", "aspirin + ibuprofen"],
+      "severity": "major",
+      "mechanism": "increased GI bleeding risk"
+    }
+  },
+  "therapeutic_classes": {
+    "analgesics": ["161", "5640", "7052", "1191"],
+    "diabetes_medications": ["6809"],
+    "cardiovascular": ["29046"],
+    "respiratory": ["1154"],
+    "autoimmune": ["5521"],
+    "neurological": ["135447", "187832"]
+  }
+}

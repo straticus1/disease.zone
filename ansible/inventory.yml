@@ -1,0 +1,28 @@
+all:
+  children:
+    aws:
+      hosts:
+        localhost:
+          ansible_connection: local
+          ansible_python_interpreter: "{{ ansible_playbook_python }}"
+      vars:
+        aws_region: us-east-1
+        project_name: diseasezone
+        environment: prod
+        domain_name: disease.zone
+
+        # ECR and ECS configuration
+        ecr_repository_name: "{{ project_name }}-{{ environment }}"
+        ecs_cluster_name: "{{ project_name }}-cluster-{{ environment }}"
+        ecs_service_name: "{{ project_name }}-service-{{ environment }}"
+
+        # Docker image settings
+        docker_image_tag: latest
+        docker_build_path: ../
+
+        # Application secrets (to be set in ansible-vault)
+        mapbox_access_token: ""
+        google_maps_api_key: ""
+
+        # Notification settings
+        alert_email: ""

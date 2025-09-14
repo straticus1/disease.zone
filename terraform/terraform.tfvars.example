@@ -1,0 +1,21 @@
+# AWS Configuration
+aws_region = "us-east-1"
+environment = "prod"
+project_name = "diseasezone"
+
+# Domain Configuration
+domain_name = "disease.zone"
+
+# Network Configuration
+vpc_cidr = "10.0.0.0/16"
+availability_zones = ["us-east-1a", "us-east-1b"]
+
+# ECS Configuration
+ecs_cpu = "256"           # 0.25 vCPU
+ecs_memory = "512"        # 512 MB
+ecs_desired_count = 2     # Number of tasks to run
+ecs_min_capacity = 1      # Minimum tasks for auto-scaling
+ecs_max_capacity = 10     # Maximum tasks for auto-scaling
+
+# Monitoring Configuration
+alert_email = "your-email@example.com"

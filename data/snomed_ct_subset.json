@@ -1,0 +1,62 @@
+{
+  "diseases": {
+    "26929004": "Alzheimer's disease",
+    "73211009": "Diabetes mellitus",
+    "38341003": "Hypertensive disorder",
+    "195967001": "Asthma",
+    "363406005": "Malignant neoplasm",
+    "90781000119102": "Autosomal dominant polycystic kidney disease",
+    "28670008": "Trigeminal neuralgia",
+    "55464009": "Systemic lupus erythematosus",
+    "77176002": "Smoker",
+    "161891005": "Backache"
+  },
+  "symptoms": {
+    "25064002": "Headache",
+    "21522001": "Abdominal pain",
+    "422400008": "Vomiting",
+    "267036007": "Dyspnea",
+    "29857009": "Chest pain",
+    "84229001": "Fatigue",
+    "386661006": "Fever",
+    "422587007": "Nausea",
+    "68962001": "Muscle pain",
+    "95978007": "Skin rash"
+  },
+  "treatments": {
+    "387207008": "Acetaminophen",
+    "387207008": "Ibuprofen",
+    "387207008": "Naproxen",
+    "387207008": "Aspirin",
+    "387475002": "Metformin",
+    "387506000": "Lisinopril",
+    "387467008": "Albuterol",
+    "387562000": "Hydroxychloroquine",
+    "387467008": "Donepezil",
+    "387475002": "Gabapentin"
+  },
+  "body_structures": {
+    "12738006": "Brain",
+    "80891009": "Heart",
+    "39607008": "Lung",
+    "64033007": "Kidney",
+    "10200004": "Liver",
+    "69695003": "Stomach",
+    "64033007": "Bone",
+    "39937001": "Skin",
+    "91609006": "Eye",
+    "117590005": "Ear"
+  },
+  "procedures": {
+    "71388002": "Procedure",
+    "386053000": "Evaluation procedure",
+    "182836005": "Review of medication",
+    "225358003": "Wound care",
+    "18512000": "Dietary advice",
+    "408289007": "Refer to specialist",
+    "225967005": "Health education",
+    "182856006": "Drug therapy",
+    "387713003": "Surgical procedure",
+    "76464004": "Psychotherapy"
+  }
+}

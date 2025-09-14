@@ -1,0 +1,133 @@
+---
+- name: Deploy diseaseZone to AWS ECS
+  hosts: aws
+  gather_facts: false
+  vars:
+    terraform_dir: "../terraform"
+
+  tasks:
+    - name: Install required Python packages
+      pip:
+        name:
+          - boto3
+          - botocore
+        state: present
+
+    - name: Check if Terraform is installed
+      command: terraform version
+      register: terraform_check
+      failed_when: false
+      changed_when: false
+
+    - name: Fail if Terraform is not installed
+      fail:
+        msg: "Terraform is not installed. Please install Terraform first."
+      when: terraform_check.rc != 0
+
+    - name: Initialize Terraform
+      command: terraform init
+      args:
+        chdir: "{{ terraform_dir }}"
+      register: terraform_init
+      changed_when: "'Terraform has been successfully initialized' in terraform_init.stdout"
+
+    - name: Plan Terraform deployment
+      command: >
+        terraform plan
+        -var="domain_name={{ domain_name }}"
+        -var="environment={{ environment }}"
+        -var="project_name={{ project_name }}"
+        -var="alert_email={{ alert_email }}"
+        -out=tfplan
+      args:
+        chdir: "{{ terraform_dir }}"
+      register: terraform_plan
+      changed_when: false
+
+    - name: Display Terraform plan
+      debug:
+        var: terraform_plan.stdout_lines
+
+    - name: Apply Terraform configuration
+      command: terraform apply tfplan
+      args:
+        chdir: "{{ terraform_dir }}"
+      register: terraform_apply
+      when: terraform_plan.rc == 0
+
+    - name: Get Terraform outputs
+      command: terraform output -json
+      args:
+        chdir: "{{ terraform_dir }}"
+      register: terraform_outputs
+      changed_when: false
+
+    - name: Parse Terraform outputs
+      set_fact:
+        tf_outputs: "{{ terraform_outputs.stdout | from_json }}"
+
+    - name: Build Docker image
+      docker_image:
+        build:
+          path: "{{ docker_build_path }}"
+          dockerfile: Dockerfile
+        name: "{{ project_name }}"
+        tag: "{{ docker_image_tag }}"
+        source: build
+
+    - name: Get ECR login token
+      shell: >
+        aws ecr get-login-password --region {{ aws_region }} |
+        docker login --username AWS --password-stdin {{ tf_outputs.ecr_repository_url.value }}
+      register: ecr_login
+      changed_when: false
+
+    - name: Tag Docker image for ECR
+      docker_image:
+        name: "{{ project_name }}:{{ docker_image_tag }}"
+        repository: "{{ tf_outputs.ecr_repository_url.value }}"
+        tag: "{{ docker_image_tag }}"
+        source: local
+
+    - name: Push Docker image to ECR
+      docker_image:
+        name: "{{ tf_outputs.ecr_repository_url.value }}"
+        tag: "{{ docker_image_tag }}"
+        push: true
+        source: local
+
+    - name: Update SSM parameters with secrets
+      aws_ssm_parameter_store:
+        name: "/{{ project_name }}/{{ environment }}/{{ item.key }}"
+        value: "{{ item.value }}"
+        string_type: "SecureString"
+        region: "{{ aws_region }}"
+      loop:
+        - { key: "mapbox-token", value: "{{ mapbox_access_token }}" }
+        - { key: "google-maps-key", value: "{{ google_maps_api_key }}" }
+      when: item.value != ""
+      no_log: true
+
+    - name: Force ECS service update
+      ecs_service:
+        name: "{{ ecs_service_name }}"
+        cluster: "{{ ecs_cluster_name }}"
+        region: "{{ aws_region }}"
+        force_new_deployment: true
+        wait: true
+        wait_timeout: 600
+
+    - name: Display deployment information
+      debug:
+        msg:
+          - "Deployment completed successfully!"
+          - "Application URL: https://{{ domain_name }}"
+          - "Load Balancer DNS: {{ tf_outputs.load_balancer_dns.value }}"
+          - "ECR Repository: {{ tf_outputs.ecr_repository_url.value }}"
+          - "CloudWatch Dashboard: {{ tf_outputs.cloudwatch_dashboard_url.value }}"
+          - ""
+          - "Next steps:"
+          - "1. Update your domain's nameservers to:"
+          - "{{ tf_outputs.nameservers.value | join(', ') }}"
+          - "2. Wait for DNS propagation (up to 48 hours)"
+          - "3. Configure your API keys in SSM Parameter Store if not done already"

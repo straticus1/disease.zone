@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>diseaseZone - Family Health Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f7fa;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .user-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #4c51bf;
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .card h2 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .action-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .family-diseases-table {
+            width: 100%;
+            margin-top: 2rem;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background-color: #f7fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-confirmed {
+            background-color: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-unconfirmed {
+            background-color: #fed7d7;
+            color: #742a2a;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #a0aec0;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background-color: #f7fafc;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4c51bf;
+            box-shadow: 0 0 0 3px rgba(76, 81, 191, 0.1);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #718096;
+        }
+
+        .error {
+            background-color: #fed7d7;
+            color: #742a2a;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .success {
+            background-color: #c6f6d5;
+            color: #22543d;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <h1>🧬 diseaseZone</h1>
+                <p>Family Health Dashboard</p>
+            </div>
+            <div class="user-info">
+                <span id="userGreeting">Welcome</span>
+                <button class="btn btn-outline" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="dashboard-grid">
+            <div class="card">
+                <h2>Quick Actions</h2>
+                <div class="quick-actions">
+                    <div class="action-card" onclick="showAddDiseaseModal()">
+                        <h3>➕ Add Family Disease</h3>
+                        <p>Declare a disease in your family</p>
+                    </div>
+                    <div class="action-card" onclick="showApiKeyModal()">
+                        <h3>🔑 Generate API Key</h3>
+                        <p>For medical professionals</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Your Family Health Overview</h2>
+                <div id="healthOverview">
+                    <div class="loading">Loading your health data...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="family-diseases-table">
+            <div class="table-container">
+                <h2 style="padding: 1.5rem 1.5rem 0;">Family Disease Records</h2>
+                <table id="familyDiseasesTable">
+                    <thead>
+                        <tr>
+                            <th>Disease</th>
+                            <th>Family Member</th>
+                            <th>Status</th>
+                            <th>Diagnosis Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="5" class="loading">Loading family disease records...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Disease Modal -->
+    <div id="addDiseaseModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add Family Disease Record</h2>
+            <form id="addDiseaseForm">
+                <div class="form-group">
+                    <label for="diseaseSelect">Disease:</label>
+                    <select id="diseaseSelect" name="disease_id" required>
+                        <option value="">Select a disease...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="familyMember">Family Member:</label>
+                    <select id="familyMember" name="family_member" required>
+                        <option value="mother">Mother</option>
+                        <option value="father">Father</option>
+                        <option value="sibling">Sibling</option>
+                        <option value="child">Child</option>
+                        <option value="grandparent">Grandparent</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="familyMemberName">Family Member Name (optional):</label>
+                    <input type="text" id="familyMemberName" name="family_member_name">
+                </div>
+
+                <div class="form-group">
+                    <label for="hasDisease">Has Disease:</label>
+                    <select id="hasDisease" name="has_disease" required>
+                        <option value="true">Yes</option>
+                        <option value="false">No (family history only)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="diagnosisConfirmed">Diagnosis Confirmed by Medical Professional:</label>
+                    <select id="diagnosisConfirmed" name="diagnosis_confirmed">
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="diagnosisDate">Diagnosis Date (if known):</label>
+                    <input type="date" id="diagnosisDate" name="diagnosis_date">
+                </div>
+
+                <div class="form-group">
+                    <label for="diseaseNotes">Notes:</label>
+                    <textarea id="diseaseNotes" name="family_member_disease_notes" rows="4" placeholder="Any additional information about symptoms, treatment, etc."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Add Disease Record</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentUser = null;
+        let familyDiseases = [];
+        let allDiseases = [];
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkAuthentication();
+            await loadDiseases();
+            await loadFamilyDiseases();
+            setupEventListeners();
+        });
+
+        // Authentication check
+        async function checkAuthentication() {
+            try {
+                const response = await fetch('/api/user/profile', {
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.user;
+                    document.getElementById('userGreeting').textContent = `Welcome, ${currentUser.first_name}`;
+                } else {
+                    window.location.href = '/login.html';
+                }
+            } catch (error) {
+                console.error('Authentication check failed:', error);
+                window.location.href = '/login.html';
+            }
+        }
+
+        // Load all diseases for dropdown
+        async function loadDiseases() {
+            try {
+                const response = await fetch('/api/diseases');
+                const data = await response.json();
+
+                if (data.success) {
+                    allDiseases = data.diseases;
+                    populateDiseaseSelect();
+                }
+            } catch (error) {
+                console.error('Error loading diseases:', error);
+            }
+        }
+
+        // Populate disease select dropdown
+        function populateDiseaseSelect() {
+            const select = document.getElementById('diseaseSelect');
+            select.innerHTML = '<option value="">Select a disease...</option>';
+
+            const categories = {};
+            allDiseases.forEach(disease => {
+                if (!categories[disease.category]) {
+                    categories[disease.category] = [];
+                }
+                categories[disease.category].push(disease);
+            });
+
+            Object.keys(categories).sort().forEach(category => {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = category.charAt(0).toUpperCase() + category.slice(1).replace('_', ' ');
+
+                categories[category].forEach(disease => {
+                    const option = document.createElement('option');
+                    option.value = disease.id;
+                    option.textContent = disease.name;
+                    optgroup.appendChild(option);
+                });
+
+                select.appendChild(optgroup);
+            });
+        }
+
+        // Load family diseases
+        async function loadFamilyDiseases() {
+            try {
+                const response = await fetch('/api/user/family-diseases', {
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    familyDiseases = data.family_diseases;
+                    renderFamilyDiseasesTable();
+                    renderHealthOverview();
+                } else {
+                    console.error('Failed to load family diseases');
+                }
+            } catch (error) {
+                console.error('Error loading family diseases:', error);
+            }
+        }
+
+        // Render family diseases table
+        function renderFamilyDiseasesTable() {
+            const tbody = document.querySelector('#familyDiseasesTable tbody');
+
+            if (familyDiseases.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #718096;">No family disease records yet. Click "Add Family Disease" to get started.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = familyDiseases.map(disease => `
+                <tr>
+                    <td><strong>${disease.disease_name}</strong><br><small>${disease.disease_code}</small></td>
+                    <td>${disease.family_member_name || disease.family_member}</td>
+                    <td>
+                        <span class="status-badge ${disease.diagnosis_confirmed ? 'status-confirmed' : 'status-unconfirmed'}">
+                            ${disease.diagnosis_confirmed ? 'Confirmed' : 'Unconfirmed'}
+                        </span>
+                    </td>
+                    <td>${disease.diagnosis_date ? new Date(disease.diagnosis_date).toLocaleDateString() : 'Not specified'}</td>
+                    <td>
+                        <button class="btn" onclick="editDisease(${disease.id})" style="font-size: 0.8rem; padding: 0.25rem 0.5rem;">Edit</button>
+                        <button class="btn" onclick="deleteDisease(${disease.id})" style="font-size: 0.8rem; padding: 0.25rem 0.5rem; background-color: #e53e3e; color: white;">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Render health overview
+        function renderHealthOverview() {
+            const overview = document.getElementById('healthOverview');
+
+            if (familyDiseases.length === 0) {
+                overview.innerHTML = '<p>No family health data recorded yet.</p>';
+                return;
+            }
+
+            const confirmedDiseases = familyDiseases.filter(d => d.diagnosis_confirmed).length;
+            const totalMembers = new Set(familyDiseases.map(d => d.family_member)).size;
+            const categories = {};
+
+            familyDiseases.forEach(disease => {
+                const category = allDiseases.find(d => d.id === disease.disease_id)?.category || 'other';
+                categories[category] = (categories[category] || 0) + 1;
+            });
+
+            overview.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; font-weight: bold; color: #4c51bf;">${familyDiseases.length}</div>
+                        <div style="font-size: 0.9rem; color: #718096;">Total Records</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; font-weight: bold; color: #38a169;">${confirmedDiseases}</div>
+                        <div style="font-size: 0.9rem; color: #718096;">Confirmed</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; font-weight: bold; color: #d69e2e;">${totalMembers}</div>
+                        <div style="font-size: 0.9rem; color: #718096;">Family Members</div>
+                    </div>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <strong>Categories:</strong> ${Object.keys(categories).map(cat => `${cat} (${categories[cat]})`).join(', ')}
+                </div>
+            `;
+        }
+
+        // Event listeners
+        function setupEventListeners() {
+            // Modal close buttons
+            document.querySelectorAll('.close').forEach(close => {
+                close.addEventListener('click', function() {
+                    this.closest('.modal').style.display = 'none';
+                });
+            });
+
+            // Add disease form
+            document.getElementById('addDiseaseForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await addFamilyDisease();
+            });
+
+            // Click outside modal to close
+            window.addEventListener('click', function(event) {
+                if (event.target.classList.contains('modal')) {
+                    event.target.style.display = 'none';
+                }
+            });
+        }
+
+        // Show add disease modal
+        function showAddDiseaseModal() {
+            document.getElementById('addDiseaseModal').style.display = 'block';
+        }
+
+        // Add family disease
+        async function addFamilyDisease() {
+            try {
+                const form = document.getElementById('addDiseaseForm');
+                const formData = new FormData(form);
+
+                const diseaseData = {
+                    disease_id: parseInt(formData.get('disease_id')),
+                    family_member: formData.get('family_member'),
+                    family_member_name: formData.get('family_member_name'),
+                    has_disease: formData.get('has_disease') === 'true',
+                    diagnosis_confirmed: formData.get('diagnosis_confirmed') === 'true',
+                    diagnosis_date: formData.get('diagnosis_date') || null,
+                    family_member_disease_notes: formData.get('family_member_disease_notes')
+                };
+
+                const response = await fetch('/api/user/family-diseases', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(diseaseData)
+                });
+
+                if (response.ok) {
+                    document.getElementById('addDiseaseModal').style.display = 'none';
+                    form.reset();
+                    await loadFamilyDiseases();
+                    showMessage('Family disease record added successfully!', 'success');
+                } else {
+                    const error = await response.json();
+                    showMessage(error.error || 'Failed to add family disease record', 'error');
+                }
+            } catch (error) {
+                console.error('Error adding family disease:', error);
+                showMessage('An error occurred while adding the record', 'error');
+            }
+        }
+
+        // Delete family disease
+        async function deleteDisease(id) {
+            if (!confirm('Are you sure you want to delete this family disease record?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/user/family-diseases/${id}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    await loadFamilyDiseases();
+                    showMessage('Family disease record deleted successfully!', 'success');
+                } else {
+                    const error = await response.json();
+                    showMessage(error.error || 'Failed to delete family disease record', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting family disease:', error);
+                showMessage('An error occurred while deleting the record', 'error');
+            }
+        }
+
+        // Show message
+        function showMessage(message, type) {
+            const container = document.querySelector('.container');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type;
+            messageDiv.textContent = message;
+            container.insertBefore(messageDiv, container.firstChild);
+
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+
+        // Logout
+        async function logout() {
+            try {
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+
+            window.location.href = '/';
+        }
+
+        // Placeholder functions
+        function editDisease(id) {
+            alert('Edit functionality coming soon!');
+        }
+
+        function showApiKeyModal() {
+            if (currentUser.role === 'medical_professional') {
+                alert('API Key generation for medical professionals coming soon!');
+            } else {
+                alert('API key generation is only available for medical professionals');
+            }
+        }
+    </script>
+</body>
+</html>

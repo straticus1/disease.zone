@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Provider Mapping Service Demo</title>
+
+    <!-- Leaflet CSS and JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Mapbox GL JS (optional) -->
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
+
+    <!-- Our mapping client -->
+    <script src="/js/mapping-client.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .controls {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .control-group {
+            margin: 10px 0;
+        }
+        .control-group label {
+            display: inline-block;
+            width: 100px;
+            font-weight: bold;
+        }
+        select, input, button {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #005a8b;
+        }
+        .map-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        #map {
+            height: 400px;
+            border-radius: 4px;
+        }
+        .status {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .tier-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .tier-card {
+            border: 2px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .tier-card.active {
+            border-color: #007cba;
+            background: #e8f4f8;
+        }
+        .tier-card h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .providers {
+            margin: 10px 0;
+        }
+        .provider {
+            display: inline-block;
+            padding: 4px 8px;
+            margin: 2px;
+            background: #ddd;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        .provider.available {
+            background: #4CAF50;
+            color: white;
+        }
+        .geocode-section {
+            margin: 15px 0;
+        }
+        .geocode-results {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .result-item {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗺️ Multi-Provider Mapping Service Demo</h1>
+            <p>Demonstrating OpenStreetMap, Mapbox, and Google Maps integration with tiered access levels.</p>
+        </div>
+
+        <div class="controls">
+            <h3>Map Configuration</h3>
+            <div class="control-group">
+                <label for="tierSelect">Service Tier:</label>
+                <select id="tierSelect">
+                    <option value="free">Free Tier (OpenStreetMap only)</option>
+                    <option value="silver">Silver Tier (OSM + Mapbox)</option>
+                    <option value="gold">Gold Tier (OSM + Mapbox + Google)</option>
+                </select>
+
+                <label for="strategySelect">Load Balancing:</label>
+                <select id="strategySelect">
+                    <option value="failover">Failover (OSM → Mapbox → Google)</option>
+                    <option value="round_robin">Round Robin</option>
+                    <option value="weighted">Weighted</option>
+                </select>
+
+                <button onclick="updateMapConfig()">Update Map</button>
+            </div>
+
+            <div class="geocode-section">
+                <h4>Geocoding Test</h4>
+                <input type="text" id="addressInput" placeholder="Enter an address (e.g., New York City)" style="width: 300px;">
+                <button onclick="geocodeAddress()">Geocode</button>
+                <div id="geocodeResults" class="geocode-results" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div class="map-container">
+            <h3>Interactive Map</h3>
+            <div id="map"></div>
+        </div>
+
+        <div class="status">
+            <h3>Service Status</h3>
+            <button onclick="loadServiceStatus()">Refresh Status</button>
+            <div id="serviceStatus"></div>
+        </div>
+    </div>
+
+    <script>
+        let mappingClient;
+        let currentMap;
+
+        // Initialize the demo
+        async function initDemo() {
+            mappingClient = new MappingClient('/api/maps');
+
+            try {
+                await loadServiceStatus();
+                await initializeMap();
+
+                // Set default address for demo
+                document.getElementById('addressInput').value = 'New York City, NY';
+            } catch (error) {
+                console.error('Failed to initialize demo:', error);
+                alert('Failed to initialize mapping demo: ' + error.message);
+            }
+        }
+
+        async function loadServiceStatus() {
+            try {
+                const [status, tiers] = await Promise.all([
+                    mappingClient.getStatus(),
+                    mappingClient.getTiers()
+                ]);
+
+                displayServiceStatus(status, tiers);
+            } catch (error) {
+                console.error('Failed to load service status:', error);
+                document.getElementById('serviceStatus').innerHTML =
+                    '<p style="color: red;">Failed to load service status: ' + error.message + '</p>';
+            }
+        }
+
+        function displayServiceStatus(status, tiers) {
+            const statusDiv = document.getElementById('serviceStatus');
+
+            let html = `
+                <div>
+                    <h4>Current Configuration</h4>
+                    <p><strong>Load Balancing Strategy:</strong> ${status.loadBalancing.strategy}</p>
+                    <p><strong>Request Counts:</strong> ${JSON.stringify(status.requestCounts)}</p>
+                </div>
+
+                <div class="tier-info">
+            `;
+
+            Object.entries(tiers.tiers).forEach(([tierKey, tier]) => {
+                const isActive = document.getElementById('tierSelect').value === tierKey;
+                html += `
+                    <div class="tier-card ${isActive ? 'active' : ''}">
+                        <h3>${tier.name}</h3>
+                        <p><strong>Max Requests:</strong> ${tier.maxRequests.toLocaleString()}/day</p>
+                        <p><strong>Features:</strong> ${tier.features.join(', ')}</p>
+                        <div class="providers">
+                            <strong>Available Providers:</strong><br>
+                            ${tier.availableProviders.map(p =>
+                                `<span class="provider ${p.configured ? 'available' : ''}">${p.name}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            statusDiv.innerHTML = html;
+        }
+
+        async function initializeMap() {
+            const tier = document.getElementById('tierSelect').value;
+
+            try {
+                const result = await mappingClient.initLeafletMap('map', {
+                    tier: tier,
+                    center: [-74.0060, 40.7128], // NYC coordinates
+                    zoom: 10
+                });
+
+                currentMap = result.map;
+
+                // Add a sample marker
+                L.marker([40.7128, -74.0060])
+                    .addTo(currentMap)
+                    .bindPopup('<strong>New York City</strong><br>STD Surveillance Demo Location')
+                    .openPopup();
+
+                console.log('Map initialized with config:', result.config);
+            } catch (error) {
+                console.error('Failed to initialize map:', error);
+                document.getElementById('map').innerHTML =
+                    '<div style="display: flex; align-items: center; justify-content: center; height: 400px; background: #f0f0f0; color: #666;">Failed to load map: ' + error.message + '</div>';
+            }
+        }
+
+        async function updateMapConfig() {
+            const tier = document.getElementById('tierSelect').value;
+            const strategy = document.getElementById('strategySelect').value;
+
+            try {
+                // Update load balancing strategy
+                await mappingClient.updateStrategy(strategy);
+
+                // Reinitialize map with new tier
+                if (currentMap) {
+                    currentMap.remove();
+                }
+
+                await initializeMap();
+                await loadServiceStatus();
+
+                alert(`Map updated to ${tier} tier with ${strategy} load balancing`);
+            } catch (error) {
+                console.error('Failed to update map config:', error);
+                alert('Failed to update map configuration: ' + error.message);
+            }
+        }
+
+        async function geocodeAddress() {
+            const address = document.getElementById('addressInput').value.trim();
+            if (!address) {
+                alert('Please enter an address');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('geocodeResults');
+            resultsDiv.innerHTML = '<p>Geocoding...</p>';
+            resultsDiv.style.display = 'block';
+
+            try {
+                const result = await mappingClient.geocode(address, {
+                    tier: document.getElementById('tierSelect').value
+                });
+
+                displayGeocodeResults(result);
+
+                // Add markers to map for first result
+                if (result.results && result.results.length > 0 && currentMap) {
+                    const firstResult = result.results[0];
+                    currentMap.setView([firstResult.latitude, firstResult.longitude], 13);
+
+                    L.marker([firstResult.latitude, firstResult.longitude])
+                        .addTo(currentMap)
+                        .bindPopup(`
+                            <strong>Geocoded Location</strong><br>
+                            ${firstResult.address}<br>
+                            Provider: ${result.provider}
+                        `)
+                        .openPopup();
+                }
+            } catch (error) {
+                console.error('Geocoding failed:', error);
+                resultsDiv.innerHTML = '<p style="color: red;">Geocoding failed: ' + error.message + '</p>';
+            }
+        }
+
+        function displayGeocodeResults(result) {
+            const resultsDiv = document.getElementById('geocodeResults');
+
+            let html = `
+                <h4>Geocoding Results</h4>
+                <p><strong>Query:</strong> ${result.query}</p>
+                <p><strong>Provider:</strong> ${result.provider}</p>
+                <p><strong>Tier:</strong> ${result.tier}</p>
+                <hr>
+            `;
+
+            if (result.results && result.results.length > 0) {
+                result.results.forEach((res, index) => {
+                    html += `
+                        <div class="result-item">
+                            <strong>Result ${index + 1}:</strong><br>
+                            <strong>Address:</strong> ${res.address}<br>
+                            <strong>Coordinates:</strong> ${res.latitude}, ${res.longitude}<br>
+                            <strong>Type:</strong> ${res.type}<br>
+                            ${res.importance ? `<strong>Importance:</strong> ${res.importance}<br>` : ''}
+                            ${res.relevance ? `<strong>Relevance:</strong> ${res.relevance}<br>` : ''}
+                        </div>
+                    `;
+                });
+            } else {
+                html += '<p>No results found</p>';
+            }
+
+            resultsDiv.innerHTML = html;
+        }
+
+        // Initialize demo when page loads
+        window.addEventListener('load', initDemo);
+    </script>
+</body>
+</html>

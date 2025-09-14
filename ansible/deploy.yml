@@ -1,0 +1,60 @@
+---
+- name: Deploy application updates to ECS
+  hosts: aws
+  gather_facts: false
+
+  tasks:
+    - name: Build and push updated Docker image
+      block:
+        - name: Build Docker image
+          docker_image:
+            build:
+              path: "{{ docker_build_path }}"
+              dockerfile: Dockerfile
+            name: "{{ project_name }}"
+            tag: "{{ docker_image_tag }}"
+            source: build
+
+        - name: Get ECR login token
+          shell: >
+            aws ecr get-login-password --region {{ aws_region }} |
+            docker login --username AWS --password-stdin {{ ecr_repository_url }}
+          register: ecr_login
+          changed_when: false
+
+        - name: Tag Docker image for ECR
+          docker_image:
+            name: "{{ project_name }}:{{ docker_image_tag }}"
+            repository: "{{ ecr_repository_url }}"
+            tag: "{{ docker_image_tag }}"
+            source: local
+
+        - name: Push Docker image to ECR
+          docker_image:
+            name: "{{ ecr_repository_url }}"
+            tag: "{{ docker_image_tag }}"
+            push: true
+            source: local
+
+    - name: Deploy to ECS
+      ecs_service:
+        name: "{{ ecs_service_name }}"
+        cluster: "{{ ecs_cluster_name }}"
+        region: "{{ aws_region }}"
+        force_new_deployment: true
+        wait: true
+        wait_timeout: 600
+
+    - name: Wait for deployment to complete
+      uri:
+        url: "https://{{ domain_name }}/api/health"
+        method: GET
+        status_code: 200
+      register: health_check
+      until: health_check.status == 200
+      retries: 10
+      delay: 30
+
+    - name: Display deployment status
+      debug:
+        msg: "Deployment completed successfully! Application is healthy at https://{{ domain_name }}"
