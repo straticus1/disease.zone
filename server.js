@@ -15,6 +15,12 @@ const GeneticDiseaseService = require('./services/geneticDiseaseService');
 const MusculoskeletalDiseaseService = require('./services/musculoskeletalDiseaseService');
 const DatabaseService = require('./services/databaseService');
 const UserService = require('./services/userService');
+const AISymptomAnalysisService = require('./services/aiSymptomAnalysisService');
+
+// Compliance and Security Services
+const MedicalValidationService = require('./services/medicalValidationService');
+const AuditLoggingService = require('./services/auditLoggingService');
+const HIPAAService = require('./services/hipaaService');
 
 // Middleware
 const AuthMiddleware = require('./middleware/auth');
@@ -38,9 +44,22 @@ async function initializeServices() {
     const geneticService = new GeneticDiseaseService();
     const musculoskeletalService = new MusculoskeletalDiseaseService();
 
+    // Initialize compliance and security services
+    const auditLoggingService = new AuditLoggingService(databaseService);
+    const hipaaService = new HIPAAService(databaseService, auditLoggingService);
+    const medicalValidationService = new MedicalValidationService(databaseService, auditLoggingService);
+
     // Initialize authentication and user services
     const authMiddleware = new AuthMiddleware(databaseService);
     const userService = new UserService(databaseService, authMiddleware);
+
+    // Initialize AI symptom analysis service
+    const aiSymptomAnalysisService = new AISymptomAnalysisService(
+      databaseService,
+      medicalValidationService,
+      auditLoggingService,
+      hipaaService
+    );
 
     // Make services available to routes
     app.locals.db = databaseService;
@@ -53,6 +72,10 @@ async function initializeServices() {
     app.locals.neurologicalService = neurologicalService;
     app.locals.geneticService = geneticService;
     app.locals.musculoskeletalService = musculoskeletalService;
+    app.locals.auditLoggingService = auditLoggingService;
+    app.locals.hipaaService = hipaaService;
+    app.locals.medicalValidationService = medicalValidationService;
+    app.locals.aiSymptomAnalysisService = aiSymptomAnalysisService;
 
     console.log('All services initialized successfully');
   } catch (error) {
@@ -306,6 +329,271 @@ app.delete('/api/user/family-diseases/:id',
       res.json(result);
     } catch (error) {
       console.error('Delete family disease error:', error);
+      res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+  });
+
+// AI Symptom Analysis endpoints
+app.post('/api/user/symptom-analysis/start',
+  (req, res, next) => {
+    if (app.locals.auth) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    next();
+  },
+  async (req, res) => {
+    try {
+      const aiService = app.locals.aiSymptomAnalysisService;
+      if (!aiService) {
+        return res.status(503).json({
+          success: false,
+          error: 'AI Symptom Analysis service not available'
+        });
+      }
+
+      const result = await aiService.startSymptomAnalysis(req.user.id, req.body);
+
+      // Log HIPAA compliant access
+      await app.locals.auditLoggingService.logEvent('SYMPTOM_ANALYSIS_ACCESS', {
+        user_id: req.user.id,
+        session_id: result.session_id,
+        ip_address: req.ip,
+        user_agent: req.get('User-Agent')
+      });
+
+      res.status(201).json({
+        success: true,
+        data: result
+      });
+    } catch (error) {
+      console.error('Start symptom analysis error:', error);
+      res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+  });
+
+app.post('/api/user/symptom-analysis/:sessionId/responses',
+  (req, res, next) => {
+    if (app.locals.auth) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    next();
+  },
+  async (req, res) => {
+    try {
+      const aiService = app.locals.aiSymptomAnalysisService;
+      const sessionId = req.params.sessionId;
+
+      // Verify session ownership
+      const session = await aiService.getAnalysisSession(sessionId);
+      if (!session || session.user_id !== req.user.id) {
+        return res.status(403).json({
+          success: false,
+          error: 'Access denied to this analysis session'
+        });
+      }
+
+      const result = await aiService.processResponses(sessionId, req.body.responses);
+
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (error) {
+      console.error('Process responses error:', error);
+      res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+  });
+
+app.post('/api/user/symptom-analysis/:sessionId/complete',
+  (req, res, next) => {
+    if (app.locals.auth) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    next();
+  },
+  async (req, res) => {
+    try {
+      const aiService = app.locals.aiSymptomAnalysisService;
+      const sessionId = req.params.sessionId;
+
+      // Verify session ownership
+      const session = await aiService.getAnalysisSession(sessionId);
+      if (!session || session.user_id !== req.user.id) {
+        return res.status(403).json({
+          success: false,
+          error: 'Access denied to this analysis session'
+        });
+      }
+
+      const finalReport = await aiService.completeAnalysis(sessionId);
+
+      // Log completion for medical compliance
+      await app.locals.auditLoggingService.logEvent('SYMPTOM_ANALYSIS_REPORT_GENERATED', {
+        user_id: req.user.id,
+        session_id: sessionId,
+        final_prediction: finalReport.final_prediction?.disorder_name,
+        confidence: finalReport.final_prediction?.confidence,
+        recommendations_count: finalReport.recommendations.length
+      });
+
+      res.json({
+        success: true,
+        data: finalReport
+      });
+    } catch (error) {
+      console.error('Complete analysis error:', error);
+      res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+  });
+
+app.get('/api/user/symptom-analysis/history',
+  (req, res, next) => {
+    if (app.locals.auth) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    next();
+  },
+  async (req, res) => {
+    try {
+      const aiService = app.locals.aiSymptomAnalysisService;
+      const limit = parseInt(req.query.limit) || 10;
+
+      const history = await aiService.getUserAnalysisHistory(req.user.id, limit);
+
+      res.json({
+        success: true,
+        data: {
+          history: history,
+          total_sessions: history.length
+        }
+      });
+    } catch (error) {
+      console.error('Get analysis history error:', error);
+      res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+  });
+
+app.get('/api/user/symptom-analysis/:sessionId',
+  (req, res, next) => {
+    if (app.locals.auth) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    next();
+  },
+  async (req, res) => {
+    try {
+      const aiService = app.locals.aiSymptomAnalysisService;
+      const sessionId = req.params.sessionId;
+
+      const session = await aiService.getAnalysisSession(sessionId);
+      if (!session || session.user_id !== req.user.id) {
+        return res.status(403).json({
+          success: false,
+          error: 'Analysis session not found or access denied'
+        });
+      }
+
+      // Log access to analysis data
+      await app.locals.auditLoggingService.logEvent('SYMPTOM_ANALYSIS_DATA_ACCESS', {
+        user_id: req.user.id,
+        session_id: sessionId,
+        ip_address: req.ip
+      });
+
+      res.json({
+        success: true,
+        data: session
+      });
+    } catch (error) {
+      console.error('Get analysis session error:', error);
+      res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+  });
+
+app.delete('/api/user/symptom-analysis/:sessionId',
+  (req, res, next) => {
+    if (app.locals.auth) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    next();
+  },
+  async (req, res) => {
+    try {
+      const aiService = app.locals.aiSymptomAnalysisService;
+      const sessionId = req.params.sessionId;
+
+      await aiService.deleteAnalysisSession(sessionId, req.user.id);
+
+      res.json({
+        success: true,
+        message: 'Analysis session deleted successfully'
+      });
+    } catch (error) {
+      console.error('Delete analysis session error:', error);
+      res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+  });
+
+// Medical Professional Symptom Analysis endpoints
+app.get('/api/medical/symptom-analysis/pending-review',
+  (req, res, next) => {
+    if (app.locals.auth) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    next();
+  },
+  (req, res, next) => {
+    if (app.locals.auth) {
+      return app.locals.auth.requireRole('medical_professional')(req, res, next);
+    }
+    next();
+  },
+  async (req, res) => {
+    try {
+      const db = app.locals.db;
+
+      // Get sessions requiring medical review
+      const query = `
+        SELECT session_id, user_id, created_at, current_phase,
+               JSON_EXTRACT(final_report, '$.final_prediction.disorder_name') as predicted_disorder,
+               JSON_EXTRACT(final_report, '$.final_prediction.confidence') as confidence
+        FROM symptom_analysis_sessions
+        WHERE medical_review_required = TRUE AND reviewed_by_professional = FALSE
+        ORDER BY created_at DESC
+      `;
+
+      const pendingSessions = await db.all(query);
+
+      res.json({
+        success: true,
+        data: {
+          pending_sessions: pendingSessions,
+          total_pending: pendingSessions.length
+        }
+      });
+    } catch (error) {
+      console.error('Get pending reviews error:', error);
       res.status(400).json({
         success: false,
         error: error.message

@@ -203,6 +203,127 @@ CREATE TABLE IF NOT EXISTS audit_log (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- AI Symptom Analysis Sessions
+CREATE TABLE IF NOT EXISTS symptom_analysis_sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id TEXT UNIQUE NOT NULL,
+    user_id INTEGER NOT NULL,
+    status TEXT DEFAULT 'active', -- 'active', 'completed', 'abandoned'
+    current_phase TEXT DEFAULT 'initial_screening', -- 'initial_screening', 'narrowing_to_10', 'narrowing_to_5', 'narrowing_to_3', 'final_assessment'
+
+    -- Patient context and data
+    patient_context TEXT, -- JSON: age, gender, family_diseases, medical_history, risk_factors
+    symptoms TEXT, -- JSON array of extracted symptoms with severity, duration, category
+    responses TEXT, -- JSON array of patient responses to questions
+    disorder_candidates TEXT, -- JSON array of disorder predictions with confidence scores
+    confidence_scores TEXT, -- JSON object with confidence analysis
+
+    -- Final analysis results
+    final_report TEXT, -- JSON: complete analysis report with all 4 lists
+
+    -- Timestamps
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    completed_at DATETIME,
+
+    -- Quality assurance
+    analysis_quality_score REAL, -- 0.0 to 1.0 quality assessment
+    medical_review_required BOOLEAN DEFAULT FALSE,
+    reviewed_by_professional BOOLEAN DEFAULT FALSE,
+    reviewed_by_user_id INTEGER,
+
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (reviewed_by_user_id) REFERENCES users(id)
+);
+
+-- Symptom Analysis Questions and Responses (for detailed tracking)
+CREATE TABLE IF NOT EXISTS symptom_analysis_responses (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id TEXT NOT NULL,
+    question_id INTEGER NOT NULL,
+    question_text TEXT NOT NULL,
+    question_type TEXT NOT NULL, -- 'text', 'multiple_choice', 'scale', 'boolean'
+    response_text TEXT,
+    response_value REAL, -- for numeric responses
+    confidence REAL DEFAULT 1.0, -- AI confidence in response interpretation
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (session_id) REFERENCES symptom_analysis_sessions(session_id) ON DELETE CASCADE
+);
+
+-- Symptom-Disorder Mapping for AI Training
+CREATE TABLE IF NOT EXISTS symptom_disorder_mappings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    symptom_name TEXT NOT NULL,
+    symptom_category TEXT NOT NULL,
+    disorder_id TEXT NOT NULL, -- Links to diseases.disease_code
+    correlation_strength REAL NOT NULL, -- 0.0 to 1.0
+    frequency_percentage REAL, -- How often this symptom appears in this disorder
+    specificity_score REAL, -- How specific this symptom is to this disorder
+
+    -- Medical validation
+    validated_by_professional BOOLEAN DEFAULT FALSE,
+    validation_source TEXT, -- Research paper, clinical study, etc.
+    last_validated DATETIME,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE(symptom_name, disorder_id)
+);
+
+-- Risk Factor Mappings for Enhanced Prediction
+CREATE TABLE IF NOT EXISTS risk_factor_mappings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    risk_factor_name TEXT NOT NULL,
+    risk_factor_category TEXT NOT NULL, -- 'demographic', 'lifestyle', 'genetic', 'environmental', 'medical'
+    disorder_id TEXT NOT NULL,
+    risk_multiplier REAL NOT NULL, -- How much this factor increases risk
+    population_frequency REAL, -- How common this risk factor is in general population
+
+    -- Age and gender specificity
+    applies_to_gender TEXT, -- 'male', 'female', 'both'
+    min_age INTEGER,
+    max_age INTEGER,
+
+    -- Validation
+    evidence_level TEXT NOT NULL, -- 'strong', 'moderate', 'weak', 'anecdotal'
+    source_reference TEXT,
+    validated_by_professional BOOLEAN DEFAULT FALSE,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE(risk_factor_name, disorder_id)
+);
+
+-- Medical History Tracking for Users
+CREATE TABLE IF NOT EXISTS user_medical_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    condition_name TEXT NOT NULL,
+    icd10_code TEXT,
+    diagnosis_date DATE,
+    current_status TEXT DEFAULT 'active', -- 'active', 'resolved', 'chronic', 'managed'
+
+    -- Medications and treatments
+    medications TEXT, -- JSON array of current medications
+    treatments TEXT, -- JSON array of treatments received
+
+    -- Professional verification
+    diagnosed_by_professional BOOLEAN DEFAULT FALSE,
+    healthcare_provider TEXT,
+    verified_by_user_id INTEGER, -- Medical professional who verified
+
+    -- Privacy
+    shared_for_analysis BOOLEAN DEFAULT TRUE,
+
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (verified_by_user_id) REFERENCES users(id)
+);
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_uuid ON users(uuid);
@@ -219,3 +340,12 @@ CREATE INDEX IF NOT EXISTS idx_user_sessions_session_id ON user_sessions(session
 CREATE INDEX IF NOT EXISTS idx_user_sessions_user_id ON user_sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_audit_log_user_id ON audit_log(user_id);
 CREATE INDEX IF NOT EXISTS idx_audit_log_created_at ON audit_log(created_at);
+
+-- AI Symptom Analysis Indexes
+CREATE INDEX IF NOT EXISTS idx_symptom_sessions_session_id ON symptom_analysis_sessions(session_id);
+CREATE INDEX IF NOT EXISTS idx_symptom_sessions_user_id ON symptom_analysis_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_symptom_sessions_status ON symptom_analysis_sessions(status);
+CREATE INDEX IF NOT EXISTS idx_symptom_responses_session_id ON symptom_analysis_responses(session_id);
+CREATE INDEX IF NOT EXISTS idx_symptom_disorder_mapping ON symptom_disorder_mappings(symptom_name, disorder_id);
+CREATE INDEX IF NOT EXISTS idx_risk_factor_mapping ON risk_factor_mappings(risk_factor_name, disorder_id);
+CREATE INDEX IF NOT EXISTS idx_user_medical_history_user_id ON user_medical_history(user_id);

@@ -42,8 +42,15 @@
 - **Digital Signatures** - Tamper-proof audit logs with integrity verification
 - **Zero-Trust Architecture** - Never trust, always verify security model
 
+### 🧠 **AI-Powered Health Analysis**
+- **Symptom Analysis** - Advanced AI-powered symptom analysis with adaptive questioning
+- **Patient Context Integration** - Uses family disease history and personal medical data
+- **Progressive Diagnosis** - Top 10 → Top 5 → Top 3 → Final prediction workflow
+- **Medical Professional Review** - Optional professional validation of AI predictions
+- **Interactive CLI & Web Interface** - Multiple access methods for comprehensive analysis
+
 ### 💻 **Developer Experience**
-- **Comprehensive CLI** - Full-featured command-line interface
+- **Comprehensive CLI** - Full-featured command-line interface with AI symptom analysis
 - **RESTful API** - Complete API with JWT and API key authentication
 - **Batch Operations** - CSV/JSON import/export for bulk data management
 - **Multiple Output Formats** - Table, JSON, CSV for all operations
@@ -113,6 +120,12 @@ diseasezone diseases list
 
 # Add family disease record
 diseasezone family add --disease-id 1 --member mother --has-disease true
+
+# Start AI symptom analysis
+diseasezone symptom start
+
+# View analysis history
+diseasezone symptom history
 
 # Export family data
 diseasezone batch export family-health.json -t family-diseases
@@ -219,6 +232,14 @@ curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
 - `POST /api/user/family-diseases` - Add family disease record
 - `PUT /api/user/family-diseases/:id` - Update family disease record
 - `DELETE /api/user/family-diseases/:id` - Delete family disease record
+
+### AI Symptom Analysis
+- `POST /api/user/symptom-analysis/start` - Start new symptom analysis session
+- `POST /api/user/symptom-analysis/:sessionId/responses` - Submit responses to questions
+- `POST /api/user/symptom-analysis/:sessionId/complete` - Complete analysis and get final report
+- `GET /api/user/symptom-analysis/history` - Get user's analysis history
+- `GET /api/user/symptom-analysis/:sessionId` - Get specific analysis session
+- `DELETE /api/user/symptom-analysis/:sessionId` - Delete analysis session
 
 ## 🔧 Development
 
@@ -415,17 +436,18 @@ We especially welcome contributions from:
 ## 📚 Documentation
 
 ### Technical Documentation
-- [API System Documentation](./API_SYSTEM_COMPLETE.md) - Complete API feature guide
-- [CLI Documentation](./CLI_DOCUMENTATION.md) - Comprehensive CLI usage guide
+- [API System Documentation](./docs/API_SYSTEM_COMPLETE.md) - Complete API feature guide
+- [CLI Documentation](./docs/CLI_DOCUMENTATION.md) - Comprehensive CLI usage guide
+- [AI Symptom Analysis](./docs/AI_SYMPTOM_ANALYSIS.md) - AI-powered symptom analysis guide
 - [Database Schema](./database/schema.sql) - Complete database structure
 
 ### Compliance Documentation
-- [Medical Compliance Review](./MEDICAL_COMPLIANCE_REVIEW.md) - Medical standards assessment
-- [Global Compliance Framework](./GLOBAL_COMPLIANCE_FRAMEWORK.md) - International regulatory compliance
-- [Medical Review Complete](./MEDICAL_REVIEW_COMPLETE.md) - Medical professional approval
+- [Medical Compliance Review](./docs/MEDICAL_COMPLIANCE_REVIEW.md) - Medical standards assessment
+- [Global Compliance Framework](./docs/GLOBAL_COMPLIANCE_FRAMEWORK.md) - International regulatory compliance
+- [Medical Review Complete](./docs/MEDICAL_REVIEW_COMPLETE.md) - Medical professional approval
 
 ### Development Documentation
-- [Changelog](./CHANGELOG.md) - Complete version history
+- [Changelog](./docs/CHANGELOG.md) - Complete version history
 - [AWS Deployment Guide](./terraform/README.md) - Infrastructure deployment
 - [Security Architecture](./SECURITY.md) - Comprehensive security design
 
@@ -439,7 +461,7 @@ We especially welcome contributions from:
 
 ### Technical Support
 - **Documentation**: Check comprehensive guides in `/docs`
-- **API Issues**: Review [API Documentation](./API_SYSTEM_COMPLETE.md)
+- **API Issues**: Review [API Documentation](./docs/API_SYSTEM_COMPLETE.md)
 - **CLI Help**: Run `diseasezone --help` for command assistance
 - **Contact**: support@disease.zone
 

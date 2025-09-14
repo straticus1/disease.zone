@@ -10,6 +10,7 @@ const AuthCommands = require('./cli/auth');
 const UserCommands = require('./cli/user');
 const DiseaseCommands = require('./cli/diseases');
 const FamilyCommands = require('./cli/family');
+const SymptomAnalysisCommands = require('./cli/commands/symptom-analysis');
 const ApiKeyCommands = require('./cli/apikeys');
 const BatchCommands = require('./cli/batch');
 const ConfigCommands = require('./cli/config');
@@ -202,6 +203,71 @@ function initializeCLI() {
         .description('Get detailed family disease record')
         .argument('<record-id>', 'Record ID')
         .action(FamilyCommands.info);
+
+    // AI Symptom Analysis
+    const symptom = program.command('symptom').description('🧠 AI-powered symptom analysis');
+
+    symptom.command('start')
+        .description('Start interactive symptom analysis')
+        .action(async (options) => {
+            const analysisService = new SymptomAnalysisCommands({
+                baseURL: config.server_url,
+                authToken: config.auth_token,
+                outputFormat: config.output_format
+            });
+            await analysisService.startAnalysis(options);
+        });
+
+    symptom.command('history')
+        .description('View analysis history')
+        .option('-l, --limit <number>', 'Number of sessions to show', '10')
+        .action(async (options) => {
+            const analysisService = new SymptomAnalysisCommands({
+                baseURL: config.server_url,
+                authToken: config.auth_token,
+                outputFormat: config.output_format
+            });
+            await analysisService.viewHistory(options);
+        });
+
+    symptom.command('view')
+        .description('View specific analysis session')
+        .argument('<session-id>', 'Session ID')
+        .action(async (sessionId, options) => {
+            const analysisService = new SymptomAnalysisCommands({
+                baseURL: config.server_url,
+                authToken: config.auth_token,
+                outputFormat: config.output_format
+            });
+            await analysisService.viewSession(sessionId, options);
+        });
+
+    symptom.command('delete')
+        .description('Delete analysis session')
+        .argument('<session-id>', 'Session ID')
+        .option('-f, --force', 'Force deletion without confirmation')
+        .action(async (sessionId, options) => {
+            const analysisService = new SymptomAnalysisCommands({
+                baseURL: config.server_url,
+                authToken: config.auth_token,
+                outputFormat: config.output_format
+            });
+            await analysisService.deleteSession(sessionId, options);
+        });
+
+    symptom.command('export')
+        .description('Export analysis results to file')
+        .argument('<session-id>', 'Session ID')
+        .argument('<output-file>', 'Output file path')
+        .option('--format <format>', 'Export format: text, json', 'text')
+        .action(async (sessionId, outputFile, options) => {
+            const analysisService = new SymptomAnalysisCommands({
+                baseURL: config.server_url,
+                authToken: config.auth_token,
+                outputFormat: config.output_format
+            });
+            await analysisService.exportAnalysis(sessionId, outputFile, options);
+        });
 
     // API key management (medical professionals)
     const apikeys = program.command('apikeys').description('🔑 API key management (medical professionals only)');
