@@ -91,3 +91,6 @@ terraform.tfvars
 *.backup
 *.bak
 backups/
+
+# Verification reports (but keep hash files)
+VERIFICATION_REPORT.json

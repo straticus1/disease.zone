@@ -6,7 +6,10 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "generate-hashes": "node scripts/generate-hashes.js",
+    "verify-hashes": "node scripts/verify-hashes.js",
+    "verify-github": "node scripts/verify-hashes.js --github"
   },
   "bin": {
     "diseasezone": "./cli.js"

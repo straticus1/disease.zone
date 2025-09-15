@@ -41,6 +41,7 @@
 - **Real-Time Monitoring** - Automated threat detection and security alerting
 - **Digital Signatures** - Tamper-proof audit logs with integrity verification
 - **Zero-Trust Architecture** - Never trust, always verify security model
+- **Hash Verification** - SHA256 cryptographic integrity verification for all files
 
 ### 🧠 **AI-Powered Health Analysis**
 - **Symptom Analysis** - Advanced AI-powered symptom analysis with adaptive questioning
@@ -87,6 +88,9 @@ cp .env.example .env
 
 # Initialize database
 npm run db:init
+
+# Verify installation integrity (recommended)
+npm run verify-github
 
 # Start development server
 npm run dev
@@ -307,6 +311,15 @@ npm run dev
 # Run tests
 npm test
 
+# Generate security hashes
+npm run generate-hashes
+
+# Verify installation integrity
+npm run verify-hashes
+
+# Compare with GitHub repository
+npm run verify-github
+
 # Run compliance validation
 npm run validate:compliance
 
@@ -481,6 +494,7 @@ We especially welcome contributions from:
 - [API System Documentation](./docs/API_SYSTEM_COMPLETE.md) - Complete API feature guide
 - [CLI Documentation](./docs/CLI_DOCUMENTATION.md) - Comprehensive CLI usage guide
 - [AI Symptom Analysis](./docs/AI_SYMPTOM_ANALYSIS.md) - AI-powered symptom analysis guide
+- [Security Verification](./docs/SECURITY_VERIFICATION.md) - Hash verification and integrity system
 - [Database Schema](./database/schema.sql) - Complete database structure
 
 ### Compliance Documentation

@@ -1,0 +1,544 @@
+{
+  "metadata": {
+    "project": "diseaseZone",
+    "version": "2.2.0",
+    "generated": "2025-09-15T00:55:47.879Z",
+    "generator": "diseaseZone Security Hash Generator v1.0",
+    "algorithm": "sha256",
+    "projectHash": "6fd15373877ffd5fd9cc2b1d65fd163905a591862021e2defbf4e0bda361926e",
+    "stats": {
+      "totalFiles": 95,
+      "hashedFiles": 75,
+      "skippedFiles": 6,
+      "totalSize": 1082360,
+      "generationTime": 46
+    }
+  },
+  "hashes": {
+    ".claude/settings.local.json": {
+      "hash": "1628fc6f5abbee7a733feff6a53ab2f2705527adec9d9adb247a96b2b87c081e",
+      "algorithm": "sha256",
+      "size": 858,
+      "modified": "2025-09-15T00:55:47.065Z",
+      "permissions": "0644"
+    },
+    ".dockerignore": {
+      "hash": "073a298393bb7d8645f5b0af099e231b6525fa9bf085ee2c9488adf84a080232",
+      "algorithm": "sha256",
+      "size": 195,
+      "modified": "2025-09-14T20:49:40.139Z",
+      "permissions": "0644"
+    },
+    "Dockerfile": {
+      "hash": "659e0f40b816754b7fe4162ed0afd9a2aafa94948f7ed13a9af52e44f29faaf6",
+      "algorithm": "sha256",
+      "size": 591,
+      "modified": "2025-09-14T20:49:34.713Z",
+      "permissions": "0644"
+    },
+    "LICENSE": {
+      "hash": "b3ed0804c9b2c01d4cdf3062f508a53ccd9d9f84fb4790a655042ce130c262fd",
+      "algorithm": "sha256",
+      "size": 2603,
+      "modified": "2025-09-14T22:03:23.813Z",
+      "permissions": "0644"
+    },
+    "README.md": {
+      "hash": "350c211b3a235b3135f38eaf3049f3cb575927c44629fe8467506fa57410ddb3",
+      "algorithm": "sha256",
+      "size": 20078,
+      "modified": "2025-09-15T00:29:01.843Z",
+      "permissions": "0644"
+    },
+    "ansible/deploy.yml": {
+      "hash": "e7ac4b506c3caa15ffb09ebf0268618156e3a8e13b3fabadb06ccc73c6635ed5",
+      "algorithm": "sha256",
+      "size": 1785,
+      "modified": "2025-09-14T20:53:21.037Z",
+      "permissions": "0644"
+    },
+    "ansible/inventory.yml": {
+      "hash": "5e7dee8850c86590839a992c0aa1dac0849b8f44f3ad769fae2f5dfb6d2d0ede",
+      "algorithm": "sha256",
+      "size": 828,
+      "modified": "2025-09-14T20:52:44.757Z",
+      "permissions": "0644"
+    },
+    "ansible/playbook.yml": {
+      "hash": "4415da2d23bc53a4269efdd96116f3a0e1e87d103a431967a6d2f8d5cbff49c5",
+      "algorithm": "sha256",
+      "size": 4148,
+      "modified": "2025-09-14T20:53:12.620Z",
+      "permissions": "0644"
+    },
+    "ansible/requirements.yml": {
+      "hash": "c7f8ac0f50eca83508f5c4fb6d1dabb4f47595cca23d4d4ead295e1a024051e9",
+      "algorithm": "sha256",
+      "size": 157,
+      "modified": "2025-09-14T20:53:27.164Z",
+      "permissions": "0644"
+    },
+    "cli/apikeys.js": {
+      "hash": "95ddd586b2733f6deb2a31558e21aa3a1528e4f916d29d6d7fdc2bcd4458351a",
+      "algorithm": "sha256",
+      "size": 13449,
+      "modified": "2025-09-14T21:35:14.594Z",
+      "permissions": "0644"
+    },
+    "cli/auth.js": {
+      "hash": "6db358100aa1db6221ffc020679042da9531102175ac0df9688c7d3aefe37153",
+      "algorithm": "sha256",
+      "size": 8324,
+      "modified": "2025-09-14T21:31:54.177Z",
+      "permissions": "0644"
+    },
+    "cli/batch.js": {
+      "hash": "a7a8750d571f07c4a6c9ed48823480c58ad2df762ce19c529d2894989d63a074",
+      "algorithm": "sha256",
+      "size": 17188,
+      "modified": "2025-09-14T21:36:52.873Z",
+      "permissions": "0644"
+    },
+    "cli/commands/symptom-analysis.js": {
+      "hash": "062d9b54f160f1840f4f633863851a0bb0dba8008a00ec3b5ff05ecaaca1db4b",
+      "algorithm": "sha256",
+      "size": 21970,
+      "modified": "2025-09-14T22:59:07.642Z",
+      "permissions": "0644"
+    },
+    "cli/config.js": {
+      "hash": "2ca3b60b07b80f286372c33729101c2eb0fce4681f791622973e1bcd7c10d446",
+      "algorithm": "sha256",
+      "size": 3741,
+      "modified": "2025-09-14T21:37:13.561Z",
+      "permissions": "0644"
+    },
+    "cli/console.js": {
+      "hash": "ec052745a6fb30f41fb332031cd471e1beb42df0fffbeade83db2143befd1b6a",
+      "algorithm": "sha256",
+      "size": 19740,
+      "modified": "2025-09-15T00:30:28.627Z",
+      "permissions": "0644"
+    },
+    "cli/diseases.js": {
+      "hash": "efa6f5464d28ef7d047d9dc33b964f96f4a8a7b2cd57f5b00f3ae17201a51cbd",
+      "algorithm": "sha256",
+      "size": 10870,
+      "modified": "2025-09-14T21:33:09.956Z",
+      "permissions": "0644"
+    },
+    "cli/family.js": {
+      "hash": "54a8cceea4cebabcfce357651afb74bff0b0ee5b10ad889803677144d9b5880a",
+      "algorithm": "sha256",
+      "size": 16034,
+      "modified": "2025-09-14T21:34:11.582Z",
+      "permissions": "0644"
+    },
+    "cli/user.js": {
+      "hash": "d5736ef8defa2578e22b5157ac38f86ec0cd5afac7de36032d0e267d42a1ee3b",
+      "algorithm": "sha256",
+      "size": 5654,
+      "modified": "2025-09-14T21:32:17.097Z",
+      "permissions": "0644"
+    },
+    "cli.js": {
+      "hash": "7baddeee9caf9d7cde16a20bd02c52c6911cdc259748af6794f1c163a784c339",
+      "algorithm": "sha256",
+      "size": 16303,
+      "modified": "2025-09-15T00:28:34.618Z",
+      "permissions": "0755"
+    },
+    "data/icd10_to_icd11_mapping.json": {
+      "hash": "5873aa44391cac014788c22a2ce67dfcd32dd8b0241ad01223cfcef0735dfd3f",
+      "algorithm": "sha256",
+      "size": 915,
+      "modified": "2025-09-14T21:52:07.509Z",
+      "permissions": "0644"
+    },
+    "data/loinc_subset.json": {
+      "hash": "95ffc45c9d4f9cfa16f719a84d7659f26c3fd7b9487a0f91a7dacf36a5db3c1f",
+      "algorithm": "sha256",
+      "size": 5669,
+      "modified": "2025-09-14T21:53:14.376Z",
+      "permissions": "0644"
+    },
+    "data/rxnorm_subset.json": {
+      "hash": "2a0da7c5dcc409ad749c60a32070d86cc30a002b7886fb1579fc5d379cd14b68",
+      "algorithm": "sha256",
+      "size": 3882,
+      "modified": "2025-09-14T21:52:44.345Z",
+      "permissions": "0644"
+    },
+    "data/snomed_ct_subset.json": {
+      "hash": "98a5866602b928e1a78e3f1e4ee4c1c78aac7ac1bd7a3db7cc6b50731588a458",
+      "algorithm": "sha256",
+      "size": 1715,
+      "modified": "2025-09-14T21:52:25.011Z",
+      "permissions": "0644"
+    },
+    "database/schema.sql": {
+      "hash": "da530d681fc4f17722c18698626dee6a5e027a688e0285c72ebe6a21ea084dfb",
+      "algorithm": "sha256",
+      "size": 13782,
+      "modified": "2025-09-14T22:55:01.823Z",
+      "permissions": "0644"
+    },
+    "database/seed_diseases.sql": {
+      "hash": "de94497bd898a153176dfcdf564f7c30a0025af991a22e91c8bc1e1cc5b817e4",
+      "algorithm": "sha256",
+      "size": 4590,
+      "modified": "2025-09-14T21:20:09.473Z",
+      "permissions": "0644"
+    },
+    "docs/AI_SYMPTOM_ANALYSIS.md": {
+      "hash": "e79f203b45bdd13d5ac6ece941db8b6bacf2c39c53fe88e7d238ae2243085e69",
+      "algorithm": "sha256",
+      "size": 11486,
+      "modified": "2025-09-14T23:01:22.193Z",
+      "permissions": "0644"
+    },
+    "docs/API_SYSTEM_COMPLETE.md": {
+      "hash": "3e32cff1f2c9f4803493da5e9039dfc0a0635fe9f874b6b91c781e8a5bb652ad",
+      "algorithm": "sha256",
+      "size": 7884,
+      "modified": "2025-09-14T21:27:29.851Z",
+      "permissions": "0644"
+    },
+    "docs/AWS_COST_ESTIMATE.md": {
+      "hash": "a7b702fb6cfa942b28a5538c7f2f94d6184259239c2e9172ec8f1dd3941addf6",
+      "algorithm": "sha256",
+      "size": 4613,
+      "modified": "2025-09-14T20:54:39.763Z",
+      "permissions": "0644"
+    },
+    "docs/CHANGELOG.md": {
+      "hash": "9bd28cc689796031a07ecc8b31dbe0a243a513dc917c6e15cb2b7580ebaf191f",
+      "algorithm": "sha256",
+      "size": 13799,
+      "modified": "2025-09-14T22:01:10.925Z",
+      "permissions": "0644"
+    },
+    "docs/CLI_DOCUMENTATION.md": {
+      "hash": "82a4ba58245527c9701bbf8c7473e71a26dd1deb262fca67c68e8a59299fa684",
+      "algorithm": "sha256",
+      "size": 15371,
+      "modified": "2025-09-14T21:39:41.633Z",
+      "permissions": "0644"
+    },
+    "docs/FAMILY_DISEASES_API.md": {
+      "hash": "303475836ef64c0226dd0cb6a62b48b928d6c005d1c24ec203d711b6c3b834a5",
+      "algorithm": "sha256",
+      "size": 9145,
+      "modified": "2025-09-14T21:06:09.382Z",
+      "permissions": "0644"
+    },
+    "docs/GLOBAL_COMPLIANCE_FRAMEWORK.md": {
+      "hash": "8cc9712353f42445eeb6a0257197373370d64b33fbbb84685aef1f9784ff9b4f",
+      "algorithm": "sha256",
+      "size": 17768,
+      "modified": "2025-09-14T21:49:12.067Z",
+      "permissions": "0644"
+    },
+    "docs/MEDICAL_COMPLIANCE_REVIEW.md": {
+      "hash": "d9a7510981cc85780ac3093679870680c6c251f141918c9064f68a9ecfd064e2",
+      "algorithm": "sha256",
+      "size": 11715,
+      "modified": "2025-09-14T21:40:48.559Z",
+      "permissions": "0644"
+    },
+    "docs/MEDICAL_REVIEW_COMPLETE.md": {
+      "hash": "35d64d20962b8f342dbe6ad8e3d834b44c75e53fa0a99eb4b26f2dbcc9bbb0c2",
+      "algorithm": "sha256",
+      "size": 13938,
+      "modified": "2025-09-14T21:56:36.059Z",
+      "permissions": "0644"
+    },
+    "docs/MONETIZATION_STRATEGY.md": {
+      "hash": "5d220888ba7e46884c62c60c3694ebeb693f20f8caf99f3eba66f9f377511978",
+      "algorithm": "sha256",
+      "size": 19680,
+      "modified": "2025-09-15T00:42:27.067Z",
+      "permissions": "0644"
+    },
+    "docs/STD_API_README.md": {
+      "hash": "e569697f7b1f5dc671def89d71daef10449a021648d43c7fe8178deccffa4941",
+      "algorithm": "sha256",
+      "size": 7055,
+      "modified": "2025-09-14T16:05:03.291Z",
+      "permissions": "0644"
+    },
+    "middleware/auth.js": {
+      "hash": "c228438f0ae133e45167c4cf6779e0946146d0344f589dbd95a6ec0f8d4d9f11",
+      "algorithm": "sha256",
+      "size": 9737,
+      "modified": "2025-09-14T21:21:29.764Z",
+      "permissions": "0644"
+    },
+    "package-lock.json": {
+      "hash": "a0c02ee20a9e9e10e746b3de3dadefe645407e3686a9e7a05e8965e2e4057d42",
+      "algorithm": "sha256",
+      "size": 313018,
+      "modified": "2025-09-15T00:30:19.183Z",
+      "permissions": "0644"
+    },
+    "package.json": {
+      "hash": "0dd07a94d2f31484601ef1962096f003daacbc084c37e60bc9681979fd80a345",
+      "algorithm": "sha256",
+      "size": 1754,
+      "modified": "2025-09-15T00:55:30.969Z",
+      "permissions": "0644"
+    },
+    "public/css/styles.css": {
+      "hash": "1bc545ea695553316b0ca352bd8003108803781b26fdbc34d3148271cebd4fbe",
+      "algorithm": "sha256",
+      "size": 6476,
+      "modified": "2025-09-14T15:15:48.511Z",
+      "permissions": "0644"
+    },
+    "public/dashboard.html": {
+      "hash": "9f4f01be5f412c59974dbe6d1db57b8409504e746635eb08206ef80d5666d23d",
+      "algorithm": "sha256",
+      "size": 23837,
+      "modified": "2025-09-14T21:25:03.925Z",
+      "permissions": "0644"
+    },
+    "public/index.html": {
+      "hash": "bd95b8b61f786188e36e5903c765bae74583071af1de6030f4c2a8ba5774e476",
+      "algorithm": "sha256",
+      "size": 4322,
+      "modified": "2025-09-14T21:05:19.418Z",
+      "permissions": "0644"
+    },
+    "public/js/mapping-client.js": {
+      "hash": "d8ee64ffae1e895ed5dd075a966880c737ffd0c6d4a1280ca027685ec4dc7a06",
+      "algorithm": "sha256",
+      "size": 10618,
+      "modified": "2025-09-14T20:23:41.609Z",
+      "permissions": "0644"
+    },
+    "public/login.html": {
+      "hash": "2cb48641b872c8839efd9db51a3f288f406e2adcabd12d0b18e1565384888705",
+      "algorithm": "sha256",
+      "size": 14478,
+      "modified": "2025-09-14T21:25:43.473Z",
+      "permissions": "0644"
+    },
+    "public/mapping-demo.html": {
+      "hash": "235abf4d2c19d364ea5c01c5c1d90272b0f702684e5818769cf531a7184d272d",
+      "algorithm": "sha256",
+      "size": 13610,
+      "modified": "2025-09-14T20:24:37.439Z",
+      "permissions": "0644"
+    },
+    "public/symptom-analysis.html": {
+      "hash": "ce1c68d43e40247e9ac8a25b4a89ec14adf41995a8f45c173f5ce1094ce252b9",
+      "algorithm": "sha256",
+      "size": 29483,
+      "modified": "2025-09-14T22:57:34.308Z",
+      "permissions": "0644"
+    },
+    "scripts/deploy.sh": {
+      "hash": "89bfb4e023cb767cbbf0d93c62b9c1ac1f2324f6f849275fa0db447ff7a816f2",
+      "algorithm": "sha256",
+      "size": 2875,
+      "modified": "2025-09-14T20:53:47.778Z",
+      "permissions": "0755"
+    },
+    "server.js": {
+      "hash": "c4f736d94d65dbba53eaa119608a3de7e162043d87314775939824cd6b62ed22",
+      "algorithm": "sha256",
+      "size": 47800,
+      "modified": "2025-09-14T22:56:08.533Z",
+      "permissions": "0644"
+    },
+    "services/aiSymptomAnalysisService.js": {
+      "hash": "d1a335af385c61f3086bf2a9d9d5c3cb1ae53520657480b84c133a72e8b0243e",
+      "algorithm": "sha256",
+      "size": 39664,
+      "modified": "2025-09-14T22:54:24.564Z",
+      "permissions": "0644"
+    },
+    "services/asianComplianceService.js": {
+      "hash": "d79ad45f88265ccf206ca6a94db1d7fbb4266160d6b31049d223fbd2ab8e6b57",
+      "algorithm": "sha256",
+      "size": 21900,
+      "modified": "2025-09-14T21:48:35.460Z",
+      "permissions": "0644"
+    },
+    "services/auditLoggingService.js": {
+      "hash": "6af71ed7a4550571c03d85cdf9fbd9a11e89e2ecf66bb7ed0e2c78f87ab6f674",
+      "algorithm": "sha256",
+      "size": 21267,
+      "modified": "2025-09-14T21:54:56.555Z",
+      "permissions": "0644"
+    },
+    "services/cdcDataService.js": {
+      "hash": "860c913b11383a153fca88d38ca5e00336acc1f1314dac473020ae7f9978ba2c",
+      "algorithm": "sha256",
+      "size": 8602,
+      "modified": "2025-09-14T19:58:33.585Z",
+      "permissions": "0644"
+    },
+    "services/databaseService.js": {
+      "hash": "016b20f16b16dcb1bc50a5cb488039af526a249c1ed9c3714f160f5ca90f8539",
+      "algorithm": "sha256",
+      "size": 11073,
+      "modified": "2025-09-14T21:20:48.102Z",
+      "permissions": "0644"
+    },
+    "services/encryptionService.js": {
+      "hash": "2057df6d9a2b5243e71665a77ec1b636b3707008c69a13c494267bddea61232e",
+      "algorithm": "sha256",
+      "size": 6140,
+      "modified": "2025-09-14T21:41:24.373Z",
+      "permissions": "0644"
+    },
+    "services/gdprService.js": {
+      "hash": "6d6c20f5a19720dd30ef584a6e3d046a6a8315be90b48c2c2620ad9fc9f9ad19",
+      "algorithm": "sha256",
+      "size": 20327,
+      "modified": "2025-09-14T21:45:14.157Z",
+      "permissions": "0644"
+    },
+    "services/geneticDiseaseService.js": {
+      "hash": "400090d13260784f1fce4b52ec8f444f45d9d56df862449590faaa7ff37ed8c4",
+      "algorithm": "sha256",
+      "size": 9609,
+      "modified": "2025-09-14T21:03:34.658Z",
+      "permissions": "0644"
+    },
+    "services/hipaaService.js": {
+      "hash": "67244eea6b5053dcea6307497b56b2a6e349413f623c414e68a9c164a9195e58",
+      "algorithm": "sha256",
+      "size": 14546,
+      "modified": "2025-09-14T21:42:32.020Z",
+      "permissions": "0644"
+    },
+    "services/mappingService.js": {
+      "hash": "3f898ff7bdbbab4258a630bbf8f035ad3fa6a969bf2fa62aa9d4dad43b966419",
+      "algorithm": "sha256",
+      "size": 12338,
+      "modified": "2025-09-14T20:21:10.612Z",
+      "permissions": "0644"
+    },
+    "services/medicalValidationService.js": {
+      "hash": "229f0a1d37d3ad36f33599f65fb5bf6c3aa05d40e09e63022f849a236a341afc",
+      "algorithm": "sha256",
+      "size": 22557,
+      "modified": "2025-09-14T21:51:41.088Z",
+      "permissions": "0644"
+    },
+    "services/mfaService.js": {
+      "hash": "da4416df020b911254fafaf06f426f577ebaf3921889e800656e7d0f1faafcac",
+      "algorithm": "sha256",
+      "size": 11670,
+      "modified": "2025-09-14T21:43:20.881Z",
+      "permissions": "0644"
+    },
+    "services/musculoskeletalDiseaseService.js": {
+      "hash": "1814c16fc36c7c952350ea2b0d8f640e074e835e44446a5fcf09e8008e7335fa",
+      "algorithm": "sha256",
+      "size": 9639,
+      "modified": "2025-09-14T21:04:19.619Z",
+      "permissions": "0644"
+    },
+    "services/neurologicalDiseaseService.js": {
+      "hash": "6ec20771df5ab76a409a88ea7298b0cb6db283d3fc086651012dd2b3056c2209",
+      "algorithm": "sha256",
+      "size": 7821,
+      "modified": "2025-09-14T21:02:53.399Z",
+      "permissions": "0644"
+    },
+    "services/stateDataService.js": {
+      "hash": "28c44ed0c78f40eeffdee03f0784349ac690c044cb028cc481a1f5e8f9b75ad4",
+      "algorithm": "sha256",
+      "size": 7867,
+      "modified": "2025-09-14T20:03:46.890Z",
+      "permissions": "0644"
+    },
+    "services/stdService.js": {
+      "hash": "08a35e50fc07afa9805b4170f1815cdeae5013e279aa0cf3ea680ad4720fe3b7",
+      "algorithm": "sha256",
+      "size": 12065,
+      "modified": "2025-09-14T17:53:29.994Z",
+      "permissions": "0644"
+    },
+    "services/userService.js": {
+      "hash": "3aeb14e1dc7c0f4f1be5834a088f32dc2ffdb90990ac6b497c492e0169c49693",
+      "algorithm": "sha256",
+      "size": 12561,
+      "modified": "2025-09-14T21:22:09.292Z",
+      "permissions": "0644"
+    },
+    "terraform/autoscaling.tf": {
+      "hash": "a6d5b4ff8f68eb343d1bc6482d9b4894a8ab8ec58c59769f2187dc511f1be640",
+      "algorithm": "sha256",
+      "size": 1821,
+      "modified": "2025-09-14T20:51:49.398Z",
+      "permissions": "0644"
+    },
+    "terraform/ecs.tf": {
+      "hash": "e517ca06f1a6e52f518ea4f6c39ed0686c1377b649411cdd008ac2b1a444f674",
+      "algorithm": "sha256",
+      "size": 4776,
+      "modified": "2025-09-14T20:50:35.251Z",
+      "permissions": "0644"
+    },
+    "terraform/iam.tf": {
+      "hash": "4daef2aefc31a24dc6b769a32322ac5bfce256a5c3cd7c32b0ec13fcfa3dae91",
+      "algorithm": "sha256",
+      "size": 2992,
+      "modified": "2025-09-14T20:51:38.911Z",
+      "permissions": "0644"
+    },
+    "terraform/load_balancer.tf": {
+      "hash": "e470a87c064d0d2e1897847380e583a1bb36ccda1ab1da3dd5dade2c466bf02c",
+      "algorithm": "sha256",
+      "size": 3705,
+      "modified": "2025-09-14T20:50:55.124Z",
+      "permissions": "0644"
+    },
+    "terraform/main.tf": {
+      "hash": "4196f83dbd38437921a16224aea9aef5b73d0dbaab7962527de65b060c624e04",
+      "algorithm": "sha256",
+      "size": 4080,
+      "modified": "2025-09-14T20:50:07.117Z",
+      "permissions": "0644"
+    },
+    "terraform/monitoring.tf": {
+      "hash": "0c09ce1f877113bbaab12ac7ae6dfc9581654f9cfdb7bb0bff8a7d046e2e8345",
+      "algorithm": "sha256",
+      "size": 3877,
+      "modified": "2025-09-14T20:52:08.984Z",
+      "permissions": "0644"
+    },
+    "terraform/outputs.tf": {
+      "hash": "ee375f3b9c3f9ea96c05f9ec685c3ce8bcdcaae08834623f35560e5ebbfac597",
+      "algorithm": "sha256",
+      "size": 1428,
+      "modified": "2025-09-14T20:52:27.659Z",
+      "permissions": "0644"
+    },
+    "terraform/route53.tf": {
+      "hash": "c6ea0c910eca6ea8b211d16e3d5f71147115fcd470aa78568a17d4a9ee67deeb",
+      "algorithm": "sha256",
+      "size": 2512,
+      "modified": "2025-09-14T20:51:21.100Z",
+      "permissions": "0644"
+    },
+    "terraform/terraform.tfvars.example": {
+      "hash": "e8e36a7508da8470282667a50e93453be4f356600dd0d195bb44976c7473efc9",
+      "algorithm": "sha256",
+      "size": 577,
+      "modified": "2025-09-14T20:53:33.256Z",
+      "permissions": "0644"
+    },
+    "terraform/variables.tf": {
+      "hash": "ae6add54f0ba504c9f7b0c8fb7afb22f6ce3e6dbb15e4adf85ccfbb787062a02",
+      "algorithm": "sha256",
+      "size": 1415,
+      "modified": "2025-09-14T20:52:16.153Z",
+      "permissions": "0644"
+    }
+  }
+}
