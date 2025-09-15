@@ -49,6 +49,13 @@
 - **Medical Professional Review** - Optional professional validation of AI predictions
 - **Interactive CLI & Web Interface** - Multiple access methods for comprehensive analysis
 
+### 🖥️ **Interactive Console (REPL)**
+- **Continuous Access** - Interactive shell for support staff and researchers
+- **Command History** - Full history navigation with Up/Down arrows
+- **Tab Completion** - Auto-complete for all commands and aliases
+- **Session Management** - Persistent authenticated sessions
+- **Real-time Operations** - Live platform interaction without reconnection
+
 ### 💻 **Developer Experience**
 - **Comprehensive CLI** - Full-featured command-line interface with AI symptom analysis
 - **RESTful API** - Complete API with JWT and API key authentication
@@ -127,12 +134,47 @@ diseasezone symptom start
 # View analysis history
 diseasezone symptom history
 
+# Start interactive console (perfect for support staff and researchers)
+diseasezone console
+
 # Export family data
 diseasezone batch export family-health.json -t family-diseases
 
 # View comprehensive help
 diseasezone --help
 ```
+
+### Interactive Console
+
+Start the interactive REPL console for continuous platform access:
+
+```bash
+# Start interactive console
+diseasezone console
+
+# Example console session:
+[authenticated]@localhost > help
+[authenticated]@localhost > login
+[authenticated]@localhost > diseases
+[authenticated]@localhost > family-list
+[authenticated]@localhost > symptom-start
+[authenticated]@localhost > history
+[authenticated]@localhost > session
+[authenticated]@localhost > exit
+```
+
+**Perfect for:**
+- **Support Staff** - Continuous platform access for real-time user assistance
+- **Researchers** - Interactive data exploration and analysis
+- **Medical Professionals** - Dynamic patient data management
+- **System Administrators** - Live debugging and maintenance
+
+**Features:**
+- **Tab Completion** - Auto-complete for all commands
+- **Command History** - Navigate with Up/Down arrows
+- **Aliases** - Short commands (`ls` = `diseases`, `sym` = `symptom-start`)
+- **Session Info** - Track uptime, commands run, authentication status
+- **Help System** - Built-in help with `help` or `?`
 
 ### API Usage
 

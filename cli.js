@@ -14,6 +14,7 @@ const SymptomAnalysisCommands = require('./cli/commands/symptom-analysis');
 const ApiKeyCommands = require('./cli/apikeys');
 const BatchCommands = require('./cli/batch');
 const ConfigCommands = require('./cli/config');
+const DiseaseZoneConsole = require('./cli/console');
 
 // CLI Configuration
 const CLI_CONFIG_PATH = path.join(require('os').homedir(), '.diseasezone');
@@ -333,6 +334,24 @@ function initializeCLI() {
         .description('Reset configuration to defaults')
         .option('-y, --yes', 'Skip confirmation prompt')
         .action(ConfigCommands.reset);
+
+    // Interactive Console
+    program.command('console')
+        .description('🖥️  Start interactive REPL console for continuous platform access')
+        .action(() => {
+            console.log(chalk.blue.bold('Starting diseaseZone Interactive Console...'));
+            console.log(chalk.gray('Perfect for support staff, researchers, and power users\n'));
+
+            const console_instance = new DiseaseZoneConsole({
+                server_url: config.server_url,
+                auth_token: config.auth_token,
+                api_key: config.api_key,
+                output_format: config.output_format,
+                verbose: config.verbose
+            });
+
+            console_instance.start();
+        });
 
     // Help and information
     program.command('info')
