@@ -29,8 +29,8 @@ class UserService {
         .withMessage('Last name is required (max 50 characters)'),
       body('role')
         .optional()
-        .isIn(['user', 'medical_professional'])
-        .withMessage('Role must be either user or medical_professional'),
+        .isIn(['user', 'medical_professional', 'researcher', 'insurance'])
+        .withMessage('Role must be one of: user, medical_professional, researcher, insurance'),
       body('date_of_birth')
         .optional()
         .isISO8601()

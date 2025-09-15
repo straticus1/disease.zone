@@ -202,6 +202,17 @@ class DiseaseZoneApp {
         if (targetView) {
             targetView.classList.add('active');
             this.currentView = viewName;
+        } else {
+            console.error(`View "${viewName}View" not found`);
+            // Handle special cases
+            if (viewName === 'demo') {
+                // Redirect to mapping demo
+                window.location.href = '/mapping-demo.html';
+                return;
+            }
+            // Fallback to guest view if view doesn't exist
+            this.showView('guest');
+            return;
         }
 
         // Update active navigation
@@ -453,17 +464,22 @@ class DiseaseZoneApp {
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Password</label>
-                                <input type="password" class="form-input" name="password" required minlength="8">
+                                <input type="password" class="form-input" name="password" required minlength="8"
+                                       title="Password must be at least 8 characters and contain uppercase, lowercase, number, and special character">
+                                <small class="form-help">Must contain: uppercase, lowercase, number, and special character (!@#$%^&*)</small>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Role</label>
-                                <select class="form-select" name="role" required>
+                                <select class="form-select" name="role" required onchange="app.handleRoleChange(event)">
                                     <option value="">Select your role</option>
                                     <option value="user">Patient/Individual</option>
                                     <option value="medical_professional">Medical Professional</option>
                                     <option value="researcher">Researcher</option>
                                     <option value="insurance">Insurance Company</option>
                                 </select>
+                            </div>
+                            <div id="additionalFields" style="display: none;">
+                                <!-- Additional fields will be inserted here based on role -->
                             </div>
                             <div class="form-group">
                                 <div class="form-checkbox">
@@ -588,7 +604,40 @@ class DiseaseZoneApp {
             role: formData.get('role')
         };
 
+        // Add role-specific fields
+        if (userData.role === 'medical_professional') {
+            userData.medical_license_number = formData.get('medical_license_number');
+            userData.medical_specialty = formData.get('medical_specialty');
+            userData.institution_name = formData.get('institution_name');
+        }
+
         await this.register(userData);
+    }
+
+    handleRoleChange(event) {
+        const role = event.target.value;
+        const additionalFieldsDiv = document.getElementById('additionalFields');
+
+        if (role === 'medical_professional') {
+            additionalFieldsDiv.style.display = 'block';
+            additionalFieldsDiv.innerHTML = `
+                <div class="form-group">
+                    <label class="form-label">Medical License Number</label>
+                    <input type="text" class="form-input" name="medical_license_number" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Medical Specialty</label>
+                    <input type="text" class="form-input" name="medical_specialty" required placeholder="e.g., Internal Medicine, Cardiology">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Institution Name</label>
+                    <input type="text" class="form-input" name="institution_name" required placeholder="e.g., General Hospital, Medical Center">
+                </div>
+            `;
+        } else {
+            additionalFieldsDiv.style.display = 'none';
+            additionalFieldsDiv.innerHTML = '';
+        }
     }
 
     async handleAddDisease(event) {
@@ -776,10 +825,34 @@ class DiseaseZoneApp {
 }
 
 // Global functions for onclick handlers
-window.showView = (viewName) => window.app.showView(viewName);
-window.openModal = (modalId) => window.app.openModal(modalId);
-window.closeModal = (modalId) => window.app.closeModal(modalId);
-window.toggleUserMenu = () => window.app.toggleUserMenu();
+window.showView = (viewName) => {
+    if (window.app) {
+        window.app.showView(viewName);
+    } else {
+        console.warn('App not initialized yet');
+    }
+};
+window.openModal = (modalId) => {
+    if (window.app) {
+        window.app.openModal(modalId);
+    } else {
+        console.warn('App not initialized yet');
+    }
+};
+window.closeModal = (modalId) => {
+    if (window.app) {
+        window.app.closeModal(modalId);
+    } else {
+        console.warn('App not initialized yet');
+    }
+};
+window.toggleUserMenu = () => {
+    if (window.app) {
+        window.app.toggleUserMenu();
+    } else {
+        console.warn('App not initialized yet');
+    }
+};
 window.toggleMobileMenu = () => {
     const navLinks = document.getElementById('navLinks');
     navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';

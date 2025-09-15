@@ -322,6 +322,14 @@
             gap: 0.5rem;
         }
 
+        .form-help {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
         /* ===== RESPONSIVE DESIGN ===== */
         @media (max-width: 768px) {
             .nav-links {
@@ -856,6 +864,164 @@
                         <div class="card-body">
                             <div id="recentTransactions">
                                 <p class="text-center" style="color: var(--text-secondary);">No recent transactions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Surveillance View -->
+        <div class="view" id="surveillanceView">
+            <div class="container dashboard">
+                <div class="dashboard-header">
+                    <h1>Disease Surveillance</h1>
+                    <p>Real-time disease monitoring and outbreak detection systems.</p>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Live Disease Data</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="grid" style="gap: 1rem;">
+                                <a href="/api/std/data" class="btn btn-primary">
+                                    <i class="fas fa-chart-bar"></i>
+                                    STD Surveillance Data
+                                </a>
+                                <a href="/api/neurological/diseases" class="btn btn-secondary">
+                                    <i class="fas fa-brain"></i>
+                                    Neurological Diseases
+                                </a>
+                                <a href="/api/genetic/diseases" class="btn btn-success">
+                                    <i class="fas fa-dna"></i>
+                                    Genetic Conditions
+                                </a>
+                                <a href="/mapping-demo.html" class="btn btn-warning">
+                                    <i class="fas fa-map"></i>
+                                    Interactive Maps
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Outbreak Alerts</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="outbreakAlerts">
+                                <p class="text-center" style="color: var(--text-secondary);">No active alerts</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Research View -->
+        <div class="view" id="researchView">
+            <div class="container dashboard">
+                <div class="dashboard-header">
+                    <h1>Research Platform</h1>
+                    <p>Access anonymized health data for scientific research and analysis.</p>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Available Datasets</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="grid" style="gap: 1rem;">
+                                <button class="btn btn-primary" onclick="openModal('datasetBrowserModal')">
+                                    <i class="fas fa-database"></i>
+                                    Browse Datasets
+                                </button>
+                                <button class="btn btn-secondary" onclick="openModal('analyticsModal')">
+                                    <i class="fas fa-chart-line"></i>
+                                    Analytics Tools
+                                </button>
+                                <button class="btn btn-success" onclick="openModal('collaborationModal')">
+                                    <i class="fas fa-users"></i>
+                                    Research Collaboration
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Research Insights</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="researchInsights">
+                                <p class="text-center" style="color: var(--text-secondary);">Login to access research data</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Blockchain View -->
+        <div class="view" id="blockchainView">
+            <div class="container dashboard">
+                <div class="dashboard-header">
+                    <h1>Blockchain Integration</h1>
+                    <p>HEALTH token ecosystem and decentralized health data marketplace.</p>
+                </div>
+
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="healthTokenBalance">0</div>
+                        <div class="stat-label">HEALTH Tokens</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="dataContributions">0</div>
+                        <div class="stat-label">Data Contributions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="researchEarnings">$0</div>
+                        <div class="stat-label">Research Earnings</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="blockchainTransactions">0</div>
+                        <div class="stat-label">Transactions</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Wallet & Tokens</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="grid" style="gap: 1rem;">
+                                <button class="btn btn-primary" onclick="openModal('walletModal')">
+                                    <i class="fas fa-wallet"></i>
+                                    View Wallet
+                                </button>
+                                <button class="btn btn-secondary" onclick="openModal('tokenHistoryModal')">
+                                    <i class="fas fa-history"></i>
+                                    Transaction History
+                                </button>
+                                <button class="btn btn-success" onclick="openModal('earnTokensModal')">
+                                    <i class="fas fa-coins"></i>
+                                    Earn Tokens
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Data Marketplace</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="marketplaceActivity">
+                                <p class="text-center" style="color: var(--text-secondary);">Login to access marketplace</p>
                             </div>
                         </div>
                     </div>
