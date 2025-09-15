@@ -6,13 +6,20 @@
 
 *Previously known as covid19lookup.nyc*
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/username/disease.zone)
+[![Version](https://img.shields.io/badge/version-3.0.0-blue.svg)](https://github.com/username/disease.zone)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-brightgreen.svg)](./MEDICAL_COMPLIANCE_REVIEW.md)
 [![GDPR](https://img.shields.io/badge/GDPR-Compliant-brightgreen.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
 [![Global](https://img.shields.io/badge/Global-10%20Jurisdictions-orange.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
 
 ## 🌟 Features
+
+### 🌐 **Global Health Intelligence Platform**
+- **15+ Data Sources** - WHO, ECDC, CDC, state health departments, and specialized surveillance systems
+- **Real-time Outbreak Detection** - 16 advanced algorithms including CUSUM, EWMA, spatial scan, and ML anomaly detection
+- **Advanced Data Fusion** - 12+ fusion algorithms (Bayesian, ensemble, neural network) for multi-source intelligence
+- **STI/STD Surveillance** - Comprehensive HIV/AIDS, Herpes, HPV tracking with multi-tier access
+- **Disease.sh Integration** - Immediate access without API keys, expandable with premium data sources
 
 ### 🔐 **Global Regulatory Compliance**
 - **HIPAA** - Complete technical, administrative, and physical safeguards
@@ -273,6 +280,20 @@ curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
 - `GET /api/diseases/:id` - Get detailed disease information
 - `GET /api/diseases/category/:category` - Filter by disease category
 
+### Global Health Intelligence
+- `GET /global/aggregate` - Multi-source global health data aggregation
+- `POST /global/fusion` - Advanced data fusion with configurable algorithms
+- `POST /global/outbreak-detection` - Real-time outbreak detection and analysis
+- `GET /global/monitoring` - Continuous surveillance dashboard data
+- `GET /global/analytics` - Comprehensive health analytics and insights
+
+### STI/STD Surveillance
+- `GET /sti/hiv` - HIV surveillance data with multi-source integration
+- `GET /sti/aids` - AIDS tracking and analytics
+- `GET /sti/herpes` - Herpes surveillance across demographics
+- `GET /sti/hpv` - HPV tracking and vaccination impact analysis
+- `GET /sti/comprehensive` - Unified STI surveillance dashboard
+
 ### Family Health Tracking
 - `GET /api/user/family-diseases` - Retrieve family disease records
 - `POST /api/user/family-diseases` - Add family disease record
@@ -345,6 +366,17 @@ MFA_SECRET=your-mfa-secret
 # External Services
 MAPBOX_TOKEN=your-mapbox-token
 GOOGLE_MAPS_KEY=your-google-maps-key
+
+# Global Health APIs
+CDC_API_KEY=your-cdc-api-key
+WHO_API_KEY=your-who-api-key
+DISEASE_API_KEY=your-disease-sh-key
+CALIFORNIA_API_KEY=your-california-key
+NEW_YORK_API_KEY=your-ny-key
+ECDC_API_KEY=your-ecdc-key
+
+# Access Configuration
+API_ACCESS_LEVEL=standard
 
 # Compliance
 AUDIT_PROCESSING_REGION=us-east-1

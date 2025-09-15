@@ -1,6 +1,6 @@
 {
   "name": "disease.zone",
-  "version": "2.3.0",
+  "version": "3.0.0",
   "description": "diseaseZone - A comprehensive disease tracking and visualization platform with mapping integration (previously covid19lookup.nyc)",
   "main": "server.js",
   "scripts": {
@@ -29,10 +29,15 @@
     "express-validator": "^7.2.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
     "mapbox-gl": "^2.15.0",
+    "ml-matrix": "^6.10.4",
+    "node-cron": "^3.0.3",
     "node-fetch": "^3.3.0",
     "sqlite3": "^5.1.7",
-    "uuid": "^9.0.1"
+    "stats-lite": "^2.2.0",
+    "uuid": "^9.0.1",
+    "ws": "^8.14.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",

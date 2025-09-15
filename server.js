@@ -537,6 +537,14 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
 });
 
+// Import and use new route modules
+const stiRoutes = require('./routes/stiRoutes');
+const globalHealthRoutes = require('./routes/globalHealthRoutes');
+
+// Mount the new route modules
+app.use('/sti', stiRoutes);
+app.use('/global', globalHealthRoutes);
+
 // Authentication endpoints
 app.post('/api/auth/register',
   (req, res, next) => {

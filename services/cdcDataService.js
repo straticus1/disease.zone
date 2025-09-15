@@ -4,12 +4,31 @@ class CDCDataService {
     this.fetch = null;
     this.initFetch();
 
+    // Load API key from environment (optional)
+    this.apiKey = process.env.CDC_API_KEY || null;
+    this.hasApiKey = !!this.apiKey;
+
+    // Access level based on API key availability
+    this.accessLevel = this.hasApiKey ? 'full' : 'limited';
+
     // CDC data.gov dataset endpoints for STD/STI data
     this.endpoints = {
+      // Existing STD endpoints
       syphilis: '6ie8-bpiy', // NNDSS TABLE 1HH. Syphilis, Congenital to Primary/Secondary
       gonorrhea: 'vx8v-gfyf', // NNDSS TABLE 1M. Gonorrhea
       chlamydia: '97tt-n3j3', // NNDSS Table II. Chlamydia to Coccidioidomycosis
-      // Additional endpoints can be added here
+
+      // HIV/AIDS endpoints (research needed for exact dataset IDs)
+      hiv: 'hiv-surveillance', // Placeholder - needs verification
+      aids: 'aids-surveillance', // Placeholder - needs verification
+
+      // HPV endpoints
+      hpv: 'hpv-surveillance', // Placeholder - needs verification
+      cervical_cancer: 'cervical-cancer-data', // Placeholder
+
+      // Additional surveillance endpoints
+      viral_hepatitis: 'viral-hepatitis-surveillance', // Placeholder
+      tuberculosis: 'tb-surveillance' // Placeholder
     };
 
     // Column mappings for different datasets
@@ -35,8 +54,37 @@ class CDCDataService {
         week: 'mmwr_week',
         currentWeek: 'chlamydia_trachomatis_infection_current_week',
         cumulativeYTD: 'chlamydia_trachomatis_infection_cum_2015'
+      },
+      hiv: {
+        area: 'reporting_area',
+        year: 'mmwr_year',
+        week: 'mmwr_week',
+        currentWeek: 'hiv_infection_current_week',
+        cumulativeYTD: 'hiv_infection_cum_ytd'
+      },
+      aids: {
+        area: 'reporting_area',
+        year: 'mmwr_year',
+        week: 'mmwr_week',
+        currentWeek: 'aids_current_week',
+        cumulativeYTD: 'aids_cum_ytd'
+      },
+      hpv: {
+        area: 'reporting_area',
+        year: 'surveillance_year',
+        cases: 'hpv_cases',
+        vaccinated: 'hpv_vaccinated',
+        coverage: 'vaccination_coverage'
       }
     };
+
+    // Rate limiting for API requests
+    this.rateLimits = {
+      limited: { requestsPerMinute: 10, requestsPerHour: 100 },
+      full: { requestsPerMinute: 100, requestsPerHour: 1000 }
+    };
+
+    this.currentRateLimit = this.rateLimits[this.accessLevel];
 
     // Cache for reducing API calls
     this.cache = new Map();
@@ -120,11 +168,18 @@ class CDCDataService {
     const url = `${this.baseURL}/${endpoint}/rows.json`;
 
     try {
+      const headers = {
+        'User-Agent': 'Disease Tracking Application (respectful API usage)'
+      };
+
+      // Add API key to headers if available
+      if (this.apiKey) {
+        headers['X-App-Token'] = this.apiKey;
+      }
+
       const response = await this.fetch(url, {
         timeout: 15000,
-        headers: {
-          'User-Agent': 'Disease Tracking Application (respectful API usage)'
-        }
+        headers
       });
 
       if (!response.ok) {
