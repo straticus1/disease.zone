@@ -3,16 +3,16 @@ diseaseZone Security Hash Verification File
 
 Project: diseaseZone
 Version: 2.3.0
-Generated: 2025-09-15T00:59:56.297Z
+Generated: 2025-09-15T01:01:02.799Z
 Algorithm: SHA256
-Project Hash: 2ccc9dfdea523b38e43c81e5f60dd5ddb4f3f61dd3166f6dd0a4664f7c0377c5
+Project Hash: 1620b1c66b369b352c0d0d8de1899a517dd23bda345afe044cbdddaef71f0fd3
 
 Statistics:
 - Total Files: 98
-- Hashed Files: 76
-- Skipped Files: 9
-- Total Size: 1.06 MB
-- Generation Time: 23ms
+- Hashed Files: 75
+- Skipped Files: 10
+- Total Size: 1.05 MB
+- Generation Time: 27ms
 
 File Hashes:
 ============
@@ -39,12 +39,6 @@ README.md
   Hash: 35a2b8bd0609e95f2d93606a583679626e6af61c6955370fa2fada54cbe183de
   Size: 20.01 KB
   Modified: 2025-09-15T00:57:42.813Z
-  Permissions: 0644
-
-VERIFICATION_REPORT.json
-  Hash: d585d2cd03f3fcaec7fcd50a0feb088b787e4bc2faa978ebda67dd153390ff60
-  Size: 13.4 KB
-  Modified: 2025-09-15T00:59:43.673Z
   Permissions: 0644
 
 ansible/deploy.yml

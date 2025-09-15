@@ -2,16 +2,16 @@
   "metadata": {
     "project": "diseaseZone",
     "version": "2.3.0",
-    "generated": "2025-09-15T00:59:56.297Z",
+    "generated": "2025-09-15T01:01:02.799Z",
     "generator": "diseaseZone Security Hash Generator v1.0",
     "algorithm": "sha256",
-    "projectHash": "2ccc9dfdea523b38e43c81e5f60dd5ddb4f3f61dd3166f6dd0a4664f7c0377c5",
+    "projectHash": "1620b1c66b369b352c0d0d8de1899a517dd23bda345afe044cbdddaef71f0fd3",
     "stats": {
       "totalFiles": 98,
-      "hashedFiles": 76,
-      "skippedFiles": 9,
-      "totalSize": 1111542,
-      "generationTime": 23
+      "hashedFiles": 75,
+      "skippedFiles": 10,
+      "totalSize": 1097822,
+      "generationTime": 27
     }
   },
   "hashes": {
@@ -41,13 +41,6 @@
       "algorithm": "sha256",
       "size": 20494,
       "modified": "2025-09-15T00:57:42.813Z",
-      "permissions": "0644"
-    },
-    "VERIFICATION_REPORT.json": {
-      "hash": "d585d2cd03f3fcaec7fcd50a0feb088b787e4bc2faa978ebda67dd153390ff60",
-      "algorithm": "sha256",
-      "size": 13720,
-      "modified": "2025-09-15T00:59:43.673Z",
       "permissions": "0644"
     },
     "ansible/deploy.yml": {

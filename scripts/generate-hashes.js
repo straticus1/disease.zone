@@ -64,6 +64,7 @@ class HashGenerator {
             // Hash files themselves
             /^HASHES\.json$/,
             /^HASHES\.txt$/,
+            /^VERIFICATION_REPORT\.json$/,
             /^scripts\/generate-hashes\.js$/,
             /^scripts\/verify-hashes\.js$/,
 
