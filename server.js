@@ -127,6 +127,411 @@ app.use((req, res, next) => {
   }
 });
 
+// Homepage route
+app.get('/', (req, res) => {
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>diseaseZone - Medical Staff Portal</title>
+    <style>
+        :root {
+            --primary-color: #059669;
+            --secondary-color: #047857;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-color: #1f2937;
+            --light-color: #f0fdf4;
+            --border-color: #d1fae5;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #059669 0%, #0d9488 50%, #047857 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+        }
+
+        .logo h1 {
+            color: var(--primary-color);
+            font-size: 3rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .search-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .search-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-color);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .card-title {
+            color: var(--text-primary);
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px 24px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--secondary-color);
+        }
+
+        .quick-links {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .quick-links h3 {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .quick-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: var(--light-color);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: background 0.2s;
+        }
+
+        .quick-link:hover {
+            background: var(--border-color);
+        }
+
+        .status-bar {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            border-radius: 25px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success-color);
+            border-radius: 50%;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .header { padding: 30px 20px; }
+            .logo h1 { font-size: 2.5rem; }
+            .search-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">🧬</div>
+                <h1>diseaseZone</h1>
+            </div>
+            <p class="subtitle">Medical Staff Portal - Disease Surveillance & Research</p>
+        </div>
+
+        <div class="search-grid">
+            <div class="search-card">
+                <div class="card-header">
+                    <div class="card-icon">🔍</div>
+                    <h3 class="card-title">Disease Database Search</h3>
+                </div>
+                <p class="card-description">Search through our comprehensive database of diseases, including STDs, genetic disorders, neurological conditions, and more.</p>
+                <form action="/api/diseases" method="GET">
+                    <div class="form-group">
+                        <label for="category">Disease Category</label>
+                        <select name="category" id="category">
+                            <option value="">All Categories</option>
+                            <option value="std">STDs</option>
+                            <option value="genetic">Genetic Disorders</option>
+                            <option value="neurological">Neurological</option>
+                            <option value="musculoskeletal">Musculoskeletal</option>
+                            <option value="mental_health">Mental Health</option>
+                            <option value="cancer">Cancer</option>
+                            <option value="cardiovascular">Cardiovascular</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Search Diseases</button>
+                </form>
+            </div>
+
+            <div class="search-card">
+                <div class="card-header">
+                    <div class="card-icon">📊</div>
+                    <h3 class="card-title">STD Surveillance Data</h3>
+                </div>
+                <p class="card-description">Access real-time STD surveillance data from CDC sources. Filter by disease, state, and year.</p>
+                <form action="/api/std/real-data" method="GET">
+                    <div class="form-group">
+                        <label for="std-disease">Disease</label>
+                        <select name="disease" id="std-disease">
+                            <option value="all">All STDs</option>
+                            <option value="chlamydia">Chlamydia</option>
+                            <option value="gonorrhea">Gonorrhea</option>
+                            <option value="syphilis">Syphilis</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="std-year">Year</label>
+                        <select name="year" id="std-year">
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                            <option value="2021">2021</option>
+                            <option value="2020">2020</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="std-state">State</label>
+                        <select name="state" id="std-state">
+                            <option value="all">All States</option>
+                            <option value="ny">New York</option>
+                            <option value="ca">California</option>
+                            <option value="tx">Texas</option>
+                            <option value="fl">Florida</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Get STD Data</button>
+                </form>
+            </div>
+
+            <div class="search-card">
+                <div class="card-header">
+                    <div class="card-icon">🧠</div>
+                    <h3 class="card-title">Neurological Diseases</h3>
+                </div>
+                <p class="card-description">Search neurological conditions including Alzheimer's, dementia, and rare neurological disorders.</p>
+                <form action="/api/neurological/diseases" method="GET">
+                    <button type="submit" class="btn">Browse Neurological Diseases</button>
+                </form>
+            </div>
+
+            <div class="search-card">
+                <div class="card-header">
+                    <div class="card-icon">🧬</div>
+                    <h3 class="card-title">Genetic Disorders</h3>
+                </div>
+                <p class="card-description">Access information on genetic disorders, inheritance patterns, and prevalence data.</p>
+                <form action="/api/genetic/diseases" method="GET">
+                    <button type="submit" class="btn">Browse Genetic Disorders</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="quick-links">
+            <h3>Quick Access Links</h3>
+            <div class="links-grid">
+                <a href="/api/diseases" class="quick-link">
+                    <span>🗂️</span>
+                    <span>All Diseases</span>
+                </a>
+                <a href="/api/std/status" class="quick-link">
+                    <span>📈</span>
+                    <span>STD Status</span>
+                </a>
+                <a href="/api/std/real-summary" class="quick-link">
+                    <span>📋</span>
+                    <span>STD Summary</span>
+                </a>
+                <a href="/api/neurological/summary" class="quick-link">
+                    <span>🧠</span>
+                    <span>Neuro Summary</span>
+                </a>
+                <a href="/api/genetic/summary" class="quick-link">
+                    <span>🧬</span>
+                    <span>Genetic Summary</span>
+                </a>
+                <a href="/api/musculoskeletal/summary" class="quick-link">
+                    <span>🦴</span>
+                    <span>Musculoskeletal Summary</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-dot"></div>
+        <span>System Online • Live Data</span>
+    </div>
+
+    <script>
+        // Add some interactivity
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const btn = this.querySelector('.btn');
+                btn.textContent = 'Loading...';
+                btn.disabled = true;
+            });
+        });
+
+        // Auto-refresh status every 30 seconds
+        setInterval(() => {
+            fetch('/api/health')
+                .then(response => response.json())
+                .then(data => {
+                    const statusBar = document.querySelector('.status-bar span');
+                    if (data.status === 'ok') {
+                        statusBar.textContent = 'System Online • Live Data';
+                    }
+                })
+                .catch(() => {
+                    const statusBar = document.querySelector('.status-bar span');
+                    statusBar.textContent = 'System Offline';
+                });
+        }, 30000);
+    </script>
+</body>
+</html>
+  `;
+  res.send(html);
+});
+
 // API Routes
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
