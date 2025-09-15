@@ -22,32 +22,63 @@ window.testFunction = () => {
 
 class DiseaseZoneApp {
     constructor() {
-        this.currentUser = null;
-        this.currentView = 'guest';
-        this.apiBaseUrl = window.location.origin;
-        this.ledgerApiUrl = `${window.location.protocol}//${window.location.hostname}:4000`;
-        this.isAuthenticated = false;
-        this.userRole = null;
+        try {
+            console.log('🏗️ DiseaseZoneApp constructor started');
+            this.currentUser = null;
+            this.currentView = 'guest';
+            this.apiBaseUrl = window.location.origin;
+            this.ledgerApiUrl = `${window.location.protocol}//${window.location.hostname}:4000`;
+            this.isAuthenticated = false;
+            this.userRole = null;
 
-        this.init();
+            console.log('🏗️ Constructor properties set, calling init()');
+            this.init();
+        } catch (error) {
+            console.error('❌ CRITICAL ERROR in DiseaseZoneApp constructor:', error);
+            throw error;
+        }
     }
 
-    async init() {
-        console.log('🧬 Initializing diseaseZone Application...');
+    init() {
+        try {
+            console.log('🧬 Initializing diseaseZone Application...');
 
-        // Check for existing authentication
-        await this.checkAuthStatus();
+            // Initialize UI first (synchronously) so buttons work immediately
+            console.log('🔍 Step 1: Initializing UI...');
+            this.initializeUI();
+            console.log('✅ Step 1 complete: UI initialized');
 
-        // Initialize UI
-        this.initializeUI();
+            // Set up event listeners (synchronously)
+            console.log('🔍 Step 2: Setting up event listeners...');
+            this.setupEventListeners();
+            console.log('✅ Step 2 complete: Event listeners set up');
 
-        // Load initial data
-        await this.loadInitialData();
+            console.log('✅ diseaseZone Application CORE initialized successfully!');
 
-        // Set up event listeners
-        this.setupEventListeners();
+            // Do async initialization in the background
+            this.initializeAsync();
+        } catch (error) {
+            console.error('❌ CRITICAL ERROR in init():', error);
+            console.error('❌ Stack trace:', error.stack);
+            throw error;
+        }
+    }
 
-        console.log('✅ diseaseZone Application initialized');
+    async initializeAsync() {
+        try {
+            console.log('🔍 Async Step 1: Checking auth status...');
+            await this.checkAuthStatus();
+            console.log('✅ Async Step 1 complete: Auth status checked');
+
+            console.log('🔍 Async Step 2: Loading initial data...');
+            await this.loadInitialData();
+            console.log('✅ Async Step 2 complete: Initial data loaded');
+
+            console.log('✅ diseaseZone Application ASYNC initialization complete!');
+        } catch (error) {
+            console.error('⚠️ Non-critical error in async init():', error);
+            // Don't throw - app should still work for basic functionality
+        }
     }
 
     // ===== AUTHENTICATION =====
@@ -761,11 +792,39 @@ class DiseaseZoneApp {
 
     showLoading(show) {
         const overlay = document.getElementById('loadingOverlay');
-        if (show) {
-            overlay.classList.add('active');
-        } else {
-            overlay.classList.remove('active');
+        if (overlay) {
+            if (show) {
+                overlay.classList.add('active');
+            } else {
+                overlay.classList.remove('active');
+            }
         }
+    }
+
+    showAccountAccessNotification() {
+        // Show a brief notification after successful login
+        const notification = document.createElement('div');
+        notification.className = 'account-access-notification';
+        notification.innerHTML = `
+            <div class="notification-content">
+                <h3>🎉 Welcome to your diseaseZone Account!</h3>
+                <p>Your secure health dashboard is now loading...</p>
+                <button onclick="location.reload()" class="btn btn-primary">
+                    🔄 Refresh Dashboard
+                </button>
+                <button onclick="this.parentElement.parentElement.remove()" class="btn btn-secondary">
+                    Continue
+                </button>
+            </div>
+        `;
+        document.body.appendChild(notification);
+        
+        // Auto-remove after 5 seconds if not manually dismissed
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
     }
 
     getInitials(firstName, lastName) {
@@ -860,22 +919,163 @@ function executePendingCalls() {
 }
 
 window.showView = (viewName) => {
-    if (window.app) {
+    if (window.app && typeof window.app.showView === 'function') {
         window.app.showView(viewName);
+    } else if (window.app) {
+        // App exists but method missing - use emergency fallback
+        console.warn('App exists but showView method missing, using fallback');
+        emergencyShowView(viewName);
     } else {
         console.warn('App not initialized yet, queuing showView call');
         pendingCalls.push(() => window.app.showView(viewName));
     }
 };
 
+// Emergency fallback functions
+function emergencyShowView(viewName) {
+    try {
+        // Hide all views
+        document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+        // Show target view
+        const targetView = document.getElementById(`${viewName}View`);
+        if (targetView) {
+            targetView.classList.add('active');
+            console.log('✅ Emergency showView successful:', viewName);
+        } else {
+            console.error('❌ Emergency showView failed - view not found:', `${viewName}View`);
+        }
+    } catch (error) {
+        console.error('❌ Emergency showView error:', error);
+    }
+}
+
 window.openModal = (modalId) => {
-    if (window.app) {
+    if (window.app && typeof window.app.openModal === 'function') {
         window.app.openModal(modalId);
+    } else if (window.app) {
+        // App exists but method missing - use emergency fallback
+        console.warn('App exists but openModal method missing, using fallback');
+        emergencyOpenModal(modalId);
     } else {
         console.warn('App not initialized yet, queuing openModal call');
         pendingCalls.push(() => window.app.openModal(modalId));
     }
-};
+}
+
+function emergencyCreateModals() {
+    try {
+        const modalsContainer = document.getElementById('modals');
+        if (!modalsContainer) {
+            console.error('❌ Emergency createModals failed - modals container not found');
+            return;
+        }
+
+        const modalHtml = `
+            <!-- Login Modal -->
+            <div class="modal" id="loginModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Login to diseaseZone</h3>
+                        <button class="modal-close" onclick="closeModal('loginModal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form onsubmit="handleLogin(event)">
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-input" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Password</label>
+                                <input type="password" class="form-input" name="password" required>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                    Login
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Register Modal -->
+            <div class="modal" id="registerModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Create Account</h3>
+                        <button class="modal-close" onclick="closeModal('registerModal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form onsubmit="handleRegister(event)">
+                            <div class="form-group">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-input" name="first_name" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-input" name="last_name" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-input" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Password</label>
+                                <input type="password" class="form-input" name="password" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Role</label>
+                                <select class="form-select" name="role" required>
+                                    <option value="">Select your role</option>
+                                    <option value="user">Patient/Individual</option>
+                                    <option value="medical_professional">Medical Professional</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                    Create Account
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        modalsContainer.innerHTML = modalHtml;
+        console.log('✅ Emergency modals created successfully');
+    } catch (error) {
+        console.error('❌ Emergency createModals error:', error);
+    }
+}
+
+function emergencyOpenModal(modalId) {
+    try {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            console.log('✅ Emergency openModal successful:', modalId);
+        } else {
+            console.error('❌ Emergency openModal failed - modal not found:', modalId);
+            // If modal doesn't exist, try to create basic modals
+            emergencyCreateModals();
+            // Try again
+            const newModal = document.getElementById(modalId);
+            if (newModal) {
+                newModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                console.log('✅ Emergency openModal successful after creation:', modalId);
+            }
+        }
+    } catch (error) {
+        console.error('❌ Emergency openModal error:', error);
+    }
+}
 
 window.closeModal = (modalId) => {
     if (window.app) {
@@ -903,22 +1103,73 @@ window.toggleMobileMenu = () => {
 };
 
 window.handleLogin = (event) => {
-    if (window.app) {
+    if (window.app && typeof window.app.handleLogin === 'function') {
         window.app.handleLogin(event);
+    } else if (window.app) {
+        console.warn('App exists but handleLogin method missing, using fallback');
+        emergencyHandleLogin(event);
     } else {
-        console.warn('App not initialized yet, queuing handleLogin call');
-        pendingCalls.push(() => window.app.handleLogin(event));
+        console.warn('App not initialized yet, using emergency login handler');
+        emergencyHandleLogin(event);
     }
 };
 
+function emergencyHandleLogin(event) {
+    event.preventDefault();
+    try {
+        const form = event.target;
+        const formData = new FormData(form);
+        const email = formData.get('email');
+        const password = formData.get('password');
+        
+        console.log('⚠️ Emergency login attempt for:', email);
+        alert('Login functionality is being initialized. Please try again in a moment.');
+        
+        // Close the modal
+        const modal = document.getElementById('loginModal');
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    } catch (error) {
+        console.error('❌ Emergency handleLogin error:', error);
+    }
+}
+
 window.handleRegister = (event) => {
-    if (window.app) {
+    if (window.app && typeof window.app.handleRegister === 'function') {
         window.app.handleRegister(event);
+    } else if (window.app) {
+        console.warn('App exists but handleRegister method missing, using fallback');
+        emergencyHandleRegister(event);
     } else {
-        console.warn('App not initialized yet, queuing handleRegister call');
-        pendingCalls.push(() => window.app.handleRegister(event));
+        console.warn('App not initialized yet, using emergency register handler');
+        emergencyHandleRegister(event);
     }
 };
+
+function emergencyHandleRegister(event) {
+    event.preventDefault();
+    try {
+        const form = event.target;
+        const formData = new FormData(form);
+        const firstName = formData.get('first_name');
+        const lastName = formData.get('last_name');
+        const email = formData.get('email');
+        
+        console.log('⚠️ Emergency registration attempt for:', firstName, lastName, email);
+        alert('Registration functionality is being initialized. Please try again in a moment.');
+        
+        // Close the modal
+        const modal = document.getElementById('registerModal');
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    } catch (error) {
+        console.error('❌ Emergency handleRegister error:', error);
+    }
+}
 
 window.handleRoleChange = (event) => {
     if (window.app) {
@@ -958,14 +1209,30 @@ window.logout = () => {
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
-    window.app = new DiseaseZoneApp();
-    // Execute any pending function calls that were queued before initialization
-    setTimeout(executePendingCalls, 100);
+    try {
+        console.log('📅 DOMContentLoaded event fired - starting app initialization');
+        window.app = new DiseaseZoneApp();
+        console.log('✅ window.app created successfully:', !!window.app);
+        // Execute any pending function calls that were queued before initialization
+        setTimeout(() => {
+            console.log('🔄 Executing pending calls, queue length:', pendingCalls.length);
+            executePendingCalls();
+        }, 100);
+    } catch (error) {
+        console.error('❌ FATAL ERROR during DOMContentLoaded initialization:', error);
+        console.error('❌ Stack trace:', error.stack);
+        // Still try to make basic functions work
+        window.app = {
+            showView: (view) => console.error('App failed to initialize, showView called with:', view),
+            openModal: (modal) => console.error('App failed to initialize, openModal called with:', modal),
+            closeModal: (modal) => console.error('App failed to initialize, closeModal called with:', modal)
+        };
+    }
 });
 
 // Early debug logging
 console.log('🧬 diseaseZone Frontend Application Loaded');
-console.log('📊 Environment check:', {
+console.log('📁 Environment check:', {
     location: window.location.href,
     readyState: document.readyState,
     hasApp: !!window.app
@@ -990,7 +1257,23 @@ if (document.readyState === 'loading') {
     // DOM is already loaded
     console.log('✅ DOM already loaded, initializing immediately');
     if (!window.app) {
-        window.app = new DiseaseZoneApp();
-        setTimeout(executePendingCalls, 10);
+        try {
+            window.app = new DiseaseZoneApp();
+            setTimeout(executePendingCalls, 10);
+        } catch (error) {
+            console.error('❌ ERROR initializing app when DOM already ready:', error);
+            // Set up emergency fallbacks
+            emergencyCreateModals();
+        }
     }
 }
+
+// EMERGENCY INITIALIZATION - Ensure modals exist within 2 seconds
+setTimeout(() => {
+    if (!document.getElementById('loginModal')) {
+        console.warn('⚠️ Modals not found after 2 seconds, creating emergency modals');
+        emergencyCreateModals();
+    } else {
+        console.log('✅ Modals verified present after 2 seconds');
+    }
+}, 2000);

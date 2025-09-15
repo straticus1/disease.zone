@@ -5,6 +5,78 @@ All notable changes to diseaseZone will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.4] - 2025-09-15
+
+### 🔧 Emergency Recovery & Authentication Tools
+
+#### Added
+- **Login Validation Script** - Comprehensive authentication testing and debugging tool
+  - Tests both database-level and API authentication separately
+  - Smart environment detection (Local/Docker/AWS) with automatic path configuration
+  - Interactive menu system for easy emergency use during outages
+  - Real-time diagnosis of authentication failures with recommendations
+- **Password Reset System** - Emergency recovery capabilities for production incidents
+  - Individual user password reset functionality
+  - Mass password reset to known defaults for emergency recovery
+  - Admin user creation with known credentials (`admin@disease.zone` / `admin123`)
+  - Premium user setup for testing subscription features
+- **Database Management Tools** - Enhanced user and subscription management
+  - Added missing `subscription_tier` column to users table
+  - User role and subscription tier display and management
+  - Verification status tracking and modification
+- **Scripts Organization** - Proper utility script organization
+  - Moved all utility scripts to `/scripts` directory
+  - Added comprehensive documentation in `scripts/README.md`
+  - Created production wrapper script for AWS deployment
+  - Added NPM script aliases for easy access
+
+#### Enhanced
+- **Environment Configuration** - Zero-configuration deployment support
+  - Smart defaults for Local/Docker/AWS environments
+  - Optional environment variable overrides
+  - Session-based configuration changes for emergency situations
+  - Production-ready paths and URLs with no setup required
+- **User Authentication** - Improved login system reliability
+  - Fixed admin user authentication with proper bcrypt hashing
+  - Updated all test user passwords to known values
+  - Enhanced error logging and debugging capabilities
+  - Added fallback authentication methods for emergency access
+
+#### Fixed
+- **Authentication Issues** - Resolved login problems preventing platform access
+  - Fixed bcrypt password verification inconsistencies
+  - Corrected database schema issues with subscription tiers
+  - Resolved missing admin user in production databases
+  - Fixed password hash generation and validation
+- **Database Inconsistencies** - Synchronized schema with application requirements
+  - Added missing subscription_tier column across all environments
+  - Standardized user roles and permission levels
+  - Fixed foreign key relationships and constraints
+
+#### Infrastructure
+- **NPM Scripts** - Added convenient CLI access
+  - `npm run login-validate` - Interactive authentication testing
+  - `npm run login-validate-prod` - Production environment testing
+  - `npm run reset-passwords` - Quick access to password reset instructions
+- **Documentation** - Complete emergency recovery procedures
+  - Step-by-step emergency access recovery guide
+  - Default credentials table for all user roles
+  - AWS deployment configuration instructions
+  - Docker container support documentation
+
+#### Security
+- **Emergency Access** - Secure emergency recovery procedures
+  - Known admin credentials for emergency platform access
+  - Secure password reset with bcrypt hashing (cost factor 12)
+  - Audit logging for all password reset operations
+  - Session-only configuration changes to prevent persistent security risks
+
+### 📋 Emergency Recovery Process
+1. Run `npm run login-validate`
+2. Choose option 3: "Reset all user passwords to defaults"
+3. Confirm with "yes"
+4. Login with `admin@disease.zone` / `admin123`
+
 ## [3.1.3] - 2025-09-15
 
 ### 🚨 Critical Production Fixes - Domain Routing & Navigation

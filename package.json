@@ -1,6 +1,6 @@
 {
   "name": "disease.zone",
-  "version": "3.1.2",
+  "version": "3.1.4",
   "description": "diseaseZone - A comprehensive disease tracking and visualization platform with mapping integration (previously covid19lookup.nyc)",
   "main": "server.js",
   "scripts": {
@@ -9,7 +9,10 @@
     "build": "webpack --mode production",
     "generate-hashes": "node scripts/generate-hashes.js",
     "verify-hashes": "node scripts/verify-hashes.js",
-    "verify-github": "node scripts/verify-hashes.js --github"
+    "verify-github": "node scripts/verify-hashes.js --github",
+    "login-validate": "node scripts/login-validate.js",
+    "login-validate-prod": "./scripts/login-validate-prod.sh",
+    "reset-passwords": "echo 'Use: npm run login-validate (choose option 3)'"
   },
   "bin": {
     "diseasezone": "./cli.js"

@@ -6,7 +6,7 @@
 
 *Previously known as covid19lookup.nyc*
 
-[![Version](https://img.shields.io/badge/version-3.1.3-blue.svg)](https://github.com/straticus1/disease.zone)
+[![Version](https://img.shields.io/badge/version-3.1.4-blue.svg)](https://github.com/straticus1/disease.zone)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-brightgreen.svg)](./MEDICAL_COMPLIANCE_REVIEW.md)
 [![GDPR](https://img.shields.io/badge/GDPR-Compliant-brightgreen.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
@@ -123,6 +123,28 @@ npm run dev
 
 # The platform will be available at http://localhost:3000
 ```
+
+### 🚨 Emergency Recovery
+
+If you encounter login issues or need emergency access:
+
+```bash
+# Run the login validation and password reset tool
+npm run login-validate
+
+# Choose option 3 to reset all passwords to defaults
+# Then login with: admin@disease.zone / admin123
+
+# Or use production settings for AWS deployment
+npm run login-validate-prod
+```
+
+**Emergency Credentials (after password reset):**
+- **Admin**: `admin@disease.zone` / `admin123`
+- **Doctor**: `doctor@test.com` / `doctor123`  
+- **User**: `test@test.com` / `test123`
+
+See `scripts/README.md` for complete emergency recovery procedures.
 
 ### CLI Installation
 
