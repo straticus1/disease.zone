@@ -94,3 +94,69 @@ backups/
 
 # Verification reports (but keep hash files)
 VERIFICATION_REPORT.json
+
+# Blockchain Infrastructure
+ledger/node_modules/
+ledger/.env
+ledger/.env.*
+
+# Hyperledger Fabric
+ledger/hyperledger/crypto-config/
+ledger/hyperledger/channel-artifacts/
+ledger/hyperledger/wallet/
+ledger/hyperledger/*.block
+ledger/hyperledger/*.tx
+
+# Blockchain data and keys
+ledger/hyperledger/*/keystore/
+ledger/hyperledger/*/signcerts/
+ledger/hyperledger/*/cacerts/
+ledger/hyperledger/*/tlscacerts/
+ledger/sidechain/data/
+ledger/sidechain/keystore/
+ledger/bridges/keys/
+
+# Smart contract artifacts
+ledger/smart-contracts/artifacts/
+ledger/smart-contracts/cache/
+ledger/smart-contracts/typechain/
+ledger/smart-contracts/.env
+
+# Docker volumes and data
+ledger/docker/data/
+ledger/docker/volumes/
+
+# Monitoring data
+ledger/monitoring/data/
+ledger/prometheus-data/
+ledger/grafana-data/
+
+# Blockchain logs
+ledger/logs/
+ledger/api/logs/
+*.blockchain.log
+
+# Certificate authorities
+ledger/**/*.key
+ledger/**/*.pem
+ledger/**/*.crt
+ledger/**/*.p12
+
+# Development blockchain data
+ledger/geth/
+ledger/besu/
+ledger/lighthouse/
+
+# Kubernetes secrets (when deployed)
+ledger/k8s/secrets/
+ledger/deployment/*.secret.yaml
+
+# Testing blockchain networks
+ledger/test-networks/
+ledger/dev-chains/
+
+# Private keys and mnemonics (NEVER COMMIT)
+ledger/**/*private*
+ledger/**/*mnemonic*
+ledger/**/*seed*
+ledger/**/wallet.jsonterraform/.terraform/

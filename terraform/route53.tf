@@ -72,7 +72,7 @@ resource "aws_acm_certificate_validation" "main" {
   validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
 
   timeouts {
-    create = "5m"
+    create = "10m"
   }
 }
 
@@ -86,7 +86,6 @@ resource "aws_route53_health_check" "main" {
   request_interval                = "30"
   cloudwatch_alarm_region         = var.aws_region
   cloudwatch_alarm_name           = "${var.project_name}-health-alarm-${var.environment}"
-  insufficient_data_health_status = "Failure"
 
   tags = {
     Name = "${var.project_name}-health-check-${var.environment}"

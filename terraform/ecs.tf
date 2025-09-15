@@ -34,29 +34,33 @@ resource "aws_ecr_repository" "main" {
     scan_on_push = true
   }
 
-  lifecycle_policy {
-    policy = jsonencode({
-      rules = [
-        {
-          rulePriority = 1
-          description  = "Keep last 30 images"
-          selection = {
-            tagStatus     = "tagged"
-            tagPrefixList = ["v"]
-            countType     = "imageCountMoreThan"
-            countNumber   = 30
-          }
-          action = {
-            type = "expire"
-          }
-        }
-      ]
-    })
-  }
 
   tags = {
     Name = "${var.project_name}-ecr-${var.environment}"
   }
+}
+
+# ECR Lifecycle Policy
+resource "aws_ecr_lifecycle_policy" "main" {
+  repository = aws_ecr_repository.main.name
+
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Keep last 30 images"
+        selection = {
+          tagStatus     = "tagged"
+          tagPrefixList = ["v"]
+          countType     = "imageCountMoreThan"
+          countNumber   = 30
+        }
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
 }
 
 # ECS Task Definition
@@ -147,12 +151,11 @@ resource "aws_ecs_service" "main" {
     container_port   = 3000
   }
 
-  deployment_configuration {
-    maximum_percent         = 200
-    minimum_healthy_percent = 100
-  }
+  deployment_maximum_percent         = 200
+  deployment_minimum_healthy_percent = 100
 
   depends_on = [
+    aws_lb_listener.http,
     aws_lb_listener.main,
     aws_iam_role_policy_attachment.ecs_execution
   ]

@@ -91,6 +91,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "alb_logs" {
     id     = "log_lifecycle"
     status = "Enabled"
 
+    filter {
+      prefix = "alb-logs/"
+    }
+
     expiration {
       days = 30
     }

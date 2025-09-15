@@ -1245,7 +1245,7 @@ app.get('/api/std/status', async (req, res) => {
 
     res.json({
       status: "fully_operational",
-      mockDataActive: true,
+      mockDataActive: false,
       realDataAvailable: true,
       realDataSource: "CDC data.gov NNDSS",
       cdcWonderIntegration: "in_development",

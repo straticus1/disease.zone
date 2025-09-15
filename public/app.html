@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>diseaseZone - Comprehensive Health Intelligence Platform</title>
+
+    <!-- Enhanced Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https: wss:; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none';">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=()">
+    <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload">
+
+    <!-- External Libraries -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===== CSS VARIABLES ===== */
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --dark-color: #1e293b;
+            --light-color: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --border-radius: 8px;
+            --transition: all 0.2s ease-in-out;
+        }
+
+        /* ===== GLOBAL STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--light-color);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* ===== HEADER & NAVIGATION ===== */
+        .header {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .logo i {
+            margin-right: 0.5rem;
+            font-size: 1.75rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary-color);
+            background-color: rgba(37, 99, 235, 0.1);
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-primary);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            margin-top: 80px;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* ===== ROLE-BASED VIEWS ===== */
+        .view {
+            display: none;
+            padding: 2rem 0;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        /* ===== HERO SECTION (Guest View) ===== */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--light-color);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .btn-error {
+            background: var(--error-color);
+            color: white;
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        /* ===== GRID LAYOUTS ===== */
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+        .grid-4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+        /* ===== FORMS ===== */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background: white;
+            font-size: 1rem;
+        }
+
+        .form-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== DASHBOARD STYLES ===== */
+        .dashboard {
+            padding: 2rem 0;
+        }
+
+        .dashboard-header {
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        /* ===== MODAL STYLES ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        /* ===== ALERT STYLES ===== */
+        .alert {
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--success-color);
+            color: #065f46;
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--warning-color);
+            color: #92400e;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--error-color);
+            color: #991b1b;
+        }
+
+        /* ===== LOADING STATES ===== */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        /* ===== UTILITY CLASSES ===== */
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .mb-1 { margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .mb-3 { margin-bottom: 1.5rem; }
+        .mt-1 { margin-top: 0.5rem; }
+        .mt-2 { margin-top: 1rem; }
+        .mt-3 { margin-top: 1.5rem; }
+        .p-1 { padding: 0.5rem; }
+        .p-2 { padding: 1rem; }
+        .p-3 { padding: 1.5rem; }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="#" class="logo">
+                    <i class="fas fa-dna"></i>
+                    diseaseZone
+                </a>
+
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="#" onclick="showView('guest')" class="nav-link">Home</a></li>
+                    <li><a href="#" onclick="showView('surveillance')" class="nav-link">Surveillance</a></li>
+                    <li><a href="#" onclick="showView('research')" class="nav-link">Research</a></li>
+                    <li><a href="#" onclick="showView('blockchain')" class="nav-link">Blockchain</a></li>
+                </ul>
+
+                <div class="user-menu" id="userMenu">
+                    <div class="user-avatar" onclick="toggleUserMenu()" id="userAvatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+
+                <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Guest View -->
+        <div class="view" id="guestView">
+            <section class="hero">
+                <div class="container">
+                    <h1>Global Health Intelligence Platform</h1>
+                    <p>Comprehensive disease surveillance, outbreak detection, and blockchain-verified health data for the modern world.</p>
+                    <div class="cta-buttons">
+                        <a href="#" onclick="openModal('loginModal')" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Login
+                        </a>
+                        <a href="#" onclick="openModal('registerModal')" class="btn btn-secondary">
+                            <i class="fas fa-user-plus"></i>
+                            Register
+                        </a>
+                        <a href="#" onclick="showView('demo')" class="btn btn-secondary">
+                            <i class="fas fa-play"></i>
+                            View Demo
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <div class="container">
+                <section class="grid grid-3 mt-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-virus" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+                            <h3 class="card-title">Disease Surveillance</h3>
+                            <p>Real-time monitoring of infectious diseases with advanced outbreak detection algorithms.</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-chart-line" style="font-size: 3rem; color: var(--success-color); margin-bottom: 1rem;"></i>
+                            <h3 class="card-title">Data Analytics</h3>
+                            <p>Advanced analytics and AI-powered insights from 15+ global health data sources.</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-link" style="font-size: 3rem; color: var(--warning-color); margin-bottom: 1rem;"></i>
+                            <h3 class="card-title">Blockchain Verified</h3>
+                            <p>Cryptographically secure health data with HEALTH token rewards for contributions.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- User Dashboard View -->
+        <div class="view" id="userView">
+            <div class="container dashboard">
+                <div class="dashboard-header">
+                    <h1>Personal Health Dashboard</h1>
+                    <p>Track your health data and contribute to global health research.</p>
+                </div>
+
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="userDataPoints">0</div>
+                        <div class="stat-label">Data Points Contributed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="userTokensEarned">0</div>
+                        <div class="stat-label">HEALTH Tokens Earned</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="userRiskScore">Low</div>
+                        <div class="stat-label">Current Risk Score</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="userLastUpdate">Never</div>
+                        <div class="stat-label">Last Data Update</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Quick Actions</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="grid" style="gap: 1rem;">
+                                <button class="btn btn-primary" onclick="openModal('addDiseaseModal')">
+                                    <i class="fas fa-plus"></i>
+                                    Add Health Data
+                                </button>
+                                <button class="btn btn-secondary" onclick="openModal('symptomAnalysisModal')">
+                                    <i class="fas fa-stethoscope"></i>
+                                    Symptom Analysis
+                                </button>
+                                <button class="btn btn-success" onclick="showView('blockchain')">
+                                    <i class="fas fa-coins"></i>
+                                    View HEALTH Tokens
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Recent Activity</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="userActivity">
+                                <p class="text-center" style="color: var(--text-secondary);">No recent activity</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medical Professional View -->
+        <div class="view" id="medicalView">
+            <div class="container dashboard">
+                <div class="dashboard-header">
+                    <h1>Medical Professional Dashboard</h1>
+                    <p>Advanced healthcare analytics and patient management tools.</p>
+                </div>
+
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalPatients">0</div>
+                        <div class="stat-label">Total Patients</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="activeOutbreaks">0</div>
+                        <div class="stat-label">Active Outbreaks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="pendingReviews">0</div>
+                        <div class="stat-label">Pending Reviews</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="researchContributions">0</div>
+                        <div class="stat-label">Research Contributions</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Clinical Tools</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="grid" style="gap: 1rem;">
+                                <button class="btn btn-primary" onclick="openModal('patientSearchModal')">
+                                    <i class="fas fa-search"></i>
+                                    Patient Search
+                                </button>
+                                <button class="btn btn-secondary" onclick="openModal('outbreakAnalysisModal')">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    Outbreak Analysis
+                                </button>
+                                <button class="btn btn-success" onclick="openModal('researchDataModal')">
+                                    <i class="fas fa-flask"></i>
+                                    Research Data
+                                </button>
+                                <button class="btn btn-warning" onclick="openModal('complianceModal')">
+                                    <i class="fas fa-shield-alt"></i>
+                                    Compliance Tools
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Priority Alerts</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="priorityAlerts">
+                                <p class="text-center" style="color: var(--text-secondary);">No priority alerts</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Insurance Company View -->
+        <div class="view" id="insuranceView">
+            <div class="container dashboard">
+                <div class="dashboard-header">
+                    <h1>Insurance Analytics Dashboard</h1>
+                    <p>Risk assessment and actuarial analysis for health insurance.</p>
+                </div>
+
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalPolicies">0</div>
+                        <div class="stat-label">Active Policies</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="riskAssessments">0</div>
+                        <div class="stat-label">Risk Assessments</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="claimsProcessed">0</div>
+                        <div class="stat-label">Claims Processed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="costSavings">$0</div>
+                        <div class="stat-label">Prevention Savings</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Analytics Tools</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="grid" style="gap: 1rem;">
+                                <button class="btn btn-primary" onclick="openModal('riskAnalysisModal')">
+                                    <i class="fas fa-chart-pie"></i>
+                                    Risk Analysis
+                                </button>
+                                <button class="btn btn-secondary" onclick="openModal('populationHealthModal')">
+                                    <i class="fas fa-users"></i>
+                                    Population Health
+                                </button>
+                                <button class="btn btn-success" onclick="openModal('costModelingModal')">
+                                    <i class="fas fa-calculator"></i>
+                                    Cost Modeling
+                                </button>
+                                <button class="btn btn-warning" onclick="openModal('fraudDetectionModal')">
+                                    <i class="fas fa-eye"></i>
+                                    Fraud Detection
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Market Intelligence</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="marketIntelligence">
+                                <p class="text-center" style="color: var(--text-secondary);">Loading market data...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Blockchain View -->
+        <div class="view" id="blockchainView">
+            <div class="container dashboard">
+                <div class="dashboard-header">
+                    <h1>Blockchain & HEALTH Tokens</h1>
+                    <p>Decentralized health data marketplace and token economics.</p>
+                </div>
+
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="healthTokenBalance">0</div>
+                        <div class="stat-label">HEALTH Tokens</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="dataContributions">0</div>
+                        <div class="stat-label">Data Contributions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="marketplaceSales">0</div>
+                        <div class="stat-label">Marketplace Sales</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="networkStatus">Online</div>
+                        <div class="stat-label">Network Status</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Blockchain Operations</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="grid" style="gap: 1rem;">
+                                <button class="btn btn-primary" onclick="openModal('tokenWalletModal')">
+                                    <i class="fas fa-wallet"></i>
+                                    Token Wallet
+                                </button>
+                                <button class="btn btn-secondary" onclick="openModal('dataMarketplaceModal')">
+                                    <i class="fas fa-store"></i>
+                                    Data Marketplace
+                                </button>
+                                <button class="btn btn-success" onclick="openModal('stakeTokensModal')">
+                                    <i class="fas fa-seedling"></i>
+                                    Stake Tokens
+                                </button>
+                                <button class="btn btn-warning" onclick="openModal('governanceModal')">
+                                    <i class="fas fa-vote-yea"></i>
+                                    Governance
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Recent Transactions</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="recentTransactions">
+                                <p class="text-center" style="color: var(--text-secondary);">No recent transactions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals will be added here -->
+    <div id="modals"></div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>

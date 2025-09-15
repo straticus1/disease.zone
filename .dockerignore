@@ -17,3 +17,4 @@ Dockerfile
 terraform/
 ansible/
 *.md
+!CLAUDE.md
