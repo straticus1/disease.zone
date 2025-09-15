@@ -1,0 +1,233 @@
+name: "health-consortium-network"
+version: 1.0.0
+description: "Healthcare Data Consortium Network for disease.zone"
+
+client:
+  organization: Hospital
+  logging:
+    level: debug
+  connection:
+    timeout:
+      peer:
+        endorser: '300'
+      orderer: '300'
+
+organizations:
+  Hospital:
+    mspid: HospitalMSP
+    peers:
+      - peer0.hospital.disease.zone
+      - peer1.hospital.disease.zone
+    certificateAuthorities:
+      - ca.hospital.disease.zone
+    adminPrivateKeyPEM:
+      path: ./crypto-config/peerOrganizations/hospital.disease.zone/users/Admin@hospital.disease.zone/msp/keystore/admin_sk
+    signedCertPEM:
+      path: ./crypto-config/peerOrganizations/hospital.disease.zone/users/Admin@hospital.disease.zone/msp/signcerts/Admin@hospital.disease.zone-cert.pem
+
+  Research:
+    mspid: ResearchMSP
+    peers:
+      - peer0.research.disease.zone
+      - peer1.research.disease.zone
+    certificateAuthorities:
+      - ca.research.disease.zone
+
+  Government:
+    mspid: GovernmentMSP
+    peers:
+      - peer0.government.disease.zone
+    certificateAuthorities:
+      - ca.government.disease.zone
+
+  Insurance:
+    mspid: InsuranceMSP
+    peers:
+      - peer0.insurance.disease.zone
+    certificateAuthorities:
+      - ca.insurance.disease.zone
+
+orderers:
+  orderer0.disease.zone:
+    url: grpcs://localhost:7050
+    mspid: OrdererMSP
+    grpcOptions:
+      ssl-target-name-override: orderer0.disease.zone
+      hostnameOverride: orderer0.disease.zone
+    tlsCACerts:
+      path: ./crypto-config/ordererOrganizations/disease.zone/tlsca/tlsca.disease.zone-cert.pem
+
+  orderer1.disease.zone:
+    url: grpcs://localhost:8050
+    mspid: OrdererMSP
+    grpcOptions:
+      ssl-target-name-override: orderer1.disease.zone
+      hostnameOverride: orderer1.disease.zone
+    tlsCACerts:
+      path: ./crypto-config/ordererOrganizations/disease.zone/tlsca/tlsca.disease.zone-cert.pem
+
+peers:
+  peer0.hospital.disease.zone:
+    url: grpcs://localhost:7051
+    eventUrl: grpcs://localhost:7053
+    mspid: HospitalMSP
+    grpcOptions:
+      ssl-target-name-override: peer0.hospital.disease.zone
+      hostnameOverride: peer0.hospital.disease.zone
+    tlsCACerts:
+      path: ./crypto-config/peerOrganizations/hospital.disease.zone/tlsca/tlsca.hospital.disease.zone-cert.pem
+
+  peer1.hospital.disease.zone:
+    url: grpcs://localhost:8051
+    eventUrl: grpcs://localhost:8053
+    mspid: HospitalMSP
+    grpcOptions:
+      ssl-target-name-override: peer1.hospital.disease.zone
+      hostnameOverride: peer1.hospital.disease.zone
+    tlsCACerts:
+      path: ./crypto-config/peerOrganizations/hospital.disease.zone/tlsca/tlsca.hospital.disease.zone-cert.pem
+
+  peer0.research.disease.zone:
+    url: grpcs://localhost:9051
+    eventUrl: grpcs://localhost:9053
+    mspid: ResearchMSP
+    grpcOptions:
+      ssl-target-name-override: peer0.research.disease.zone
+      hostnameOverride: peer0.research.disease.zone
+    tlsCACerts:
+      path: ./crypto-config/peerOrganizations/research.disease.zone/tlsca/tlsca.research.disease.zone-cert.pem
+
+  peer1.research.disease.zone:
+    url: grpcs://localhost:10051
+    eventUrl: grpcs://localhost:10053
+    mspid: ResearchMSP
+    grpcOptions:
+      ssl-target-name-override: peer1.research.disease.zone
+      hostnameOverride: peer1.research.disease.zone
+    tlsCACerts:
+      path: ./crypto-config/peerOrganizations/research.disease.zone/tlsca/tlsca.research.disease.zone-cert.pem
+
+  peer0.government.disease.zone:
+    url: grpcs://localhost:11051
+    eventUrl: grpcs://localhost:11053
+    mspid: GovernmentMSP
+    grpcOptions:
+      ssl-target-name-override: peer0.government.disease.zone
+      hostnameOverride: peer0.government.disease.zone
+    tlsCACerts:
+      path: ./crypto-config/peerOrganizations/government.disease.zone/tlsca/tlsca.government.disease.zone-cert.pem
+
+  peer0.insurance.disease.zone:
+    url: grpcs://localhost:12051
+    eventUrl: grpcs://localhost:12053
+    mspid: InsuranceMSP
+    grpcOptions:
+      ssl-target-name-override: peer0.insurance.disease.zone
+      hostnameOverride: peer0.insurance.disease.zone
+    tlsCACerts:
+      path: ./crypto-config/peerOrganizations/insurance.disease.zone/tlsca/tlsca.insurance.disease.zone-cert.pem
+
+certificateAuthorities:
+  ca.hospital.disease.zone:
+    url: https://localhost:7054
+    caName: ca.hospital.disease.zone
+    grpcOptions:
+      verify: false
+    tlsCACerts:
+      path: ./crypto-config/peerOrganizations/hospital.disease.zone/ca/ca.hospital.disease.zone-cert.pem
+    registrar:
+      enrollId: admin
+      enrollSecret: adminpw
+
+  ca.research.disease.zone:
+    url: https://localhost:8054
+    caName: ca.research.disease.zone
+    grpcOptions:
+      verify: false
+    tlsCACerts:
+      path: ./crypto-config/peerOrganizations/research.disease.zone/ca/ca.research.disease.zone-cert.pem
+    registrar:
+      enrollId: admin
+      enrollSecret: adminpw
+
+  ca.government.disease.zone:
+    url: https://localhost:9054
+    caName: ca.government.disease.zone
+    grpcOptions:
+      verify: false
+    tlsCACerts:
+      path: ./crypto-config/peerOrganizations/government.disease.zone/ca/ca.government.disease.zone-cert.pem
+    registrar:
+      enrollId: admin
+      enrollSecret: adminpw
+
+  ca.insurance.disease.zone:
+    url: https://localhost:10054
+    caName: ca.insurance.disease.zone
+    grpcOptions:
+      verify: false
+    tlsCACerts:
+      path: ./crypto-config/peerOrganizations/insurance.disease.zone/ca/ca.insurance.disease.zone-cert.pem
+    registrar:
+      enrollId: admin
+      enrollSecret: adminpw
+
+channels:
+  healthdata-channel:
+    peers:
+      peer0.hospital.disease.zone:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer1.hospital.disease.zone:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer0.research.disease.zone:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer1.research.disease.zone:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer0.government.disease.zone:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer0.insurance.disease.zone:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+  outbreak-alerts-channel:
+    peers:
+      peer0.hospital.disease.zone:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer0.government.disease.zone:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+  research-data-channel:
+    peers:
+      peer0.research.disease.zone:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer1.research.disease.zone:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true

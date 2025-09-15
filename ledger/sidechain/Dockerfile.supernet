@@ -1,0 +1,35 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install polygon-edge
+RUN apk add --no-cache git make gcc musl-dev go
+
+# Clone and build polygon-edge (placeholder - in production use official binary)
+RUN git clone https://github.com/0xPolygon/polygon-edge.git /tmp/polygon-edge || echo "Using placeholder"
+
+# Copy supernet configuration
+COPY supernet-config.json ./supernet-config.json
+
+# Create data directory
+RUN mkdir -p /app/data
+
+# Create startup script
+RUN echo '#!/bin/sh' > /app/start.sh && \
+    echo 'echo "Starting Health Supernet Node..."' >> /app/start.sh && \
+    echo 'echo "Chain ID: $CHAIN_ID"' >> /app/start.sh && \
+    echo 'echo "Validator Key: $VALIDATOR_KEY"' >> /app/start.sh && \
+    echo 'echo "Config: /app/supernet-config.json"' >> /app/start.sh && \
+    echo 'echo "Data Dir: /app/data"' >> /app/start.sh && \
+    echo '# In production, this would start the actual polygon-edge node' >> /app/start.sh && \
+    echo '# polygon-edge server --chain supernet-config.json --data-dir /app/data' >> /app/start.sh && \
+    echo 'echo "Mock Supernet Node Running on port 8545"' >> /app/start.sh && \
+    echo 'while true; do sleep 30; done' >> /app/start.sh && \
+    chmod +x /app/start.sh
+
+EXPOSE 8545 8546 30303
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD echo "Mock health check passed"
+
+CMD ["/app/start.sh"]

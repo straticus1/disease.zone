@@ -1,0 +1,32 @@
+{
+  "name": "health-records-chaincode",
+  "version": "1.0.0",
+  "description": "Healthcare data management chaincode for disease.zone consortium",
+  "main": "health-records.js",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "test": "mocha test --reporter spec",
+    "package": "npm pack"
+  },
+  "dependencies": {
+    "fabric-contract-api": "^2.2.0",
+    "crypto": "^1.0.1"
+  },
+  "devDependencies": {
+    "mocha": "^10.2.0",
+    "chai": "^4.3.10",
+    "fabric-shim": "^2.2.0"
+  },
+  "keywords": [
+    "hyperledger",
+    "fabric",
+    "chaincode",
+    "healthcare",
+    "privacy",
+    "disease-tracking"
+  ],
+  "author": "disease.zone",
+  "license": "MIT"
+}

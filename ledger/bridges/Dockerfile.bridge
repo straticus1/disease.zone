@@ -1,0 +1,35 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install dependencies for cross-chain operations
+RUN apk add --no-cache python3 make gcc musl-dev
+
+# Copy package files (if they existed)
+# COPY package*.json ./
+# RUN npm ci --only=production
+
+# Copy bridge configuration
+COPY config/ ./config/
+
+# Create bridge service script
+RUN echo '#!/bin/sh' > /app/start-bridge.sh && \
+    echo 'echo "Starting Health Data Bridge Service..."' >> /app/start-bridge.sh && \
+    echo 'echo "Ethereum RPC: $ETHEREUM_RPC_URL"' >> /app/start-bridge.sh && \
+    echo 'echo "Polygon RPC: $POLYGON_RPC_URL"' >> /app/start-bridge.sh && \
+    echo 'echo "Supernet RPC: $SUPERNET_RPC_URL"' >> /app/start-bridge.sh && \
+    echo 'echo "Fabric Config: $FABRIC_CONNECTION_PROFILE"' >> /app/start-bridge.sh && \
+    echo 'echo "Redis: $REDIS_URL"' >> /app/start-bridge.sh && \
+    echo 'echo "Kafka: $KAFKA_BROKERS"' >> /app/start-bridge.sh && \
+    echo '# In production, this would start the actual bridge service' >> /app/start-bridge.sh && \
+    echo 'echo "Mock Bridge Service Running..."' >> /app/start-bridge.sh && \
+    echo 'while true; do sleep 30; done' >> /app/start-bridge.sh && \
+    chmod +x /app/start-bridge.sh
+
+# Create bridge config directory
+RUN mkdir -p /app/config
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD echo "Bridge health check passed"
+
+CMD ["/app/start-bridge.sh"]

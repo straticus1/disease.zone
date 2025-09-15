@@ -1,0 +1,326 @@
+version: '3.8'
+
+services:
+  # Blockchain API Server
+  blockchain-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=development
+      - PORT=4000
+      - MAIN_API_URL=http://host.docker.internal:3000
+      - FABRIC_NETWORK_PATH=/app/hyperledger/network
+      - REDIS_URL=redis://redis:6379
+      - KAFKA_BROKERS=kafka:9092
+    volumes:
+      - ./hyperledger:/app/hyperledger
+      - ./smart-contracts:/app/smart-contracts
+      - blockchain-data:/app/data
+    depends_on:
+      - redis
+      - kafka
+      - hyperledger-ca-hospital
+      - hyperledger-peer0-hospital
+    networks:
+      - blockchain-network
+      - main-network
+
+  # Hyperledger Fabric Components
+  hyperledger-ca-hospital:
+    image: hyperledger/fabric-ca:1.5.6
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca.hospital.disease.zone
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=7054
+    ports:
+      - "7054:7054"
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ./hyperledger/ca/hospital:/etc/hyperledger/fabric-ca-server
+    networks:
+      - blockchain-network
+
+  hyperledger-ca-research:
+    image: hyperledger/fabric-ca:1.5.6
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca.research.disease.zone
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=8054
+    ports:
+      - "8054:8054"
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ./hyperledger/ca/research:/etc/hyperledger/fabric-ca-server
+    networks:
+      - blockchain-network
+
+  hyperledger-ca-government:
+    image: hyperledger/fabric-ca:1.5.6
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca.government.disease.zone
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=9054
+    ports:
+      - "9054:9054"
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ./hyperledger/ca/government:/etc/hyperledger/fabric-ca-server
+    networks:
+      - blockchain-network
+
+  # Orderer
+  orderer0:
+    image: hyperledger/fabric-orderer:2.5.4
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_LISTENPORT=7050
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_KAFKA_TOPIC_REPLICATIONFACTOR=1
+      - ORDERER_KAFKA_VERBOSE=true
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
+    command: orderer
+    volumes:
+      - ./hyperledger/config/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+      - ./hyperledger/crypto-config/ordererOrganizations/disease.zone/orderers/orderer0.disease.zone/msp:/var/hyperledger/orderer/msp
+      - ./hyperledger/crypto-config/ordererOrganizations/disease.zone/orderers/orderer0.disease.zone/tls/:/var/hyperledger/orderer/tls
+      - orderer0-data:/var/hyperledger/production/orderer
+    ports:
+      - "7050:7050"
+    networks:
+      - blockchain-network
+
+  # Hospital Peers
+  hyperledger-peer0-hospital:
+    image: hyperledger/fabric-peer:2.5.4
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=ledger_blockchain-network
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer0.hospital.disease.zone
+      - CORE_PEER_ADDRESS=peer0.hospital.disease.zone:7051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.hospital.disease.zone:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.hospital.disease.zone:8051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.hospital.disease.zone:7051
+      - CORE_PEER_LOCALMSPID=HospitalMSP
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./hyperledger/crypto-config/peerOrganizations/hospital.disease.zone/peers/peer0.hospital.disease.zone/msp:/etc/hyperledger/fabric/msp
+      - ./hyperledger/crypto-config/peerOrganizations/hospital.disease.zone/peers/peer0.hospital.disease.zone/tls:/etc/hyperledger/fabric/tls
+      - peer0-hospital-data:/var/hyperledger/production
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    ports:
+      - "7051:7051"
+    networks:
+      - blockchain-network
+
+  hyperledger-peer1-hospital:
+    image: hyperledger/fabric-peer:2.5.4
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=ledger_blockchain-network
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer1.hospital.disease.zone
+      - CORE_PEER_ADDRESS=peer1.hospital.disease.zone:8051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.hospital.disease.zone:8052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.hospital.disease.zone:8051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.hospital.disease.zone:7051
+      - CORE_PEER_LOCALMSPID=HospitalMSP
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./hyperledger/crypto-config/peerOrganizations/hospital.disease.zone/peers/peer1.hospital.disease.zone/msp:/etc/hyperledger/fabric/msp
+      - ./hyperledger/crypto-config/peerOrganizations/hospital.disease.zone/peers/peer1.hospital.disease.zone/tls:/etc/hyperledger/fabric/tls
+      - peer1-hospital-data:/var/hyperledger/production
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    ports:
+      - "8051:8051"
+    networks:
+      - blockchain-network
+
+  # Research Peers
+  hyperledger-peer0-research:
+    image: hyperledger/fabric-peer:2.5.4
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=ledger_blockchain-network
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer0.research.disease.zone
+      - CORE_PEER_ADDRESS=peer0.research.disease.zone:9051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.research.disease.zone:9052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.research.disease.zone:9051
+      - CORE_PEER_LOCALMSPID=ResearchMSP
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./hyperledger/crypto-config/peerOrganizations/research.disease.zone/peers/peer0.research.disease.zone/msp:/etc/hyperledger/fabric/msp
+      - ./hyperledger/crypto-config/peerOrganizations/research.disease.zone/peers/peer0.research.disease.zone/tls:/etc/hyperledger/fabric/tls
+      - peer0-research-data:/var/hyperledger/production
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    ports:
+      - "9051:9051"
+    networks:
+      - blockchain-network
+
+  # Polygon Supernet Node
+  polygon-supernet:
+    build:
+      context: ./sidechain
+      dockerfile: Dockerfile.supernet
+    environment:
+      - CHAIN_ID=1337
+      - VALIDATOR_KEY=${VALIDATOR_PRIVATE_KEY:-0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef01}
+      - BOOTNODE_KEY=${BOOTNODE_PRIVATE_KEY:-0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef02}
+    ports:
+      - "8545:8545"  # RPC
+      - "8546:8546"  # WS
+      - "30303:30303"  # P2P
+    volumes:
+      - ./sidechain/supernet-config.json:/app/supernet-config.json
+      - supernet-data:/app/data
+    networks:
+      - blockchain-network
+
+  # Cross-chain Bridge Service
+  bridge-service:
+    build:
+      context: ./bridges
+      dockerfile: Dockerfile.bridge
+    environment:
+      - ETHEREUM_RPC_URL=${ETHEREUM_RPC_URL:-https://mainnet.infura.io/v3/your-key}
+      - POLYGON_RPC_URL=${POLYGON_RPC_URL:-https://polygon-rpc.com}
+      - SUPERNET_RPC_URL=http://polygon-supernet:8545
+      - FABRIC_CONNECTION_PROFILE=/app/hyperledger/network-config.yaml
+      - REDIS_URL=redis://redis:6379
+      - KAFKA_BROKERS=kafka:9092
+    volumes:
+      - ./hyperledger/network-config.yaml:/app/hyperledger/network-config.yaml
+      - ./bridges/config:/app/config
+    depends_on:
+      - redis
+      - kafka
+      - polygon-supernet
+      - hyperledger-peer0-hospital
+    networks:
+      - blockchain-network
+
+  # Supporting Services
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - blockchain-network
+
+  # Kafka for cross-chain events
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - blockchain-network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    networks:
+      - blockchain-network
+
+  # Monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - blockchain-network
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - blockchain-network
+
+# Networks
+networks:
+  blockchain-network:
+    driver: bridge
+  main-network:
+    external: true
+    name: disease-zone_default
+
+# Volumes
+volumes:
+  blockchain-data:
+  orderer0-data:
+  peer0-hospital-data:
+  peer1-hospital-data:
+  peer0-research-data:
+  supernet-data:
+  redis-data:
+  kafka-data:
+  prometheus-data:
+  grafana-data:
