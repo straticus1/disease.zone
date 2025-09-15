@@ -5,6 +5,29 @@ All notable changes to diseaseZone will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.3] - 2025-09-15
+
+### 🚨 Critical Production Fixes - Domain Routing & Navigation
+
+#### Fixed
+- **Server Routing Logic**: Resolved critical Express.js middleware ordering issue
+  - Static middleware was intercepting requests before subdomain routing could process
+  - Moved homepage routes before `express.static()` to ensure proper subdomain detection
+- **Domain Content Serving**: Fixed both domains serving identical content
+  - `www.disease.zone` now correctly serves comprehensive health platform (`app.html`)
+  - `api.disease.zone` now correctly serves API developer portal
+- **Cross-Domain Navigation**: API portal now properly links to main platform
+- **JavaScript Functionality**: Verified all interactive elements work correctly (40KB+ app.js)
+
+#### Infrastructure
+- **DNS Configuration**: Confirmed `api.disease.zone` Alias record active
+- **SSL Coverage**: Wildcard `*.disease.zone` certificate covers both domains  
+- **AWS ECS Deployment**: Successfully deployed with container updates
+- **Production Verification**: Both domains confirmed working with distinct content
+
+#### Result
+Disease.zone platform now operates as designed with proper domain separation, full functionality on main platform, and dedicated API portal for developers.
+
 ## [2.0.0] - 2025-09-14
 
 ### 🎉 Major Release: Global Medical Compliance & Advanced Features
