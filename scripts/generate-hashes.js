@@ -38,6 +38,7 @@ class HashGenerator {
             // Development files
             /^\.vscode/,
             /^\.idea/,
+            /^\.claude/,
             /\.swp$/,
             /\.swo$/,
             /^\.DS_Store$/,

@@ -3,25 +3,19 @@ diseaseZone Security Hash Verification File
 
 Project: diseaseZone
 Version: 2.3.0
-Generated: 2025-09-15T00:58:24.660Z
+Generated: 2025-09-15T00:59:56.297Z
 Algorithm: SHA256
-Project Hash: 382104e2a120366971a279b8e8772acc8211664e0af5ee090f64727775570ac2
+Project Hash: 2ccc9dfdea523b38e43c81e5f60dd5ddb4f3f61dd3166f6dd0a4664f7c0377c5
 
 Statistics:
-- Total Files: 99
-- Hashed Files: 77
-- Skipped Files: 8
+- Total Files: 98
+- Hashed Files: 76
+- Skipped Files: 9
 - Total Size: 1.06 MB
-- Generation Time: 25ms
+- Generation Time: 23ms
 
 File Hashes:
 ============
-
-.claude/settings.local.json
-  Hash: 1628fc6f5abbee7a733feff6a53ab2f2705527adec9d9adb247a96b2b87c081e
-  Size: 858 B
-  Modified: 2025-09-15T00:55:47.065Z
-  Permissions: 0644
 
 .dockerignore
   Hash: 073a298393bb7d8645f5b0af099e231b6525fa9bf085ee2c9488adf84a080232
@@ -48,9 +42,9 @@ README.md
   Permissions: 0644
 
 VERIFICATION_REPORT.json
-  Hash: 8564047dc14b107b576648f845a20b8eaf63228b34f4d13f0dc937c5b25b79ab
-  Size: 12.6 KB
-  Modified: 2025-09-15T00:55:58.391Z
+  Hash: d585d2cd03f3fcaec7fcd50a0feb088b787e4bc2faa978ebda67dd153390ff60
+  Size: 13.4 KB
+  Modified: 2025-09-15T00:59:43.673Z
   Permissions: 0644
 
 ansible/deploy.yml

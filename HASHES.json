@@ -2,26 +2,19 @@
   "metadata": {
     "project": "diseaseZone",
     "version": "2.3.0",
-    "generated": "2025-09-15T00:58:24.660Z",
+    "generated": "2025-09-15T00:59:56.297Z",
     "generator": "diseaseZone Security Hash Generator v1.0",
     "algorithm": "sha256",
-    "projectHash": "382104e2a120366971a279b8e8772acc8211664e0af5ee090f64727775570ac2",
+    "projectHash": "2ccc9dfdea523b38e43c81e5f60dd5ddb4f3f61dd3166f6dd0a4664f7c0377c5",
     "stats": {
-      "totalFiles": 99,
-      "hashedFiles": 77,
-      "skippedFiles": 8,
-      "totalSize": 1111578,
-      "generationTime": 25
+      "totalFiles": 98,
+      "hashedFiles": 76,
+      "skippedFiles": 9,
+      "totalSize": 1111542,
+      "generationTime": 23
     }
   },
   "hashes": {
-    ".claude/settings.local.json": {
-      "hash": "1628fc6f5abbee7a733feff6a53ab2f2705527adec9d9adb247a96b2b87c081e",
-      "algorithm": "sha256",
-      "size": 858,
-      "modified": "2025-09-15T00:55:47.065Z",
-      "permissions": "0644"
-    },
     ".dockerignore": {
       "hash": "073a298393bb7d8645f5b0af099e231b6525fa9bf085ee2c9488adf84a080232",
       "algorithm": "sha256",
@@ -51,10 +44,10 @@
       "permissions": "0644"
     },
     "VERIFICATION_REPORT.json": {
-      "hash": "8564047dc14b107b576648f845a20b8eaf63228b34f4d13f0dc937c5b25b79ab",
+      "hash": "d585d2cd03f3fcaec7fcd50a0feb088b787e4bc2faa978ebda67dd153390ff60",
       "algorithm": "sha256",
-      "size": 12898,
-      "modified": "2025-09-15T00:55:58.391Z",
+      "size": 13720,
+      "modified": "2025-09-15T00:59:43.673Z",
       "permissions": "0644"
     },
     "ansible/deploy.yml": {
