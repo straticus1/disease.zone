@@ -25,6 +25,9 @@ const HIPAAService = require('./services/hipaaService');
 // Middleware
 const AuthMiddleware = require('./middleware/auth');
 
+// Utilities
+const ResponseHandler = require('./utils/responseHandler');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -236,7 +239,12 @@ app.post('/api/auth/logout',
 
 // User profile endpoints
 app.get('/api/user/profile',
-  app.locals.auth?.authenticateToken,
+  (req, res, next) => {
+    if (app.locals.auth?.authenticateToken) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    return res.status(500).json({ error: 'Authentication service not initialized' });
+  },
   async (req, res) => {
     try {
       const result = await app.locals.userService.getUserProfile(req.user.id);
@@ -252,7 +260,12 @@ app.get('/api/user/profile',
 
 // Family disease management endpoints
 app.get('/api/user/family-diseases',
-  app.locals.auth?.authenticateToken,
+  (req, res, next) => {
+    if (app.locals.auth?.authenticateToken) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    return res.status(500).json({ error: 'Authentication service not initialized' });
+  },
   async (req, res) => {
     try {
       const result = await app.locals.userService.getFamilyDiseases(req.user.id);
@@ -267,7 +280,12 @@ app.get('/api/user/family-diseases',
   });
 
 app.post('/api/user/family-diseases',
-  app.locals.auth?.authenticateToken,
+  (req, res, next) => {
+    if (app.locals.auth?.authenticateToken) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    return res.status(500).json({ error: 'Authentication service not initialized' });
+  },
   async (req, res) => {
     try {
       const userService = app.locals.userService;
@@ -294,7 +312,12 @@ app.post('/api/user/family-diseases',
   });
 
 app.put('/api/user/family-diseases/:id',
-  app.locals.auth?.authenticateToken,
+  (req, res, next) => {
+    if (app.locals.auth?.authenticateToken) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    return res.status(500).json({ error: 'Authentication service not initialized' });
+  },
   async (req, res) => {
     try {
       const familyDiseaseId = parseInt(req.params.id);
@@ -316,7 +339,12 @@ app.put('/api/user/family-diseases/:id',
   });
 
 app.delete('/api/user/family-diseases/:id',
-  app.locals.auth?.authenticateToken,
+  (req, res, next) => {
+    if (app.locals.auth?.authenticateToken) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    return res.status(500).json({ error: 'Authentication service not initialized' });
+  },
   async (req, res) => {
     try {
       const familyDiseaseId = parseInt(req.params.id);
@@ -605,17 +633,34 @@ app.get('/api/medical/symptom-analysis/pending-review',
 app.get('/api/diseases', async (req, res) => {
   try {
     const diseases = await app.locals.db.getAllDiseases();
-    res.json({
+    const data = {
       success: true,
       diseases,
       total_count: diseases.length
+    };
+
+    ResponseHandler.sendResponse(req, res, data, {
+      title: 'Disease Database',
+      description: 'Comprehensive database of tracked diseases including STDs, genetic disorders, neurological conditions, and more',
+      tableName: `All Diseases (${diseases.length})`
     });
   } catch (error) {
     console.error('Get diseases error:', error);
-    res.status(500).json({
+    const errorData = {
       success: false,
       error: 'Failed to fetch diseases'
-    });
+    };
+
+    if (ResponseHandler.isApiRequest(req)) {
+      res.status(500).json(errorData);
+    } else {
+      res.status(500).send(`
+        <div style="padding: 40px; text-align: center; color: #ef4444;">
+          <h2>❌ Error Loading Diseases</h2>
+          <p>Failed to fetch diseases from database</p>
+        </div>
+      `);
+    }
   }
 });
 
@@ -640,8 +685,18 @@ app.get('/api/diseases/category/:category', async (req, res) => {
 
 // API key management (for medical professionals)
 app.post('/api/user/api-keys',
-  app.locals.auth?.authenticateToken,
-  app.locals.auth?.requireRole(['medical_professional', 'admin']),
+  (req, res, next) => {
+    if (app.locals.auth?.authenticateToken) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    return res.status(500).json({ error: 'Authentication service not initialized' });
+  },
+  (req, res, next) => {
+    if (app.locals.auth?.requireRole) {
+      return app.locals.auth.requireRole(['medical_professional', 'admin'])(req, res, next);
+    }
+    return res.status(500).json({ error: 'Authentication service not initialized' });
+  },
   async (req, res) => {
     try {
       const { name, permissions, rate_limit, expires_in_days } = req.body;
@@ -772,8 +827,8 @@ app.get('/api/std/diseases', (req, res) => {
 app.get('/api/std/status', async (req, res) => {
   try {
     // Get dataset info from CDC data service
-    const datasetInfo = await cdcDataService.getDatasetInfo();
-    const availableYears = await cdcDataService.getAvailableYears();
+    const datasetInfo = await app.locals.cdcDataService.getDatasetInfo();
+    const availableYears = await app.locals.cdcDataService.getAvailableYears();
 
     res.json({
       status: "fully_operational",
@@ -838,7 +893,7 @@ app.get('/api/std/real-data', async (req, res) => {
   try {
     const { disease = 'all', year = '2023', state = 'all', aggregate = 'state' } = req.query;
 
-    const data = await cdcDataService.querySTDData({
+    const data = await app.locals.cdcDataService.querySTDData({
       disease,
       year,
       state,
@@ -861,7 +916,7 @@ app.get('/api/std/real-summary', async (req, res) => {
     const { year = '2023' } = req.query;
 
     // Get data for all diseases aggregated by disease
-    const data = await cdcDataService.querySTDData({
+    const data = await app.locals.cdcDataService.querySTDData({
       disease: 'all',
       year,
       state: 'all',
@@ -899,7 +954,7 @@ app.get('/api/std/real-summary', async (req, res) => {
 // CDC WONDER parameter discovery endpoint
 app.get('/api/std/wonder-discovery', async (req, res) => {
   try {
-    const discoveryInfo = stdService.getParameterDiscoveryInstructions();
+    const discoveryInfo = app.locals.stdService.getParameterDiscoveryInstructions();
     res.json(discoveryInfo);
   } catch (error) {
     res.status(500).json({
@@ -912,8 +967,8 @@ app.get('/api/std/wonder-discovery', async (req, res) => {
 // Test CDC WONDER database codes endpoint
 app.get('/api/std/wonder-test-codes', async (req, res) => {
   try {
-    await stdService.initFetch();
-    const testResults = await stdService.testDatabaseCodes();
+    await app.locals.stdService.initFetch();
+    const testResults = await app.locals.stdService.testDatabaseCodes();
     res.json({
       ...testResults,
       warning: "This endpoint tests multiple CDC WONDER database codes and may take several minutes",
@@ -958,7 +1013,7 @@ app.get('/api/std/charts/trend', async (req, res) => {
       const diseases = ['chlamydia', 'gonorrhea', 'syphilis'];
       for (const d of diseases) {
         try {
-          const data = await cdcDataService.querySTDData({
+          const data = await app.locals.cdcDataService.querySTDData({
             disease: d,
             year: 'all',
             state,
@@ -987,7 +1042,7 @@ app.get('/api/std/charts/trend', async (req, res) => {
     } else {
       // Get trend for specific disease
       try {
-        const data = await cdcDataService.querySTDData({
+        const data = await app.locals.cdcDataService.querySTDData({
           disease,
           year: 'all',
           state,
@@ -1052,7 +1107,7 @@ app.get('/api/std/charts/geographic', async (req, res) => {
   try {
     const { disease = 'chlamydia', year = '2023' } = req.query;
 
-    const data = await cdcDataService.querySTDData({
+    const data = await app.locals.cdcDataService.querySTDData({
       disease,
       year,
       state: 'all',
@@ -1104,7 +1159,7 @@ app.get('/api/std/charts/comparison', async (req, res) => {
 
     for (const disease of diseases) {
       try {
-        const data = await cdcDataService.querySTDData({
+        const data = await app.locals.cdcDataService.querySTDData({
           disease,
           year,
           state,
@@ -1161,7 +1216,7 @@ app.get('/api/std/charts/comparison', async (req, res) => {
 // State-level data endpoints
 app.get('/api/std/states', async (req, res) => {
   try {
-    const availableStates = await stateDataService.getAvailableStates();
+    const availableStates = await app.locals.stateDataService.getAvailableStates();
     res.json(availableStates);
   } catch (error) {
     console.error('Error getting available states:', error);
@@ -1177,7 +1232,7 @@ app.get('/api/std/states/:state', async (req, res) => {
     const { state } = req.params;
     const { disease = 'all', county = 'all', year = 'all', sex = 'Total' } = req.query;
 
-    const data = await stateDataService.queryStateData(state, {
+    const data = await app.locals.stateDataService.queryStateData(state, {
       disease,
       county,
       year,
@@ -1200,7 +1255,7 @@ app.get('/api/std/states/:state/summary', async (req, res) => {
     const { state } = req.params;
     const { year = '2021' } = req.query;
 
-    const summary = await stateDataService.getStateDataSummary(state, parseInt(year));
+    const summary = await app.locals.stateDataService.getStateDataSummary(state, parseInt(year));
     res.json(summary);
   } catch (error) {
     console.error(`Error generating state summary for ${req.params.state}:`, error);
@@ -1215,7 +1270,7 @@ app.get('/api/std/states/:state/summary', async (req, res) => {
 app.get('/api/neurological/alzheimers', async (req, res) => {
   try {
     const { state, year, metric } = req.query;
-    const data = await neurologicalService.getAlzheimersData({ state, year, metric });
+    const data = await app.locals.neurologicalService.getAlzheimersData({ state, year, metric });
     res.json(data);
   } catch (error) {
     console.error('Error fetching Alzheimer\'s data:', error);
@@ -1229,7 +1284,7 @@ app.get('/api/neurological/alzheimers', async (req, res) => {
 app.get('/api/neurological/trigeminal-neuralgia', async (req, res) => {
   try {
     const { state, year } = req.query;
-    const data = await neurologicalService.getTrigeminalNeuralgiaData({ state, year });
+    const data = await app.locals.neurologicalService.getTrigeminalNeuralgiaData({ state, year });
     res.json(data);
   } catch (error) {
     console.error('Error fetching trigeminal neuralgia data:', error);
@@ -1242,21 +1297,37 @@ app.get('/api/neurological/trigeminal-neuralgia', async (req, res) => {
 
 app.get('/api/neurological/diseases', (req, res) => {
   try {
-    const diseases = neurologicalService.getAvailableDiseases();
-    res.json(diseases);
+    const data = app.locals.neurologicalService.getAvailableDiseases();
+
+    ResponseHandler.sendResponse(req, res, data, {
+      title: 'Neurological Diseases',
+      description: 'Comprehensive database of neurological conditions including Alzheimer\'s, dementia, and rare neurological disorders',
+      tableName: `Neurological Diseases (${data.diseases?.length || 0})`
+    });
   } catch (error) {
     console.error('Error getting neurological diseases:', error);
-    res.status(500).json({
+    const errorData = {
       error: 'Failed to get neurological diseases list',
       message: error.message
-    });
+    };
+
+    if (ResponseHandler.isApiRequest(req)) {
+      res.status(500).json(errorData);
+    } else {
+      res.status(500).send(`
+        <div style="padding: 40px; text-align: center; color: #ef4444;">
+          <h2>❌ Error Loading Neurological Diseases</h2>
+          <p>${error.message}</p>
+        </div>
+      `);
+    }
   }
 });
 
 app.get('/api/neurological/summary', async (req, res) => {
   try {
     const { year } = req.query;
-    const summary = await neurologicalService.getNeurologicalSummary(year);
+    const summary = await app.locals.neurologicalService.getNeurologicalSummary(year);
     res.json(summary);
   } catch (error) {
     console.error('Error generating neurological summary:', error);
@@ -1271,7 +1342,7 @@ app.get('/api/neurological/summary', async (req, res) => {
 app.get('/api/genetic/pkd', async (req, res) => {
   try {
     const { state, year, type } = req.query;
-    const data = await geneticService.getPKDData({ state, year, type });
+    const data = await app.locals.geneticService.getPKDData({ state, year, type });
     res.json(data);
   } catch (error) {
     console.error('Error fetching PKD data:', error);
@@ -1285,7 +1356,7 @@ app.get('/api/genetic/pkd', async (req, res) => {
 app.get('/api/genetic/lupus', async (req, res) => {
   try {
     const { state, year, demographic } = req.query;
-    const data = await geneticService.getLupusData({ state, year, demographic });
+    const data = await app.locals.geneticService.getLupusData({ state, year, demographic });
     res.json(data);
   } catch (error) {
     console.error('Error fetching lupus data:', error);
@@ -1298,7 +1369,7 @@ app.get('/api/genetic/lupus', async (req, res) => {
 
 app.get('/api/genetic/diseases', (req, res) => {
   try {
-    const diseases = geneticService.getAvailableGeneticDiseases();
+    const diseases = app.locals.geneticService.getAvailableGeneticDiseases();
     res.json(diseases);
   } catch (error) {
     console.error('Error getting genetic diseases:', error);
@@ -1312,7 +1383,7 @@ app.get('/api/genetic/diseases', (req, res) => {
 app.get('/api/genetic/summary', async (req, res) => {
   try {
     const { year } = req.query;
-    const summary = await geneticService.getGeneticDiseasesSummary(year);
+    const summary = await app.locals.geneticService.getGeneticDiseasesSummary(year);
     res.json(summary);
   } catch (error) {
     console.error('Error generating genetic diseases summary:', error);
@@ -1327,7 +1398,7 @@ app.get('/api/genetic/summary', async (req, res) => {
 app.get('/api/musculoskeletal/degenerative-disc', async (req, res) => {
   try {
     const { state, year, spineLevel } = req.query;
-    const data = await musculoskeletalService.getDegenerativeDiscData({ state, year, spineLevel });
+    const data = await app.locals.musculoskeletalService.getDegenerativeDiscData({ state, year, spineLevel });
     res.json(data);
   } catch (error) {
     console.error('Error fetching degenerative disc data:', error);
@@ -1342,7 +1413,7 @@ app.get('/api/musculoskeletal/spine-level/:level', async (req, res) => {
   try {
     const { level } = req.params;
     const { state, year } = req.query;
-    const data = await musculoskeletalService.getSpineLevelData({ level, state, year });
+    const data = await app.locals.musculoskeletalService.getSpineLevelData({ level, state, year });
     res.json(data);
   } catch (error) {
     console.error(`Error fetching spine level data for ${req.params.level}:`, error);
@@ -1356,7 +1427,7 @@ app.get('/api/musculoskeletal/spine-level/:level', async (req, res) => {
 app.get('/api/musculoskeletal/risk-factors', async (req, res) => {
   try {
     const { factor, state } = req.query;
-    const data = await musculoskeletalService.getRiskFactorsData({ factor, state });
+    const data = await app.locals.musculoskeletalService.getRiskFactorsData({ factor, state });
     res.json(data);
   } catch (error) {
     console.error('Error fetching risk factors data:', error);
@@ -1369,7 +1440,7 @@ app.get('/api/musculoskeletal/risk-factors', async (req, res) => {
 
 app.get('/api/musculoskeletal/diseases', (req, res) => {
   try {
-    const diseases = musculoskeletalService.getAvailableMusculoskeletalDiseases();
+    const diseases = app.locals.musculoskeletalService.getAvailableMusculoskeletalDiseases();
     res.json(diseases);
   } catch (error) {
     console.error('Error getting musculoskeletal diseases:', error);
@@ -1383,7 +1454,7 @@ app.get('/api/musculoskeletal/diseases', (req, res) => {
 app.get('/api/musculoskeletal/summary', async (req, res) => {
   try {
     const { year } = req.query;
-    const summary = await musculoskeletalService.getMusculoskeletalSummary(year);
+    const summary = await app.locals.musculoskeletalService.getMusculoskeletalSummary(year);
     res.json(summary);
   } catch (error) {
     console.error('Error generating musculoskeletal summary:', error);
@@ -1397,7 +1468,7 @@ app.get('/api/musculoskeletal/summary', async (req, res) => {
 // Mapping service endpoints
 app.get('/api/maps/status', async (req, res) => {
   try {
-    const status = mappingService.getServiceStatus();
+    const status = app.locals.mappingService.getServiceStatus();
     res.json(status);
   } catch (error) {
     console.error('Error getting mapping service status:', error);
@@ -1420,7 +1491,7 @@ app.get('/api/maps/config', async (req, res) => {
       centerLng = '-74.0060'
     } = req.query;
 
-    const config = mappingService.getMapConfig(tier, {
+    const config = app.locals.mappingService.getMapConfig(tier, {
       provider,
       strategy,
       style,
@@ -1448,7 +1519,7 @@ app.get('/api/maps/tile/:provider/:z/:x/:y', async (req, res) => {
     const { style, tier = 'free' } = req.query;
 
     // Check if provider is available for the tier
-    const availableProviders = mappingService.getAvailableProviders(tier);
+    const availableProviders = app.locals.mappingService.getAvailableProviders(tier);
     if (!availableProviders.includes(provider)) {
       return res.status(403).json({
         error: `Provider ${provider} not available for tier ${tier}`,
@@ -1456,7 +1527,7 @@ app.get('/api/maps/tile/:provider/:z/:x/:y', async (req, res) => {
       });
     }
 
-    const tileUrl = mappingService.getTileUrl(provider, z, x, y, { style });
+    const tileUrl = app.locals.mappingService.getTileUrl(provider, z, x, y, { style });
 
     // Return tile URL or redirect to it
     res.json({
@@ -1484,7 +1555,7 @@ app.get('/api/maps/geocode', async (req, res) => {
       });
     }
 
-    const results = await mappingService.geocode(address, tier, provider);
+    const results = await app.locals.mappingService.geocode(address, tier, provider);
 
     res.json({
       success: true,
@@ -1513,7 +1584,7 @@ app.post('/api/maps/config/api-key', async (req, res) => {
       });
     }
 
-    const updated = mappingService.updateApiKey(provider, apiKey);
+    const updated = app.locals.mappingService.updateApiKey(provider, apiKey);
 
     if (updated) {
       res.json({
@@ -1547,7 +1618,7 @@ app.post('/api/maps/config/strategy', async (req, res) => {
       });
     }
 
-    const updated = mappingService.setLoadBalancingStrategy(strategy);
+    const updated = app.locals.mappingService.setLoadBalancingStrategy(strategy);
 
     if (updated) {
       res.json({
@@ -1572,19 +1643,19 @@ app.post('/api/maps/config/strategy', async (req, res) => {
 
 app.get('/api/maps/tiers', (req, res) => {
   try {
-    const tiers = mappingService.tiers;
-    const providers = mappingService.providers;
+    const tiers = app.locals.mappingService.tiers;
+    const providers = app.locals.mappingService.providers;
 
     const tierInfo = {};
     Object.keys(tiers).forEach(tier => {
       const tierConfig = tiers[tier];
       tierInfo[tier] = {
         ...tierConfig,
-        availableProviders: mappingService.getAvailableProviders(tier).map(p => ({
+        availableProviders: app.locals.mappingService.getAvailableProviders(tier).map(p => ({
           id: p,
           name: providers[p].name,
           requiresApiKey: providers[p].requiresApiKey,
-          configured: !providers[p].requiresApiKey || mappingService.apiKeys[p] !== null
+          configured: !providers[p].requiresApiKey || app.locals.mappingService.apiKeys[p] !== null
         }))
       };
     });
@@ -1593,7 +1664,7 @@ app.get('/api/maps/tiers', (req, res) => {
       success: true,
       tiers: tierInfo,
       loadBalancingStrategies: ['failover', 'round_robin', 'weighted'],
-      currentStrategy: mappingService.currentStrategy
+      currentStrategy: app.locals.mappingService.currentStrategy
     });
   } catch (error) {
     console.error('Error getting tier information:', error);

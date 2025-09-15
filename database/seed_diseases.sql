@@ -8,7 +8,7 @@ INSERT OR IGNORE INTO diseases (disease_code, name, category, subcategory, icd10
 ('DZ_STD_003', 'Syphilis', 'std', 'bacterial', '["A50", "A51", "A52", "A53"]', 'none', 'Bacterial infection with multiple stages'),
 
 -- Neurological Diseases
-('DZ_NEU_001', 'Alzheimer\'s Disease', 'neurological', 'dementia', '["F03", "G30"]', 'complex', '6.9 million Americans age 65+'),
+('DZ_NEU_001', 'Alzheimer''s Disease', 'neurological', 'dementia', '["F03", "G30"]', 'complex', '6.9 million Americans age 65+'),
 ('DZ_NEU_002', 'Frontotemporal Dementia', 'neurological', 'dementia', '["F02"]', 'complex', 'Less common form of dementia'),
 ('DZ_NEU_003', 'Vascular Dementia', 'neurological', 'dementia', '["F01"]', 'complex', 'Second most common dementia type'),
 ('DZ_NEU_004', 'Trigeminal Neuralgia', 'neurological', 'pain_disorder', '["G50.0"]', 'complex', '12-15 per 100,000 people'),
@@ -18,7 +18,7 @@ INSERT OR IGNORE INTO diseases (disease_code, name, category, subcategory, icd10
 ('DZ_GEN_001', 'Autosomal Dominant Polycystic Kidney Disease', 'genetic', 'kidney', '["Q61.2"]', 'autosomal_dominant', '1 in 400-1000 people'),
 ('DZ_GEN_002', 'Autosomal Recessive Polycystic Kidney Disease', 'genetic', 'kidney', '["Q61.1"]', 'autosomal_recessive', '1 in 20,000 births'),
 ('DZ_GEN_003', 'Systemic Lupus Erythematosus', 'genetic', 'autoimmune', '["M32"]', 'complex', '1.5 million Americans'),
-('DZ_GEN_004', 'Huntington\'s Disease', 'genetic', 'neurological', '["G10"]', 'autosomal_dominant', '3-7 per 100,000'),
+('DZ_GEN_004', 'Huntington''s Disease', 'genetic', 'neurological', '["G10"]', 'autosomal_dominant', '3-7 per 100,000'),
 ('DZ_GEN_005', 'Cystic Fibrosis', 'genetic', 'respiratory', '["E84"]', 'autosomal_recessive', '1 in 2,500-3,500 births'),
 ('DZ_GEN_006', 'Sickle Cell Disease', 'genetic', 'blood', '["D57"]', 'autosomal_recessive', '1 in 365 African American births'),
 
