@@ -189,7 +189,7 @@ class DiseaseZoneApp {
 
         // Update navigation
         navLinks.innerHTML = links.map(link =>
-            `<li><a href="#" onclick="app.showView('${link.view}')" class="nav-link">${link.text}</a></li>`
+            `<li><a href="#" onclick="showView('${link.view}')" class="nav-link">${link.text}</a></li>`
         ).join('');
     }
 
@@ -409,12 +409,12 @@ class DiseaseZoneApp {
                 <div class="modal-content">
                     <div class="modal-header">
                         <h3>Login to diseaseZone</h3>
-                        <button class="modal-close" onclick="app.closeModal('loginModal')">
+                        <button class="modal-close" onclick="closeModal('loginModal')">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form onsubmit="app.handleLogin(event)">
+                        <form onsubmit="handleLogin(event)">
                             <div class="form-group">
                                 <label class="form-label">Email</label>
                                 <input type="email" class="form-input" name="email" required>
@@ -430,7 +430,7 @@ class DiseaseZoneApp {
                                 </button>
                             </div>
                             <div class="text-center">
-                                <a href="#" onclick="app.closeModal('loginModal'); app.openModal('registerModal');">
+                                <a href="#" onclick="closeModal('loginModal'); openModal('registerModal');">
                                     Don't have an account? Register here
                                 </a>
                             </div>
@@ -444,12 +444,12 @@ class DiseaseZoneApp {
                 <div class="modal-content">
                     <div class="modal-header">
                         <h3>Create Account</h3>
-                        <button class="modal-close" onclick="app.closeModal('registerModal')">
+                        <button class="modal-close" onclick="closeModal('registerModal')">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form onsubmit="app.handleRegister(event)">
+                        <form onsubmit="handleRegister(event)">
                             <div class="form-group">
                                 <label class="form-label">First Name</label>
                                 <input type="text" class="form-input" name="first_name" required>
@@ -470,7 +470,7 @@ class DiseaseZoneApp {
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Role</label>
-                                <select class="form-select" name="role" required onchange="app.handleRoleChange(event)">
+                                <select class="form-select" name="role" required onchange="handleRoleChange(event)">
                                     <option value="">Select your role</option>
                                     <option value="user">Patient/Individual</option>
                                     <option value="medical_professional">Medical Professional</option>
@@ -494,7 +494,7 @@ class DiseaseZoneApp {
                                 </button>
                             </div>
                             <div class="text-center">
-                                <a href="#" onclick="app.closeModal('registerModal'); app.openModal('loginModal');">
+                                <a href="#" onclick="closeModal('registerModal'); openModal('loginModal');">
                                     Already have an account? Login here
                                 </a>
                             </div>
@@ -508,12 +508,12 @@ class DiseaseZoneApp {
                 <div class="modal-content">
                     <div class="modal-header">
                         <h3>Add Health Data</h3>
-                        <button class="modal-close" onclick="app.closeModal('addDiseaseModal')">
+                        <button class="modal-close" onclick="closeModal('addDiseaseModal')">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form onsubmit="app.handleAddDisease(event)">
+                        <form onsubmit="handleAddDisease(event)">
                             <div class="form-group">
                                 <label class="form-label">Disease/Condition</label>
                                 <select class="form-select" name="disease_id" required>
@@ -763,14 +763,14 @@ class DiseaseZoneApp {
                         <small style="color: var(--text-secondary);">${this.currentUser.email}</small>
                     </div>
                     <div style="padding: 0.5rem;">
-                        <a href="#" onclick="app.showView('user'); app.hideUserMenu();" style="display: block; padding: 0.5rem; text-decoration: none; color: var(--text-primary); border-radius: 4px;" onmouseover="this.style.backgroundColor='var(--light-color)';" onmouseout="this.style.backgroundColor='transparent';">
+                        <a href="#" onclick="showView('user'); hideUserMenu();" style="display: block; padding: 0.5rem; text-decoration: none; color: var(--text-primary); border-radius: 4px;" onmouseover="this.style.backgroundColor='var(--light-color)';" onmouseout="this.style.backgroundColor='transparent';">
                             <i class="fas fa-user"></i> Profile
                         </a>
-                        <a href="#" onclick="app.showView('blockchain'); app.hideUserMenu();" style="display: block; padding: 0.5rem; text-decoration: none; color: var(--text-primary); border-radius: 4px;" onmouseover="this.style.backgroundColor='var(--light-color)';" onmouseout="this.style.backgroundColor='transparent';">
+                        <a href="#" onclick="showView('blockchain'); hideUserMenu();" style="display: block; padding: 0.5rem; text-decoration: none; color: var(--text-primary); border-radius: 4px;" onmouseover="this.style.backgroundColor='var(--light-color)';" onmouseout="this.style.backgroundColor='transparent';">
                             <i class="fas fa-coins"></i> HEALTH Tokens
                         </a>
                         <hr style="margin: 0.5rem 0;">
-                        <a href="#" onclick="app.logout(); app.hideUserMenu();" style="display: block; padding: 0.5rem; text-decoration: none; color: var(--error-color); border-radius: 4px;" onmouseover="this.style.backgroundColor='var(--light-color)';" onmouseout="this.style.backgroundColor='transparent';">
+                        <a href="#" onclick="logout(); hideUserMenu();" style="display: block; padding: 0.5rem; text-decoration: none; color: var(--error-color); border-radius: 4px;" onmouseover="this.style.backgroundColor='var(--light-color)';" onmouseout="this.style.backgroundColor='transparent';">
                             <i class="fas fa-sign-out-alt"></i> Logout
                         </a>
                     </div>
@@ -795,7 +795,7 @@ class DiseaseZoneApp {
 
     hideUserMenu() {
         document.getElementById('userMenu').innerHTML = `
-            <div class="user-avatar" onclick="app.toggleUserMenu()" id="userAvatar">
+            <div class="user-avatar" onclick="toggleUserMenu()" id="userAvatar">
                 ${this.isAuthenticated ? this.getInitials(this.currentUser.first_name, this.currentUser.last_name) : '<i class="fas fa-user"></i>'}
             </div>
         `;
@@ -824,43 +824,152 @@ class DiseaseZoneApp {
     }
 }
 
-// Global functions for onclick handlers
+// Global functions for onclick handlers - with queuing for pre-initialization calls
+let pendingCalls = [];
+
+function executePendingCalls() {
+    while (pendingCalls.length > 0) {
+        const call = pendingCalls.shift();
+        try {
+            call();
+        } catch (error) {
+            console.error('Error executing pending call:', error);
+        }
+    }
+}
+
 window.showView = (viewName) => {
     if (window.app) {
         window.app.showView(viewName);
     } else {
-        console.warn('App not initialized yet');
+        console.warn('App not initialized yet, queuing showView call');
+        pendingCalls.push(() => window.app.showView(viewName));
     }
 };
+
 window.openModal = (modalId) => {
     if (window.app) {
         window.app.openModal(modalId);
     } else {
-        console.warn('App not initialized yet');
+        console.warn('App not initialized yet, queuing openModal call');
+        pendingCalls.push(() => window.app.openModal(modalId));
     }
 };
+
 window.closeModal = (modalId) => {
     if (window.app) {
         window.app.closeModal(modalId);
     } else {
-        console.warn('App not initialized yet');
+        console.warn('App not initialized yet, queuing closeModal call');
+        pendingCalls.push(() => window.app.closeModal(modalId));
     }
 };
+
 window.toggleUserMenu = () => {
     if (window.app) {
         window.app.toggleUserMenu();
     } else {
-        console.warn('App not initialized yet');
+        console.warn('App not initialized yet, queuing toggleUserMenu call');
+        pendingCalls.push(() => window.app.toggleUserMenu());
     }
 };
+
 window.toggleMobileMenu = () => {
     const navLinks = document.getElementById('navLinks');
-    navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+    if (navLinks) {
+        navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+    }
+};
+
+window.handleLogin = (event) => {
+    if (window.app) {
+        window.app.handleLogin(event);
+    } else {
+        console.warn('App not initialized yet, queuing handleLogin call');
+        pendingCalls.push(() => window.app.handleLogin(event));
+    }
+};
+
+window.handleRegister = (event) => {
+    if (window.app) {
+        window.app.handleRegister(event);
+    } else {
+        console.warn('App not initialized yet, queuing handleRegister call');
+        pendingCalls.push(() => window.app.handleRegister(event));
+    }
+};
+
+window.handleRoleChange = (event) => {
+    if (window.app) {
+        window.app.handleRoleChange(event);
+    } else {
+        console.warn('App not initialized yet, queuing handleRoleChange call');
+        pendingCalls.push(() => window.app.handleRoleChange(event));
+    }
+};
+
+window.handleAddDisease = (event) => {
+    if (window.app) {
+        window.app.handleAddDisease(event);
+    } else {
+        console.warn('App not initialized yet, queuing handleAddDisease call');
+        pendingCalls.push(() => window.app.handleAddDisease(event));
+    }
+};
+
+window.hideUserMenu = () => {
+    if (window.app) {
+        window.app.hideUserMenu();
+    } else {
+        console.warn('App not initialized yet, queuing hideUserMenu call');
+        pendingCalls.push(() => window.app.hideUserMenu());
+    }
+};
+
+window.logout = () => {
+    if (window.app) {
+        window.app.logout();
+    } else {
+        console.warn('App not initialized yet, queuing logout call');
+        pendingCalls.push(() => window.app.logout());
+    }
 };
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new DiseaseZoneApp();
+    // Execute any pending function calls that were queued before initialization
+    setTimeout(executePendingCalls, 100);
 });
 
+// Early debug logging
 console.log('🧬 diseaseZone Frontend Application Loaded');
+console.log('📊 Environment check:', {
+    location: window.location.href,
+    readyState: document.readyState,
+    hasApp: !!window.app
+});
+
+// Debug log for global functions
+console.log('📋 Global functions defined:', {
+    showView: typeof window.showView,
+    openModal: typeof window.openModal,
+    closeModal: typeof window.closeModal,
+    handleLogin: typeof window.handleLogin,
+    handleRegister: typeof window.handleRegister,
+    toggleUserMenu: typeof window.toggleUserMenu,
+    toggleMobileMenu: typeof window.toggleMobileMenu
+});
+
+// Also initialize immediately if DOM is already ready
+if (document.readyState === 'loading') {
+    // Wait for DOMContentLoaded
+    console.log('⏳ Waiting for DOM to load...');
+} else {
+    // DOM is already loaded
+    console.log('✅ DOM already loaded, initializing immediately');
+    if (!window.app) {
+        window.app = new DiseaseZoneApp();
+        setTimeout(executePendingCalls, 10);
+    }
+}

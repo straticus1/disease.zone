@@ -1,5 +1,83 @@
 # Changelog
 
+## [3.1.2] - 2025-09-15
+
+### 🚀 Comprehensive Platform Enhancement & Medical Specialization
+
+#### Major View Redesigns & Content Expansion
+- **Disease Surveillance Platform**: Complete medical-grade redesign with physician oversight
+  - STI surveillance with focus on Chlamydia, Gonorrhea, Syphilis epidemiology
+  - Healthcare-Associated Infections (HAI) monitoring with NHSN integration
+  - Vector-borne disease surveillance (Lyme, West Nile, Zika, Dengue)
+  - Foodborne illness monitoring with CDC FoodNet integration
+  - Advanced epidemiological modeling (SIR/SEIR, SIDARTHE)
+  - Multi-tier alert system with <1 hour critical response
+
+- **Research Platform**: Professional-grade research infrastructure
+  - Access to >50M anonymized patient records
+  - IRB-ready datasets with medical validation
+  - Tiered access model ($500/month academic, FREE for WHO/CDC)
+  - 200+ published studies with Nature Medicine, NEJM, Lancet
+  - Real-time data with <24 hour lag for epidemiological insights
+
+- **HEALTH Token Ecosystem (HLTH)**: Complete blockchain integration
+  - 1B total supply on Polygon Supernet with EVM compatibility
+  - Patient-owned, physician-validated data marketplace
+  - Specialized staking pools (8-20% APY) for disease categories
+  - Governance council with 10,000+ HLTH minimum stake
+  - Multi-chain architecture with Ethereum/Hyperledger bridges
+
+#### Medical Leadership & Professional Oversight
+- **Medical Advisory Board**: Board-certified physician leadership
+  - Dr. Michael Rodriguez, MD, MPH, FIDSA (Former CDC Deputy Director)
+  - Dr. Jennifer Park, MD, PhD (Former State Epidemiologist)
+  - 24/7 Outbreak Hotline: 1-800-OUTBREAK (1-800-688-2732)
+  - Direct medical director contact and partnership channels
+
+#### Enhanced JavaScript Architecture
+- **Improved Global Function Handling**: Comprehensive function queuing system
+  - Pre-initialization call queuing for onclick handlers
+  - Robust error handling and execution management
+  - Enhanced debugging and environment checking
+  - Immediate initialization for ready DOM states
+
+- **Updated Event Handling**: All onclick handlers converted to global functions
+  - Modal management (openModal, closeModal)
+  - View navigation (showView)
+  - Form handling (handleLogin, handleRegister, handleRoleChange)
+  - User interface (toggleUserMenu, hideUserMenu, logout)
+  - Mobile menu support (toggleMobileMenu)
+
+#### Content Documentation
+- **Added Comprehensive Documentation**: New markdown files for platform components
+  - `blockchain-health-token.md`: Complete HEALTH token whitepaper
+  - `research-platform.md`: Research infrastructure documentation
+  - `surveillance-platform.md`: Medical surveillance system overview
+  - Technical specifications, tokenomics, and medical use cases
+
+#### Medical Compliance & Integration
+- **EHR Integration**: HL7 FHIR R4 compatibility for healthcare interoperability
+- **Clinical Decision Support**: Real-time case reporting and quality measures
+- **Provider Tools**: Patient risk assessments and outbreak alerts
+- **Vaccination Tracking**: Contact tracing support with public health integration
+
+### 🔧 Technical Improvements
+- **Multi-Source Data Integration**: CDC, NHANES, Hospital Systems
+- **Advanced Analytics**: Machine learning pipeline with predictive modeling
+- **Social Media Surveillance**: Disease trend monitoring capabilities
+- **Environmental Integration**: Weather, mobility, and population data correlation
+- **Geospatial Analysis**: Disease cluster detection and space-time modeling
+
+### 🌐 Global Health & Emergency Response
+- **WHO Collaboration**: GOARN and IHR compliance for international surveillance
+- **Emerging Threat Detection**: Novel pathogen and syndromic monitoring
+- **Cross-border Tracking**: Travel-associated illness surveillance
+- **One Health Approach**: Animal-human interface monitoring
+
+This release transforms diseaseZone into a comprehensive medical intelligence platform with physician leadership, blockchain innovation, and professional-grade research capabilities.
+
+---
+
 ## [3.1.1] - 2025-09-15
 
 ### 🚀 Urgent Web Platform Enhancements

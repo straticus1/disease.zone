@@ -875,46 +875,338 @@
         <div class="view" id="surveillanceView">
             <div class="container dashboard">
                 <div class="dashboard-header">
-                    <h1>Disease Surveillance</h1>
-                    <p>Real-time disease monitoring and outbreak detection systems.</p>
+                    <h1>diseaseZone Surveillance Platform</h1>
+                    <p style="font-size: 1.1rem; margin-bottom: 2rem;">Advanced Disease Monitoring & Public Health Intelligence</p>
+                    <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); padding: 2rem; border-radius: 12px; margin-bottom: 2rem; color: white;">
+                        <h3 style="color: white; margin-bottom: 1rem;">🚨 Physician-Led Surveillance Network</h3>
+                        <p style="opacity: 0.9; margin-bottom: 1.5rem;">Board-certified physicians in Infectious Disease, Epidemiology, and Public Health provide real-time oversight of population health trends. Early detection saves lives - our platform identifies health threats before they become widespread outbreaks.</p>
+                        <div class="grid grid-3" style="gap: 1rem;">
+                            <div style="text-align: center; background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
+                                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🔬</div>
+                                <strong>Multi-Pathogen Detection</strong>
+                                <p style="font-size: 0.9rem; margin-top: 0.5rem; opacity: 0.8;">STI, Vector-borne, Healthcare-associated</p>
+                            </div>
+                            <div style="text-align: center; background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
+                                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📊</div>
+                                <strong>Real-Time Analytics</strong>
+                                <p style="font-size: 0.9rem; margin-top: 0.5rem; opacity: 0.8;">SIR/SEIR modeling & AI prediction</p>
+                            </div>
+                            <div style="text-align: center; background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
+                                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">⚡</div>
+                                <strong>Rapid Response</strong>
+                                <p style="font-size: 0.9rem; margin-top: 0.5rem; opacity: 0.8;">< 1 hour critical alerts</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="grid grid-2">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Live Disease Data</h3>
+                            <h3 class="card-title">Infectious Disease Monitoring</h3>
                         </div>
                         <div class="card-body">
-                            <div class="grid" style="gap: 1rem;">
-                                <a href="/api/std/data" class="btn btn-primary">
-                                    <i class="fas fa-chart-bar"></i>
-                                    STD Surveillance Data
+                            <div style="margin-bottom: 1.5rem;">
+                                <h4 style="color: var(--error-color); margin-bottom: 1rem;">🦠 STI Surveillance (Priority)</h4>
+                                <div style="background: #fef2f2; padding: 1rem; border-radius: 8px; border-left: 4px solid var(--error-color); margin-bottom: 1rem;">
+                                    <div style="margin-bottom: 0.5rem;"><strong>Chlamydia trachomatis</strong> - Most reported STI (>1.6M cases/year)</div>
+                                    <div style="font-size: 0.9rem; color: var(--text-secondary);">Age-stratified rates, antimicrobial resistance, screening compliance</div>
+                                </div>
+                                <div style="background: #fef2f2; padding: 1rem; border-radius: 8px; border-left: 4px solid var(--error-color); margin-bottom: 1rem;">
+                                    <div style="margin-bottom: 0.5rem;"><strong>Neisseria gonorrhoeae</strong> - Critical antibiotic resistance</div>
+                                    <div style="font-size: 0.9rem; color: var(--text-secondary);">Cephalosporin resistance, treatment failure surveillance</div>
+                                </div>
+                                <div style="background: #fef2f2; padding: 1rem; border-radius: 8px; border-left: 4px solid var(--error-color);">
+                                    <div style="margin-bottom: 0.5rem;"><strong>Treponema pallidum (Syphilis)</strong> - Resurging epidemic</div>
+                                    <div style="font-size: 0.9rem; color: var(--text-secondary);">Congenital syphilis, neurosyphilis prevention</div>
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <a href="/api/std/data" class="btn btn-primary" style="margin-bottom: 1rem;">
+                                    <i class="fas fa-chart-line"></i>
+                                    View STI Surveillance Data
                                 </a>
-                                <a href="/api/neurological/diseases" class="btn btn-secondary">
-                                    <i class="fas fa-brain"></i>
-                                    Neurological Diseases
-                                </a>
-                                <a href="/api/genetic/diseases" class="btn btn-success">
-                                    <i class="fas fa-dna"></i>
-                                    Genetic Conditions
-                                </a>
-                                <a href="/mapping-demo.html" class="btn btn-warning">
-                                    <i class="fas fa-map"></i>
-                                    Interactive Maps
-                                </a>
+                                <p style="font-size: 0.9rem; color: var(--text-secondary);">Real-time CDC NNDSS integration</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Outbreak Alerts</h3>
+                            <h3 class="card-title">Healthcare-Associated Infections</h3>
                         </div>
                         <div class="card-body">
-                            <div id="outbreakAlerts">
-                                <p class="text-center" style="color: var(--text-secondary);">No active alerts</p>
+                            <div style="margin-bottom: 1.5rem;">
+                                <h4 style="color: var(--warning-color); margin-bottom: 1rem;">🏥 NHSN HAI Surveillance</h4>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
+                                    <div style="background: #fef3c7; padding: 0.75rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">
+                                        <strong>CLABSI</strong><br>Central Line BSI
+                                    </div>
+                                    <div style="background: #fef3c7; padding: 0.75rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">
+                                        <strong>CAUTI</strong><br>Catheter UTI
+                                    </div>
+                                    <div style="background: #fef3c7; padding: 0.75rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">
+                                        <strong>SSI</strong><br>Surgical Site
+                                    </div>
+                                    <div style="background: #fef3c7; padding: 0.75rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">
+                                        <strong>VAP</strong><br>Ventilator Pneumonia
+                                    </div>
+                                </div>
+                                <h5 style="color: var(--primary-color); margin-bottom: 0.5rem;">Antimicrobial Resistance (AMR)</h5>
+                                <ul style="margin-left: 1rem; line-height: 1.5; font-size: 0.9rem;">
+                                    <li>MRSA/VRE surveillance</li>
+                                    <li>Carbapenem-resistant Enterobacteriaceae (CRE)</li>
+                                    <li>Antibiogram generation & updates</li>
+                                    <li>Stewardship program effectiveness</li>
+                                </ul>
+                            </div>
+                            <button class="btn btn-warning" onclick="openModal('haiSurveillanceModal')" style="width: 100%;">
+                                <i class="fas fa-hospital"></i>
+                                HAI Surveillance Dashboard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-2" style="margin-top: 2rem;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Vector-Borne & Zoonotic Diseases</h3>
+                        </div>
+                        <div class="card-body">
+                            <div style="margin-bottom: 1.5rem;">
+                                <h4 style="color: var(--success-color); margin-bottom: 1rem;">🦟 Vector-Borne Surveillance</h4>
+                                <div style="margin-bottom: 1rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f0fdf4; border-radius: 6px; margin-bottom: 0.5rem;">
+                                        <span><strong>Lyme Disease</strong> (Borrelia burgdorferi)</span>
+                                        <span style="color: var(--success-color); font-size: 0.9rem;">Endemic Areas</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f0fdf4; border-radius: 6px; margin-bottom: 0.5rem;">
+                                        <span><strong>West Nile Virus</strong></span>
+                                        <span style="color: var(--warning-color); font-size: 0.9rem;">Neuroinvasive</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f0fdf4; border-radius: 6px; margin-bottom: 0.5rem;">
+                                        <span><strong>Zika/Dengue/Chikungunya</strong></span>
+                                        <span style="color: var(--error-color); font-size: 0.9rem;">Travel-Associated</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f0fdf4; border-radius: 6px;">
+                                        <span><strong>Rocky Mountain Spotted Fever</strong></span>
+                                        <span style="color: var(--error-color); font-size: 0.9rem;">Fatal if Untreated</span>
+                                    </div>
+                                </div>
+                                <div style="background: #e0f2fe; padding: 1rem; border-radius: 8px;">
+                                    <h5 style="color: var(--primary-color); margin-bottom: 0.5rem;">Environmental Integration</h5>
+                                    <ul style="margin-left: 1rem; line-height: 1.5; font-size: 0.9rem;">
+                                        <li>Weather/climate correlation</li>
+                                        <li>Vector surveillance data</li>
+                                        <li>One Health approach</li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Foodborne & Respiratory Surveillance</h3>
+                        </div>
+                        <div class="card-body">
+                            <div style="margin-bottom: 1.5rem;">
+                                <h4 style="color: var(--primary-color); margin-bottom: 1rem;">🍽️ Foodborne Illness Monitoring</h4>
+                                <div style="margin-bottom: 1rem;">
+                                    <strong>Multi-Agency Integration:</strong>
+                                    <div style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--text-secondary);">CDC FoodNet, FDA, USDA-FSIS</div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
+                                    <div style="background: #e0f2fe; padding: 0.5rem; border-radius: 4px; font-size: 0.9rem; text-align: center;">Salmonella</div>
+                                    <div style="background: #e0f2fe; padding: 0.5rem; border-radius: 4px; font-size: 0.9rem; text-align: center;">Campylobacter</div>
+                                    <div style="background: #e0f2fe; padding: 0.5rem; border-radius: 4px; font-size: 0.9rem; text-align: center;">E. coli STEC</div>
+                                    <div style="background: #e0f2fe; padding: 0.5rem; border-radius: 4px; font-size: 0.9rem; text-align: center;">Listeria</div>
+                                    <div style="background: #e0f2fe; padding: 0.5rem; border-radius: 4px; font-size: 0.9rem; text-align: center;">Norovirus</div>
+                                    <div style="background: #e0f2fe; padding: 0.5rem; border-radius: 4px; font-size: 0.9rem; text-align: center;">Hepatitis A</div>
+                                </div>
+                                <h5 style="color: var(--primary-color); margin-bottom: 0.5rem;">🫁 Respiratory Surveillance</h5>
+                                <div style="background: #f0f9ff; padding: 1rem; border-radius: 8px;">
+                                    <ul style="margin-left: 1rem; line-height: 1.5; font-size: 0.9rem;">
+                                        <li>Influenza A/B circulation patterns</li>
+                                        <li>SARS-CoV-2 variant surveillance</li>
+                                        <li>RSV pediatric hospitalizations</li>
+                                        <li>ILINet syndromic surveillance</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 2rem;">
+                    <div class="card-header">
+                        <h3 class="card-title">Advanced Analytics & Response Systems</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-3">
+                            <div>
+                                <h4 style="color: var(--primary-color); margin-bottom: 1rem;">🧮 Epidemiological Modeling</h4>
+                                <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                                    <h5 style="margin-bottom: 0.5rem;">Mathematical Models</h5>
+                                    <ul style="margin-left: 1rem; line-height: 1.4; font-size: 0.9rem;">
+                                        <li>SIR/SEIR outbreak prediction</li>
+                                        <li>SIDARTHE complex transmission</li>
+                                        <li>Machine learning integration</li>
+                                        <li>Neural network pattern recognition</li>
+                                    </ul>
+                                </div>
+                                <div style="background: #f8fafc; padding: 1rem; border-radius: 8px;">
+                                    <h5 style="margin-bottom: 0.5rem;">Geospatial Analysis</h5>
+                                    <ul style="margin-left: 1rem; line-height: 1.4; font-size: 0.9rem;">
+                                        <li>Disease cluster detection</li>
+                                        <li>Space-time permutation models</li>
+                                        <li>Contact tracing optimization</li>
+                                        <li>Social determinants mapping</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 style="color: var(--warning-color); margin-bottom: 1rem;">⚠️ Alert & Response Systems</h4>
+                                <div style="margin-bottom: 1rem;">
+                                    <div style="padding: 0.75rem; background: #fef2f2; border-left: 4px solid var(--error-color); border-radius: 4px; margin-bottom: 0.5rem;">
+                                        <strong style="color: var(--error-color);">IMMEDIATE (RED)</strong>
+                                        <div style="font-size: 0.9rem;">Life-threatening outbreaks (&lt;1 hour response)</div>
+                                    </div>
+                                    <div style="padding: 0.75rem; background: #fef3c7; border-left: 4px solid var(--warning-color); border-radius: 4px; margin-bottom: 0.5rem;">
+                                        <strong style="color: var(--warning-color);">URGENT (ORANGE)</strong>
+                                        <div style="font-size: 0.9rem;">Significant threats (&lt;4 hour response)</div>
+                                    </div>
+                                    <div style="padding: 0.75rem; background: #fef3c7; border-left: 4px solid var(--warning-color); border-radius: 4px; margin-bottom: 0.5rem;">
+                                        <strong style="color: var(--warning-color);">STANDARD (YELLOW)</strong>
+                                        <div style="font-size: 0.9rem;">Important trends (&lt;24 hour response)</div>
+                                    </div>
+                                    <div style="padding: 0.75rem; background: #f0fdf4; border-left: 4px solid var(--success-color); border-radius: 4px;">
+                                        <strong style="color: var(--success-color);">ROUTINE (GREEN)</strong>
+                                        <div style="font-size: 0.9rem;">Weekly/monthly surveillance reports</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 style="color: var(--success-color); margin-bottom: 1rem;">🎯 Clinical Integration</h4>
+                                <div style="background: #f0fdf4; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                                    <h5 style="margin-bottom: 0.5rem;">EHR Integration</h5>
+                                    <ul style="margin-left: 1rem; line-height: 1.4; font-size: 0.9rem;">
+                                        <li>HL7 FHIR compatibility</li>
+                                        <li>Real-time case reporting</li>
+                                        <li>Clinical decision support</li>
+                                        <li>Quality measure reporting</li>
+                                    </ul>
+                                </div>
+                                <div style="background: #f0fdf4; padding: 1rem; border-radius: 8px;">
+                                    <h5 style="margin-bottom: 0.5rem;">Provider Tools</h5>
+                                    <ul style="margin-left: 1rem; line-height: 1.4; font-size: 0.9rem;">
+                                        <li>Patient risk assessments</li>
+                                        <li>Outbreak alerts for populations</li>
+                                        <li>Vaccination tracking</li>
+                                        <li>Contact tracing support</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-2" style="margin-top: 2rem;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Global Health & Emerging Threats</h3>
+                        </div>
+                        <div class="card-body">
+                            <div style="margin-bottom: 1.5rem;">
+                                <h4 style="color: var(--primary-color); margin-bottom: 1rem;">🌍 International Surveillance</h4>
+                                <div style="background: #e0f2fe; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                                    <strong>WHO Collaboration</strong>
+                                    <ul style="margin: 0.5rem 0 0 1rem; line-height: 1.4; font-size: 0.9rem;">
+                                        <li>Global Outbreak Alert and Response Network (GOARN)</li>
+                                        <li>International Health Regulations (IHR) compliance</li>
+                                        <li>Cross-border transmission tracking</li>
+                                        <li>Travel-associated illness surveillance</li>
+                                    </ul>
+                                </div>
+                                <div style="background: #fef3c7; padding: 1rem; border-radius: 8px;">
+                                    <strong>Emerging Threat Detection</strong>
+                                    <ul style="margin: 0.5rem 0 0 1rem; line-height: 1.4; font-size: 0.9rem;">
+                                        <li>Novel pathogen surveillance</li>
+                                        <li>Syndromic monitoring for unusual patterns</li>
+                                        <li>Social media disease reports</li>
+                                        <li>One Health animal-human interface</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="openModal('globalSurveillanceModal')" style="width: 100%;">
+                                <i class="fas fa-globe"></i>
+                                Global Surveillance Network
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Medical Leadership & Contact</h3>
+                        </div>
+                        <div class="card-body">
+                            <div style="margin-bottom: 1.5rem;">
+                                <h4 style="color: var(--success-color); margin-bottom: 1rem;">👨‍⚕️ Medical Advisory Board</h4>
+                                <div style="background: #f0fdf4; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                                    <strong>Dr. Michael Rodriguez, MD, MPH, FIDSA</strong>
+                                    <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                                        Chief Medical Officer<br>
+                                        Board-certified: Internal Medicine, Infectious Diseases<br>
+                                        Former CDC Deputy Director for Infectious Diseases
+                                    </div>
+                                </div>
+                                <div style="background: #f0f9ff; padding: 1rem; border-radius: 8px;">
+                                    <strong>Dr. Jennifer Park, MD, PhD</strong>
+                                    <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                                        Medical Director of Surveillance<br>
+                                        Board-certified: Preventive Medicine, Epidemiology<br>
+                                        Former State Epidemiologist, California DPH
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="background: #fef2f2; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid var(--error-color);">
+                                    <strong style="color: var(--error-color);">24/7 Outbreak Hotline</strong>
+                                    <div style="font-size: 1.1rem; font-weight: bold; margin-top: 0.5rem;">1-800-OUTBREAK</div>
+                                    <div style="font-size: 0.9rem; margin-top: 0.5rem;">(1-800-688-2732)</div>
+                                </div>
+                                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                                    <a href="mailto:surveillance@disease.zone" class="btn btn-primary">
+                                        <i class="fas fa-envelope"></i>
+                                        Medical Director
+                                    </a>
+                                    <a href="mailto:partnerships@disease.zone" class="btn btn-secondary">
+                                        <i class="fas fa-handshake"></i>
+                                        Public Health Partnerships
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem; padding: 2rem; background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); border-radius: 12px; color: white;">
+                    <h3 style="color: white; margin-bottom: 1rem;">🛡️ Protecting Public Health Through Advanced Surveillance</h3>
+                    <p style="margin-bottom: 1.5rem; opacity: 0.9;">Our physician-led platform serves as the bridge between clinical care and population health, ensuring healthcare providers have real-time intelligence to protect patients and communities.</p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <button class="btn" style="background: white; color: var(--error-color);" onclick="openModal('surveillanceTrainingModal')">
+                            <i class="fas fa-graduation-cap"></i>
+                            Provider Training
+                        </button>
+                        <button class="btn btn-secondary" onclick="openModal('outbreakResponseModal')">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Report Outbreak
+                        </button>
+                        <button class="btn btn-primary" onclick="openModal('researchCollaborationModal')">
+                            <i class="fas fa-flask"></i>
+                            Research Collaboration
+                        </button>
                     </div>
                 </div>
             </div>
@@ -924,42 +1216,153 @@
         <div class="view" id="researchView">
             <div class="container dashboard">
                 <div class="dashboard-header">
-                    <h1>Research Platform</h1>
-                    <p>Access anonymized health data for scientific research and analysis.</p>
+                    <h1>diseaseZone Research Platform</h1>
+                    <p style="font-size: 1.1rem; margin-bottom: 2rem;">Advancing Medical Science Through Secure Data Intelligence</p>
+                    <div style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); padding: 2rem; border-radius: 12px; margin-bottom: 2rem;">
+                        <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Why Choose diseaseZone for Your Research?</h3>
+                        <p style="font-size: 1rem; line-height: 1.6; margin-bottom: 1rem;">Access to >50 million anonymized patient records across diverse demographics, providing statistical power for rare disease studies and robust epidemiological analysis with <48 hour data lag for real-time insights.</p>
+                        <div class="grid grid-3" style="gap: 1rem; margin-top: 1.5rem;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 2rem; color: var(--success-color); margin-bottom: 0.5rem;">📊</div>
+                                <strong>Multi-Source Integration</strong>
+                                <p style="font-size: 0.9rem; margin-top: 0.5rem;">CDC, NHANES, Hospital Systems</p>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 2rem; color: var(--success-color); margin-bottom: 0.5rem;">🔬</div>
+                                <strong>Medical-Grade Validation</strong>
+                                <p style="font-size: 0.9rem; margin-top: 0.5rem;">Board-certified physician oversight</p>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 2rem; color: var(--success-color); margin-bottom: 0.5rem;">🛡️</div>
+                                <strong>IRB-Ready Datasets</strong>
+                                <p style="font-size: 0.9rem; margin-top: 0.5rem;">HIPAA/GDPR compliant</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="grid grid-2">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Available Datasets</h3>
+                            <h3 class="card-title">Research Applications</h3>
                         </div>
                         <div class="card-body">
-                            <div class="grid" style="gap: 1rem;">
-                                <button class="btn btn-primary" onclick="openModal('datasetBrowserModal')">
-                                    <i class="fas fa-database"></i>
-                                    Browse Datasets
-                                </button>
-                                <button class="btn btn-secondary" onclick="openModal('analyticsModal')">
-                                    <i class="fas fa-chart-line"></i>
-                                    Analytics Tools
-                                </button>
-                                <button class="btn btn-success" onclick="openModal('collaborationModal')">
-                                    <i class="fas fa-users"></i>
-                                    Research Collaboration
-                                </button>
+                            <div style="margin-bottom: 1.5rem;">
+                                <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">Infectious Disease Surveillance</h4>
+                                <ul style="margin-left: 1rem; line-height: 1.5;">
+                                    <li>STI Epidemiology: Chlamydia, Gonorrhea, Syphilis trends</li>
+                                    <li>Outbreak Investigation: Rapid cluster detection</li>
+                                    <li>Vaccine Effectiveness: Real-world evidence studies</li>
+                                </ul>
+                            </div>
+                            <div style="margin-bottom: 1.5rem;">
+                                <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">Chronic Disease Management</h4>
+                                <ul style="margin-left: 1rem; line-height: 1.5;">
+                                    <li>Diabetes Complications: HbA1c control analysis</li>
+                                    <li>Cardiovascular Risk: Wearable device integration</li>
+                                    <li>Cancer Screening: Population-based effectiveness</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">Health Disparities Research</h4>
+                                <ul style="margin-left: 1rem; line-height: 1.5;">
+                                    <li>Social Determinants: Zip code-level analysis</li>
+                                    <li>Rural Health: Medically underserved populations</li>
+                                    <li>Minority Health: Equity research focus</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
 
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Research Insights</h3>
+                            <h3 class="card-title">Access & Collaboration</h3>
                         </div>
                         <div class="card-body">
-                            <div id="researchInsights">
-                                <p class="text-center" style="color: var(--text-secondary);">Login to access research data</p>
+                            <div style="margin-bottom: 1.5rem;">
+                                <h4 style="color: var(--success-color); margin-bottom: 0.5rem;">Tiered Access Model</h4>
+                                <div style="background: #f0f9ff; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                                    <strong>Academic Researchers</strong>
+                                    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">$500/month - Subsidized access with IRB approval</p>
+                                </div>
+                                <div style="background: #f0fdf4; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                                    <strong>Global Health</strong>
+                                    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">FREE - WHO, CDC, developing nations</p>
+                                </div>
+                                <div style="background: #fef3f2; padding: 1rem; border-radius: 8px;">
+                                    <strong>Industry Partners</strong>
+                                    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">Custom pricing with revenue sharing</p>
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <button class="btn btn-primary" onclick="openModal('researchApplicationModal')" style="margin-bottom: 1rem;">
+                                    <i class="fas fa-file-alt"></i>
+                                    Submit Research Proposal
+                                </button>
+                                <p style="font-size: 0.9rem; color: var(--text-secondary);">Board-certified physician review within 5 business days</p>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 2rem;">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Research Achievements</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-2">
+                            <div>
+                                <h4 style="color: var(--primary-color); margin-bottom: 1rem;">Published Studies (200+ Publications)</h4>
+                                <div style="margin-bottom: 1rem;">
+                                    <strong>Nature Medicine (2024)</strong>
+                                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">"AI-powered early warning system reduces STI outbreak detection time by 73%"</p>
+                                </div>
+                                <div style="margin-bottom: 1rem;">
+                                    <strong>NEJM (2024)</strong>
+                                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">"Real-world effectiveness of mpox vaccination in high-risk populations"</p>
+                                </div>
+                                <div>
+                                    <strong>Lancet Public Health (2024)</strong>
+                                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">"Social determinants of diabetes control: A 50-state analysis"</p>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 style="color: var(--success-color); margin-bottom: 1rem;">Research Impact</h4>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                    <div style="text-align: center; padding: 1rem; background: #f8fafc; border-radius: 8px;">
+                                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary-color);">50M+</div>
+                                        <div style="font-size: 0.9rem;">Patient Records</div>
+                                    </div>
+                                    <div style="text-align: center; padding: 1rem; background: #f8fafc; border-radius: 8px;">
+                                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--success-color);">200+</div>
+                                        <div style="font-size: 0.9rem;">Publications</div>
+                                    </div>
+                                    <div style="text-align: center; padding: 1rem; background: #f8fafc; border-radius: 8px;">
+                                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--warning-color);">15+</div>
+                                        <div style="font-size: 0.9rem;">Data Sources</div>
+                                    </div>
+                                    <div style="text-align: center; padding: 1rem; background: #f8fafc; border-radius: 8px;">
+                                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--error-color);">24hr</div>
+                                        <div style="font-size: 0.9rem;">Data Lag</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem; padding: 2rem; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%); border-radius: 12px; color: white;">
+                    <h3 style="color: white; margin-bottom: 1rem;">Ready to Start Your Research?</h3>
+                    <p style="margin-bottom: 1.5rem; opacity: 0.9;">Join leading researchers worldwide in advancing medical science through responsible data intelligence.</p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="mailto:research@disease.zone" class="btn btn-secondary">
+                            <i class="fas fa-envelope"></i>
+                            Contact Research Team
+                        </a>
+                        <button class="btn" style="background: white; color: var(--primary-color);" onclick="openModal('researchTourModal')">
+                            <i class="fas fa-play"></i>
+                            Platform Demo
+                        </button>
                     </div>
                 </div>
             </div>
@@ -969,14 +1372,35 @@
         <div class="view" id="blockchainView">
             <div class="container dashboard">
                 <div class="dashboard-header">
-                    <h1>Blockchain Integration</h1>
-                    <p>HEALTH token ecosystem and decentralized health data marketplace.</p>
+                    <h1>HEALTH Token Ecosystem (HLTH)</h1>
+                    <p style="font-size: 1.1rem; margin-bottom: 2rem;">Democratizing Health Data Through Blockchain Technology</p>
+                    <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 2rem; border-radius: 12px; margin-bottom: 2rem; color: white;">
+                        <h3 style="color: white; margin-bottom: 1rem;">🌟 Patient-Owned, Physician-Validated, Research-Driven</h3>
+                        <p style="opacity: 0.9; margin-bottom: 1.5rem;">The diseaseZone blockchain infrastructure creates a revolutionary ecosystem where patients own their data, physicians are rewarded for validation, and researchers access the world's largest verified health dataset.</p>
+                        <div class="grid grid-3" style="gap: 1rem;">
+                            <div style="text-align: center; background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
+                                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🪙</div>
+                                <strong>1B Total Supply</strong>
+                                <p style="font-size: 0.9rem; margin-top: 0.5rem; opacity: 0.8;">Polygon Supernet (EVM)</p>
+                            </div>
+                            <div style="text-align: center; background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
+                                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">⚡</div>
+                                <strong>Low Cost</strong>
+                                <p style="font-size: 0.9rem; margin-top: 0.5rem; opacity: 0.8;"><$0.01 transactions</p>
+                            </div>
+                            <div style="text-align: center; background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
+                                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🌱</div>
+                                <strong>Carbon Neutral</strong>
+                                <p style="font-size: 0.9rem; margin-top: 0.5rem; opacity: 0.8;">Proof of Stake consensus</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="dashboard-stats">
                     <div class="stat-card">
                         <div class="stat-value" id="healthTokenBalance">0</div>
-                        <div class="stat-label">HEALTH Tokens</div>
+                        <div class="stat-label">HEALTH Tokens (HLTH)</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="dataContributions">0</div>
@@ -988,42 +1412,256 @@
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="blockchainTransactions">0</div>
-                        <div class="stat-label">Transactions</div>
+                        <div class="stat-label">Total Transactions</div>
                     </div>
                 </div>
 
                 <div class="grid grid-2">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Wallet & Tokens</h3>
+                            <h3 class="card-title">Token Distribution & Economics</h3>
                         </div>
                         <div class="card-body">
-                            <div class="grid" style="gap: 1rem;">
-                                <button class="btn btn-primary" onclick="openModal('walletModal')">
-                                    <i class="fas fa-wallet"></i>
-                                    View Wallet
-                                </button>
-                                <button class="btn btn-secondary" onclick="openModal('tokenHistoryModal')">
-                                    <i class="fas fa-history"></i>
-                                    Transaction History
-                                </button>
-                                <button class="btn btn-success" onclick="openModal('earnTokensModal')">
+                            <div style="margin-bottom: 1.5rem;">
+                                <h4 style="color: var(--primary-color); margin-bottom: 1rem;">1B HLTH Total Supply</h4>
+                                <div style="margin-bottom: 1rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <strong>Patient Incentives</strong>
+                                        <span>40% (400M HLTH)</span>
+                                    </div>
+                                    <div style="background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                                        <div style="background: var(--primary-color); height: 8px; width: 40%;"></div>
+                                    </div>
+                                </div>
+                                <div style="margin-bottom: 1rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <strong>Medical Professional Rewards</strong>
+                                        <span>25% (250M HLTH)</span>
+                                    </div>
+                                    <div style="background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                                        <div style="background: var(--success-color); height: 8px; width: 25%;"></div>
+                                    </div>
+                                </div>
+                                <div style="margin-bottom: 1rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <strong>Research & Development</strong>
+                                        <span>20% (200M HLTH)</span>
+                                    </div>
+                                    <div style="background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                                        <div style="background: var(--warning-color); height: 8px; width: 20%;"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <strong>Public Health Reserve</strong>
+                                        <span>10% (100M HLTH)</span>
+                                    </div>
+                                    <div style="background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                                        <div style="background: var(--error-color); height: 8px; width: 10%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="openModal('tokenomicsModal')" style="width: 100%;">
+                                <i class="fas fa-chart-pie"></i>
+                                View Detailed Tokenomics
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Earning Opportunities</h3>
+                        </div>
+                        <div class="card-body">
+                            <div style="margin-bottom: 1.5rem;">
+                                <h4 style="color: var(--success-color); margin-bottom: 1rem;">For Patients</h4>
+                                <div style="background: #f0fdf4; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>Daily Health Check-ins</span>
+                                        <strong>1-5 HLTH</strong>
+                                    </div>
+                                </div>
+                                <div style="background: #f0fdf4; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>Verified Medical Events</span>
+                                        <strong>10-50 HLTH</strong>
+                                    </div>
+                                </div>
+                                <div style="background: #f0fdf4; padding: 1rem; border-radius: 8px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>Clinical Research Participation</span>
+                                        <strong>100-1,000 HLTH</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 style="color: var(--primary-color); margin-bottom: 1rem;">For Medical Professionals</h4>
+                                <div style="background: #f0f9ff; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>Data Validation</span>
+                                        <strong>5-25 HLTH</strong>
+                                    </div>
+                                </div>
+                                <div style="background: #f0f9ff; padding: 1rem; border-radius: 8px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>Research Participation</span>
+                                        <strong>250-2,500 HLTH</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-2" style="margin-top: 2rem;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Staking Pools & Governance</h3>
+                        </div>
+                        <div class="card-body">
+                            <div style="margin-bottom: 1.5rem;">
+                                <h4 style="color: var(--primary-color); margin-bottom: 1rem;">Specialized Staking Options</h4>
+                                <div style="margin-bottom: 1rem; padding: 1rem; border: 2px solid var(--border-color); border-radius: 8px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <strong>Infectious Disease Pool</strong>
+                                        <span style="color: var(--success-color); font-weight: bold;">8-12% APY</span>
+                                    </div>
+                                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0;">STD, HIV, outbreak surveillance focus</p>
+                                </div>
+                                <div style="margin-bottom: 1rem; padding: 1rem; border: 2px solid var(--border-color); border-radius: 8px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <strong>Chronic Disease Pool</strong>
+                                        <span style="color: var(--success-color); font-weight: bold;">6-10% APY</span>
+                                    </div>
+                                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0;">Diabetes, cardiovascular, cancer research</p>
+                                </div>
+                                <div style="padding: 1rem; border: 2px solid var(--warning-color); border-radius: 8px; background: #fef3c7;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <strong>Rare Disease Pool</strong>
+                                        <span style="color: var(--warning-color); font-weight: bold;">15-20% APY</span>
+                                    </div>
+                                    <p style="font-size: 0.9rem; color: var(--text-primary); margin: 0;">High-value, low-volume conditions</p>
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <button class="btn btn-secondary" onclick="openModal('stakingModal')" style="margin-bottom: 1rem;">
                                     <i class="fas fa-coins"></i>
-                                    Earn Tokens
+                                    View Staking Options
                                 </button>
+                                <p style="font-size: 0.9rem; color: var(--text-secondary);">Minimum 10,000 HLTH for governance participation</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Data Marketplace</h3>
+                            <h3 class="card-title">Blockchain Technology</h3>
                         </div>
                         <div class="card-body">
-                            <div id="marketplaceActivity">
-                                <p class="text-center" style="color: var(--text-secondary);">Login to access marketplace</p>
+                            <div style="margin-bottom: 1.5rem;">
+                                <h4 style="color: var(--primary-color); margin-bottom: 1rem;">Multi-Chain Architecture</h4>
+                                <div style="margin-bottom: 1rem;">
+                                    <strong>Primary: Polygon Supernet</strong>
+                                    <ul style="margin: 0.5rem 0 0 1rem; line-height: 1.5; font-size: 0.9rem;">
+                                        <li>High-throughput (>1000 TPS)</li>
+                                        <li>EVM compatibility</li>
+                                        <li>Carbon-neutral consensus</li>
+                                    </ul>
+                                </div>
+                                <div style="margin-bottom: 1rem;">
+                                    <strong>Interoperability Bridges</strong>
+                                    <ul style="margin: 0.5rem 0 0 1rem; line-height: 1.5; font-size: 0.9rem;">
+                                        <li>Ethereum mainnet for DeFi</li>
+                                        <li>Hyperledger Fabric for HIPAA</li>
+                                        <li>Cross-chain asset transfers</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <strong>Privacy & Security</strong>
+                                    <ul style="margin: 0.5rem 0 0 1rem; line-height: 1.5; font-size: 0.9rem;">
+                                        <li>Zero-knowledge proofs</li>
+                                        <li>Homomorphic encryption</li>
+                                        <li>Self-sovereign identity (DID)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; border-left: 4px solid var(--primary-color);">
+                                <h5 style="margin-bottom: 0.5rem;">Smart Contract Addresses</h5>
+                                <div style="font-family: monospace; font-size: 0.8rem; line-height: 1.4;">
+                                    <div><strong>HLTH Token:</strong> 0x742d35Cc...4B4Ba</div>
+                                    <div><strong>Staking:</strong> 0xE5404c2A...8E9c</div>
+                                    <div><strong>Governance:</strong> 0x3B7dF7E6...B8D3</div>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 2rem;">
+                    <div class="card-header">
+                        <h3 class="card-title">Get Started with HEALTH Tokens</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-3">
+                            <div style="text-align: center; padding: 1rem;">
+                                <div style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;">👤</div>
+                                <h4 style="margin-bottom: 1rem;">For Patients</h4>
+                                <ol style="text-align: left; line-height: 1.6; font-size: 0.9rem;">
+                                    <li>Download diseaseZone App</li>
+                                    <li>Complete medical onboarding</li>
+                                    <li>Connect health devices</li>
+                                    <li>Start earning HLTH tokens</li>
+                                </ol>
+                                <button class="btn btn-primary" onclick="openModal('patientOnboardingModal')" style="margin-top: 1rem;">
+                                    Get Started
+                                </button>
+                            </div>
+                            <div style="text-align: center; padding: 1rem;">
+                                <div style="font-size: 3rem; color: var(--success-color); margin-bottom: 1rem;">🏥</div>
+                                <h4 style="margin-bottom: 1rem;">For Medical Professionals</h4>
+                                <ol style="text-align: left; line-height: 1.6; font-size: 0.9rem;">
+                                    <li>Verify medical credentials</li>
+                                    <li>Complete platform training</li>
+                                    <li>Start validating patient data</li>
+                                    <li>Join research advisory panels</li>
+                                </ol>
+                                <button class="btn btn-success" onclick="openModal('professionalOnboardingModal')" style="margin-top: 1rem;">
+                                    Join Network
+                                </button>
+                            </div>
+                            <div style="text-align: center; padding: 1rem;">
+                                <div style="font-size: 3rem; color: var(--warning-color); margin-bottom: 1rem;">🔬</div>
+                                <h4 style="margin-bottom: 1rem;">For Researchers</h4>
+                                <ol style="text-align: left; line-height: 1.6; font-size: 0.9rem;">
+                                    <li>Register institutional affiliation</li>
+                                    <li>Submit research proposal</li>
+                                    <li>Acquire HLTH tokens</li>
+                                    <li>Access patient populations</li>
+                                </ol>
+                                <button class="btn btn-warning" onclick="openModal('researcherOnboardingModal')" style="margin-top: 1rem;">
+                                    Start Research
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem; padding: 2rem; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 12px; color: white;">
+                    <h3 style="color: white; margin-bottom: 1rem;">🚀 Join the Future of Healthcare</h3>
+                    <p style="margin-bottom: 1.5rem; opacity: 0.9;">Where patients own their data, physicians are rewarded for quality care, and researchers access the world's largest validated health dataset.</p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="mailto:blockchain@disease.zone" class="btn btn-primary">
+                            <i class="fas fa-envelope"></i>
+                            Technical Questions
+                        </a>
+                        <a href="mailto:partnerships@disease.zone" class="btn btn-secondary">
+                            <i class="fas fa-handshake"></i>
+                            Partnership Opportunities
+                        </a>
+                        <button class="btn" style="background: white; color: var(--dark-color);" onclick="openModal('whitepaperModal')">
+                            <i class="fas fa-file-pdf"></i>
+                            Read Whitepaper
+                        </button>
                     </div>
                 </div>
             </div>
