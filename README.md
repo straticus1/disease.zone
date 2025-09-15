@@ -6,7 +6,7 @@
 
 *Previously known as covid19lookup.nyc*
 
-[![Version](https://img.shields.io/badge/version-3.1.2-blue.svg)](https://github.com/straticus1/disease.zone)
+[![Version](https://img.shields.io/badge/version-3.1.3-blue.svg)](https://github.com/straticus1/disease.zone)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-brightgreen.svg)](./MEDICAL_COMPLIANCE_REVIEW.md)
 [![GDPR](https://img.shields.io/badge/GDPR-Compliant-brightgreen.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
@@ -70,6 +70,25 @@
 - **Batch Operations** - CSV/JSON import/export for bulk data management
 - **Multiple Output Formats** - Table, JSON, CSV for all operations
 - **Extensive Documentation** - Complete API and compliance documentation
+
+## 🌐 Platform Access
+
+### **Production Platform**
+- **Main Platform**: [https://www.disease.zone](https://www.disease.zone) - Comprehensive health intelligence platform
+- **API Portal**: [https://api.disease.zone](https://api.disease.zone) - Developer dashboard and API documentation
+
+### **Platform Features**
+- **Main Domain (www.disease.zone)**:
+  - Complete health intelligence platform with blockchain integration
+  - Patient dashboards, medical professional tools, research marketplace
+  - HEALTH token wallet and staking functionality
+  - Real-time disease surveillance and analytics
+
+- **API Domain (api.disease.zone)**:
+  - Developer-focused API documentation and testing tools
+  - Interactive API search forms and quick access links
+  - Medical professional API key management
+  - Cross-platform navigation to main application
 
 ## 🚀 Quick Start
 

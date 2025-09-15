@@ -1,4 +1,25 @@
 // Global Application State
+
+// Immediate debug logging to confirm script execution
+console.log('🚀 SCRIPT STARTED: app.js is executing');
+console.log('🌍 Location:', window.location.href);
+console.log('📄 Document state:', document.readyState);
+
+// Test basic functionality immediately
+window.addEventListener('load', () => {
+    console.log('✅ Window loaded event fired');
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('✅ DOMContentLoaded event fired');
+});
+
+// Add a simple test function to window immediately
+window.testFunction = () => {
+    console.log('✅ Test function called successfully');
+    alert('JavaScript is working!');
+};
+
 class DiseaseZoneApp {
     constructor() {
         this.currentUser = null;

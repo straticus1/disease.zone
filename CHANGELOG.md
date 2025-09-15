@@ -1,5 +1,53 @@
 # Changelog
 
+## [3.1.3] - 2025-09-15
+
+### 🚨 Critical Production Fixes - Domain Routing & Navigation
+
+#### **Major Infrastructure Corrections**
+- **Fixed Server Routing Logic**: Resolved critical issue where static middleware was intercepting requests before subdomain routing
+  - **Root Cause**: `express.static()` middleware was serving `index.html` before homepage route handler could process subdomain detection
+  - **Solution**: Moved homepage routing logic before static middleware to ensure proper subdomain differentiation
+  - **Impact**: Both `www.disease.zone` and `api.disease.zone` were incorrectly serving identical content
+
+#### **Domain-Specific Content Serving**
+- **Main Domain (www.disease.zone)**: Now correctly serves comprehensive health intelligence platform (`app.html`)
+  - **Title**: "diseaseZone - Comprehensive Health Intelligence Platform"
+  - **Content**: Full-featured health tracking, analytics, blockchain, research platform
+  - **JavaScript**: Complete functionality with modals, forms, navigation (40KB+ `app.js`)
+
+- **API Domain (api.disease.zone)**: Now correctly serves dedicated API developer portal
+  - **Title**: "diseaseZone - API Portal & Developer Dashboard"
+  - **Content**: Developer-focused API documentation, search forms, quick links
+  - **Navigation**: Proper cross-domain links pointing to main platform
+
+#### **Navigation & User Experience Fixes**
+- **Fixed Cross-Domain Navigation**: API portal now correctly links to main platform via `https://www.disease.zone/`
+- **Removed Redundant Elements**: Eliminated conflicting "Launch Full Platform" button from static files
+- **Seamless User Flow**: Users can now properly navigate between API documentation and main platform
+
+#### **Technical Implementation**
+- **Server Route Priority**: Homepage routes now execute before static file serving
+- **Subdomain Detection**: Enhanced host header parsing for reliable subdomain identification
+- **Debug Logging**: Added comprehensive logging for troubleshooting routing decisions
+- **Docker Deployment**: Successfully deployed via ECS with updated container image
+
+#### **Verification & Testing**
+- **Content Verification**: Confirmed distinct content serving for both domains
+- **JavaScript Functionality**: Verified all interactive elements work on main platform
+- **Navigation Testing**: Confirmed proper cross-domain navigation links
+- **Production Deployment**: Successfully deployed and verified in AWS ECS environment
+
+#### **Infrastructure Status**
+- **DNS Configuration**: `api.disease.zone` Alias record confirmed active
+- **SSL Coverage**: Wildcard certificate `*.disease.zone` covers both domains
+- **Load Balancer**: Properly routes both subdomains to ECS service
+- **ECS Deployment**: Container successfully running with latest fixes
+
+**🎯 Result**: Disease.zone platform now operates as intended with proper domain separation, full functionality on main platform, and dedicated API portal for developers.
+
+---
+
 ## [3.1.2] - 2025-09-15
 
 ### 🚀 Comprehensive Platform Enhancement & Medical Specialization

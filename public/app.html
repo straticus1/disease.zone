@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>diseaseZone - Comprehensive Health Intelligence Platform</title>
 
-    <!-- Enhanced Security Headers -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https: wss:; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none';">
+    <!-- Enhanced Security Headers - TEMPORARILY DISABLED FOR DEBUGGING -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https: wss:; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none';"> -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="DENY">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
@@ -534,6 +534,7 @@
                     <li><a href="#" onclick="showView('surveillance')" class="nav-link">Surveillance</a></li>
                     <li><a href="#" onclick="showView('research')" class="nav-link">Research</a></li>
                     <li><a href="#" onclick="showView('blockchain')" class="nav-link">Blockchain</a></li>
+                    <li><a href="//api.disease.zone" target="_blank" class="nav-link" style="color: var(--warning-color);">API Portal <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i></a></li>
                 </ul>
 
                 <div class="user-menu" id="userMenu">
@@ -570,6 +571,12 @@
                             <i class="fas fa-play"></i>
                             View Demo
                         </a>
+                        <button onclick="testFunction()" class="btn" style="background: red; color: white; margin-top: 10px;">
+                            🧪 TEST EXTERNAL JS
+                        </button>
+                        <button onclick="inlineTestFunction()" class="btn" style="background: orange; color: white; margin-top: 10px;">
+                            🔥 TEST INLINE JS
+                        </button>
                     </div>
                 </div>
             </section>
@@ -1670,6 +1677,31 @@
 
     <!-- Modals will be added here -->
     <div id="modals"></div>
+
+    <!-- Inline test script for immediate debugging -->
+    <script>
+        console.log('🔥 INLINE SCRIPT: This proves JavaScript CAN execute');
+
+        // Test if we can create global functions inline
+        window.inlineTestFunction = function() {
+            console.log('🔥 INLINE TEST: Function called successfully');
+            alert('INLINE JavaScript is working!');
+        };
+
+        // Log when document is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔥 INLINE: DOMContentLoaded fired');
+
+            // Try to call our external test function
+            if (typeof window.testFunction === 'function') {
+                console.log('✅ External testFunction is available');
+            } else {
+                console.log('❌ External testFunction is NOT available');
+            }
+        });
+
+        console.log('🔥 INLINE SCRIPT: Setup complete');
+    </script>
 
     <script src="/js/app.js"></script>
 </body>

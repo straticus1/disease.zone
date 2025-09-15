@@ -93,9 +93,9 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'"]
+      connectSrc: ["'self'", "https:", "wss:"]
     }
   }
 }));
@@ -108,6 +108,25 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+
+// Homepage route - serve main application or API portal based on subdomain
+// This MUST be before static middleware to prevent index.html from being served
+app.get('/', (req, res) => {
+  const host = req.get('host') || '';
+  console.log(`🔍 Homepage request from host: "${host}"`);
+  
+  // If it's the api subdomain, serve the API portal
+  if (host.startsWith('api.') || host.includes('api.disease.zone')) {
+    console.log('✅ Serving API portal for subdomain:', host);
+    return serveApiHomepage(req, res);
+  }
+  
+  // For main domain, serve the app.html content directly
+  console.log('✅ Serving main app.html for domain:', host);
+  res.sendFile(path.join(__dirname, 'public', 'app.html'));
+});
+
+// Static middleware - serves other static files but not index.html (handled above)
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Security and logging middleware (applied after services are initialized)
@@ -127,15 +146,15 @@ app.use((req, res, next) => {
   }
 });
 
-// Homepage route
-app.get('/', (req, res) => {
+// Function to serve the API homepage
+function serveApiHomepage(req, res) {
   const html = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>diseaseZone - Medical Staff Portal</title>
+    <title>diseaseZone - API Portal & Developer Dashboard</title>
     <style>
         :root {
             --primary-color: #059669;
@@ -359,22 +378,74 @@ app.get('/', (req, res) => {
             border-radius: 50%;
         }
 
+        .top-nav {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover {
+            background: var(--light-color);
+            color: var(--primary-color);
+        }
+
+        .nav-links .main-app-link {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .nav-links .main-app-link:hover {
+            background: var(--secondary-color);
+            color: white;
+        }
+
         @media (max-width: 768px) {
             .container { padding: 10px; }
             .header { padding: 30px 20px; }
             .logo h1 { font-size: 2.5rem; }
             .search-grid { grid-template-columns: 1fr; }
+            .nav-links { flex-wrap: wrap; gap: 15px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <nav class="top-nav">
+            <ul class="nav-links">
+                <li><a href="https://www.disease.zone/" class="main-app-link">🏠 Main Application</a></li>
+                <li><a href="#api-docs">📚 API Documentation</a></li>
+                <li><a href="#quick-links">🔗 Quick Links</a></li>
+                <li><a href="mailto:api@disease.zone">💬 API Support</a></li>
+            </ul>
+        </nav>
+        
         <div class="header">
             <div class="logo">
                 <div class="logo-icon">🧬</div>
                 <h1>diseaseZone</h1>
             </div>
-            <p class="subtitle">Medical Staff Portal - Disease Surveillance & Research</p>
+            <p class="subtitle">API Portal & Developer Dashboard</p>
         </div>
 
         <div class="search-grid">
@@ -464,8 +535,8 @@ app.get('/', (req, res) => {
             </div>
         </div>
 
-        <div class="quick-links">
-            <h3>Quick Access Links</h3>
+        <div class="quick-links" id="quick-links">
+            <h3>🔗 Quick API Links</h3>
             <div class="links-grid">
                 <a href="/api/diseases" class="quick-link">
                     <span>🗂️</span>
@@ -530,7 +601,7 @@ app.get('/', (req, res) => {
 </html>
   `;
   res.send(html);
-});
+}
 
 // API Routes
 app.get('/api/health', (req, res) => {
@@ -2088,9 +2159,15 @@ app.get('/api/maps/tiers', (req, res) => {
   }
 });
 
-// Serve the main application
+// 404 handler - only for non-static routes that don't exist
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  // Don't serve index.html for API routes or static files
+  if (req.path.startsWith('/api/') || req.path.startsWith('/js/') || req.path.startsWith('/css/') || req.path.startsWith('/images/')) {
+    return res.status(404).json({ error: 'Not found' });
+  }
+
+  // For other routes, redirect to main app
+  res.redirect('/');
 });
 
 // Error handling middleware
