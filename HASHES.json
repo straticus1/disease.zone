@@ -1,17 +1,17 @@
 {
   "metadata": {
     "project": "diseaseZone",
-    "version": "2.3.0",
-    "generated": "2025-09-15T01:01:02.799Z",
+    "version": "3.0.0",
+    "generated": "2025-09-15T05:47:43.628Z",
     "generator": "diseaseZone Security Hash Generator v1.0",
     "algorithm": "sha256",
-    "projectHash": "1620b1c66b369b352c0d0d8de1899a517dd23bda345afe044cbdddaef71f0fd3",
+    "projectHash": "97e014afdb176fd209500dda610a1f5ce219883b86e41a5f8b5717fbb6957017",
     "stats": {
-      "totalFiles": 98,
-      "hashedFiles": 75,
-      "skippedFiles": 10,
-      "totalSize": 1097822,
-      "generationTime": 27
+      "totalFiles": 117,
+      "hashedFiles": 89,
+      "skippedFiles": 12,
+      "totalSize": 1333547,
+      "generationTime": 73
     }
   },
   "hashes": {
@@ -20,6 +20,13 @@
       "algorithm": "sha256",
       "size": 195,
       "modified": "2025-09-14T20:49:40.139Z",
+      "permissions": "0644"
+    },
+    "CHANGELOG.md": {
+      "hash": "03d4094721d891e62e580c7b93c025cca1dfd8a959022926b4be2fa3e315756b",
+      "algorithm": "sha256",
+      "size": 5140,
+      "modified": "2025-09-15T05:42:26.885Z",
       "permissions": "0644"
     },
     "Dockerfile": {
@@ -37,10 +44,17 @@
       "permissions": "0644"
     },
     "README.md": {
-      "hash": "35a2b8bd0609e95f2d93606a583679626e6af61c6955370fa2fada54cbe183de",
+      "hash": "6ffb4ad839724b2882ca4935e95c7ca4a7eaa86fb1948076912adc234642203b",
       "algorithm": "sha256",
-      "size": 20494,
-      "modified": "2025-09-15T00:57:42.813Z",
+      "size": 22084,
+      "modified": "2025-09-15T05:43:03.426Z",
+      "permissions": "0644"
+    },
+    "README_STI_API.md": {
+      "hash": "da3a95e5a94d364fbdebb59ddfe6bf8fd17f161923988a4e65e37ec5ed65e475",
+      "algorithm": "sha256",
+      "size": 5378,
+      "modified": "2025-09-15T05:22:56.024Z",
       "permissions": "0644"
     },
     "ansible/deploy.yml": {
@@ -177,10 +191,10 @@
       "permissions": "0644"
     },
     "database/seed_diseases.sql": {
-      "hash": "de94497bd898a153176dfcdf564f7c30a0025af991a22e91c8bc1e1cc5b817e4",
+      "hash": "c1d7a46ded3982191473b5e3dde8dd1208a7c75712b305ca8f51c55812e609b1",
       "algorithm": "sha256",
       "size": 4590,
-      "modified": "2025-09-14T21:20:09.473Z",
+      "modified": "2025-09-15T04:14:14.265Z",
       "permissions": "0644"
     },
     "docs/AI_SYMPTOM_ANALYSIS.md": {
@@ -230,6 +244,13 @@
       "algorithm": "sha256",
       "size": 17768,
       "modified": "2025-09-14T21:49:12.067Z",
+      "permissions": "0644"
+    },
+    "docs/GLOBAL_HEALTH_API.md": {
+      "hash": "7f1ceacb8a6e7e886460a3ffce0dfc70bbd91a3ce1e2ee46bb8a06d2980fffe5",
+      "algorithm": "sha256",
+      "size": 12864,
+      "modified": "2025-09-15T05:44:11.770Z",
       "permissions": "0644"
     },
     "docs/MEDICAL_COMPLIANCE_REVIEW.md": {
@@ -282,10 +303,10 @@
       "permissions": "0644"
     },
     "package.json": {
-      "hash": "e5f80488fc3a053d0746398cdc495fadfb147993b2ee98b71b7affb7ada7321c",
+      "hash": "1643620a77547508150d55a663be694f1b2f1d5726e3f53f0dd2935c39bb7f88",
       "algorithm": "sha256",
-      "size": 1754,
-      "modified": "2025-09-15T00:58:20.071Z",
+      "size": 1884,
+      "modified": "2025-09-15T05:44:32.241Z",
       "permissions": "0644"
     },
     "public/css/styles.css": {
@@ -337,6 +358,20 @@
       "modified": "2025-09-14T22:57:34.308Z",
       "permissions": "0644"
     },
+    "routes/globalHealthRoutes.js": {
+      "hash": "c59cad6a12cac667df2084762e67b27d6bf5c0c5dc9353e25ad7f7f789a28048",
+      "algorithm": "sha256",
+      "size": 18810,
+      "modified": "2025-09-15T05:35:42.338Z",
+      "permissions": "0644"
+    },
+    "routes/stiRoutes.js": {
+      "hash": "86c7b88ba0b557b0b47012dcf07725b5769fe62d198201a56c82116cfa541d78",
+      "algorithm": "sha256",
+      "size": 14292,
+      "modified": "2025-09-15T05:09:04.002Z",
+      "permissions": "0644"
+    },
     "scripts/deploy.sh": {
       "hash": "89bfb4e023cb767cbbf0d93c62b9c1ac1f2324f6f849275fa0db447ff7a816f2",
       "algorithm": "sha256",
@@ -345,10 +380,10 @@
       "permissions": "0755"
     },
     "server.js": {
-      "hash": "c4f736d94d65dbba53eaa119608a3de7e162043d87314775939824cd6b62ed22",
+      "hash": "bae0f0c6fc2c7e147d99691e4ebeeee3878ee0ec5a7a9dd0285d4f952cc818d7",
       "algorithm": "sha256",
-      "size": 47800,
-      "modified": "2025-09-14T22:56:08.533Z",
+      "size": 64918,
+      "modified": "2025-09-15T05:40:58.138Z",
       "permissions": "0644"
     },
     "services/aiSymptomAnalysisService.js": {
@@ -373,10 +408,24 @@
       "permissions": "0644"
     },
     "services/cdcDataService.js": {
-      "hash": "860c913b11383a153fca88d38ca5e00336acc1f1314dac473020ae7f9978ba2c",
+      "hash": "836648ff003a2bfb1ef349e0eda1870f9c6c0c13719eef77ef2175e6fcaa4eb6",
       "algorithm": "sha256",
-      "size": 8602,
-      "modified": "2025-09-14T19:58:33.585Z",
+      "size": 10353,
+      "modified": "2025-09-15T05:02:37.636Z",
+      "permissions": "0644"
+    },
+    "services/comprehensiveSTIService.js": {
+      "hash": "d1c10fa714ce6935ef0f90bc1a948cd6b07c96a5a5433ab164809e0ac8a90611",
+      "algorithm": "sha256",
+      "size": 15004,
+      "modified": "2025-09-15T05:22:06.842Z",
+      "permissions": "0644"
+    },
+    "services/dataFusionEngine.js": {
+      "hash": "cc7cf32432017b91276519fa80be76c73f9b572a2100669a8742a3ddbcceca04",
+      "algorithm": "sha256",
+      "size": 24584,
+      "modified": "2025-09-15T05:32:54.608Z",
       "permissions": "0644"
     },
     "services/databaseService.js": {
@@ -386,11 +435,25 @@
       "modified": "2025-09-14T21:20:48.102Z",
       "permissions": "0644"
     },
+    "services/diseaseApiService.js": {
+      "hash": "8d1dade76ffda268e3351c2fde406d39996e1a4f9ce8579c761fbf5583018081",
+      "algorithm": "sha256",
+      "size": 11095,
+      "modified": "2025-09-15T05:04:27.422Z",
+      "permissions": "0644"
+    },
     "services/encryptionService.js": {
       "hash": "2057df6d9a2b5243e71665a77ec1b636b3707008c69a13c494267bddea61232e",
       "algorithm": "sha256",
       "size": 6140,
       "modified": "2025-09-14T21:41:24.373Z",
+      "permissions": "0644"
+    },
+    "services/errorHandlingService.js": {
+      "hash": "21e6ae04a666aa9c3bf7dde1c8f7c3b5dddb949a76a731012459d8899dc74a73",
+      "algorithm": "sha256",
+      "size": 13521,
+      "modified": "2025-09-15T05:21:32.758Z",
       "permissions": "0644"
     },
     "services/gdprService.js": {
@@ -407,11 +470,32 @@
       "modified": "2025-09-14T21:03:34.658Z",
       "permissions": "0644"
     },
+    "services/globalHealthOrchestrator.js": {
+      "hash": "2471d5aa120740f9acae0b190d7b75f66330d7c46649cb4f0ca4afda2eac6108",
+      "algorithm": "sha256",
+      "size": 24145,
+      "modified": "2025-09-15T05:31:13.370Z",
+      "permissions": "0644"
+    },
+    "services/herpesHSVService.js": {
+      "hash": "8b43f2b7f7762e595484c30a33b018d426ba515274291b60ff730417a4584087",
+      "algorithm": "sha256",
+      "size": 15711,
+      "modified": "2025-09-15T05:06:55.310Z",
+      "permissions": "0644"
+    },
     "services/hipaaService.js": {
       "hash": "67244eea6b5053dcea6307497b56b2a6e349413f623c414e68a9c164a9195e58",
       "algorithm": "sha256",
       "size": 14546,
       "modified": "2025-09-14T21:42:32.020Z",
+      "permissions": "0644"
+    },
+    "services/hpvSurveillanceService.js": {
+      "hash": "7854f4d6d92eb154fbacf37d55655a29c6bc0f737fe79b1abdc1cd9ed3d1f716",
+      "algorithm": "sha256",
+      "size": 14321,
+      "modified": "2025-09-15T05:05:37.792Z",
       "permissions": "0644"
     },
     "services/mappingService.js": {
@@ -447,6 +531,13 @@
       "algorithm": "sha256",
       "size": 7821,
       "modified": "2025-09-14T21:02:53.399Z",
+      "permissions": "0644"
+    },
+    "services/outbreakDetectionEngine.js": {
+      "hash": "e06645a459cc7ab1dec37759682eef09f346973ccf79885204640eaea090f2e5",
+      "algorithm": "sha256",
+      "size": 26156,
+      "modified": "2025-09-15T05:34:30.543Z",
       "permissions": "0644"
     },
     "services/stateDataService.js": {
@@ -538,6 +629,13 @@
       "algorithm": "sha256",
       "size": 1415,
       "modified": "2025-09-14T20:52:16.153Z",
+      "permissions": "0644"
+    },
+    "utils/responseHandler.js": {
+      "hash": "a401ad85c2548b42be7854739495eba9148c67b9d71c908a62ff6455bc81e265",
+      "algorithm": "sha256",
+      "size": 14115,
+      "modified": "2025-09-15T04:42:55.341Z",
       "permissions": "0644"
     }
   }

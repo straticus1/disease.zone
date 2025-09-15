@@ -2,17 +2,17 @@ diseaseZone Security Hash Verification File
 ==========================================
 
 Project: diseaseZone
-Version: 2.3.0
-Generated: 2025-09-15T01:01:02.799Z
+Version: 3.0.0
+Generated: 2025-09-15T05:47:43.628Z
 Algorithm: SHA256
-Project Hash: 1620b1c66b369b352c0d0d8de1899a517dd23bda345afe044cbdddaef71f0fd3
+Project Hash: 97e014afdb176fd209500dda610a1f5ce219883b86e41a5f8b5717fbb6957017
 
 Statistics:
-- Total Files: 98
-- Hashed Files: 75
-- Skipped Files: 10
-- Total Size: 1.05 MB
-- Generation Time: 27ms
+- Total Files: 117
+- Hashed Files: 89
+- Skipped Files: 12
+- Total Size: 1.27 MB
+- Generation Time: 73ms
 
 File Hashes:
 ============
@@ -21,6 +21,12 @@ File Hashes:
   Hash: 073a298393bb7d8645f5b0af099e231b6525fa9bf085ee2c9488adf84a080232
   Size: 195 B
   Modified: 2025-09-14T20:49:40.139Z
+  Permissions: 0644
+
+CHANGELOG.md
+  Hash: 03d4094721d891e62e580c7b93c025cca1dfd8a959022926b4be2fa3e315756b
+  Size: 5.02 KB
+  Modified: 2025-09-15T05:42:26.885Z
   Permissions: 0644
 
 Dockerfile
@@ -36,9 +42,15 @@ LICENSE
   Permissions: 0644
 
 README.md
-  Hash: 35a2b8bd0609e95f2d93606a583679626e6af61c6955370fa2fada54cbe183de
-  Size: 20.01 KB
-  Modified: 2025-09-15T00:57:42.813Z
+  Hash: 6ffb4ad839724b2882ca4935e95c7ca4a7eaa86fb1948076912adc234642203b
+  Size: 21.57 KB
+  Modified: 2025-09-15T05:43:03.426Z
+  Permissions: 0644
+
+README_STI_API.md
+  Hash: da3a95e5a94d364fbdebb59ddfe6bf8fd17f161923988a4e65e37ec5ed65e475
+  Size: 5.25 KB
+  Modified: 2025-09-15T05:22:56.024Z
   Permissions: 0644
 
 ansible/deploy.yml
@@ -156,9 +168,9 @@ database/schema.sql
   Permissions: 0644
 
 database/seed_diseases.sql
-  Hash: de94497bd898a153176dfcdf564f7c30a0025af991a22e91c8bc1e1cc5b817e4
+  Hash: c1d7a46ded3982191473b5e3dde8dd1208a7c75712b305ca8f51c55812e609b1
   Size: 4.48 KB
-  Modified: 2025-09-14T21:20:09.473Z
+  Modified: 2025-09-15T04:14:14.265Z
   Permissions: 0644
 
 docs/AI_SYMPTOM_ANALYSIS.md
@@ -201,6 +213,12 @@ docs/GLOBAL_COMPLIANCE_FRAMEWORK.md
   Hash: 8cc9712353f42445eeb6a0257197373370d64b33fbbb84685aef1f9784ff9b4f
   Size: 17.35 KB
   Modified: 2025-09-14T21:49:12.067Z
+  Permissions: 0644
+
+docs/GLOBAL_HEALTH_API.md
+  Hash: 7f1ceacb8a6e7e886460a3ffce0dfc70bbd91a3ce1e2ee46bb8a06d2980fffe5
+  Size: 12.56 KB
+  Modified: 2025-09-15T05:44:11.770Z
   Permissions: 0644
 
 docs/MEDICAL_COMPLIANCE_REVIEW.md
@@ -246,9 +264,9 @@ package-lock.json
   Permissions: 0644
 
 package.json
-  Hash: e5f80488fc3a053d0746398cdc495fadfb147993b2ee98b71b7affb7ada7321c
-  Size: 1.71 KB
-  Modified: 2025-09-15T00:58:20.071Z
+  Hash: 1643620a77547508150d55a663be694f1b2f1d5726e3f53f0dd2935c39bb7f88
+  Size: 1.84 KB
+  Modified: 2025-09-15T05:44:32.241Z
   Permissions: 0644
 
 public/css/styles.css
@@ -293,6 +311,18 @@ public/symptom-analysis.html
   Modified: 2025-09-14T22:57:34.308Z
   Permissions: 0644
 
+routes/globalHealthRoutes.js
+  Hash: c59cad6a12cac667df2084762e67b27d6bf5c0c5dc9353e25ad7f7f789a28048
+  Size: 18.37 KB
+  Modified: 2025-09-15T05:35:42.338Z
+  Permissions: 0644
+
+routes/stiRoutes.js
+  Hash: 86c7b88ba0b557b0b47012dcf07725b5769fe62d198201a56c82116cfa541d78
+  Size: 13.96 KB
+  Modified: 2025-09-15T05:09:04.002Z
+  Permissions: 0644
+
 scripts/deploy.sh
   Hash: 89bfb4e023cb767cbbf0d93c62b9c1ac1f2324f6f849275fa0db447ff7a816f2
   Size: 2.81 KB
@@ -300,9 +330,9 @@ scripts/deploy.sh
   Permissions: 0755
 
 server.js
-  Hash: c4f736d94d65dbba53eaa119608a3de7e162043d87314775939824cd6b62ed22
-  Size: 46.68 KB
-  Modified: 2025-09-14T22:56:08.533Z
+  Hash: bae0f0c6fc2c7e147d99691e4ebeeee3878ee0ec5a7a9dd0285d4f952cc818d7
+  Size: 63.4 KB
+  Modified: 2025-09-15T05:40:58.138Z
   Permissions: 0644
 
 services/aiSymptomAnalysisService.js
@@ -324,9 +354,21 @@ services/auditLoggingService.js
   Permissions: 0644
 
 services/cdcDataService.js
-  Hash: 860c913b11383a153fca88d38ca5e00336acc1f1314dac473020ae7f9978ba2c
-  Size: 8.4 KB
-  Modified: 2025-09-14T19:58:33.585Z
+  Hash: 836648ff003a2bfb1ef349e0eda1870f9c6c0c13719eef77ef2175e6fcaa4eb6
+  Size: 10.11 KB
+  Modified: 2025-09-15T05:02:37.636Z
+  Permissions: 0644
+
+services/comprehensiveSTIService.js
+  Hash: d1c10fa714ce6935ef0f90bc1a948cd6b07c96a5a5433ab164809e0ac8a90611
+  Size: 14.65 KB
+  Modified: 2025-09-15T05:22:06.842Z
+  Permissions: 0644
+
+services/dataFusionEngine.js
+  Hash: cc7cf32432017b91276519fa80be76c73f9b572a2100669a8742a3ddbcceca04
+  Size: 24.01 KB
+  Modified: 2025-09-15T05:32:54.608Z
   Permissions: 0644
 
 services/databaseService.js
@@ -335,10 +377,22 @@ services/databaseService.js
   Modified: 2025-09-14T21:20:48.102Z
   Permissions: 0644
 
+services/diseaseApiService.js
+  Hash: 8d1dade76ffda268e3351c2fde406d39996e1a4f9ce8579c761fbf5583018081
+  Size: 10.83 KB
+  Modified: 2025-09-15T05:04:27.422Z
+  Permissions: 0644
+
 services/encryptionService.js
   Hash: 2057df6d9a2b5243e71665a77ec1b636b3707008c69a13c494267bddea61232e
   Size: 6 KB
   Modified: 2025-09-14T21:41:24.373Z
+  Permissions: 0644
+
+services/errorHandlingService.js
+  Hash: 21e6ae04a666aa9c3bf7dde1c8f7c3b5dddb949a76a731012459d8899dc74a73
+  Size: 13.2 KB
+  Modified: 2025-09-15T05:21:32.758Z
   Permissions: 0644
 
 services/gdprService.js
@@ -353,10 +407,28 @@ services/geneticDiseaseService.js
   Modified: 2025-09-14T21:03:34.658Z
   Permissions: 0644
 
+services/globalHealthOrchestrator.js
+  Hash: 2471d5aa120740f9acae0b190d7b75f66330d7c46649cb4f0ca4afda2eac6108
+  Size: 23.58 KB
+  Modified: 2025-09-15T05:31:13.370Z
+  Permissions: 0644
+
+services/herpesHSVService.js
+  Hash: 8b43f2b7f7762e595484c30a33b018d426ba515274291b60ff730417a4584087
+  Size: 15.34 KB
+  Modified: 2025-09-15T05:06:55.310Z
+  Permissions: 0644
+
 services/hipaaService.js
   Hash: 67244eea6b5053dcea6307497b56b2a6e349413f623c414e68a9c164a9195e58
   Size: 14.21 KB
   Modified: 2025-09-14T21:42:32.020Z
+  Permissions: 0644
+
+services/hpvSurveillanceService.js
+  Hash: 7854f4d6d92eb154fbacf37d55655a29c6bc0f737fe79b1abdc1cd9ed3d1f716
+  Size: 13.99 KB
+  Modified: 2025-09-15T05:05:37.792Z
   Permissions: 0644
 
 services/mappingService.js
@@ -387,6 +459,12 @@ services/neurologicalDiseaseService.js
   Hash: 6ec20771df5ab76a409a88ea7298b0cb6db283d3fc086651012dd2b3056c2209
   Size: 7.64 KB
   Modified: 2025-09-14T21:02:53.399Z
+  Permissions: 0644
+
+services/outbreakDetectionEngine.js
+  Hash: e06645a459cc7ab1dec37759682eef09f346973ccf79885204640eaea090f2e5
+  Size: 25.54 KB
+  Modified: 2025-09-15T05:34:30.543Z
   Permissions: 0644
 
 services/stateDataService.js
@@ -465,5 +543,11 @@ terraform/variables.tf
   Hash: ae6add54f0ba504c9f7b0c8fb7afb22f6ce3e6dbb15e4adf85ccfbb787062a02
   Size: 1.38 KB
   Modified: 2025-09-14T20:52:16.153Z
+  Permissions: 0644
+
+utils/responseHandler.js
+  Hash: a401ad85c2548b42be7854739495eba9148c67b9d71c908a62ff6455bc81e265
+  Size: 13.78 KB
+  Modified: 2025-09-15T04:42:55.341Z
   Permissions: 0644
 
