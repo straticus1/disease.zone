@@ -324,14 +324,14 @@ The diseaseZone Surveillance Platform represents the next generation of disease 
 
 ## Contact Information
 
-**Chief Medical Officer**: Dr. Michael Rodriguez, MD, MPH, FIDSA
-Board-certified in Internal Medicine and Infectious Diseases
-Former CDC Deputy Director for Infectious Diseases
+**Chief Medical Officer**: *To be announced*
+Requirements: Board-certified in Internal Medicine and Infectious Diseases
+Preferred: CDC or equivalent public health leadership experience
 Email: cmo@disease.zone
 
-**Medical Director of Surveillance**: Dr. Jennifer Park, MD, PhD
-Board-certified in Preventive Medicine and Epidemiology
-Former State Epidemiologist, California Department of Public Health
+**Medical Director of Surveillance**: *To be announced*
+Requirements: Board-certified in Preventive Medicine and Epidemiology
+Preferred: State or federal epidemiologist experience
 Email: surveillance@disease.zone
 
 **24/7 Outbreak Hotline**: +1-800-OUTBREAK (1-800-688-2732)

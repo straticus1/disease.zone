@@ -28,9 +28,9 @@
   - Multi-chain architecture with Ethereum/Hyperledger bridges
 
 #### Medical Leadership & Professional Oversight
-- **Medical Advisory Board**: Board-certified physician leadership
-  - Dr. Michael Rodriguez, MD, MPH, FIDSA (Former CDC Deputy Director)
-  - Dr. Jennifer Park, MD, PhD (Former State Epidemiologist)
+- **Medical Advisory Board**: Board-certified physician leadership positions
+  - Chief Medical Officer (To be announced - CDC experience preferred)
+  - Medical Director of Surveillance (To be announced - State epidemiologist experience preferred)
   - 24/7 Outbreak Hotline: 1-800-OUTBREAK (1-800-688-2732)
   - Direct medical director contact and partnership channels
 
