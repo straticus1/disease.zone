@@ -200,7 +200,7 @@ class DiseaseZoneConsole {
 
         const server = chalk.blue(new URL(this.config.server_url).hostname);
 
-        return `${user}@${server} ${chalk.yellow('>'))} `;
+        return `${user}@${server} ${chalk.yellow('>')} `;
     }
 
     /**
