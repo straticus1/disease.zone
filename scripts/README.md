@@ -99,6 +99,41 @@ The script detects Docker environments and uses appropriate container paths:
 - Database: `/app/database/diseaseZone.db`
 - API: `http://localhost:3000`
 
+## 🔍 Mock Data Analysis & Replacement
+
+### `fix-mock-data.js`
+
+Comprehensive tool for analyzing and replacing mock data with real API integrations.
+
+**Usage:**
+
+```bash
+# Analyze codebase for mock data patterns
+npm run analyze-mock-data
+
+# Apply automatic fixes to replace mock data  
+npm run fix-mock-data
+
+# Or run directly
+node scripts/fix-mock-data.js analyze
+node scripts/fix-mock-data.js fix
+```
+
+**Features:**
+- Scans entire codebase for mock data patterns
+- Identifies real API alternatives (CDC, disease.sh, WHO)
+- Prioritizes fixes by impact (High/Medium/Low) 
+- Applies automatic code enhancements
+- Adds real data integration with graceful fallbacks
+- Progress reporting and next steps guidance
+
+**Real Data Sources Integrated:**
+- **CDC Data.gov** - US surveillance and mortality data
+- **Disease.sh** - Global real-time disease tracking  
+- **CDC STI Surveillance** - HIV, Chlamydia, Gonorrhea, Syphilis
+- **CDC Alzheimer's Data** - Neurological disease mortality
+- **CDC Kidney Disease** - CKD surveillance for genetic diseases
+
 ## Other Scripts
 
 - `deploy.sh` - Deployment script

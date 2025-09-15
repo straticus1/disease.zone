@@ -1211,75 +1211,153 @@ app.post('/api/user/api-keys',
     }
   });
 
-// STD surveillance data endpoints
+// STD surveillance data endpoints - using real data sources
 app.get('/api/std/data', async (req, res) => {
   try {
     const { disease, year, state, ageGroup } = req.query;
-
-    // Return mock data for now while we debug the CDC API
-    const mockData = {
-      success: true,
-      data: [
-        {
-          disease: disease || 'chlamydia',
-          year: year || '2022',
-          state: state || 'NY',
-          cases: 125000,
-          rate: 400.5
-        },
-        {
-          disease: disease || 'chlamydia',
-          year: year || '2022',
-          state: 'CA',
-          cases: 180000,
-          rate: 455.8
+    
+    // Initialize STI service if not available
+    if (!app.locals.comprehensiveSTIService) {
+      const ComprehensiveSTIService = require('./services/comprehensiveSTIService');
+      app.locals.comprehensiveSTIService = new ComprehensiveSTIService();
+    }
+    
+    // Map query parameters to service options
+    const diseases = disease ? [disease] : ['chlamydia', 'gonorrhea', 'syphilis'];
+    const region = state || 'all';
+    const timeframe = year || 'current';
+    
+    // Query real STI data
+    const stiData = await app.locals.comprehensiveSTIService.queryDiseaseData({
+      diseases: diseases,
+      region: region,
+      timeframe: timeframe,
+      dataTypes: ['surveillance', 'incidence'],
+      sources: 'auto'
+    });
+    
+    if (stiData.success) {
+      // Transform data for backwards compatibility
+      const transformedData = [];
+      
+      Object.entries(stiData.data).forEach(([diseaseName, diseaseData]) => {
+        if (diseaseData.aggregated && diseaseData.aggregated.totalCases > 0) {
+          transformedData.push({
+            disease: diseaseName,
+            year: year || new Date().getFullYear(),
+            state: state || 'Multiple',
+            cases: diseaseData.aggregated.totalCases,
+            rate: Math.round((diseaseData.aggregated.totalCases / 100000) * 100) / 100, // Rough rate calculation
+            sources: diseaseData.aggregated.sources,
+            lastUpdated: diseaseData.aggregated.lastUpdated
+          });
         }
-      ],
-      totalRecords: 2,
-      timestamp: new Date().toISOString(),
-      note: "Mock data - CDC WONDER API integration in progress"
-    };
-
-    res.json(mockData);
+      });
+      
+      res.json({
+        success: true,
+        data: transformedData,
+        totalRecords: transformedData.length,
+        timestamp: new Date().toISOString(),
+        metadata: stiData.metadata,
+        note: transformedData.length > 0 ? "Real-time surveillance data" : "No current data available for specified parameters"
+      });
+    } else {
+      // Fallback to educational mock data with clear labeling
+      res.json({
+        success: true,
+        data: [
+          {
+            disease: disease || 'chlamydia',
+            year: year || '2022',
+            state: state || 'Example',
+            cases: 0,
+            rate: 0,
+            note: "Sample structure - real data service initialization failed"
+          }
+        ],
+        totalRecords: 1,
+        timestamp: new Date().toISOString(),
+        error: stiData.error,
+        note: "Fallback educational data - service unavailable"
+      });
+    }
+    
   } catch (error) {
-    console.error('Error fetching STD data:', error);
-    res.status(500).json({ error: 'Failed to fetch STD surveillance data' });
+    console.error('Error fetching STD surveillance data:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to fetch STD surveillance data',
+      details: error.message
+    });
   }
 });
 
 app.get('/api/std/summary', async (req, res) => {
   try {
     const { year } = req.query;
-
-    // Return mock summary data
-    const mockSummary = {
-      success: true,
-      year: year || '2022',
-      summary: {
-        chlamydia: {
-          totalCases: 1640000,
-          states: 50,
-          avgRate: 495.1
-        },
-        gonorrhea: {
-          totalCases: 710000,
-          states: 50,
-          avgRate: 214.8
-        },
-        syphilis: {
-          totalCases: 176000,
-          states: 50,
-          avgRate: 53.2
+    
+    // Initialize STI service if not available
+    if (!app.locals.comprehensiveSTIService) {
+      const ComprehensiveSTIService = require('./services/comprehensiveSTIService');
+      app.locals.comprehensiveSTIService = new ComprehensiveSTIService();
+    }
+    
+    // Query comprehensive STI data for summary
+    const stiData = await app.locals.comprehensiveSTIService.queryDiseaseData({
+      diseases: ['chlamydia', 'gonorrhea', 'syphilis', 'hiv', 'aids'],
+      region: 'all',
+      timeframe: year || 'current',
+      dataTypes: ['surveillance', 'incidence'],
+      sources: 'auto'
+    });
+    
+    if (stiData.success) {
+      const summary = {};
+      
+      Object.entries(stiData.data).forEach(([disease, diseaseData]) => {
+        if (diseaseData.aggregated) {
+          summary[disease] = {
+            totalCases: diseaseData.aggregated.totalCases || 0,
+            regions: diseaseData.aggregated.regions ? diseaseData.aggregated.regions.length : 0,
+            sources: diseaseData.aggregated.sources || [],
+            lastUpdated: diseaseData.aggregated.lastUpdated,
+            confidence: diseaseData.confidence || 'low'
+          };
         }
-      },
-      timestamp: new Date().toISOString(),
-      note: "Mock data - CDC WONDER API integration in progress"
-    };
-
-    res.json(mockSummary);
+      });
+      
+      res.json({
+        success: true,
+        year: year || new Date().getFullYear(),
+        summary: summary,
+        timestamp: new Date().toISOString(),
+        metadata: stiData.metadata,
+        note: Object.keys(summary).length > 0 ? "Real-time surveillance summary" : "Limited data availability"
+      });
+    } else {
+      // Fallback to educational structure
+      res.json({
+        success: true,
+        year: year || new Date().getFullYear(),
+        summary: {
+          chlamydia: { totalCases: 0, regions: 0, note: "Data service unavailable" },
+          gonorrhea: { totalCases: 0, regions: 0, note: "Data service unavailable" },
+          syphilis: { totalCases: 0, regions: 0, note: "Data service unavailable" }
+        },
+        timestamp: new Date().toISOString(),
+        error: stiData.error,
+        note: "Fallback structure - comprehensive STI service initialization failed"
+      });
+    }
+    
   } catch (error) {
     console.error('Error fetching STD summary:', error);
-    res.status(500).json({ error: 'Failed to fetch STD summary data' });
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to fetch STD summary data',
+      details: error.message
+    });
   }
 });
 

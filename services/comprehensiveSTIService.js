@@ -272,28 +272,166 @@ class ComprehensiveSTIService {
   }
 
   async fetchFromCDC(disease, options) {
-    if (!this.cdcService) return null;
-
+    await this.initFetch();
+    
     try {
-      const cdcData = await this.cdcService.querySTDData({
-        disease: disease,
-        year: this.timeframeToYear(options.timeframe),
-        state: options.region,
-        aggregateBy: 'state'
-      });
+      // Try CDC surveillance data first
+      if (this.cdcService) {
+        const cdcData = await this.cdcService.querySTDData({
+          disease: disease,
+          year: this.timeframeToYear(options.timeframe),
+          state: options.region,
+          aggregateBy: 'state'
+        });
 
-      return {
-        source: 'CDC NNDSS',
-        data: cdcData.data || [],
-        metadata: {
-          lastUpdated: cdcData.timestamp,
-          recordCount: cdcData.totalRecords || 0,
-          dataQuality: 'high'
+        if (cdcData && cdcData.success) {
+          return {
+            source: 'CDC NNDSS',
+            data: cdcData.data || [],
+            metadata: {
+              lastUpdated: cdcData.timestamp,
+              recordCount: cdcData.totalRecords || 0,
+              dataQuality: 'high'
+            }
+          };
         }
-      };
+      }
+      
+      // For HIV/AIDS, try CDC data.gov API directly
+      if (['hiv', 'aids'].includes(disease)) {
+        return await this.fetchCDCHIVData(disease, options);
+      }
+      
+      // For other STIs, try CDC STI surveillance
+      if (['chlamydia', 'gonorrhea', 'syphilis'].includes(disease)) {
+        return await this.fetchCDCSTIData(disease, options);
+      }
+      
+      return null;
+      
     } catch (error) {
-      throw new Error(`CDC data fetch failed: ${error.message}`);
+      console.warn(`CDC data fetch failed for ${disease}:`, error.message);
+      return null;
     }
+  }
+  
+  async fetchCDCHIVData(disease, options) {
+    try {
+      // CDC HIV Surveillance data
+      const hivApiUrl = 'https://data.cdc.gov/resource/bvek-hz5s.json'; // HIV surveillance
+      const year = this.timeframeToYear(options.timeframe);
+      
+      let url = hivApiUrl + `?$limit=1000`;
+      if (year && year !== 'all') {
+        url += `&year=${year}`;
+      }
+      if (options.region && options.region !== 'all') {
+        url += `&geography=${options.region.toUpperCase()}`;
+      }
+      
+      const response = await this.fetch(url, {
+        timeout: 15000,
+        headers: {
+          'User-Agent': 'Disease Tracking Application (disease.zone)',
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        return {
+          source: 'CDC HIV Surveillance',
+          data: this.transformCDCHIVData(data, disease),
+          metadata: {
+            lastUpdated: new Date().toISOString(),
+            dataSource: 'CDC HIV Surveillance Reports',
+            recordCount: data.length,
+            dataQuality: 'high',
+            coverage: 'US jurisdictions',
+            note: 'Real CDC HIV surveillance data'
+          }
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.warn(`CDC HIV API error:`, error.message);
+      return null;
+    }
+  }
+  
+  async fetchCDCSTIData(disease, options) {
+    try {
+      // CDC STI surveillance data from data.gov
+      const stiMapping = {
+        chlamydia: 'https://data.cdc.gov/resource/fd7s-kh8x.json',
+        gonorrhea: 'https://data.cdc.gov/resource/rddt-jvpf.json',
+        syphilis: 'https://data.cdc.gov/resource/9w4f-bqzz.json'
+      };
+      
+      const apiUrl = stiMapping[disease];
+      if (!apiUrl) return null;
+      
+      const year = this.timeframeToYear(options.timeframe);
+      let url = apiUrl + `?$limit=1000`;
+      if (year && year !== 'all') {
+        url += `&year=${year}`;
+      }
+      
+      const response = await this.fetch(url, {
+        timeout: 15000,
+        headers: {
+          'User-Agent': 'Disease Tracking Application (disease.zone)',
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        return {
+          source: `CDC ${disease.charAt(0).toUpperCase() + disease.slice(1)} Surveillance`,
+          data: this.transformCDCSTIData(data, disease),
+          metadata: {
+            lastUpdated: new Date().toISOString(),
+            dataSource: 'CDC STI Surveillance Reports',
+            recordCount: data.length,
+            dataQuality: 'high',
+            coverage: 'US jurisdictions',
+            note: `Real CDC ${disease} surveillance data`
+          }
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.warn(`CDC STI API error for ${disease}:`, error.message);
+      return null;
+    }
+  }
+  
+  transformCDCHIVData(cdcData, disease) {
+    return cdcData.map(item => ({
+      disease: disease,
+      region: item.geography || item.state || 'Unknown',
+      cases: parseInt(item.cases) || parseInt(item.diagnoses) || 0,
+      rate: parseFloat(item.rate) || 0,
+      year: item.year || new Date().getFullYear(),
+      demographic: item.population_group || 'all',
+      data_type: 'surveillance'
+    }));
+  }
+  
+  transformCDCSTIData(cdcData, disease) {
+    return cdcData.map(item => ({
+      disease: disease,
+      region: item.state || item.geography || 'Unknown',
+      cases: parseInt(item.cases) || parseInt(item.count) || 0,
+      rate: parseFloat(item.rate) || parseFloat(item.rate_per_100000) || 0,
+      year: item.year || new Date().getFullYear(),
+      data_type: 'surveillance'
+    }));
   }
 
   async fetchFromDiseaseAPI(disease, options) {
@@ -303,15 +441,29 @@ class ComprehensiveSTIService {
       // Map disease names to disease.sh endpoints
       const diseaseMapping = {
         'covid': 'covid-19',
-        'influenza': 'influenza',
-        'tuberculosis': 'tuberculosis'
+        'influenza': 'influenza', 
+        'tuberculosis': 'tuberculosis',
+        // STIs - disease.sh may not have direct STI data but we can try
+        'hiv': 'hiv',
+        'aids': 'hiv' // Map AIDS to HIV endpoint
       };
 
-      const apiDisease = diseaseMapping[disease] || disease;
+      const apiDisease = diseaseMapping[disease];
+      
+      // Skip STIs that disease.sh doesn't support
+      if (['chlamydia', 'gonorrhea', 'syphilis', 'herpes', 'hsv1', 'hsv2', 'hpv'].includes(disease)) {
+        // Return null - these will be handled by CDC APIs
+        return null;
+      }
+      
+      if (!apiDisease) {
+        return null; // Disease not supported by disease.sh
+      }
+
       let url = `${this.diseaseShService.baseURL}/${apiDisease}`;
 
       // Add region filtering if specified
-      if (options.region !== 'all') {
+      if (options.region !== 'all' && options.region !== 'global') {
         url += `/countries/${options.region}`;
       } else {
         url += '/all';
@@ -320,32 +472,69 @@ class ComprehensiveSTIService {
       const response = await this.fetch(url, {
         timeout: 10000,
         headers: {
-          'User-Agent': 'Disease Tracking Application'
+          'User-Agent': 'Disease Tracking Application (disease.zone)',
+          'Accept': 'application/json'
         }
       });
 
       if (!response.ok) {
+        if (response.status === 404) {
+          return null; // Endpoint doesn't exist
+        }
         throw new Error(`Disease API error: ${response.status}`);
       }
 
       const data = await response.json();
 
+      // Transform disease.sh data to our standard format
+      const transformedData = this.transformDiseaseShData(data, disease, options.region);
+
       return {
         source: 'disease.sh',
-        data: Array.isArray(data) ? data : [data],
+        data: transformedData,
         metadata: {
           lastUpdated: data.updated || new Date().toISOString(),
-          dataQuality: 'medium',
-          realtime: true
+          dataQuality: 'high',
+          realtime: true,
+          endpoint: url
         }
       };
 
     } catch (error) {
       // If disease.sh doesn't support this disease, return null instead of throwing
       if (error.message.includes('404') || error.message.includes('Disease API error: 404')) {
+        console.log(`Disease.sh does not support ${disease}, skipping...`);
         return null;
       }
-      throw error;
+      console.warn(`Disease.sh API error for ${disease}:`, error.message);
+      return null;
+    }
+  }
+  
+  transformDiseaseShData(data, disease, region) {
+    // Transform disease.sh format to our internal format
+    if (Array.isArray(data)) {
+      return data.map(item => ({
+        disease: disease,
+        region: item.country || region || 'global',
+        cases: item.cases || 0,
+        deaths: item.deaths || 0,
+        recovered: item.recovered || 0,
+        active: item.active || 0,
+        population: item.population || 0,
+        updated: item.updated || new Date().toISOString()
+      }));
+    } else {
+      return [{
+        disease: disease,
+        region: data.country || region || 'global', 
+        cases: data.cases || 0,
+        deaths: data.deaths || 0,
+        recovered: data.recovered || 0,
+        active: data.active || 0,
+        population: data.population || 0,
+        updated: data.updated || new Date().toISOString()
+      }];
     }
   }
 

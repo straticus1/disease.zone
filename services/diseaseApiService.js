@@ -27,6 +27,18 @@ class DiseaseApiService {
       general: {
         diseases: '/diseases',
         therapeutics: '/therapeutics'
+      },
+      tuberculosis: {
+        global: '/tuberculosis',
+        countries: '/tuberculosis/countries'
+      },
+      malaria: {
+        global: '/malaria',
+        countries: '/malaria/countries'  
+      },
+      hiv: {
+        global: '/hiv',
+        countries: '/hiv/countries'
       }
     };
 
@@ -434,6 +446,63 @@ class DiseaseApiService {
       return {
         success: false,
         error: error.message
+      };
+    }
+  }
+
+
+  async getTuberculosisData(options = {}) {
+    const { scope = 'global', country = null } = options;
+
+    try {
+      let endpoint = this.endpoints.tuberculosis.global;
+      if (scope === 'country' && country) {
+        endpoint = `${this.endpoints.tuberculosis.countries}/${country}`;
+      } else if (scope === 'countries') {
+        endpoint = this.endpoints.tuberculosis.countries;
+      }
+
+      const result = await this.makeRequest(endpoint);
+      return {
+        ...result,
+        dataType: 'tuberculosis',
+        scope: scope
+      };
+
+    } catch (error) {
+      console.error('Error fetching tuberculosis data:', error);
+      return {
+        success: false,
+        error: error.message,
+        dataType: 'tuberculosis'
+      };
+    }
+  }
+
+  async getHIVData(options = {}) {
+    const { scope = 'global', country = null } = options;
+
+    try {
+      let endpoint = this.endpoints.hiv.global;
+      if (scope === 'country' && country) {
+        endpoint = `${this.endpoints.hiv.countries}/${country}`;
+      } else if (scope === 'countries') {
+        endpoint = this.endpoints.hiv.countries;
+      }
+
+      const result = await this.makeRequest(endpoint);
+      return {
+        ...result,
+        dataType: 'hiv',
+        scope: scope
+      };
+
+    } catch (error) {
+      console.error('Error fetching HIV data:', error);
+      return {
+        success: false,
+        error: error.message,
+        dataType: 'hiv'
       };
     }
   }

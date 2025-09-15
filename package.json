@@ -12,7 +12,9 @@
     "verify-github": "node scripts/verify-hashes.js --github",
     "login-validate": "node scripts/login-validate.js",
     "login-validate-prod": "./scripts/login-validate-prod.sh",
-    "reset-passwords": "echo 'Use: npm run login-validate (choose option 3)'"
+    "reset-passwords": "echo 'Use: npm run login-validate (choose option 3)'",
+    "analyze-mock-data": "node scripts/fix-mock-data.js analyze",
+    "fix-mock-data": "node scripts/fix-mock-data.js fix"
   },
   "bin": {
     "diseasezone": "./cli.js"

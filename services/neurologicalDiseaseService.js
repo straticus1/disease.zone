@@ -34,7 +34,13 @@ class NeurologicalDiseaseService {
         note: "Data based on CDC surveillance systems - actual API integration in development"
       };
 
-      return mockData;
+      // Try real data first, fallback to mock
+      try {
+        return await this.getAlzheimersDataReal(options);
+      } catch (error) {
+        console.warn('Real data failed, using mock:', error.message);
+        return mockData;
+      }
     } catch (error) {
       console.error('Error fetching Alzheimer\'s data:', error);
       throw new Error(`Failed to fetch Alzheimer's data: ${error.message}`);
@@ -217,6 +223,65 @@ class NeurologicalDiseaseService {
       console.error('Error generating neurological summary:', error);
       throw error;
     }
+  }
+
+  // Real CDC Alzheimer's Data Integration
+  async getAlzheimersDataReal(options = {}) {
+    const { state = 'all', year = '2024', metric = 'all' } = options;
+
+    try {
+      // CDC Alzheimer's Disease and Healthy Aging Data Portal
+      // Using WONDER API for mortality data
+      const wonderUrl = 'https://wonder.cdc.gov/controller/datarequest/D176';
+      
+      // Alternative: Use CDC's data.gov API
+      const cdcApiUrl = 'https://data.cdc.gov/resource/hfr9-rurv.json'; // Alzheimer's mortality
+
+      // Try CDC data.gov first (easier access)
+      if (this.fetch) {
+        const response = await this.fetch(cdcApiUrl + '?$limit=1000&year=' + year);
+        if (response.ok) {
+          const data = await response.json();
+          
+          return {
+            success: true,
+            source: "CDC Data.gov - Alzheimer's Disease Mortality",
+            year: year,
+            data: this.transformCDCAlzheimersData(data, state),
+            metadata: {
+              lastUpdated: new Date().toISOString(),
+              dataSource: "CDC WONDER, NVSS",
+              coverage: "US States and Territories",
+              note: "Real CDC mortality data"
+            },
+            timestamp: new Date().toISOString()
+          };
+        }
+      }
+
+      // Fallback to structured mock data if API fails
+      return await this.getAlzheimersData(options);
+
+    } catch (error) {
+      console.error('CDC Alzheimer\'s API failed:', error);
+      // Fallback to existing mock data method
+      return await this.getAlzheimersData(options);
+    }
+  }
+
+  transformCDCAlzheimersData(cdcData, state) {
+    // Transform CDC data.gov format to our format
+    const stateData = state === 'all' ? cdcData : cdcData.filter(d => 
+      d.jurisdiction && d.jurisdiction.toLowerCase().includes(state.toLowerCase())
+    );
+
+    return stateData.map(item => ({
+      state: item.jurisdiction || 'Unknown',
+      deaths: parseInt(item.deaths) || 0,
+      mortality_rate: parseFloat(item.age_adjusted_rate) || 0,
+      year: item.year || '2024',
+      data_type: 'mortality'
+    }));
   }
 }
 
