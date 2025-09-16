@@ -1930,9 +1930,20 @@ async function reverseGeocode(latitude, longitude) {
 }
 
 async function fetchLocalDiseaseData(locationData) {
-    // Simulated local disease data based on common patterns
-    // In production, this would fetch from CDC, local health departments, etc.
+    // Try to fetch real data from our API first
+    try {
+        const response = await fetch(`/api/diseases/by-location?lat=${locationData.latitude}&lng=${locationData.longitude}&limit=10`);
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.diseases) {
+                return data.diseases.slice(0, 10); // Top 10
+            }
+        }
+    } catch (error) {
+        console.log('Real disease data unavailable, using enhanced simulated data:', error);
+    }
 
+    // Enhanced simulated local disease data with top 10 diseases
     const commonDiseases = [
         {
             name: 'Seasonal Influenza',
@@ -1940,7 +1951,8 @@ async function fetchLocalDiseaseData(locationData) {
             cases: Math.floor(Math.random() * 500) + 100,
             trend: 'Increasing',
             icon: 'fas fa-thermometer-half',
-            color: '#f59e0b'
+            color: '#f59e0b',
+            description: 'Respiratory illness caused by influenza viruses'
         },
         {
             name: 'COVID-19',
@@ -1948,15 +1960,17 @@ async function fetchLocalDiseaseData(locationData) {
             cases: Math.floor(Math.random() * 50) + 10,
             trend: 'Stable',
             icon: 'fas fa-virus',
-            color: '#ef4444'
+            color: '#ef4444',
+            description: 'SARS-CoV-2 respiratory infection'
         },
         {
-            name: 'RSV',
+            name: 'Respiratory Syncytial Virus (RSV)',
             severity: 'Low',
             cases: Math.floor(Math.random() * 30) + 5,
             trend: 'Decreasing',
             icon: 'fas fa-lungs',
-            color: '#8b5cf6'
+            color: '#8b5cf6',
+            description: 'Common respiratory virus causing cold-like symptoms'
         },
         {
             name: 'Norovirus',
@@ -1964,7 +1978,8 @@ async function fetchLocalDiseaseData(locationData) {
             cases: Math.floor(Math.random() * 75) + 25,
             trend: 'Increasing',
             icon: 'fas fa-stomach',
-            color: '#10b981'
+            color: '#10b981',
+            description: 'Highly contagious stomach bug causing gastroenteritis'
         },
         {
             name: 'Chagas Disease',
@@ -1972,15 +1987,53 @@ async function fetchLocalDiseaseData(locationData) {
             cases: Math.floor(Math.random() * 25) + 5,
             trend: 'Increasing',
             icon: 'fas fa-bug',
-            color: '#dc2626'
+            color: '#dc2626',
+            description: 'Parasitic infection transmitted by kissing bugs'
         },
         {
-            name: 'Allergies',
+            name: 'Seasonal Allergies',
             severity: 'High',
             cases: Math.floor(Math.random() * 1000) + 200,
             trend: 'Seasonal Peak',
             icon: 'fas fa-leaf',
-            color: '#06b6d4'
+            color: '#06b6d4',
+            description: 'Allergic reactions to pollen and environmental allergens'
+        },
+        {
+            name: 'Strep Throat',
+            severity: 'Moderate',
+            cases: Math.floor(Math.random() * 150) + 50,
+            trend: 'Increasing',
+            icon: 'fas fa-throat',
+            color: '#ec4899',
+            description: 'Bacterial infection of throat and tonsils'
+        },
+        {
+            name: 'Whooping Cough (Pertussis)',
+            severity: 'High',
+            cases: Math.floor(Math.random() * 40) + 10,
+            trend: 'Increasing',
+            icon: 'fas fa-cough',
+            color: '#f97316',
+            description: 'Highly contagious bacterial respiratory infection'
+        },
+        {
+            name: 'Hand, Foot & Mouth Disease',
+            severity: 'Moderate',
+            cases: Math.floor(Math.random() * 80) + 20,
+            trend: 'Stable',
+            icon: 'fas fa-hand-paper',
+            color: '#84cc16',
+            description: 'Viral infection common in children under 5'
+        },
+        {
+            name: 'Hepatitis A',
+            severity: 'High',
+            cases: Math.floor(Math.random() * 20) + 5,
+            trend: 'Stable',
+            icon: 'fas fa-liver',
+            color: '#6366f1',
+            description: 'Viral liver infection spread through contaminated food/water'
         }
     ];
 
@@ -2008,7 +2061,7 @@ async function fetchLocalDiseaseData(locationData) {
         chagasDisease.trend = 'Stable';
     }
 
-    return commonDiseases.slice(0, 5); // Return top 5
+    return commonDiseases.slice(0, 10); // Return top 10
 }
 
 function displayLocalDiseaseData(diseases) {

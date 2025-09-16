@@ -1122,6 +1122,100 @@ app.get('/api/medical/symptom-analysis/pending-review',
     }
   });
 
+// Location-based diseases endpoint
+app.get('/api/diseases/by-location', async (req, res) => {
+  try {
+    const { lat, lng, limit = 10 } = req.query;
+    
+    if (!lat || !lng) {
+      return res.status(400).json({
+        success: false,
+        error: 'Latitude and longitude are required'
+      });
+    }
+    
+    // Get diseases with simulated location-based prevalence
+    const diseases = await app.locals.db.getAllDiseases();
+    
+    // Simulate location-based disease prevalence
+    const locationBasedDiseases = diseases.map(disease => {
+      // Simulate case counts based on disease type and location
+      let baseCases = Math.floor(Math.random() * 1000) + 10;
+      let severity = 'Low';
+      let trend = 'Stable';
+      
+      // Adjust based on disease type
+      if (disease.category === 'std') {
+        baseCases = Math.floor(Math.random() * 200) + 5;
+        severity = 'Moderate';
+      } else if (disease.category === 'neurological') {
+        baseCases = Math.floor(Math.random() * 50) + 1;
+        severity = 'High';
+      } else if (disease.category === 'genetic') {
+        baseCases = Math.floor(Math.random() * 30) + 1;
+        severity = 'Moderate';
+      }
+      
+      // Simulate trends
+      const trends = ['Increasing', 'Decreasing', 'Stable', 'Seasonal Peak'];
+      trend = trends[Math.floor(Math.random() * trends.length)];
+      
+      return {
+        name: disease.name,
+        category: disease.category,
+        cases: baseCases,
+        severity,
+        trend,
+        description: disease.description,
+        icon: getIconForCategory(disease.category),
+        color: getColorForSeverity(severity)
+      };
+    });
+    
+    // Sort by cases (descending) and take the requested limit
+    const topDiseases = locationBasedDiseases
+      .sort((a, b) => b.cases - a.cases)
+      .slice(0, parseInt(limit));
+    
+    res.json({
+      success: true,
+      diseases: topDiseases,
+      location: { lat: parseFloat(lat), lng: parseFloat(lng) },
+      count: topDiseases.length
+    });
+  } catch (error) {
+    console.error('Error fetching location-based diseases:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch location-based disease data'
+    });
+  }
+});
+
+function getIconForCategory(category) {
+  const icons = {
+    'std': 'fas fa-virus',
+    'neurological': 'fas fa-brain',
+    'genetic': 'fas fa-dna',
+    'musculoskeletal': 'fas fa-bone',
+    'cardiovascular': 'fas fa-heartbeat',
+    'respiratory': 'fas fa-lungs',
+    'infectious': 'fas fa-bug',
+    'default': 'fas fa-stethoscope'
+  };
+  return icons[category] || icons.default;
+}
+
+function getColorForSeverity(severity) {
+  const colors = {
+    'Very High': '#dc2626',
+    'High': '#ef4444',
+    'Moderate': '#f59e0b',
+    'Low': '#10b981'
+  };
+  return colors[severity] || '#6b7280';
+}
+
 // Disease registry endpoints
 app.get('/api/diseases', async (req, res) => {
   try {
