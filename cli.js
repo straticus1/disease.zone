@@ -14,6 +14,7 @@ const SymptomAnalysisCommands = require('./cli/commands/symptom-analysis');
 const ApiKeyCommands = require('./cli/apikeys');
 const BatchCommands = require('./cli/batch');
 const ConfigCommands = require('./cli/config');
+const FHIRBlockchainCommands = require('./cli/fhir-blockchain');
 const DiseaseZoneConsole = require('./cli/console');
 
 // CLI Configuration
@@ -293,6 +294,45 @@ function initializeCLI() {
         .description('Get API key information')
         .argument('<key-id>', 'API key ID')
         .action(ApiKeyCommands.info);
+
+    // FHIR-Blockchain bridge commands
+    const fhir = program.command('fhir').description('🏥 FHIR-Blockchain bridge operations');
+
+    fhir.command('status')
+        .description('Check FHIR-Blockchain bridge status')
+        .action(FHIRBlockchainCommands.status);
+
+    fhir.command('hospitals')
+        .description('List connected FHIR-enabled hospitals')
+        .action(FHIRBlockchainCommands.listHospitals);
+
+    fhir.command('connect')
+        .description('Connect to a FHIR-enabled hospital')
+        .action(FHIRBlockchainCommands.connectHospital);
+
+    fhir.command('import')
+        .description('Import FHIR data to blockchain')
+        .option('--hospital-id <id>', 'Hospital ID')
+        .option('--patient-id <id>', 'Patient ID')
+        .option('--wallet <address>', 'Patient wallet address for rewards')
+        .action(FHIRBlockchainCommands.importData);
+
+    fhir.command('history')
+        .description('View FHIR import history')
+        .option('--limit <number>', 'Number of records to show', '10')
+        .option('--hospital-id <id>', 'Filter by hospital')
+        .action(FHIRBlockchainCommands.history);
+
+    fhir.command('tokens')
+        .description('Check HEALTH token balance from FHIR contributions')
+        .argument('<wallet-address>', 'Ethereum wallet address')
+        .action(FHIRBlockchainCommands.tokenBalance);
+
+    fhir.command('sync')
+        .description('Sync FHIR data across blockchain layers')
+        .option('--hospital-id <id>', 'Sync specific hospital')
+        .option('--force', 'Force resync all data')
+        .action(FHIRBlockchainCommands.sync);
 
     // Experimental batch operations
     const batch = program.command('batch').description('🚀 Experimental batch operations');

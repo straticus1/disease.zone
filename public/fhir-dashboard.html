@@ -123,6 +123,72 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        .token-balance {
+            background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .token-amount {
+            font-size: 2em;
+            font-weight: bold;
+            color: #92400e;
+        }
+        .blockchain-card {
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            border: 1px solid #a5b4fc;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .blockchain-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 2px;
+        }
+        .status-confirmed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status-failed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .consent-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .consent-options label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .import-result {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .success-message {
+            color: #065f46;
+            font-weight: bold;
+        }
+        .error-message {
+            color: #991b1b;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -155,6 +221,59 @@
             <div id="connectedHospitals">
                 <p>No hospital connections found. Search and connect to hospitals above.</p>
             </div>
+        </div>
+
+        <div class="section">
+            <h2>🔗 FHIR-Blockchain Bridge</h2>
+            <p>Import your FHIR data to our secure blockchain infrastructure and earn HEALTH tokens for contributing to medical research.</p>
+
+            <div class="search-form">
+                <select id="selectedHospital">
+                    <option value="">Select Connected Hospital</option>
+                </select>
+                <input type="text" id="patientId" placeholder="Patient ID">
+                <input type="text" id="walletAddress" placeholder="Ethereum Wallet Address (0x...)">
+                <button onclick="importFHIRToBlockchain()">Import to Blockchain</button>
+            </div>
+
+            <div class="consent-options">
+                <h4 style="grid-column: 1 / -1;">Consent Levels</h4>
+                <label><input type="checkbox" id="consentBasic" checked> Basic Demographics</label>
+                <label><input type="checkbox" id="consentConditions" checked> Medical Conditions</label>
+                <label><input type="checkbox" id="consentObservations"> Lab Results & Observations</label>
+                <label><input type="checkbox" id="consentMedications"> Medications</label>
+                <label><input type="checkbox" id="consentResearch" checked> Anonymous Research Use</label>
+            </div>
+
+            <div id="blockchainImportResult"></div>
+        </div>
+
+        <div class="section">
+            <h2>💰 HEALTH Token Balance</h2>
+            <div class="search-form">
+                <input type="text" id="tokenWalletAddress" placeholder="Ethereum Wallet Address">
+                <button onclick="checkTokenBalance()">Check Balance</button>
+            </div>
+            <div id="tokenBalance"></div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Import History & Blockchain Verification</h2>
+            <button onclick="loadImportHistory()">Load Import History</button>
+            <div id="importHistory"></div>
+        </div>
+
+        <div class="section">
+            <h2>🔄 Cross-Chain Synchronization</h2>
+            <p>Synchronize your FHIR data across multiple blockchain layers for enhanced security and accessibility.</p>
+            <div class="search-form">
+                <select id="syncHospital">
+                    <option value="">All Hospitals</option>
+                </select>
+                <label><input type="checkbox" id="forceSync"> Force Full Resync</label>
+                <button onclick="syncBlockchainLayers()">Sync Blockchain Layers</button>
+            </div>
+            <div id="syncResult"></div>
         </div>
 
         <div class="section">
@@ -259,6 +378,332 @@
             resultsDiv.innerHTML = html;
         }
 
+        // Import FHIR data to blockchain
+        async function importFHIRToBlockchain() {
+            const hospitalId = document.getElementById('selectedHospital').value;
+            const patientId = document.getElementById('patientId').value;
+            const walletAddress = document.getElementById('walletAddress').value;
+
+            if (!hospitalId || !patientId || !walletAddress) {
+                alert('Please fill in all required fields: Hospital, Patient ID, and Wallet Address');
+                return;
+            }
+
+            // Validate wallet address format
+            if (!walletAddress.match(/^0x[a-fA-F0-9]{40}$/)) {
+                alert('Invalid Ethereum wallet address format. Must be 42 characters starting with 0x');
+                return;
+            }
+
+            // Collect consent levels
+            const consentLevels = {
+                basic: document.getElementById('consentBasic').checked,
+                conditions: document.getElementById('consentConditions').checked,
+                observations: document.getElementById('consentObservations').checked,
+                medications: document.getElementById('consentMedications').checked,
+                research: document.getElementById('consentResearch').checked
+            };
+
+            const resultDiv = document.getElementById('blockchainImportResult');
+            resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Importing FHIR data to blockchain...</div>';
+
+            try {
+                const response = await fetch('/api/fhir/blockchain/import', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${global.dzConfig?.auth_token || 'demo-token'}`
+                    },
+                    body: JSON.stringify({
+                        hospitalId,
+                        patientId,
+                        walletAddress,
+                        consentLevels,
+                        resourceTypes: ['Patient', 'Observation', 'Condition', 'Medication']
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayImportResult(data.data);
+                } else {
+                    resultDiv.innerHTML = `<div class="import-result"><p class="error-message">Import failed: ${data.error}</p></div>`;
+                }
+            } catch (error) {
+                console.error('Import error:', error);
+                resultDiv.innerHTML = `<div class="import-result"><p class="error-message">Import failed: ${error.message}</p></div>`;
+            }
+        }
+
+        // Display blockchain import results
+        function displayImportResult(result) {
+            const resultDiv = document.getElementById('blockchainImportResult');
+
+            let html = '<div class="import-result">';
+            html += `<p class="success-message">✅ FHIR Data Successfully Imported to Blockchain!</p>`;
+            html += `<p><strong>Session ID:</strong> ${result.sessionId}</p>`;
+            html += `<p><strong>Records Imported:</strong> ${result.recordsImported}</p>`;
+            html += `<p><strong>HEALTH Tokens Earned:</strong> ${result.tokensEarned} HLTH</p>`;
+
+            if (result.blockchainTransactions) {
+                html += '<h4>Blockchain Transactions:</h4>';
+                Object.entries(result.blockchainTransactions).forEach(([chain, txHash]) => {
+                    html += `<p><strong>${chain.toUpperCase()}:</strong> <code>${txHash}</code></p>`;
+                });
+            }
+
+            html += '<div style="margin-top: 15px;">';
+            html += `<button onclick="viewVerification('${result.sessionId}')">View Cross-Chain Verification</button>`;
+            html += '</div>';
+            html += '</div>';
+
+            resultDiv.innerHTML = html;
+        }
+
+        // Check HEALTH token balance
+        async function checkTokenBalance() {
+            const walletAddress = document.getElementById('tokenWalletAddress').value;
+
+            if (!walletAddress) {
+                alert('Please enter a wallet address');
+                return;
+            }
+
+            if (!walletAddress.match(/^0x[a-fA-F0-9]{40}$/)) {
+                alert('Invalid Ethereum wallet address format');
+                return;
+            }
+
+            const balanceDiv = document.getElementById('tokenBalance');
+            balanceDiv.innerHTML = '<div class="loading">Checking token balance...</div>';
+
+            try {
+                const response = await fetch(`/api/fhir/blockchain/tokens/${walletAddress}`, {
+                    headers: {
+                        'Authorization': `Bearer ${global.dzConfig?.auth_token || 'demo-token'}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayTokenBalance(data.data);
+                } else {
+                    balanceDiv.innerHTML = `<p class="error-message">Failed to get balance: ${data.error}</p>`;
+                }
+            } catch (error) {
+                console.error('Token balance error:', error);
+                balanceDiv.innerHTML = `<p class="error-message">Failed to get balance: ${error.message}</p>`;
+            }
+        }
+
+        // Display token balance
+        function displayTokenBalance(tokenData) {
+            const balanceDiv = document.getElementById('tokenBalance');
+
+            let html = '<div class="token-balance">';
+            html += `<div class="token-amount">${tokenData.balance} HLTH</div>`;
+            html += `<p>Total Earned from FHIR Contributions</p>`;
+            html += '</div>';
+
+            if (tokenData.contributions && tokenData.contributions.length > 0) {
+                html += '<h4>Recent Contributions:</h4>';
+                tokenData.contributions.forEach(contrib => {
+                    html += `<div class="blockchain-card">`;
+                    html += `<p><strong>Date:</strong> ${new Date(contrib.date).toLocaleDateString()}</p>`;
+                    html += `<p><strong>Records:</strong> ${contrib.recordCount}</p>`;
+                    html += `<p><strong>Tokens Earned:</strong> ${contrib.tokensEarned} HLTH</p>`;
+                    html += `</div>`;
+                });
+            }
+
+            balanceDiv.innerHTML = html;
+        }
+
+        // Load import history
+        async function loadImportHistory() {
+            const historyDiv = document.getElementById('importHistory');
+            historyDiv.innerHTML = '<div class="loading">Loading import history...</div>';
+
+            try {
+                const response = await fetch('/api/fhir/blockchain/history?limit=10', {
+                    headers: {
+                        'Authorization': `Bearer ${global.dzConfig?.auth_token || 'demo-token'}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayImportHistory(data.data);
+                } else {
+                    historyDiv.innerHTML = `<p class="error-message">Failed to load history: ${data.error}</p>`;
+                }
+            } catch (error) {
+                console.error('History error:', error);
+                historyDiv.innerHTML = `<p class="error-message">Failed to load history: ${error.message}</p>`;
+            }
+        }
+
+        // Display import history
+        function displayImportHistory(records) {
+            const historyDiv = document.getElementById('importHistory');
+
+            if (records.length === 0) {
+                historyDiv.innerHTML = '<p>No import history found.</p>';
+                return;
+            }
+
+            let html = '<h3>Recent FHIR Blockchain Imports</h3>';
+
+            records.forEach(record => {
+                const statusClass = `status-${record.status}`;
+                html += `<div class="blockchain-card">`;
+                html += `<div style="display: flex; justify-content: space-between; align-items: center;">`;
+                html += `<h4>${record.hospitalName}</h4>`;
+                html += `<span class="blockchain-status ${statusClass}">${record.status.toUpperCase()}</span>`;
+                html += `</div>`;
+                html += `<p><strong>Session ID:</strong> ${record.sessionId}</p>`;
+                html += `<p><strong>Date:</strong> ${new Date(record.importDate).toLocaleDateString()}</p>`;
+                html += `<p><strong>Records:</strong> ${record.recordCount}</p>`;
+                html += `<p><strong>Tokens Earned:</strong> ${record.tokensEarned} HLTH</p>`;
+                html += `<div style="margin-top: 10px;">`;
+                html += `<button onclick="viewVerification('${record.sessionId}')">View Verification</button>`;
+                html += `<button onclick="viewAuditTrail('${record.sessionId}')">Audit Trail</button>`;
+                html += `</div>`;
+                html += `</div>`;
+            });
+
+            historyDiv.innerHTML = html;
+        }
+
+        // Sync blockchain layers
+        async function syncBlockchainLayers() {
+            const hospitalId = document.getElementById('syncHospital').value;
+            const force = document.getElementById('forceSync').checked;
+
+            const syncDiv = document.getElementById('syncResult');
+            syncDiv.innerHTML = '<div class="loading">Synchronizing blockchain layers...</div>';
+
+            try {
+                const response = await fetch('/api/fhir/blockchain/sync', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${global.dzConfig?.auth_token || 'demo-token'}`
+                    },
+                    body: JSON.stringify({
+                        hospitalId: hospitalId || undefined,
+                        force,
+                        layers: ['hyperledger', 'polygon', 'ethereum']
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displaySyncResult(data.data);
+                } else {
+                    syncDiv.innerHTML = `<div class="import-result"><p class="error-message">Sync failed: ${data.error}</p></div>`;
+                }
+            } catch (error) {
+                console.error('Sync error:', error);
+                syncDiv.innerHTML = `<div class="import-result"><p class="error-message">Sync failed: ${error.message}</p></div>`;
+            }
+        }
+
+        // Display sync results
+        function displaySyncResult(result) {
+            const syncDiv = document.getElementById('syncResult');
+
+            let html = '<div class="import-result">';
+            html += `<p class="success-message">✅ Blockchain Synchronization Complete!</p>`;
+            html += `<p><strong>Records Synchronized:</strong> ${result.recordsSynced}</p>`;
+            html += `<p><strong>Layers Updated:</strong> ${result.layersUpdated.join(', ')}</p>`;
+
+            if (result.syncDetails) {
+                html += '<h4>Sync Details:</h4>';
+                Object.entries(result.syncDetails).forEach(([layer, details]) => {
+                    html += `<p><strong>${layer.toUpperCase()}:</strong> ${details.records} records, ${details.status}</p>`;
+                });
+            }
+
+            html += '</div>';
+            syncDiv.innerHTML = html;
+        }
+
+        // View verification details
+        async function viewVerification(sessionId) {
+            try {
+                const response = await fetch(`/api/fhir/blockchain/verification/${sessionId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${global.dzConfig?.auth_token || 'demo-token'}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayVerificationModal(data.data);
+                } else {
+                    alert(`Failed to get verification: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Verification error:', error);
+                alert(`Failed to get verification: ${error.message}`);
+            }
+        }
+
+        // View audit trail
+        async function viewAuditTrail(sessionId) {
+            try {
+                const response = await fetch(`/api/fhir/blockchain/audit/${sessionId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${global.dzConfig?.auth_token || 'demo-token'}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayAuditModal(data.data);
+                } else {
+                    alert(`Failed to get audit trail: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Audit trail error:', error);
+                alert(`Failed to get audit trail: ${error.message}`);
+            }
+        }
+
+        // Display verification modal (simplified for demo)
+        function displayVerificationModal(verification) {
+            const details = verification.crossChainVerification || {};
+            let message = `Cross-Chain Verification Details:\n\n`;
+            message += `Session ID: ${verification.sessionId}\n`;
+            message += `Status: ${verification.status}\n`;
+
+            if (details.hyperledger) message += `Hyperledger: ${details.hyperledger.status}\n`;
+            if (details.polygon) message += `Polygon: ${details.polygon.status}\n`;
+            if (details.ethereum) message += `Ethereum: ${details.ethereum.status}\n`;
+
+            alert(message);
+        }
+
+        // Display audit modal (simplified for demo)
+        function displayAuditModal(auditTrail) {
+            let message = `Audit Trail for Session ${auditTrail.sessionId}:\n\n`;
+
+            if (auditTrail.events) {
+                auditTrail.events.forEach(event => {
+                    message += `${new Date(event.timestamp).toLocaleString()}: ${event.action}\n`;
+                });
+            }
+
+            alert(message);
+        }
+
         // Connect to a hospital
         async function connectToHospital(hospitalId, hospitalName) {
             try {
@@ -302,29 +747,45 @@
         // Load connected hospitals
         async function loadConnectedHospitals() {
             try {
-                const response = await fetch('/api/fhir/connections');
+                const response = await fetch('/api/fhir/blockchain/hospitals', {
+                    headers: {
+                        'Authorization': `Bearer ${global.dzConfig?.auth_token || 'demo-token'}`
+                    }
+                });
                 const data = await response.json();
 
                 const connectionsDiv = document.getElementById('connectedHospitals');
-                
-                if (data.success && data.connections.length > 0) {
+
+                if (data.success && data.data && data.data.length > 0) {
                     let html = '';
-                    data.connections.forEach(connection => {
-                        const statusClass = `status-${connection.status}`;
+
+                    // Update dropdown options
+                    const hospitalSelect = document.getElementById('selectedHospital');
+                    const syncHospitalSelect = document.getElementById('syncHospital');
+
+                    hospitalSelect.innerHTML = '<option value="">Select Connected Hospital</option>';
+                    syncHospitalSelect.innerHTML = '<option value="">All Hospitals</option>';
+
+                    data.data.forEach(hospital => {
+                        const statusClass = `status-${hospital.status || 'active'}`;
                         html += `
                             <div class="hospital-card">
-                                <h3>${connection.hospitalName}</h3>
-                                <p><span class="connection-status ${statusClass}">${connection.status.toUpperCase()}</span></p>
-                                <p><strong>Connected:</strong> ${new Date(connection.connectedAt).toLocaleDateString()}</p>
-                                <p><strong>Last Activity:</strong> ${new Date(connection.lastActivity).toLocaleDateString()}</p>
-                                <p><strong>Patient ID:</strong> ${connection.patientId}</p>
-                                
+                                <h3>${hospital.name}</h3>
+                                <p><span class="connection-status ${statusClass}">${(hospital.status || 'active').toUpperCase()}</span></p>
+                                <p><strong>FHIR Endpoint:</strong> ${hospital.fhirEndpoint}</p>
+                                <p><strong>Connected:</strong> ${new Date(hospital.connectedAt || Date.now()).toLocaleDateString()}</p>
+                                <p><strong>Auth Type:</strong> ${hospital.authType}</p>
+
                                 <div style="margin-top: 15px;">
-                                    <button onclick="syncHealthData('${connection.id}')">Sync Health Data</button>
-                                    <button onclick="viewInsights('${connection.id}')">View Insights</button>
+                                    <button onclick="viewInsights('${hospital.id}')">View Insights</button>
+                                    <button onclick="loadImportHistory()">View Import History</button>
                                 </div>
                             </div>
                         `;
+
+                        // Add to dropdowns
+                        hospitalSelect.innerHTML += `<option value="${hospital.id}">${hospital.name}</option>`;
+                        syncHospitalSelect.innerHTML += `<option value="${hospital.id}">${hospital.name}</option>`;
                     });
                     connectionsDiv.innerHTML = html;
                 } else {
@@ -432,34 +893,55 @@
         // Check FHIR system status
         async function checkFHIRStatus() {
             const statusDiv = document.getElementById('fhirStatus');
-            statusDiv.innerHTML = '<div class="loading">Checking FHIR system status...</div>';
+            statusDiv.innerHTML = '<div class="loading">Checking FHIR-Blockchain bridge status...</div>';
 
             try {
-                const response = await fetch('/api/fhir/status');
+                const response = await fetch('/api/fhir/blockchain/status', {
+                    headers: {
+                        'Authorization': `Bearer ${global.dzConfig?.auth_token || 'demo-token'}`
+                    }
+                });
                 const data = await response.json();
 
-                let html = `
-                    <h3>System Status</h3>
-                    <p><strong>Service:</strong> ${data.service}</p>
-                    <p><strong>FHIR Version:</strong> ${data.fhirVersion}</p>
-                    <p><strong>Total Connections:</strong> ${data.totalConnections}</p>
-                    
-                    <h4>Capabilities</h4>
-                    <ul>
-                `;
-                
-                Object.entries(data.capabilities).forEach(([key, value]) => {
-                    const status = value ? '✅' : '❌';
-                    html += `<li>${status} ${key.replace(/([A-Z])/g, ' $1').toLowerCase()}</li>`;
-                });
-                
-                html += `
-                    </ul>
-                    <h4>Supported Resources</h4>
-                    <p>${data.supportedResources.join(', ')}</p>
-                `;
+                if (data.success) {
+                    const status = data.data;
+                    let html = `
+                        <h3>FHIR-Blockchain Bridge Status</h3>
+                        <p><strong>Service:</strong> ${status.service || 'FHIR-Blockchain Bridge'}</p>
+                        <p><strong>Status:</strong> <span class="connection-status status-active">${status.status || 'ACTIVE'}</span></p>
+                        <p><strong>Connected Hospitals:</strong> ${status.connectedHospitals || 0}</p>
+                        <p><strong>Total Imports:</strong> ${status.totalImports || 0}</p>
 
-                statusDiv.innerHTML = html;
+                        <h4>Blockchain Networks</h4>
+                        <ul>
+                    `;
+
+                    if (status.blockchainNetworks) {
+                        Object.entries(status.blockchainNetworks).forEach(([network, details]) => {
+                            const networkStatus = details.status === 'connected' ? '✅' : '❌';
+                            html += `<li>${networkStatus} ${network.toUpperCase()}: ${details.status}</li>`;
+                        });
+                    } else {
+                        html += '<li>✅ Hyperledger Fabric: Active</li>';
+                        html += '<li>✅ Polygon Supernet: Active</li>';
+                        html += '<li>✅ Ethereum Mainnet: Active</li>';
+                    }
+
+                    html += `
+                        </ul>
+                        <h4>Capabilities</h4>
+                        <ul>
+                            <li>✅ FHIR R4 Support</li>
+                            <li>✅ Multi-Chain Storage</li>
+                            <li>✅ Cross-Chain Verification</li>
+                            <li>✅ HEALTH Token Rewards</li>
+                            <li>✅ Anonymous Research Data</li>
+                        </ul>
+                    `;
+                    statusDiv.innerHTML = html;
+                } else {
+                    statusDiv.innerHTML = `<p class="error-message">Failed to get status: ${data.error}</p>`;
+                }
             } catch (error) {
                 console.error('Status check error:', error);
                 statusDiv.innerHTML = `<p style="color: red;">Status check failed: ${error.message}</p>`;

@@ -630,6 +630,361 @@ class FHIRService {
       message: 'Initial sync completed'
     };
   }
+
+  // Additional methods for FHIR-Blockchain bridge integration
+
+  /**
+   * Get connected hospitals for a user
+   */
+  async getConnectedHospitals(userId) {
+    // In a real implementation, this would query a database
+    // For now, return sample connected hospitals
+    return [
+      {
+        id: 'epic-demo-001',
+        name: 'Epic Demo Hospital',
+        fhirVersion: 'R4',
+        fhirEndpoint: 'https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4',
+        connected: true,
+        capabilities: ['Patient', 'Observation', 'Condition', 'Immunization'],
+        lastSync: new Date().toISOString(),
+        authType: 'smart',
+        status: 'active'
+      },
+      {
+        id: 'cerner-sandbox-001',
+        name: 'Cerner Sandbox',
+        fhirVersion: 'R4',
+        fhirEndpoint: 'https://fhir-open.cerner.com/r4',
+        connected: true,
+        capabilities: ['Patient', 'Observation', 'DiagnosticReport'],
+        lastSync: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+        authType: 'api_key',
+        status: 'active'
+      }
+    ];
+  }
+
+  /**
+   * Connect to a new FHIR-enabled hospital
+   */
+  async connectToHospital(params) {
+    const { name, fhirEndpoint, authType, credentials, userId } = params;
+
+    try {
+      // Test FHIR endpoint connectivity
+      const capabilityStatement = await this.testFHIREndpoint(fhirEndpoint);
+
+      // Create hospital connection record
+      const hospitalConnection = {
+        id: `hospital-${Date.now()}`,
+        name,
+        fhirEndpoint,
+        authType,
+        fhirVersion: capabilityStatement.fhirVersion || 'R4',
+        capabilities: capabilityStatement.resourceTypes || [],
+        connected: true,
+        userId,
+        createdAt: new Date().toISOString(),
+        credentials: this.encryptCredentials(credentials)
+      };
+
+      // In a real implementation, save to database
+      console.log('Hospital connected:', hospitalConnection.id);
+
+      return {
+        id: hospitalConnection.id,
+        name: hospitalConnection.name,
+        fhirVersion: hospitalConnection.fhirVersion,
+        capabilities: hospitalConnection.capabilities,
+        connected: true
+      };
+    } catch (error) {
+      throw new Error(`Failed to connect to hospital: ${error.message}`);
+    }
+  }
+
+  /**
+   * Test FHIR endpoint and get capability statement
+   */
+  async testFHIREndpoint(fhirEndpoint) {
+    try {
+      const { default: fetch } = await import('node-fetch');
+
+      // Try to get capability statement
+      const response = await fetch(`${fhirEndpoint}/metadata`, {
+        headers: {
+          'Accept': 'application/fhir+json',
+          'User-Agent': 'diseaseZone-FHIR-Bridge/1.0'
+        },
+        timeout: 10000
+      });
+
+      if (!response.ok) {
+        throw new Error(`FHIR endpoint returned ${response.status}`);
+      }
+
+      const capability = await response.json();
+
+      return {
+        fhirVersion: capability.fhirVersion,
+        resourceTypes: capability.rest?.[0]?.resource?.map(r => r.type) || [],
+        software: capability.software?.name,
+        implementation: capability.implementation?.description
+      };
+    } catch (error) {
+      throw new Error(`FHIR endpoint test failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Fetch FHIR resource data from hospital
+   */
+  async fetchResourceFromHospital(params) {
+    const { hospitalId, resourceType, patientId } = params;
+
+    try {
+      // Get hospital connection details
+      const hospital = await this.getHospitalConnection(hospitalId);
+      if (!hospital) {
+        throw new Error('Hospital not found or not connected');
+      }
+
+      // Build FHIR query URL
+      let queryUrl = `${hospital.fhirEndpoint}/${resourceType}`;
+
+      if (patientId && resourceType !== 'Patient') {
+        queryUrl += `?patient=${patientId}`;
+      } else if (patientId && resourceType === 'Patient') {
+        queryUrl += `/${patientId}`;
+      }
+
+      const { default: fetch } = await import('node-fetch');
+
+      const response = await fetch(queryUrl, {
+        headers: {
+          'Accept': 'application/fhir+json',
+          'Authorization': this.buildAuthHeader(hospital),
+          'User-Agent': 'diseaseZone-FHIR-Bridge/1.0'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`FHIR query failed: ${response.status} ${response.statusText}`);
+      }
+
+      const fhirBundle = await response.json();
+
+      // Extract entries from FHIR Bundle
+      if (fhirBundle.resourceType === 'Bundle') {
+        return fhirBundle.entry?.map(entry => entry.resource) || [];
+      } else {
+        // Single resource response
+        return [fhirBundle];
+      }
+    } catch (error) {
+      throw new Error(`Failed to fetch FHIR data: ${error.message}`);
+    }
+  }
+
+  /**
+   * Verify user has access to hospital
+   */
+  async verifyHospitalAccess(userId, hospitalId) {
+    // In a real implementation, check database permissions
+    const hospitals = await this.getConnectedHospitals(userId);
+    return hospitals.some(h => h.id === hospitalId);
+  }
+
+  /**
+   * Get FHIR import history
+   */
+  async getFHIRImportHistory(filters) {
+    const { userId, limit, offset, hospitalId, startDate, endDate } = filters;
+
+    // Sample import history data
+    const sampleHistory = [
+      {
+        sessionId: 'fhir-import-001',
+        hospitalId: 'epic-demo-001',
+        hospitalName: 'Epic Demo Hospital',
+        resourceCount: 15,
+        tokenRewards: 250,
+        status: 'completed',
+        timestamp: new Date().toISOString(),
+        resourceTypes: ['Patient', 'Observation', 'Condition']
+      },
+      {
+        sessionId: 'fhir-import-002',
+        hospitalId: 'cerner-sandbox-001',
+        hospitalName: 'Cerner Sandbox',
+        resourceCount: 8,
+        tokenRewards: 120,
+        status: 'completed',
+        timestamp: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+        resourceTypes: ['Patient', 'Observation']
+      }
+    ];
+
+    // Apply filters
+    let filteredHistory = sampleHistory;
+    if (hospitalId) {
+      filteredHistory = filteredHistory.filter(h => h.hospitalId === hospitalId);
+    }
+
+    return {
+      records: filteredHistory.slice(offset, offset + limit),
+      total: filteredHistory.length
+    };
+  }
+
+  /**
+   * Get HEALTH token balance from FHIR contributions
+   */
+  async getFHIRTokenBalance(params) {
+    const { walletAddress, userId } = params;
+
+    // Sample token balance data
+    return {
+      total: 1500,
+      fromFHIR: 850,
+      pendingRewards: 0,
+      lastReward: new Date(Date.now() - 86400000).toISOString(),
+      contributionHistory: [
+        {
+          date: new Date().toISOString(),
+          amount: 250,
+          source: 'fhir_import',
+          sessionId: 'fhir-import-001'
+        },
+        {
+          date: new Date(Date.now() - 172800000).toISOString(),
+          amount: 120,
+          source: 'fhir_import',
+          sessionId: 'fhir-import-002'
+        }
+      ]
+    };
+  }
+
+  /**
+   * Get import verification details
+   */
+  async getImportVerification(params) {
+    const { sessionId, userId } = params;
+
+    return {
+      sessionId,
+      verificationHash: 'abc123def456...',
+      blockchainTransactions: {
+        hyperledger: ['tx-hl-001', 'tx-hl-002'],
+        polygon: ['tx-pg-001'],
+        ethereum: ['tx-eth-001']
+      },
+      dataIntegrityScore: 99.7,
+      timestamp: new Date().toISOString(),
+      status: 'verified'
+    };
+  }
+
+  /**
+   * Get research insights from FHIR data
+   */
+  async getResearchInsights(filters) {
+    return {
+      data: [
+        {
+          insightId: 'insight-001',
+          diseaseCategory: 'sti',
+          aggregatedCases: 1250,
+          trendDirection: 'increasing',
+          geographicRegion: 'northeast',
+          confidence: 0.85,
+          lastUpdated: new Date().toISOString()
+        }
+      ],
+      metadata: {
+        totalInsights: 1,
+        dataQualityScore: 92,
+        lastProcessed: new Date().toISOString()
+      }
+    };
+  }
+
+  /**
+   * Publish dataset to research marketplace
+   */
+  async publishToMarketplace(params) {
+    const { sessionId, datasetName, description, price, accessLevel, publisherId } = params;
+
+    return {
+      datasetId: `dataset-${Date.now()}`,
+      marketplaceUrl: `https://marketplace.disease.zone/datasets/dataset-${Date.now()}`,
+      status: 'published',
+      publishedAt: new Date().toISOString()
+    };
+  }
+
+  /**
+   * Verify audit access permissions
+   */
+  async verifyAuditAccess(userId, sessionId) {
+    // In a real implementation, check if user owns the session
+    return true;
+  }
+
+  /**
+   * Get import audit trail
+   */
+  async getImportAuditTrail(sessionId) {
+    return {
+      sessionId,
+      events: [
+        {
+          timestamp: new Date().toISOString(),
+          event: 'import_started',
+          details: 'FHIR import session initiated'
+        },
+        {
+          timestamp: new Date().toISOString(),
+          event: 'data_validated',
+          details: 'FHIR resources passed validation'
+        },
+        {
+          timestamp: new Date().toISOString(),
+          event: 'blockchain_stored',
+          details: 'Data stored on blockchain layers'
+        },
+        {
+          timestamp: new Date().toISOString(),
+          event: 'tokens_rewarded',
+          details: 'HEALTH tokens distributed to patient'
+        }
+      ]
+    };
+  }
+
+  // Helper methods
+
+  async getHospitalConnection(hospitalId) {
+    const hospitals = await this.getConnectedHospitals(null);
+    return hospitals.find(h => h.id === hospitalId);
+  }
+
+  encryptCredentials(credentials) {
+    // In a real implementation, properly encrypt credentials
+    return { encrypted: true, data: credentials };
+  }
+
+  buildAuthHeader(hospital) {
+    // Build appropriate auth header based on hospital auth type
+    if (hospital.authType === 'smart') {
+      return 'Bearer sample-oauth-token';
+    } else if (hospital.authType === 'api_key') {
+      return 'Api-Key sample-api-key';
+    }
+    return '';
+  }
 }
 
 module.exports = FHIRService;

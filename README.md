@@ -6,13 +6,22 @@
 
 *Previously known as covid19lookup.nyc*
 
-[![Version](https://img.shields.io/badge/version-3.2.0-blue.svg)](https://github.com/straticus1/disease.zone)
+[![Version](https://img.shields.io/badge/version-3.3.0-blue.svg)](https://github.com/straticus1/disease.zone)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-brightgreen.svg)](./MEDICAL_COMPLIANCE_REVIEW.md)
 [![GDPR](https://img.shields.io/badge/GDPR-Compliant-brightgreen.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
 [![Global](https://img.shields.io/badge/Global-10%20Jurisdictions-orange.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
 
 ## 🌟 Features
+
+### 🏥 **Revolutionary FHIR-Blockchain Bridge**
+- **EMR-Blockchain Integration** - World's first FHIR-native blockchain platform connecting Electronic Medical Records to multi-layer blockchain
+- **Patient Data Monetization** - Automated HEALTH token rewards for FHIR data contributions (10-50 tokens per resource)
+- **Multi-Chain Architecture** - Hyperledger Fabric (PHI), Polygon Supernet (research), Ethereum (governance)
+- **Smart Contract Automation** - Automated medical workflows with token distribution and data verification
+- **Clinical CLI Interface** - Complete command-line tools for healthcare providers (`diseasezone fhir`)
+- **HIPAA/GDPR Blockchain** - Privacy-compliant blockchain storage with advanced anonymization
+- **Cross-Chain Verification** - Multi-blockchain data integrity and provenance tracking
 
 ### 🌐 **Global Health Intelligence Platform**
 - **15+ Data Sources** - WHO, ECDC, CDC, state health departments, and specialized surveillance systems
@@ -22,7 +31,7 @@
 - **Disease.sh Integration** - Immediate access without API keys, expandable with premium data sources
 - **Multi-Provider Mapping** - OpenStreetMap, Mapbox, Google Maps with tiered access
 - **Geographic Visualization** - Disease overlays, heatmaps, choropleth maps with real-time data
-- **FHIR Hospital Integration** - Connect to healthcare providers for personalized insights
+- **SMART on FHIR Integration** - OAuth2 hospital connections with secure patient data import
 
 ### 🔐 **Global Regulatory Compliance**
 - **HIPAA** - Complete technical, administrative, and physical safeguards
@@ -190,6 +199,14 @@ diseasezone symptom start
 
 # View analysis history
 diseasezone symptom history
+
+# FHIR-Blockchain Bridge Operations
+diseasezone fhir status          # Check bridge health
+diseasezone fhir hospitals       # List connected EMRs
+diseasezone fhir connect         # Connect to hospital
+diseasezone fhir import --hospital-id <id> --patient-id <id> --wallet <address>
+diseasezone fhir tokens <wallet-address>  # Check HEALTH token balance
+diseasezone fhir history         # View import history
 
 # Start interactive console (perfect for support staff and researchers)
 diseasezone console

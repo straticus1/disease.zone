@@ -617,10 +617,12 @@ app.get('/api/health', (req, res) => {
 // Import and use new route modules
 const stiRoutes = require('./routes/stiRoutes');
 const globalHealthRoutes = require('./routes/globalHealthRoutes');
+const fhirBlockchainRoutes = require('./routes/fhirBlockchainRoutes');
 
 // Mount the new route modules
 app.use('/sti', stiRoutes);
 app.use('/global', globalHealthRoutes);
+app.use('/api/fhir/blockchain', fhirBlockchainRoutes);
 
 // Authentication endpoints
 app.post('/api/auth/register',

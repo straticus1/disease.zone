@@ -1,6 +1,6 @@
 {
   "name": "disease.zone",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "diseaseZone - A comprehensive disease tracking and visualization platform with mapping integration (previously covid19lookup.nyc)",
   "main": "server.js",
   "scripts": {
@@ -29,10 +29,16 @@
     "csv-parser": "^3.0.0",
     "dotenv": "^16.0.3",
     "enquirer": "^2.3.6",
+    "ethers": "^6.8.0",
     "express": "^4.18.2",
     "express-rate-limit": "^8.1.0",
     "express-validator": "^7.2.1",
+    "fhir-works-on-aws-authz-rbac": "^3.1.3",
+    "fhirpath": "^3.10.0",
+    "fhirpath.js": "^3.10.0",
+    "fhirr4": "^3.1.5",
     "helmet": "^8.1.0",
+    "hyperledger-fabric-client": "^1.4.0",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "mapbox-gl": "^2.15.0",
@@ -42,6 +48,7 @@
     "sqlite3": "^5.1.7",
     "stats-lite": "^2.2.0",
     "uuid": "^9.0.1",
+    "web3": "^4.2.0",
     "ws": "^8.14.2"
   },
   "devDependencies": {
