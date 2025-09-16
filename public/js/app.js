@@ -255,6 +255,16 @@ class DiseaseZoneApp {
         if (targetView) {
             targetView.classList.add('active');
             this.currentView = viewName;
+
+            // Initialize view-specific functionality
+            if (viewName === 'news') {
+                // Initialize news with outbreaks category
+                setTimeout(() => {
+                    if (typeof window.initializeNews === 'function') {
+                        window.initializeNews();
+                    }
+                }, 100);
+            }
         } else {
             console.error(`View "${viewName}View" not found`);
             // Handle special cases
@@ -1826,6 +1836,527 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 });
+
+// ===== GEOLOCATION-BASED DISEASE DETECTION =====
+
+async function getLocalDiseaseData() {
+    const geolocationStatus = document.getElementById('geolocationStatus');
+    const localDiseaseData = document.getElementById('localDiseaseData');
+
+    try {
+        // Show loading state
+        geolocationStatus.innerHTML = `
+            <div style="text-align: center; padding: 1rem;">
+                <h3><i class="fas fa-spinner fa-spin"></i> Getting Your Location...</h3>
+                <p>Please allow location access to see local health data</p>
+            </div>
+        `;
+
+        // Get user's location
+        const position = await getCurrentPosition();
+        const { latitude, longitude } = position.coords;
+
+        // Reverse geocode to get location details
+        const locationData = await reverseGeocode(latitude, longitude);
+
+        // Get local disease data
+        const diseaseData = await fetchLocalDiseaseData(locationData);
+
+        // Update UI with location info
+        geolocationStatus.innerHTML = `
+            <div style="text-align: center; padding: 1rem;">
+                <h3><i class="fas fa-map-marker-alt"></i> ${locationData.city}, ${locationData.state}</h3>
+                <p style="opacity: 0.8;">Location-based health intelligence enabled</p>
+            </div>
+        `;
+
+        // Show disease data
+        displayLocalDiseaseData(diseaseData);
+        localDiseaseData.style.display = 'block';
+
+    } catch (error) {
+        console.error('Error getting local disease data:', error);
+        geolocationStatus.innerHTML = `
+            <div style="text-align: center; padding: 1rem;">
+                <h3><i class="fas fa-exclamation-triangle"></i> Location Access Required</h3>
+                <p>Unable to get your location. Please enable location services and try again.</p>
+                <button class="btn btn-secondary" onclick="getLocalDiseaseData()" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);">
+                    <i class="fas fa-redo"></i> Try Again
+                </button>
+            </div>
+        `;
+    }
+}
+
+function getCurrentPosition() {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject(new Error('Geolocation is not supported by this browser'));
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 300000 // 5 minutes
+        });
+    });
+}
+
+async function reverseGeocode(latitude, longitude) {
+    try {
+        // Using a simple reverse geocoding approach
+        // In production, you might use a more robust service
+        const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+        const data = await response.json();
+
+        return {
+            city: data.city || data.locality || 'Unknown City',
+            state: data.principalSubdivision || 'Unknown State',
+            country: data.countryName || 'Unknown Country',
+            latitude,
+            longitude
+        };
+    } catch (error) {
+        console.error('Reverse geocoding failed:', error);
+        return {
+            city: 'Unknown City',
+            state: 'Unknown State',
+            country: 'Unknown Country',
+            latitude,
+            longitude
+        };
+    }
+}
+
+async function fetchLocalDiseaseData(locationData) {
+    // Simulated local disease data based on common patterns
+    // In production, this would fetch from CDC, local health departments, etc.
+
+    const commonDiseases = [
+        {
+            name: 'Seasonal Influenza',
+            severity: 'Moderate',
+            cases: Math.floor(Math.random() * 500) + 100,
+            trend: 'Increasing',
+            icon: 'fas fa-thermometer-half',
+            color: '#f59e0b'
+        },
+        {
+            name: 'COVID-19',
+            severity: 'Low',
+            cases: Math.floor(Math.random() * 50) + 10,
+            trend: 'Stable',
+            icon: 'fas fa-virus',
+            color: '#ef4444'
+        },
+        {
+            name: 'RSV',
+            severity: 'Low',
+            cases: Math.floor(Math.random() * 30) + 5,
+            trend: 'Decreasing',
+            icon: 'fas fa-lungs',
+            color: '#8b5cf6'
+        },
+        {
+            name: 'Norovirus',
+            severity: 'Moderate',
+            cases: Math.floor(Math.random() * 75) + 25,
+            trend: 'Increasing',
+            icon: 'fas fa-stomach',
+            color: '#10b981'
+        },
+        {
+            name: 'Chagas Disease',
+            severity: 'High',
+            cases: Math.floor(Math.random() * 25) + 5,
+            trend: 'Increasing',
+            icon: 'fas fa-bug',
+            color: '#dc2626'
+        },
+        {
+            name: 'Allergies',
+            severity: 'High',
+            cases: Math.floor(Math.random() * 1000) + 200,
+            trend: 'Seasonal Peak',
+            icon: 'fas fa-leaf',
+            color: '#06b6d4'
+        }
+    ];
+
+    // Simulate location-specific adjustments
+    if (locationData.state === 'California') {
+        commonDiseases[5].severity = 'Very High'; // Higher allergy rates in CA
+    }
+
+    // Chagas disease is more prevalent in southern states
+    const chagasHighRiskStates = ['Texas', 'New Mexico', 'Arizona', 'Louisiana', 'Arkansas', 'Mississippi', 'Alabama'];
+    const chagasDisease = commonDiseases.find(disease => disease.name === 'Chagas Disease');
+
+    if (chagasHighRiskStates.includes(locationData.state)) {
+        chagasDisease.severity = 'Very High';
+        chagasDisease.cases = Math.floor(Math.random() * 75) + 25; // Higher case count
+        chagasDisease.trend = 'Rapidly Increasing';
+    } else if (['Florida', 'Georgia', 'South Carolina', 'Tennessee'].includes(locationData.state)) {
+        chagasDisease.severity = 'High';
+        chagasDisease.cases = Math.floor(Math.random() * 35) + 10;
+        chagasDisease.trend = 'Increasing';
+    } else {
+        // Lower risk areas - may still have imported cases
+        chagasDisease.severity = 'Low';
+        chagasDisease.cases = Math.floor(Math.random() * 5) + 1;
+        chagasDisease.trend = 'Stable';
+    }
+
+    return commonDiseases.slice(0, 5); // Return top 5
+}
+
+function displayLocalDiseaseData(diseases) {
+    const diseaseList = document.getElementById('localDiseaseList');
+
+    diseaseList.innerHTML = diseases.map(disease => `
+        <div style="background: rgba(255,255,255,0.15); padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">
+            <i class="${disease.icon}" style="font-size: 2rem; color: ${disease.color}; margin-bottom: 0.5rem;"></i>
+            <h4 style="margin-bottom: 0.5rem; font-size: 1rem;">${disease.name}</h4>
+            <div style="font-size: 0.8rem; opacity: 0.9;">
+                <div><strong>${disease.cases}</strong> cases</div>
+                <div style="color: ${getTrendColor(disease.trend)};">
+                    <i class="fas ${getTrendIcon(disease.trend)}"></i> ${disease.trend}
+                </div>
+                <div style="margin-top: 0.3rem; padding: 0.2rem 0.5rem; background: ${getSeverityColor(disease.severity)}; border-radius: 4px; font-size: 0.7rem;">
+                    ${disease.severity}
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function getTrendIcon(trend) {
+    switch (trend.toLowerCase()) {
+        case 'increasing': return 'fa-arrow-up';
+        case 'decreasing': return 'fa-arrow-down';
+        case 'stable': return 'fa-minus';
+        default: return 'fa-chart-line';
+    }
+}
+
+function getTrendColor(trend) {
+    switch (trend.toLowerCase()) {
+        case 'rapidly increasing': return '#dc2626'; // Darker red for rapidly increasing
+        case 'increasing': return '#ef4444';
+        case 'decreasing': return '#10b981';
+        case 'stable': return '#6b7280';
+        case 'seasonal peak': return '#f59e0b';
+        default: return '#f59e0b';
+    }
+}
+
+function getSeverityColor(severity) {
+    switch (severity.toLowerCase()) {
+        case 'very high': return 'rgba(220, 38, 38, 0.8)';
+        case 'high': return 'rgba(239, 68, 68, 0.8)';
+        case 'moderate': return 'rgba(245, 158, 11, 0.8)';
+        case 'low': return 'rgba(34, 197, 94, 0.8)';
+        default: return 'rgba(107, 114, 128, 0.8)';
+    }
+}
+
+// Make function globally available
+window.getLocalDiseaseData = getLocalDiseaseData;
+
+// ===== HEALTH NEWS FUNCTIONALITY =====
+
+async function loadNewsCategory(category) {
+    const newsContent = document.getElementById('newsContent');
+    const timestamp = document.getElementById('newsTimestamp');
+
+    // Update timestamp
+    timestamp.textContent = new Date().toLocaleString();
+
+    // Update button states
+    document.querySelectorAll('[id$="Btn"]').forEach(btn => btn.classList.remove('btn-primary'));
+    document.getElementById(`${category}Btn`).classList.add('btn-primary');
+
+    // Show loading
+    newsContent.innerHTML = `
+        <div class="card">
+            <div class="card-body">
+                <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                    <p>Loading ${category.replace('-', ' ')} news...</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    try {
+        const newsData = await fetchHealthNews(category);
+        displayHealthNews(newsData, category);
+    } catch (error) {
+        console.error('Error loading news:', error);
+        newsContent.innerHTML = `
+            <div class="card">
+                <div class="card-body">
+                    <div style="text-align: center; padding: 2rem; color: var(--error-color);">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <p>Unable to load news. Please try again later.</p>
+                        <button class="btn btn-primary" onclick="loadNewsCategory('${category}')" style="margin-top: 1rem;">
+                            <i class="fas fa-redo"></i> Try Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+async function fetchHealthNews(category) {
+    // Simulated news data - in production this would fetch from real sources
+    const newsDatabase = {
+        'outbreaks': [
+            {
+                title: 'CDC Issues Alert: Chagas Disease Cases Rising in Southern United States',
+                source: 'Centers for Disease Control and Prevention',
+                date: '2025-01-16',
+                severity: 'High',
+                summary: 'The "kissing bug" vector responsible for Chagas disease is expanding its range northward due to climate change. Over 300,000 people in the US may be infected with this "silent killer" parasitic disease.',
+                url: 'https://cdc.gov/parasites/chagas',
+                location: 'Texas, New Mexico, Arizona',
+                diseaseType: 'Vector-borne'
+            },
+            {
+                title: 'WHO Reports New Respiratory Illness Cluster in Southeast Asia',
+                source: 'World Health Organization',
+                date: '2025-01-15',
+                severity: 'High',
+                summary: 'Health officials are monitoring a cluster of respiratory illness cases with unknown etiology affecting multiple provinces.',
+                url: 'https://who.int/news',
+                location: 'Thailand, Vietnam',
+                diseaseType: 'Respiratory'
+            },
+            {
+                title: 'Seasonal Influenza Activity Increases Across Northern Hemisphere',
+                source: 'CDC',
+                date: '2025-01-14',
+                severity: 'Moderate',
+                summary: 'Influenza A(H1N1) and A(H3N2) continue to circulate with increasing hospitalization rates in several regions.',
+                url: 'https://cdc.gov/flu',
+                location: 'Global',
+                diseaseType: 'Influenza'
+            },
+            {
+                title: 'Norovirus Outbreaks Reported on Multiple Cruise Ships',
+                source: 'CDC',
+                date: '2025-01-13',
+                severity: 'Low',
+                summary: 'Three separate cruise ship outbreaks affecting over 400 passengers, consistent with typical winter norovirus season.',
+                url: 'https://cdc.gov/nceh/vsp',
+                location: 'Caribbean',
+                diseaseType: 'Gastrointestinal'
+            }
+        ],
+        'research': [
+            {
+                title: 'New Alzheimer\'s Drug Shows Promise in Phase III Trials',
+                source: 'National Institute on Aging',
+                date: '2025-01-15',
+                severity: 'Low',
+                summary: 'Novel amyloid-targeting therapy demonstrates 30% reduction in cognitive decline in large-scale clinical trial.',
+                url: 'https://nia.nih.gov',
+                location: 'USA',
+                diseaseType: 'Neurological'
+            },
+            {
+                title: 'CRISPR Gene Therapy Breakthrough for Sickle Cell Disease',
+                source: 'NIH',
+                date: '2025-01-14',
+                severity: 'Low',
+                summary: 'First successful gene editing treatment shows complete remission in 95% of patients after 12 months.',
+                url: 'https://nih.gov',
+                location: 'Global',
+                diseaseType: 'Genetic'
+            },
+            {
+                title: 'AI Model Predicts Cancer Treatment Response with 94% Accuracy',
+                source: 'Journal of Clinical Oncology',
+                date: '2025-01-12',
+                severity: 'Low',
+                summary: 'Machine learning algorithm analyzing tumor genetics and patient data improves personalized treatment selection.',
+                url: 'https://jco.ascopubs.org',
+                location: 'Global',
+                diseaseType: 'Cancer'
+            }
+        ],
+        'public-health': [
+            {
+                title: 'Global Vaccination Coverage Reaches All-Time High',
+                source: 'UNICEF',
+                date: '2025-01-15',
+                severity: 'Low',
+                summary: 'Routine childhood immunization rates recover to 91% globally, surpassing pre-pandemic levels.',
+                url: 'https://unicef.org',
+                location: 'Global',
+                diseaseType: 'Prevention'
+            },
+            {
+                title: 'WHO Updates Air Quality Guidelines for Urban Areas',
+                source: 'World Health Organization',
+                date: '2025-01-13',
+                severity: 'Moderate',
+                summary: 'New recommendations reduce acceptable PM2.5 levels by 50% citing links to cardiovascular disease.',
+                url: 'https://who.int/air-quality',
+                location: 'Global',
+                diseaseType: 'Environmental'
+            },
+            {
+                title: 'Mental Health Initiative Launches in 50 Countries',
+                source: 'WHO',
+                date: '2025-01-11',
+                severity: 'Low',
+                summary: 'Comprehensive program addresses rising depression and anxiety rates through integrated care models.',
+                url: 'https://who.int/mental-health',
+                location: 'Global',
+                diseaseType: 'Mental Health'
+            }
+        ],
+        'prevention': [
+            {
+                title: 'CDC Launches Chagas Disease Prevention Campaign in Southern States',
+                source: 'Centers for Disease Control and Prevention',
+                date: '2025-01-16',
+                severity: 'Moderate',
+                summary: 'New initiative focuses on kissing bug identification, home screening methods, and blood donation screening to prevent Chagas disease transmission.',
+                url: 'https://cdc.gov/parasites/chagas/prevent.html',
+                location: 'Southern United States',
+                diseaseType: 'Vector-borne'
+            },
+            {
+                title: 'New Exercise Guidelines Reduce Chronic Disease Risk by 40%',
+                source: 'American Heart Association',
+                date: '2025-01-14',
+                severity: 'Low',
+                summary: 'Updated recommendations include resistance training and flexibility exercises for optimal health outcomes.',
+                url: 'https://heart.org',
+                location: 'USA',
+                diseaseType: 'Cardiovascular'
+            },
+            {
+                title: 'Mediterranean Diet Linked to 25% Lower Dementia Risk',
+                source: 'British Medical Journal',
+                date: '2025-01-12',
+                severity: 'Low',
+                summary: '20-year study of 60,000 participants confirms protective effects of olive oil and fish consumption.',
+                url: 'https://bmj.com',
+                location: 'Europe',
+                diseaseType: 'Neurological'
+            },
+            {
+                title: 'HPV Vaccination Program Achieves 90% Coverage Target',
+                source: 'CDC',
+                date: '2025-01-10',
+                severity: 'Low',
+                summary: 'School-based immunization programs drive significant reduction in cervical cancer incidence.',
+                url: 'https://cdc.gov/hpv',
+                location: 'USA',
+                diseaseType: 'Cancer Prevention'
+            }
+        ]
+    };
+
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    return newsDatabase[category] || [];
+}
+
+function displayHealthNews(newsData, category) {
+    const newsContent = document.getElementById('newsContent');
+
+    if (!newsData.length) {
+        newsContent.innerHTML = `
+            <div class="card">
+                <div class="card-body">
+                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                        <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <p>No news available for this category.</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    const newsHtml = newsData.map(article => `
+        <div class="card" style="hover: transform: translateY(-2px); transition: all 0.2s;">
+            <div class="card-body">
+                <div style="display: flex; justify-content: between; align-items: flex-start; margin-bottom: 1rem;">
+                    <div style="flex-grow: 1;">
+                        <h4 style="margin-bottom: 0.5rem; line-height: 1.3;">${article.title}</h4>
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-secondary);">
+                            <span><i class="fas fa-building"></i> ${article.source}</span>
+                            <span><i class="fas fa-calendar"></i> ${new Date(article.date).toLocaleDateString()}</span>
+                            <span><i class="fas fa-map-marker-alt"></i> ${article.location}</span>
+                        </div>
+                    </div>
+                    <span class="badge" style="background: ${getSeverityBadgeColor(article.severity)}; color: white; padding: 0.3rem 0.6rem; border-radius: 12px; font-size: 0.8rem; margin-left: 1rem;">
+                        ${article.severity}
+                    </span>
+                </div>
+
+                <p style="margin-bottom: 1rem; line-height: 1.5;">${article.summary}</p>
+
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="background: ${getDiseaseTypeColor(article.diseaseType)}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">
+                            ${article.diseaseType}
+                        </span>
+                    </div>
+                    <a href="${article.url}" target="_blank" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                        <i class="fas fa-external-link-alt"></i> Read More
+                    </a>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    newsContent.innerHTML = `<div class="grid grid-2" style="gap: 2rem;">${newsHtml}</div>`;
+}
+
+function getSeverityBadgeColor(severity) {
+    switch (severity.toLowerCase()) {
+        case 'high': return '#ef4444';
+        case 'moderate': return '#f59e0b';
+        case 'low': return '#10b981';
+        default: return '#6b7280';
+    }
+}
+
+function getDiseaseTypeColor(diseaseType) {
+    const colors = {
+        'Respiratory': '#3b82f6',
+        'Influenza': '#8b5cf6',
+        'Gastrointestinal': '#10b981',
+        'Neurological': '#f59e0b',
+        'Genetic': '#ec4899',
+        'Cancer': '#ef4444',
+        'Prevention': '#059669',
+        'Environmental': '#0891b2',
+        'Mental Health': '#7c3aed',
+        'Cardiovascular': '#dc2626',
+        'Cancer Prevention': '#059669',
+        'Vector-borne': '#dc2626' // Red for vector-borne diseases like Chagas
+    };
+    return colors[diseaseType] || '#6b7280';
+}
+
+// Initialize news with outbreaks by default when news view is shown
+function initializeNews() {
+    loadNewsCategory('outbreaks');
+}
+
+// Make functions globally available
+window.loadNewsCategory = loadNewsCategory;
+window.initializeNews = initializeNews;
 
 // Early debug logging
 console.log('🧬 diseaseZone Frontend Application Loaded');

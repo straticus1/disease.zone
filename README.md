@@ -79,13 +79,19 @@
 - **Symptom Monitoring** - Clinical symptom tracking with validation
 - **Treatment History** - Comprehensive medication and therapy documentation
 
-### 🛡️ **Enterprise Security**
+### 🛡️ **Enterprise Security & Blockchain**
 - **AES-256 Encryption** - Database encryption at rest for all PHI/PII
 - **Multi-Factor Authentication** - TOTP, SMS, recovery codes for medical professionals
 - **Real-Time Monitoring** - Automated threat detection and security alerting
 - **Digital Signatures** - Tamper-proof audit logs with integrity verification
 - **Zero-Trust Architecture** - Never trust, always verify security model
 - **Hash Verification** - SHA256 cryptographic integrity verification for all files
+- **Enhanced Input Validation** - XSS, SQL injection, and path traversal protection
+- **Blockchain Wallet Integration** - Real-time balance checking across Polygon, Ethereum
+- **Advanced Rate Limiting** - IPv6-compatible, user-based rate limiting
+- **Geolocation Privacy** - Coordinate obfuscation and privacy-first logging
+- **Transaction Validation** - Pre-transaction balance and gas estimation
+- **Comprehensive Error Handling** - Secure error messages with attack pattern detection
 
 ### 🧠 **AI-Powered Health Analysis**
 - **Symptom Analysis** - Advanced AI-powered symptom analysis with adaptive questioning

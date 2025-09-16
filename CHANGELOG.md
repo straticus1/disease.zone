@@ -2,6 +2,47 @@
 
 ## [3.6.0] - 2025-09-16
 
+### 🛡️ **Enhanced Security & Blockchain Integration**
+
+#### **🔒 Enterprise-Grade Security Enhancements**
+- 🛡️ **SecurityValidator Middleware** (`middleware/security.js`)
+  - **Advanced Input Validation** - XSS, SQL injection, and path traversal protection
+  - **IPv6-Compatible Rate Limiting** - Secure rate limiting with proper IPv6 handling
+  - **Geolocation Privacy** - Coordinate obfuscation and SHA-256 location hashing
+  - **Request Sanitization** - Recursive sanitization of all input parameters
+  - **CORS & CSP Enhancement** - Blockchain-compatible security policies
+
+- 🔧 **Enhanced Error Handling** (`middleware/errorHandler.js`)
+  - **Secure Error Messages** - Prevents sensitive data exposure in error responses
+  - **Attack Pattern Detection** - Identifies potential security threats in error patterns
+  - **Categorized Error Handling** - Specific handlers for validation, auth, database, and blockchain errors
+  - **Security Event Correlation** - Links errors to comprehensive security logging
+
+- 💎 **Blockchain Wallet Integration** (`services/walletService.js`)
+  - **Real-time Balance Checking** - Live balance queries across Polygon, Ethereum, and Mumbai networks
+  - **Multi-token Support** - Native tokens (MATIC/ETH) and ERC-20 tokens (USDC, WMATIC)
+  - **Transaction Validation** - Pre-transaction balance verification and gas estimation
+  - **Intelligent Caching** - 1-minute cache for performance optimization
+  - **Fallback Mechanisms** - Graceful degradation to simulated data when RPC unavailable
+
+#### **🌐 New Security API Endpoints**
+- `GET /api/wallet/balance/:address` - Real-time wallet balance checking (30 req/min limit)
+- `GET /api/wallet/portfolio/:address` - Complete portfolio overview with USD valuations (20 req/min limit)
+- `POST /api/wallet/validate-transaction` - Transaction validation with balance/gas checks (10 req/min limit)
+- `GET /api/wallet/health` - Blockchain service health monitoring (5 req/min limit)
+
+#### **🔐 Security Monitoring & Logging**
+- **Comprehensive Event Logging** - All wallet operations, auth attempts, and suspicious activities
+- **IP-based Security** - Failed attempt tracking with automatic IP blocking
+- **Geolocation Encryption** - Privacy-first location data handling with coordinate obfuscation
+- **Security Event Correlation** - Structured JSON logging for security analysis
+
+#### **⚙️ Enhanced Configuration**
+- **Environment Security Variables** - Complete security configuration through environment variables
+- **Blockchain Provider URLs** - Support for multiple RPC providers with failover
+- **Rate Limiting Configuration** - Customizable rate limits and blocking durations
+- **Privacy Settings** - Configurable geolocation encryption and data obfuscation
+
 ### 📚 **Complete Documentation & Platform Finalization**
 
 #### **📄 Comprehensive Documentation Suite**

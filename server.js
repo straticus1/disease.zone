@@ -22,6 +22,11 @@ const MedicalValidationService = require('./services/medicalValidationService');
 const AuditLoggingService = require('./services/auditLoggingService');
 const HIPAAService = require('./services/hipaaService');
 
+// Enhanced Security and Blockchain
+const SecurityValidator = require('./middleware/security');
+const WalletService = require('./services/walletService');
+const ErrorHandler = require('./middleware/errorHandler');
+
 // Middleware
 const AuthMiddleware = require('./middleware/auth');
 
@@ -30,6 +35,11 @@ const ResponseHandler = require('./utils/responseHandler');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Initialize enhanced security and blockchain services
+const securityValidator = new SecurityValidator();
+const walletService = new WalletService();
+const errorHandler = new ErrorHandler(securityValidator);
 
 // Initialize services
 async function initializeServices() {
@@ -84,6 +94,8 @@ async function initializeServices() {
     app.locals.medicalValidationService = medicalValidationService;
     app.locals.aiSymptomAnalysisService = aiSymptomAnalysisService;
     app.locals.fhirService = fhirService;
+    app.locals.securityValidator = securityValidator;
+    app.locals.walletService = walletService;
 
     console.log('All services initialized successfully');
   } catch (error) {
@@ -92,25 +104,13 @@ async function initializeServices() {
   }
 }
 
-// Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://api.mapbox.com"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://api.mapbox.com"],
-      scriptSrcAttr: ["'self'", "'unsafe-inline'"], // Allow inline event handlers like onclick
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https:", "wss:"]
-    }
-  }
-}));
+// Enhanced Security middleware
+app.use(securityValidator.enhancedCSP());
+app.use(securityValidator.configureCORS());
+app.use(securityValidator.ipSecurity());
+app.use(securityValidator.sanitizeRequest());
 
-// Basic middleware
-app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
-  credentials: true
-}));
+// Basic middleware - CORS now handled by SecurityValidator
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
@@ -1175,6 +1175,128 @@ app.get('/api/diseases/category/:category', async (req, res) => {
     });
   }
 });
+
+// Blockchain wallet endpoints
+app.get('/api/wallet/balance/:address',
+  securityValidator.createRateLimit(60000, 30, 'Too many balance requests'),
+  securityValidator.validateWalletOperation(),
+  async (req, res) => {
+    try {
+      const { address } = req.params;
+      const { network = 'polygon' } = req.query;
+      
+      const balance = await walletService.getNativeBalance(address, network);
+      
+      securityValidator.logSecurityEvent('WALLET_BALANCE_CHECK', req, {
+        address,
+        network,
+        isReal: balance.isReal
+      });
+      
+      res.json({
+        success: true,
+        data: balance
+      });
+    } catch (error) {
+      console.error('Error checking wallet balance:', error);
+      res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
+
+app.get('/api/wallet/portfolio/:address',
+  securityValidator.createRateLimit(60000, 20, 'Too many portfolio requests'),
+  securityValidator.validateWalletOperation(),
+  async (req, res) => {
+    try {
+      const { address } = req.params;
+      const { network = 'polygon' } = req.query;
+      
+      const portfolio = await walletService.getPortfolio(address, network);
+      
+      securityValidator.logSecurityEvent('WALLET_PORTFOLIO_CHECK', req, {
+        address,
+        network,
+        isReal: portfolio.isReal,
+        totalValue: portfolio.totalValueUSD
+      });
+      
+      res.json({
+        success: true,
+        data: portfolio
+      });
+    } catch (error) {
+      console.error('Error fetching wallet portfolio:', error);
+      res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
+
+app.post('/api/wallet/validate-transaction',
+  securityValidator.createRateLimit(60000, 10, 'Too many transaction validation requests'),
+  securityValidator.validateWalletOperation(),
+  securityValidator.secureGeolocation(),
+  async (req, res) => {
+    try {
+      const { fromAddress, toAddress, amount, tokenSymbol, network = 'polygon' } = req.body;
+      
+      const validation = await walletService.validateTransaction(
+        fromAddress,
+        toAddress,
+        amount,
+        tokenSymbol,
+        network
+      );
+      
+      securityValidator.logSecurityEvent('TRANSACTION_VALIDATION', req, {
+        fromAddress,
+        toAddress,
+        amount,
+        tokenSymbol,
+        network,
+        valid: validation.valid,
+        locationHash: req.locationHash
+      });
+      
+      res.json({
+        success: true,
+        data: validation
+      });
+    } catch (error) {
+      console.error('Error validating transaction:', error);
+      res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
+
+app.get('/api/wallet/health',
+  securityValidator.createRateLimit(60000, 5, 'Too many health check requests'),
+  async (req, res) => {
+    try {
+      const health = await walletService.healthCheck();
+      
+      res.json({
+        success: true,
+        data: health
+      });
+    } catch (error) {
+      console.error('Error checking wallet service health:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
 
 // API key management (for medical professionals)
 app.post('/api/user/api-keys',
@@ -2803,18 +2925,15 @@ function generateSampleDiseaseData(disease, state = null) {
 app.get('*', (req, res) => {
   // Don't serve index.html for API routes or static files
   if (req.path.startsWith('/api/') || req.path.startsWith('/js/') || req.path.startsWith('/css/') || req.path.startsWith('/images/')) {
-    return res.status(404).json({ error: 'Not found' });
+    return errorHandler.handle404(req, res);
   }
 
   // For other routes, redirect to main app
   res.redirect('/');
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
-});
+// Enhanced error handling middleware
+errorHandler.getMiddleware().forEach(middleware => app.use(middleware));
 
 // Initialize services and start the server
 async function startServer() {
@@ -2829,6 +2948,10 @@ async function startServer() {
       console.log('  ✅ Family disease tracking');
       console.log('  ✅ Disease surveillance APIs');
       console.log('  ✅ Medical professional access');
+      console.log('  ✅ Enhanced security validation');
+      console.log('  ✅ Blockchain wallet integration');
+      console.log('  ✅ Real-time balance checking');
+      console.log('  ✅ Advanced error handling');
     });
   } catch (error) {
     console.error('Failed to start server:', error);

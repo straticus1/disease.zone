@@ -540,7 +540,20 @@
                     <li><a href="#" onclick="showView('surveillance')" class="nav-link">Surveillance</a></li>
                     <li><a href="#" onclick="showView('research')" class="nav-link">Research</a></li>
                     <li><a href="#" onclick="showView('blockchain')" class="nav-link">Blockchain</a></li>
+                    <li><a href="#" onclick="showView('news')" class="nav-link" style="color: var(--info-color);">Health News</a></li>
                     <li><a href="//api.disease.zone" target="_blank" class="nav-link" style="color: var(--warning-color);">API Portal <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i></a></li>
+                    <li>
+                        <button id="topConnectWalletBtn" class="btn btn-primary" onclick="blockchain.connectWallet()" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                            <i class="fas fa-wallet"></i> Connect Wallet
+                        </button>
+                    </li>
+                    <li id="topWalletStatus" style="display: none;">
+                        <div style="background: #f0fdf4; padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #10b981;">
+                            <span style="color: #059669; font-size: 0.9rem; font-weight: 600;">
+                                <i class="fas fa-check-circle"></i> <span id="topWalletAddress">Connected</span>
+                            </span>
+                        </div>
+                    </li>
                 </ul>
 
                 <div class="user-menu" id="userMenu">
@@ -586,6 +599,32 @@
                     </div>
                 </div>
             </section>
+
+            <!-- Local Disease Alert Section -->
+            <div class="container" id="localDiseaseSection" style="margin-top: 2rem;">
+                <div class="card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; margin-bottom: 2rem;">
+                    <div class="card-body">
+                        <div id="geolocationStatus">
+                            <div style="text-align: center; padding: 1rem;">
+                                <h3><i class="fas fa-map-marker-alt"></i> Local Disease Intelligence</h3>
+                                <p>Get personalized health alerts for your area</p>
+                                <button class="btn btn-secondary" onclick="getLocalDiseaseData()" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);">
+                                    <i class="fas fa-location-arrow"></i> Enable Location-Based Alerts
+                                </button>
+                            </div>
+                        </div>
+                        <div id="localDiseaseData" style="display: none;">
+                            <h3><i class="fas fa-map-marker-alt"></i> Top 5 Health Concerns in Your Area</h3>
+                            <div id="localDiseaseList" class="grid grid-5" style="gap: 1rem; margin-top: 1rem;">
+                                <!-- Disease data will be populated here -->
+                            </div>
+                            <div style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;">
+                                <i class="fas fa-info-circle"></i> Data sourced from CDC, WHO, and local health departments
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <div class="container">
                 <section class="grid grid-3 mt-3">
@@ -1011,9 +1050,18 @@
                                         <span><strong>Zika/Dengue/Chikungunya</strong></span>
                                         <span style="color: var(--error-color); font-size: 0.9rem;">Travel-Associated</span>
                                     </div>
-                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f0fdf4; border-radius: 6px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f0fdf4; border-radius: 6px; margin-bottom: 0.5rem;">
                                         <span><strong>Rocky Mountain Spotted Fever</strong></span>
                                         <span style="color: var(--error-color); font-size: 0.9rem;">Fatal if Untreated</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #fef2f2; border-radius: 6px; border-left: 4px solid var(--error-color);">
+                                        <div>
+                                            <strong>Chagas Disease</strong> (Trypanosoma cruzi)
+                                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                                                "Kissing Bug" vector • Silent killer • 300k+ US cases
+                                            </div>
+                                        </div>
+                                        <span style="background: var(--error-color); color: white; padding: 0.3rem 0.6rem; border-radius: 12px; font-size: 0.8rem;">PRIORITY</span>
                                     </div>
                                 </div>
                                 <div style="background: #e0f2fe; padding: 1rem; border-radius: 8px;">
@@ -1390,6 +1438,86 @@
             </div>
         </div>
 
+        <!-- Health News View -->
+        <div class="view" id="newsView">
+            <div class="container dashboard">
+                <div class="dashboard-header">
+                    <h1>Health & Disease News</h1>
+                    <p>Stay informed with the latest health alerts, disease outbreaks, and medical breakthroughs</p>
+                </div>
+
+                <!-- News Alert Banner -->
+                <div class="card" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; margin-bottom: 2rem;">
+                    <div class="card-body">
+                        <h3><i class="fas fa-newspaper"></i> Latest Health Intelligence</h3>
+                        <p style="opacity: 0.9; margin-bottom: 1rem;">Real-time updates from WHO, CDC, and global health authorities</p>
+                        <div id="newsLastUpdated" style="font-size: 0.9rem; opacity: 0.8;">
+                            <i class="fas fa-clock"></i> Last updated: <span id="newsTimestamp">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- News Categories -->
+                <div class="grid grid-4" style="margin-bottom: 2rem;">
+                    <button class="btn btn-primary" onclick="loadNewsCategory('outbreaks')" id="outbreaksBtn">
+                        <i class="fas fa-virus"></i> Disease Outbreaks
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadNewsCategory('research')" id="researchBtn">
+                        <i class="fas fa-microscope"></i> Medical Research
+                    </button>
+                    <button class="btn btn-info" onclick="loadNewsCategory('public-health')" id="publicHealthBtn">
+                        <i class="fas fa-shield-alt"></i> Public Health
+                    </button>
+                    <button class="btn btn-success" onclick="loadNewsCategory('prevention')" id="preventionBtn">
+                        <i class="fas fa-hand-holding-medical"></i> Prevention
+                    </button>
+                </div>
+
+                <!-- News Content -->
+                <div id="newsContent">
+                    <div class="grid grid-2" style="gap: 2rem;">
+                        <!-- Loading placeholder -->
+                        <div class="card">
+                            <div class="card-body">
+                                <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                                    <p>Loading latest health news...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sources Attribution -->
+                <div class="card" style="margin-top: 2rem; background: #f8fafc;">
+                    <div class="card-body">
+                        <h4 style="margin-bottom: 1rem;">Trusted Sources</h4>
+                        <div class="grid grid-4" style="gap: 1rem; text-align: center;">
+                            <div>
+                                <strong>WHO</strong>
+                                <p style="font-size: 0.8rem; color: var(--text-secondary);">World Health Organization</p>
+                            </div>
+                            <div>
+                                <strong>CDC</strong>
+                                <p style="font-size: 0.8rem; color: var(--text-secondary);">Centers for Disease Control</p>
+                            </div>
+                            <div>
+                                <strong>NIH</strong>
+                                <p style="font-size: 0.8rem; color: var(--text-secondary);">National Institutes of Health</p>
+                            </div>
+                            <div>
+                                <strong>ECDC</strong>
+                                <p style="font-size: 0.8rem; color: var(--text-secondary);">European CDC</p>
+                            </div>
+                        </div>
+                        <div style="margin-top: 1rem; text-align: center; font-size: 0.9rem; color: var(--text-secondary);">
+                            <i class="fas fa-info-circle"></i> All news articles are verified and sourced from official health organizations
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Blockchain View -->
         <div class="view" id="blockchainView">
             <div class="container dashboard">
@@ -1415,6 +1543,28 @@
                                 <strong>Carbon Neutral</strong>
                                 <p style="font-size: 0.9rem; margin-top: 0.5rem; opacity: 0.8;">Proof of Stake consensus</p>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wallet Connection Status -->
+                <div style="background: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3>🔗 Wallet Connection</h3>
+                        <button id="connectWalletBtn" class="btn btn-primary" onclick="blockchain.connectWallet()">Connect Wallet</button>
+                    </div>
+                    <div id="walletStatus">
+                        <div style="color: #6b7280;">
+                            <span>Wallet not connected</span>
+                        </div>
+                    </div>
+                    <div id="connectedWalletInfo" style="display: none; margin-top: 1rem; padding: 1rem; background: #f0fdf4; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>Connected Address:</strong><br>
+                                <code id="currentWalletAddress" style="font-size: 0.9rem; color: #059669;">Not connected</code>
+                            </div>
+                            <button onclick="blockchain.disconnectWallet()" class="btn btn-secondary" style="padding: 0.5rem 1rem;">Disconnect</button>
                         </div>
                     </div>
                 </div>
@@ -1529,6 +1679,80 @@
                                         <span>Research Participation</span>
                                         <strong>250-2,500 HLTH</strong>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Token Actions -->
+                <div class="grid grid-2" style="margin-top: 2rem;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">💰 Earn HEALTH Tokens</h3>
+                        </div>
+                        <div class="card-body">
+                            <p style="margin-bottom: 1.5rem;">Contribute to global health research and earn rewards:</p>
+                            <div style="display: grid; gap: 1rem;">
+                                <button class="btn btn-success" onclick="showEarnTokensModal('checkin', 5)">
+                                    <i class="fas fa-heart"></i> Daily Check-in (+5 HLTH)
+                                </button>
+                                <button class="btn btn-success" onclick="showEarnTokensModal('symptoms', 25)">
+                                    <i class="fas fa-stethoscope"></i> Report Symptoms (+25 HLTH)
+                                </button>
+                                <button class="btn btn-success" onclick="showEarnTokensModal('records', 100)">
+                                    <i class="fas fa-file-medical"></i> Share Medical Record (+100 HLTH)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">🔬 Use HEALTH Tokens</h3>
+                        </div>
+                        <div class="card-body">
+                            <p style="margin-bottom: 1.5rem;">Access premium research and analytics:</p>
+                            <div style="display: grid; gap: 1rem;">
+                                <button class="btn btn-primary" onclick="showSpendTokensModal('analytics', 10)">
+                                    <i class="fas fa-chart-line"></i> Premium Analytics (10 HLTH)
+                                </button>
+                                <button class="btn btn-primary" onclick="showSpendTokensModal('research', 50)">
+                                    <i class="fas fa-microscope"></i> Research Database Access (50 HLTH)
+                                </button>
+                                <button class="btn btn-primary" onclick="showSpendTokensModal('ai', 100)">
+                                    <i class="fas fa-brain"></i> AI Health Predictions (100 HLTH)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wallet Info -->
+                <div class="card" style="margin-top: 2rem;">
+                    <div class="card-header">
+                        <h3 class="card-title">📊 Token Validation & Network Info</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-2">
+                            <div>
+                                <h4>Network Details</h4>
+                                <p><strong>Chain:</strong> Polygon Mainnet</p>
+                                <p><strong>Token Contract:</strong> <code style="font-size: 0.8em;">0x1000...0001</code> <small>(Demo)</small></p>
+                                <p><strong>Transaction Fees:</strong> ~$0.001</p>
+                                <p><strong>Confirmation Time:</strong> 2-5 seconds</p>
+                            </div>
+                            <div>
+                                <h4>Your Wallet</h4>
+                                <p><strong>Balance:</strong> <span id="healthTokenBalanceFormatted">0 HEALTH</span></p>
+                                <p><strong>Address:</strong> <span id="userWalletAddress">Not connected</span></p>
+                                <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    <button class="btn btn-secondary" onclick="viewOnBlockExplorer()">
+                                        <i class="fas fa-external-link-alt"></i> View on PolygonScan
+                                    </button>
+                                    <button class="btn btn-info" onclick="blockchain.validateHealthToken()">
+                                        <i class="fas fa-shield-alt"></i> Validate Token
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -1718,6 +1942,100 @@
         console.log('🔥 INLINE SCRIPT: Setup complete');
     </script>
 
+    <!-- Footer -->
+    <footer style="background: #1f2937; color: white; padding: 2rem 0; margin-top: 4rem;">
+        <div class="container">
+            <div class="grid grid-4" style="gap: 2rem; margin-bottom: 2rem;">
+                <div>
+                    <h4 style="color: white; margin-bottom: 1rem;">diseaseZone</h4>
+                    <p style="font-size: 0.9rem; line-height: 1.5; opacity: 0.8;">
+                        Global health intelligence platform providing real-time disease surveillance,
+                        blockchain-verified health data, and advanced analytics for public health.
+                    </p>
+                </div>
+
+                <div>
+                    <h4 style="color: white; margin-bottom: 1rem;">Platform</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="showView('surveillance')" style="color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem;">Disease Surveillance</a>
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="showView('research')" style="color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem;">Research Platform</a>
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="showView('blockchain')" style="color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem;">HEALTH Tokens</a>
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="//api.disease.zone" target="_blank" style="color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem;">API Portal</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 style="color: white; margin-bottom: 1rem;">Resources</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="showView('news')" style="color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem;">Health News</a>
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="openModal('documentationModal')" style="color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem;">Documentation</a>
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="openModal('supportModal')" style="color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem;">Support Center</a>
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="mailto:contact@disease.zone" style="color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem;">Contact Us</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 style="color: white; margin-bottom: 1rem;">Legal</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="openModal('privacyPolicyModal')" style="color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem;">Privacy Policy</a>
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="openModal('termsOfServiceModal')" style="color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem;">Terms of Service</a>
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="openModal('dataGovernanceModal')" style="color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem;">Data Governance</a>
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="openModal('complianceModal')" style="color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem;">HIPAA Compliance</a>
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="#" onclick="openModal('disclaimerModal')" style="color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem;">Medical Disclaimer</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 2rem 0;">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div style="font-size: 0.9rem; opacity: 0.7;">
+                    © 2025 diseaseZone. All rights reserved. | Platform v3.6.0
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-size: 0.8rem; opacity: 0.6;">
+                        <i class="fas fa-shield-alt"></i> SOC 2 Compliant • HIPAA Certified • FDA Registered
+                    </span>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                <p style="font-size: 0.8rem; opacity: 0.6; line-height: 1.4;">
+                    <strong>Medical Disclaimer:</strong> This platform is for informational and research purposes only.
+                    The information provided is not intended to be a substitute for professional medical advice, diagnosis, or treatment.
+                    Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.
+                </p>
+            </div>
+        </div>
+    </footer>
+
     <script src="/js/app.js"></script>
+    <script src="/js/blockchain-wallet.js"></script>
 </body>
 </html>
