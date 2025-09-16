@@ -9,15 +9,28 @@ const express = require('express');
 const router = express.Router();
 const FHIRBlockchainBridge = require('../services/fhirBlockchainBridge');
 const FHIRService = require('../services/fhirService');
-const AuthMiddleware = require('../middleware/auth');
 const ResponseHandler = require('../utils/responseHandler');
 
 // Initialize services
-const fhirBridge = new FHIRBlockchainBridge();
-const fhirService = new FHIRService();
+let fhirBridge;
+let fhirService;
 
-// Apply authentication middleware to all routes
-router.use(AuthMiddleware.authenticate());
+// Initialize services with error handling
+try {
+  fhirBridge = new FHIRBlockchainBridge();
+  fhirService = new FHIRService();
+} catch (error) {
+  console.warn('FHIR services initialization failed:', error.message);
+  // Services will be initialized when needed
+}
+
+// Authentication middleware function
+function requireAuth(req, res, next) {
+  if (!req.app.locals.auth?.authenticateToken) {
+    return res.status(500).json({ error: 'Authentication service not initialized' });
+  }
+  return req.app.locals.auth.authenticateToken(req, res, next);
+}
 
 /**
  * GET /api/fhir/blockchain/status
@@ -41,7 +54,7 @@ router.get('/status', async (req, res) => {
  * GET /api/fhir/hospitals
  * List connected FHIR-enabled hospitals
  */
-router.get('/hospitals', async (req, res) => {
+router.get('/hospitals', requireAuth, async (req, res) => {
   try {
     const hospitals = await fhirService.getConnectedHospitals(req.user.id);
 
@@ -60,7 +73,7 @@ router.get('/hospitals', async (req, res) => {
  * POST /api/fhir/hospitals/connect
  * Connect to a new FHIR-enabled hospital
  */
-router.post('/hospitals/connect', async (req, res) => {
+router.post('/hospitals/connect', requireAuth, async (req, res) => {
   try {
     const { name, fhirEndpoint, authType, credentials } = req.body;
 
@@ -99,7 +112,7 @@ router.post('/hospitals/connect', async (req, res) => {
  * POST /api/fhir/blockchain/import
  * Import FHIR data to blockchain with token rewards
  */
-router.post('/import', async (req, res) => {
+router.post('/import', requireAuth, async (req, res) => {
   try {
     const {
       hospitalId,
@@ -154,7 +167,7 @@ router.post('/import', async (req, res) => {
  * GET /api/fhir/blockchain/history
  * Get FHIR import history for user
  */
-router.get('/history', async (req, res) => {
+router.get('/history', requireAuth, async (req, res) => {
   try {
     const {
       limit = 10,

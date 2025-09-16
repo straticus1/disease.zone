@@ -1,6 +1,6 @@
 {
   "name": "disease.zone",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "description": "diseaseZone - A comprehensive disease tracking and visualization platform with mapping integration (previously covid19lookup.nyc)",
   "main": "server.js",
   "scripts": {

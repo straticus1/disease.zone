@@ -81,7 +81,8 @@ class FHIRService {
             type: 'prov' // Healthcare provider
           });
           
-          organizations.forEach(org => {
+          for (const org of organizations) {
+            const distance = location ? await this.calculateDistance(location, org.address) : null;
             results.push({
               id: org.id,
               name: org.name,
@@ -93,11 +94,11 @@ class FHIRService {
               type: this.extractOrganizationType(org.type),
               active: org.active,
               capabilities: null, // Will be populated by capability statement
-              distance: location ? await this.calculateDistance(location, org.address) : null,
+              distance,
               lastVerified: new Date().toISOString(),
               testEnvironment: serverId.includes('sandbox')
             });
-          });
+          }
         } catch (error) {
           console.log(`Failed to search FHIR server ${serverId}:`, error.message);
           continue;

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapping Debug Test</title>
+    <script src="/js/mapping-client.js"></script>
+</head>
+<body>
+    <h1>Mapping Client Debug</h1>
+    <div id="debug-output"></div>
+    
+    <script>
+        async function debugTest() {
+            const debugOutput = document.getElementById('debug-output');
+            
+            try {
+                debugOutput.innerHTML += '<p>🔄 Testing MappingClient initialization...</p>';
+                
+                // Test if MappingClient class exists
+                if (typeof MappingClient === 'undefined') {
+                    debugOutput.innerHTML += '<p>❌ MappingClient class not found!</p>';
+                    return;
+                }
+                
+                debugOutput.innerHTML += '<p>✅ MappingClient class found</p>';
+                
+                // Instantiate MappingClient
+                const mappingClient = new MappingClient('/api/maps');
+                debugOutput.innerHTML += '<p>✅ MappingClient instantiated</p>';
+                
+                // Check if methods exist
+                debugOutput.innerHTML += `<p>updateStrategy method exists: ${typeof mappingClient.updateStrategy === 'function'}</p>`;
+                debugOutput.innerHTML += `<p>getStatus method exists: ${typeof mappingClient.getStatus === 'function'}</p>`;
+                debugOutput.innerHTML += `<p>getTiers method exists: ${typeof mappingClient.getTiers === 'function'}</p>`;
+                
+                // Test API call
+                debugOutput.innerHTML += '<p>🔄 Testing getStatus API call...</p>';
+                const status = await mappingClient.getStatus();
+                debugOutput.innerHTML += '<p>✅ getStatus successful</p>';
+                debugOutput.innerHTML += `<pre>${JSON.stringify(status, null, 2)}</pre>`;
+                
+                // Test updateStrategy method
+                debugOutput.innerHTML += '<p>🔄 Testing updateStrategy method...</p>';
+                const result = await mappingClient.updateStrategy('round_robin');
+                debugOutput.innerHTML += '<p>✅ updateStrategy successful</p>';
+                debugOutput.innerHTML += `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+                
+            } catch (error) {
+                debugOutput.innerHTML += `<p>❌ Error: ${error.message}</p>`;
+                console.error('Debug test error:', error);
+            }
+        }
+        
+        // Run debug test when page loads
+        window.addEventListener('load', debugTest);
+    </script>
+</body>
+</html>

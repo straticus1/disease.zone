@@ -196,22 +196,47 @@
 
         // Initialize the demo
         async function initDemo() {
-            mappingClient = new MappingClient('/api/maps');
-
             try {
+                console.log('Initializing mapping demo...');
+                
+                // Check if MappingClient class exists
+                if (typeof MappingClient === 'undefined') {
+                    throw new Error('MappingClient class not loaded. Check if /js/mapping-client.js is accessible.');
+                }
+                
+                mappingClient = new MappingClient('/api/maps');
+                console.log('MappingClient instantiated successfully');
+
                 await loadServiceStatus();
+                console.log('Service status loaded');
+                
                 await initializeMap();
+                console.log('Map initialized');
 
                 // Set default address for demo
                 document.getElementById('addressInput').value = 'New York City, NY';
+                
+                console.log('Demo initialization complete!');
             } catch (error) {
                 console.error('Failed to initialize demo:', error);
-                alert('Failed to initialize mapping demo: ' + error.message);
+                document.getElementById('map').innerHTML = 
+                    `<div style="display: flex; align-items: center; justify-content: center; height: 400px; background: #f0f0f0; color: #666; text-align: center; padding: 20px;">
+                        <div>
+                            <h3>Demo Initialization Failed</h3>
+                            <p>${error.message}</p>
+                            <p>Check the browser console for more details.</p>
+                        </div>
+                    </div>`;
             }
         }
 
         async function loadServiceStatus() {
             try {
+                // Check if mappingClient is initialized
+                if (!mappingClient) {
+                    throw new Error('MappingClient not initialized');
+                }
+                
                 const [status, tiers] = await Promise.all([
                     mappingClient.getStatus(),
                     mappingClient.getTiers()
@@ -290,6 +315,11 @@
             const strategy = document.getElementById('strategySelect').value;
 
             try {
+                // Check if mappingClient is initialized
+                if (!mappingClient) {
+                    throw new Error('MappingClient not initialized. Please wait for the demo to load.');
+                }
+                
                 // Update load balancing strategy
                 await mappingClient.updateStrategy(strategy);
 
@@ -312,6 +342,12 @@
             const address = document.getElementById('addressInput').value.trim();
             if (!address) {
                 alert('Please enter an address');
+                return;
+            }
+
+            // Check if mappingClient is initialized
+            if (!mappingClient) {
+                alert('MappingClient not initialized. Please wait for the demo to load.');
                 return;
             }
 

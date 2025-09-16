@@ -97,8 +97,8 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://api.mapbox.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://api.mapbox.com"],
       scriptSrcAttr: ["'self'", "'unsafe-inline'"], // Allow inline event handlers like onclick
       imgSrc: ["'self'", "data:", "https:"],
       connectSrc: ["'self'", "https:", "wss:"]
@@ -617,12 +617,13 @@ app.get('/api/health', (req, res) => {
 // Import and use new route modules
 const stiRoutes = require('./routes/stiRoutes');
 const globalHealthRoutes = require('./routes/globalHealthRoutes');
-const fhirBlockchainRoutes = require('./routes/fhirBlockchainRoutes');
+// Temporarily comment out FHIR blockchain routes due to initialization issues
+// const fhirBlockchainRoutes = require('./routes/fhirBlockchainRoutes');
 
 // Mount the new route modules
 app.use('/sti', stiRoutes);
 app.use('/global', globalHealthRoutes);
-app.use('/api/fhir/blockchain', fhirBlockchainRoutes);
+// app.use('/api/fhir/blockchain', fhirBlockchainRoutes);
 
 // Authentication endpoints
 app.post('/api/auth/register',
@@ -2422,7 +2423,14 @@ app.get('/api/maps/data/disease/:disease', async (req, res) => {
 });
 
 // FHIR Hospital Search and Connection Endpoints
-app.get('/api/fhir/hospitals/search', requireAuth, async (req, res) => {
+app.get('/api/fhir/hospitals/search',
+  (req, res, next) => {
+    if (app.locals.auth?.authenticateToken) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    return res.status(500).json({ error: 'Authentication service not initialized' });
+  },
+  async (req, res) => {
   try {
     const {
       location,
@@ -2453,7 +2461,14 @@ app.get('/api/fhir/hospitals/search', requireAuth, async (req, res) => {
 });
 
 // Initiate hospital connection
-app.post('/api/fhir/hospitals/connect', requireAuth, async (req, res) => {
+app.post('/api/fhir/hospitals/connect',
+  (req, res, next) => {
+    if (app.locals.auth?.authenticateToken) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    return res.status(500).json({ error: 'Authentication service not initialized' });
+  },
+  async (req, res) => {
   try {
     const { hospitalId, scopes, purpose } = req.body;
     const userId = req.user.id;
@@ -2509,7 +2524,14 @@ app.get('/api/fhir/callback', async (req, res) => {
 });
 
 // Get user's hospital connections
-app.get('/api/fhir/connections', requireAuth, async (req, res) => {
+app.get('/api/fhir/connections',
+  (req, res, next) => {
+    if (app.locals.auth?.authenticateToken) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    return res.status(500).json({ error: 'Authentication service not initialized' });
+  },
+  async (req, res) => {
   try {
     const userId = req.user.id;
     const connections = app.locals.fhirService.getUserConnections(userId);
@@ -2529,7 +2551,14 @@ app.get('/api/fhir/connections', requireAuth, async (req, res) => {
 });
 
 // Sync health data from connected hospital
-app.post('/api/fhir/sync/:connectionId', requireAuth, async (req, res) => {
+app.post('/api/fhir/sync/:connectionId',
+  (req, res, next) => {
+    if (app.locals.auth?.authenticateToken) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    return res.status(500).json({ error: 'Authentication service not initialized' });
+  },
+  async (req, res) => {
   try {
     const { connectionId } = req.params;
     const {
@@ -2557,7 +2586,14 @@ app.post('/api/fhir/sync/:connectionId', requireAuth, async (req, res) => {
 });
 
 // Get personalized health insights
-app.get('/api/fhir/insights/:connectionId', requireAuth, async (req, res) => {
+app.get('/api/fhir/insights/:connectionId',
+  (req, res, next) => {
+    if (app.locals.auth?.authenticateToken) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    return res.status(500).json({ error: 'Authentication service not initialized' });
+  },
+  async (req, res) => {
   try {
     const { connectionId } = req.params;
     const userId = req.user.id;

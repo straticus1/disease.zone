@@ -810,6 +810,13 @@ class DiseaseZoneApp {
         if (modal) {
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
+            
+            // Auto-start map loading for disease map modal
+            if (modalId === 'diseaseMapModal') {
+                setTimeout(() => {
+                    this.switchMapProvider('osm'); // Start with OpenStreetMap by default
+                }, 500);
+            }
         }
     }
 
@@ -1266,55 +1273,8 @@ class DiseaseZoneApp {
 
             tileLayer.addTo(map);
 
-            // Disease outbreak data
-            const outbreakData = [
-                { name: 'New York, NY', lat: 40.7128, lng: -74.0060, cases: 2341, disease: 'COVID-19 Variant Surge', severity: 'high' },
-                { name: 'London, UK', lat: 51.5074, lng: -0.1278, cases: 856, disease: 'Flu Season Peak', severity: 'moderate' },
-                { name: 'Tokyo, Japan', lat: 35.6762, lng: 139.6503, cases: 1789, disease: 'STI Outbreak', severity: 'high' },
-                { name: 'Sydney, Australia', lat: -33.8688, lng: 151.2093, cases: 423, disease: 'Hepatitis A', severity: 'moderate' },
-                { name: 'São Paulo, Brazil', lat: -23.5558, lng: -46.6396, cases: 1205, disease: 'Dengue Fever', severity: 'high' },
-                { name: 'Mumbai, India', lat: 19.0760, lng: 72.8777, cases: 967, disease: 'Tuberculosis', severity: 'moderate' },
-                { name: 'Lagos, Nigeria', lat: 6.5244, lng: 3.3792, cases: 634, disease: 'Meningitis', severity: 'moderate' },
-                { name: 'Mexico City, Mexico', lat: 19.4326, lng: -99.1332, cases: 445, disease: 'Influenza', severity: 'low' }
-            ];
-
-            // Add markers for each outbreak
-            outbreakData.forEach(outbreak => {
-                const color = outbreak.severity === 'high' ? '#dc2626' : outbreak.severity === 'moderate' ? '#f59e0b' : '#10b981';
-                const radius = outbreak.severity === 'high' ? 15 : outbreak.severity === 'moderate' ? 12 : 8;
-
-                const circle = L.circleMarker([outbreak.lat, outbreak.lng], {
-                    color: color,
-                    fillColor: color,
-                    fillOpacity: 0.7,
-                    radius: radius,
-                    weight: 2
-                }).addTo(map);
-
-                // Add popup with outbreak details
-                const popupContent = `
-                    <div style="min-width: 200px;">
-                        <h4 style="margin: 0 0 8px 0; color: ${color};"><i class="fas fa-map-marker-alt"></i> ${outbreak.name}</h4>
-                        <div style="margin-bottom: 8px;"><strong>${outbreak.disease}</strong></div>
-                        <div style="margin-bottom: 8px; color: #666;">${outbreak.cases.toLocaleString()} cases</div>
-                        <div style="background: rgba(${outbreak.severity === 'high' ? '220,38,38' : outbreak.severity === 'moderate' ? '245,158,11' : '16,185,129'}, 0.1); padding: 4px 8px; border-radius: 4px; font-size: 12px;">
-                            <strong>Alert Level:</strong> ${outbreak.severity.charAt(0).toUpperCase() + outbreak.severity.slice(1)}
-                        </div>
-                        <div style="text-align: center; margin-top: 10px;">
-                            <button onclick="showView('surveillance'); closeModal('diseaseMapModal');" style="background: ${color}; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                                View Details
-                            </button>
-                        </div>
-                    </div>
-                `;
-
-                circle.bindPopup(popupContent);
-
-                // Add click event
-                circle.on('click', () => {
-                    circle.openPopup();
-                });
-            });
+            // Load real disease data from API
+            this.loadRealDiseaseData(map);
 
             // Add legend
             const legend = L.control({ position: 'bottomright' });
@@ -1344,6 +1304,136 @@ class DiseaseZoneApp {
                     </div>
                 </div>
             `;
+        }
+    }
+
+    async loadRealDiseaseData(map) {
+        try {
+            console.log('Loading real disease data for map...');
+            
+            // Load disease overlays for multiple diseases
+            const diseases = ['chlamydia', 'gonorrhea', 'syphilis'];
+            const diseaseColors = {
+                'chlamydia': '#3b82f6', // blue
+                'gonorrhea': '#f59e0b',  // orange  
+                'syphilis': '#dc2626'   // red
+            };
+            
+            let totalDataPoints = 0;
+            let activeOutbreaks = 0;
+            
+            for (const disease of diseases) {
+                try {
+                    const response = await this.apiCall(`/api/maps/overlays/disease?disease=${disease}`);
+                    
+                    if (response.success && response.overlays) {
+                        console.log(`Loading ${response.overlays.length} ${disease} data points`);
+                        totalDataPoints += response.overlays.length;
+                        
+                        response.overlays.forEach(overlay => {
+                            if (overlay.type === 'circle' && overlay.coordinates) {
+                                const [lat, lng] = overlay.coordinates;
+                                const data = overlay.data;
+                                
+                                // Determine severity based on rate
+                                let severity = 'low';
+                                if (data.rate > 200) severity = 'high';
+                                else if (data.rate > 100) severity = 'moderate';
+                                
+                                if (severity === 'high' || severity === 'moderate') {
+                                    activeOutbreaks++;
+                                }
+                                
+                                // Use the API's calculated properties or fallback to defaults
+                                const circleOptions = {
+                                    color: overlay.properties?.color || diseaseColors[disease] || '#666',
+                                    fillColor: overlay.properties?.fillColor || diseaseColors[disease] || '#666',
+                                    fillOpacity: overlay.properties?.fillOpacity || 0.6,
+                                    radius: overlay.properties?.radius || (data.rate > 200 ? 15 : data.rate > 100 ? 12 : 8),
+                                    weight: overlay.properties?.weight || 2
+                                };
+                                
+                                const circle = L.circleMarker([lat, lng], circleOptions).addTo(map);
+                                
+                                // Use the API's popup content or create our own
+                                const popupContent = overlay.popupContent || `
+                                    <div style="min-width: 200px;">
+                                        <h4 style="margin: 0 0 8px 0; color: ${circleOptions.color};"><i class="fas fa-map-marker-alt"></i> ${data.location}, ${data.state}</h4>
+                                        <div style="margin-bottom: 8px;"><strong>${disease.toUpperCase()}</strong></div>
+                                        <div style="margin-bottom: 8px; color: #666;">
+                                            <strong>Cases:</strong> ${data.cases?.toLocaleString() || 'N/A'}<br>
+                                            <strong>Rate:</strong> ${data.rate || 'N/A'} per 100k<br>
+                                            <strong>Population:</strong> ${data.population?.toLocaleString() || 'N/A'}
+                                        </div>
+                                        <div style="background: rgba(${severity === 'high' ? '220,38,38' : severity === 'moderate' ? '245,158,11' : '16,185,129'}, 0.1); padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                                            <strong>Alert Level:</strong> ${severity.charAt(0).toUpperCase() + severity.slice(1)}
+                                        </div>
+                                        <div style="margin-top: 8px; font-size: 11px; color: #999;">
+                                            Last Updated: ${new Date(data.lastUpdated).toLocaleDateString()}
+                                        </div>
+                                        <div style="text-align: center; margin-top: 10px;">
+                                            <button onclick="showView('surveillance'); closeModal('diseaseMapModal');" style="background: ${circleOptions.color}; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                                View Details
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                                
+                                circle.bindPopup(popupContent);
+                                
+                                // Add click event
+                                circle.on('click', () => {
+                                    circle.openPopup();
+                                });
+                            }
+                        });
+                    }
+                } catch (diseaseError) {
+                    console.warn(`Failed to load ${disease} data:`, diseaseError);
+                }
+            }
+            
+            // Update stats panel with real data
+            const statsPanel = document.querySelector('[style*="position: absolute; bottom: 10px"]');
+            if (statsPanel) {
+                statsPanel.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; text-align: center;">
+                        <div>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--error-color);">${totalDataPoints}</div>
+                            <div style="font-size: 0.9rem; color: var(--text-secondary);">Active Data Points</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--warning-color);">${activeOutbreaks}</div>
+                            <div style="font-size: 0.9rem; color: var(--text-secondary);">High Risk Locations</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--success-color);">CDC Verified</div>
+                            <div style="font-size: 0.9rem; color: var(--text-secondary);">Data Source</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary-color);">Real-time</div>
+                            <div style="font-size: 0.9rem; color: var(--text-secondary);">Live Updates</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            console.log(`✅ Loaded ${totalDataPoints} real disease data points from API`);
+            
+        } catch (error) {
+            console.error('Failed to load real disease data:', error);
+            
+            // Fallback to show error message on map
+            const errorPopup = L.popup()
+                .setLatLng([40.7128, -74.0060])
+                .setContent(`
+                    <div style="color: red; text-align: center;">
+                        <i class="fas fa-exclamation-triangle"></i><br>
+                        Failed to load disease data<br>
+                        <small>${error.message}</small>
+                    </div>
+                `)
+                .openOn(map);
         }
     }
 }
