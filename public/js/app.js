@@ -29,10 +29,11 @@ class DiseaseZoneApp {
             this.apiBaseUrl = window.location.origin;
             this.ledgerApiUrl = `${window.location.protocol}//${window.location.hostname}:4000`;
             this.isAuthenticated = false;
-            this.userRole = null;
+        this.userRole = null;
+        this.currentMap = null;
 
-            console.log('🏗️ Constructor properties set, calling init()');
-            this.init();
+        console.log('🏗️ Constructor properties set, calling init()');
+        this.init();
         } catch (error) {
             console.error('❌ CRITICAL ERROR in DiseaseZoneApp constructor:', error);
             throw error;
@@ -817,6 +818,16 @@ class DiseaseZoneApp {
         if (modal) {
             modal.classList.remove('active');
             document.body.style.overflow = '';
+            
+            // Clean up map if closing disease map modal
+            if (modalId === 'diseaseMapModal' && this.currentMap) {
+                try {
+                    this.currentMap.remove();
+                    this.currentMap = null;
+                } catch (error) {
+                    console.warn('Error cleaning up map:', error);
+                }
+            }
         }
     }
 
@@ -1146,13 +1157,16 @@ class DiseaseZoneApp {
 
     async loadDiseaseMap(provider, container) {
         try {
-            // Fetch real disease data
-            const diseaseData = await this.apiCall('/api/std/global-summary', 'GET');
-            
-            const mapHTML = `
-                <div style="position: relative; width: 100%; height: 100%; background: linear-gradient(135deg, #e3f2fd 0%, #f8f9fa 100%);">
+            // Check if Leaflet is available
+            if (typeof L === 'undefined') {
+                throw new Error('Leaflet library not loaded. Include Leaflet before using this method.');
+            }
+
+            // Create container for the map
+            container.innerHTML = `
+                <div style="position: relative; width: 100%; height: 100%;">
                     <!-- Map Header -->
-                    <div style="position: absolute; top: 10px; left: 10px; right: 10px; z-index: 100; background: rgba(255,255,255,0.95); padding: 1rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <div style="position: absolute; top: 10px; left: 10px; right: 10px; z-index: 1000; background: rgba(255,255,255,0.95); padding: 1rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                             <h4 style="margin: 0; color: var(--primary-color);">
                                 <i class="fas fa-globe"></i> ${provider.toUpperCase()} - Global Disease Surveillance
@@ -1160,31 +1174,18 @@ class DiseaseZoneApp {
                             <div style="font-size: 0.9rem; color: var(--text-secondary);">Last Updated: ${new Date().toLocaleString()}</div>
                         </div>
                         <div style="display: flex; gap: 2rem; font-size: 0.9rem;">
-                            <div><span style="color: #dc2626;">●</span> High Risk Areas</div>
+                            <div><span style="color: #dc2626;">●</span> High Risk</div>
                             <div><span style="color: #f59e0b;">●</span> Moderate Risk</div>
                             <div><span style="color: #10b981;">●</span> Low Risk</div>
-                            <div><span style="color: #6b7280;">●</span> No Data</div>
                         </div>
                     </div>
                     
-                    <!-- Interactive Map Simulation -->
-                    <div style="position: absolute; top: 120px; left: 10px; right: 10px; bottom: 80px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 1rem; overflow: hidden;">
-                        <div style="width: 100%; height: 100%; position: relative; background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTAwIiBoZWlnaHQ9IjUwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8IS0tIFNpbXBsaWZpZWQgd29ybGQgbWFwIC0tPgogIDxjaXJjbGUgY3g9IjIwMCIgY3k9IjEwMCIgcj0iMTUiIGZpbGw9IiNkYzI2MjYiIG9wYWNpdHk9IjAuNyIgLz4gPCEtLSBOZXcgWW9yayAtLT4KICA8Y2lyY2xlIGN4PSI0MDAiIGN5PSIxNTAiIHI9IjEyIiBmaWxsPSIjZjU5ZTBiIiBvcGFjaXR5PSIwLjciIC8+IDwhLS0gTG9uZG9uIC0tPgogIDxjaXJjbGUgY3g9IjcwMCIgY3k9IjIwMCIgcj0iMTgiIGZpbGw9IiNkYzI2MjYiIG9wYWNpdHk9IjAuNyIgLz4gPCEtLSBUb2t5byAtLT4KICA8Y2lyY2xlIGN4PSIxNTAiIGN5PSIzMDAiIHI9IjEwIiBmaWxsPSIjMTBiOTgxIiBvcGFjaXR5PSIwLjciIC8+IDwhLS0gTGltYSAtLT4KICA8Y2lyY2xlIGN4PSI1MDAiIGN5PSIzNTAiIHI9IjE0IiBmaWxsPSIjZjU5ZTBiIiBvcGFjaXR5PSIwLjciIC8+IDwhLS0gTXVtYmFpIC0tPgogIDx0ZXh0IHg9IjQ1MCIgeT0iMjUwIiBmb250LWZhbWlseT0iSW50ZXIsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2Yjcy4eMCI+SW50ZXJhY3RpdmUgRGF0YSBPdmVybGF5czwvdGV4dD4KPC9zdmc+') no-repeat center; background-size: contain;">
-                            <!-- Hotspot overlays -->
-                            <div style="position: absolute; top: 20%; left: 22%; width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle, rgba(220,38,38,0.8) 0%, rgba(220,38,38,0.3) 70%, transparent 100%); cursor: pointer;" 
-                                 onclick="showLocationDetails('New York', 'COVID-19 Variant Surge', '2,341 cases', 'high')" 
-                                 title="New York, NY - High Alert"></div>
-                            <div style="position: absolute; top: 30%; left: 44%; width: 24px; height: 24px; border-radius: 50%; background: radial-gradient(circle, rgba(245,158,11,0.8) 0%, rgba(245,158,11,0.3) 70%, transparent 100%); cursor: pointer;" 
-                                 onclick="showLocationDetails('London', 'Flu Season Peak', '856 cases', 'moderate')" 
-                                 title="London, UK - Moderate"></div>
-                            <div style="position: absolute; top: 40%; left: 77%; width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle, rgba(220,38,38,0.8) 0%, rgba(220,38,38,0.3) 70%, transparent 100%); cursor: pointer;" 
-                                 onclick="showLocationDetails('Tokyo', 'STI Outbreak', '1,789 cases', 'high')" 
-                                 title="Tokyo, Japan - Critical"></div>
-                        </div>
+                    <!-- Leaflet Map Container -->
+                    <div id="leafletMap" style="position: absolute; top: 100px; left: 10px; right: 10px; bottom: 80px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                     </div>
                     
                     <!-- Stats Panel -->
-                    <div style="position: absolute; bottom: 10px; left: 10px; right: 10px; background: rgba(255,255,255,0.95); padding: 1rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <div style="position: absolute; bottom: 10px; left: 10px; right: 10px; background: rgba(255,255,255,0.95); padding: 1rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 1000;">
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; text-align: center;">
                             <div>
                                 <div style="font-size: 1.5rem; font-weight: bold; color: var(--error-color);">47,382</div>
@@ -1206,8 +1207,11 @@ class DiseaseZoneApp {
                     </div>
                 </div>
             `;
-            
-            container.innerHTML = mapHTML;
+
+            // Wait for DOM to be ready
+            setTimeout(() => {
+                this.initializeLeafletMap(provider);
+            }, 100);
             
         } catch (error) {
             console.error('Failed to load disease map:', error);
@@ -1215,10 +1219,129 @@ class DiseaseZoneApp {
                 <div style="text-align: center; color: var(--error-color); padding: 2rem;">
                     <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
                     <h4>Map Loading Error</h4>
-                    <p>Unable to load disease surveillance data. Please try again.</p>
+                    <p>${error.message || 'Unable to load disease surveillance data.'}</p>
                     <button class="btn btn-primary" onclick="switchMapProvider('${provider}')">
                         <i class="fas fa-redo"></i> Retry
                     </button>
+                </div>
+            `;
+        }
+    }
+
+    initializeLeafletMap(provider) {
+        try {
+            // Destroy existing map if it exists
+            if (this.currentMap) {
+                this.currentMap.remove();
+                this.currentMap = null;
+            }
+
+            // Initialize Leaflet map
+            const map = L.map('leafletMap').setView([20, 0], 2);
+            this.currentMap = map;
+
+            // Choose tile layer based on provider
+            let tileLayer;
+            switch (provider) {
+                case 'mapbox':
+                    // Note: In production, you would use your Mapbox token
+                    tileLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+                        attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                        maxZoom: 18
+                    });
+                    break;
+                case 'google':
+                    // For demo purposes, using OpenStreetMap
+                    tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap contributors (Google Maps style)',
+                        maxZoom: 19
+                    });
+                    break;
+                default: // osm
+                    tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                        maxZoom: 19
+                    });
+            }
+
+            tileLayer.addTo(map);
+
+            // Disease outbreak data
+            const outbreakData = [
+                { name: 'New York, NY', lat: 40.7128, lng: -74.0060, cases: 2341, disease: 'COVID-19 Variant Surge', severity: 'high' },
+                { name: 'London, UK', lat: 51.5074, lng: -0.1278, cases: 856, disease: 'Flu Season Peak', severity: 'moderate' },
+                { name: 'Tokyo, Japan', lat: 35.6762, lng: 139.6503, cases: 1789, disease: 'STI Outbreak', severity: 'high' },
+                { name: 'Sydney, Australia', lat: -33.8688, lng: 151.2093, cases: 423, disease: 'Hepatitis A', severity: 'moderate' },
+                { name: 'São Paulo, Brazil', lat: -23.5558, lng: -46.6396, cases: 1205, disease: 'Dengue Fever', severity: 'high' },
+                { name: 'Mumbai, India', lat: 19.0760, lng: 72.8777, cases: 967, disease: 'Tuberculosis', severity: 'moderate' },
+                { name: 'Lagos, Nigeria', lat: 6.5244, lng: 3.3792, cases: 634, disease: 'Meningitis', severity: 'moderate' },
+                { name: 'Mexico City, Mexico', lat: 19.4326, lng: -99.1332, cases: 445, disease: 'Influenza', severity: 'low' }
+            ];
+
+            // Add markers for each outbreak
+            outbreakData.forEach(outbreak => {
+                const color = outbreak.severity === 'high' ? '#dc2626' : outbreak.severity === 'moderate' ? '#f59e0b' : '#10b981';
+                const radius = outbreak.severity === 'high' ? 15 : outbreak.severity === 'moderate' ? 12 : 8;
+
+                const circle = L.circleMarker([outbreak.lat, outbreak.lng], {
+                    color: color,
+                    fillColor: color,
+                    fillOpacity: 0.7,
+                    radius: radius,
+                    weight: 2
+                }).addTo(map);
+
+                // Add popup with outbreak details
+                const popupContent = `
+                    <div style="min-width: 200px;">
+                        <h4 style="margin: 0 0 8px 0; color: ${color};"><i class="fas fa-map-marker-alt"></i> ${outbreak.name}</h4>
+                        <div style="margin-bottom: 8px;"><strong>${outbreak.disease}</strong></div>
+                        <div style="margin-bottom: 8px; color: #666;">${outbreak.cases.toLocaleString()} cases</div>
+                        <div style="background: rgba(${outbreak.severity === 'high' ? '220,38,38' : outbreak.severity === 'moderate' ? '245,158,11' : '16,185,129'}, 0.1); padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                            <strong>Alert Level:</strong> ${outbreak.severity.charAt(0).toUpperCase() + outbreak.severity.slice(1)}
+                        </div>
+                        <div style="text-align: center; margin-top: 10px;">
+                            <button onclick="showView('surveillance'); closeModal('diseaseMapModal');" style="background: ${color}; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                circle.bindPopup(popupContent);
+
+                // Add click event
+                circle.on('click', () => {
+                    circle.openPopup();
+                });
+            });
+
+            // Add legend
+            const legend = L.control({ position: 'bottomright' });
+            legend.onAdd = function(map) {
+                const div = L.DomUtil.create('div', 'info legend');
+                div.style.cssText = 'background: rgba(255,255,255,0.9); padding: 10px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);';
+                div.innerHTML = `
+                    <div style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">Disease Outbreaks</div>
+                    <div style="font-size: 11px;">
+                        <div><span style="color: #dc2626;">●</span> High Risk (1000+ cases)</div>
+                        <div><span style="color: #f59e0b;">●</span> Moderate (500-999 cases)</div>
+                        <div><span style="color: #10b981;">●</span> Low Risk (<500 cases)</div>
+                    </div>
+                `;
+                return div;
+            };
+            legend.addTo(map);
+
+        } catch (error) {
+            console.error('Error initializing Leaflet map:', error);
+            document.getElementById('leafletMap').innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f8f9fa;">
+                    <div style="text-align: center; color: #dc2626;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <div>Map initialization failed</div>
+                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">${error.message}</div>
+                    </div>
                 </div>
             `;
         }
