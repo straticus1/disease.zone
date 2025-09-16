@@ -10,6 +10,7 @@ all:
         project_name: diseasezone
         environment: prod
         domain_name: disease.zone
+        secondary_domain: disease.app
 
         # ECR and ECS configuration
         ecr_repository_name: "{{ project_name }}-{{ environment }}"

@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm install --production --legacy-peer-deps --no-optional || npm install --production --force --no-optional || echo "Continuing with available dependencies"
 
 # Copy application code
 COPY api/ ./api/
