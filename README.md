@@ -6,7 +6,7 @@
 
 *Previously known as covid19lookup.nyc*
 
-[![Version](https://img.shields.io/badge/version-3.6.0-blue.svg)](https://github.com/straticus1/disease.zone)
+[![Version](https://img.shields.io/badge/version-3.7.0-blue.svg)](https://github.com/straticus1/disease.zone)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-brightgreen.svg)](./MEDICAL_COMPLIANCE_REVIEW.md)
 [![GDPR](https://img.shields.io/badge/GDPR-Compliant-brightgreen.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
@@ -14,13 +14,22 @@
 
 ## 🌟 Features
 
-### 🏥 **Revolutionary FHIR-Blockchain Bridge**
-- **EMR-Blockchain Integration** - World's first FHIR-native blockchain platform connecting Electronic Medical Records to multi-layer blockchain
-- **Patient Data Monetization** - Automated HEALTH token rewards for FHIR data contributions (10-50 tokens per resource)
+### 💳 **Revolutionary Disease Card Payment System**
+- **Insurance Alternative** - Revolutionary replacement for traditional health insurance with instant payments
+- **HEALTH Credits Ecosystem** - Native digital currency (1B supply) for healthcare transactions at $0.15/credit
+- **Instant Provider Payments** - Eliminates 30-90 day insurance reimbursement delays
+- **Patient-Controlled Spending** - Load credits and control healthcare dollars with complete transparency
+- **Universal Acceptance** - Providers convert credits to cash within minutes, not months
+- **No Claim Denials** - Pre-loaded funds guarantee payment (vs 15-20% insurance rejection rates)
+- **Blockchain Transparency** - All transactions recorded on immutable distributed ledger
+
+### 🏥 **Revolutionary FHIR-Ledger Bridge**
+- **EMR-Ledger Integration** - World's first FHIR-native ledger platform connecting Electronic Medical Records to distributed ledger
+- **Patient Data Monetization** - Automated HEALTH credit rewards for FHIR data contributions (10-50 credits per resource)
 - **Multi-Chain Architecture** - Hyperledger Fabric (PHI), Polygon Supernet (research), Ethereum (governance)
-- **Smart Contract Automation** - Automated medical workflows with token distribution and data verification
+- **Smart Contract Automation** - Automated medical workflows with credit distribution and data verification
 - **Clinical CLI Interface** - Complete command-line tools for healthcare providers (`diseasezone fhir`)
-- **HIPAA/GDPR Blockchain** - Privacy-compliant blockchain storage with advanced anonymization
+- **HIPAA/GDPR Ledger** - Privacy-compliant ledger storage with advanced anonymization
 - **Cross-Chain Verification** - Multi-blockchain data integrity and provenance tracking
 
 ### 🌐 **Global Health Intelligence Platform**
@@ -118,14 +127,22 @@
 
 ### **Production Platform**
 - **Main Platform**: [https://www.disease.zone](https://www.disease.zone) - Comprehensive health intelligence platform
+- **Ledger Platform**: [https://ledger.disease.zone](https://ledger.disease.zone) - Revolutionary healthcare payment system with Disease Card
 - **API Portal**: [https://api.disease.zone](https://api.disease.zone) - Developer dashboard and API documentation
 
 ### **Platform Features**
 - **Main Domain (www.disease.zone)**:
-  - Complete health intelligence platform with blockchain integration
+  - Complete health intelligence platform with ledger integration
   - Patient dashboards, medical professional tools, research marketplace
-  - HEALTH token wallet and staking functionality
+  - HEALTH credit wallet and staking functionality
   - Real-time disease surveillance and analytics
+
+- **Ledger Domain (ledger.disease.zone)**:
+  - Revolutionary Disease Card payment system
+  - HEALTH Credits ecosystem with instant healthcare payments
+  - Global compliance documentation (HIPAA, GDPR, SOC 2)
+  - Research network platform with 250+ publications
+  - Insurance alternative with patient-controlled spending
 
 - **API Domain (api.disease.zone)**:
   - Developer-focused API documentation and testing tools

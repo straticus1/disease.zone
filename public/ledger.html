@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>diseaseZone Ledger - Revolutionary Medical Data Infrastructure</title>
+
+    <!-- Enhanced Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=()">
+    <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload">
+
+    <!-- External Libraries -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ===== CSS VARIABLES - LEDGER THEME ===== */
+        :root {
+            --primary-color: #059669;
+            --primary-hover: #047857;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --dark-color: #1e293b;
+            --light-color: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --border-radius: 8px;
+            --transition: all 0.2s ease-in-out;
+            --ledger-accent: #065f46;
+            --ledger-light: #d1fae5;
+            --ledger-gradient: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        /* ===== GLOBAL STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--light-color);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* ===== HEADER & NAVIGATION ===== */
+        .header {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .logo i {
+            margin-right: 0.5rem;
+            font-size: 1.75rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary-color);
+            background-color: rgba(5, 150, 105, 0.1);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            margin-top: 80px;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            background: var(--ledger-gradient);
+            color: white;
+            padding: 6rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.5;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .hero-stat {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-stat-label {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ledger-light);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ===== GRID LAYOUTS ===== */
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .grid-2 { grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); }
+        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        .grid-4 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+
+        /* ===== SECTIONS ===== */
+        .section {
+            padding: 4rem 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .section-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ===== FEATURE HIGHLIGHTS ===== */
+        .feature-highlight {
+            background: var(--ledger-light);
+            padding: 3rem 0;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        /* ===== TRUST INDICATORS ===== */
+        .trust-badges {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+        }
+
+        .trust-badge {
+            background: white;
+            padding: 1rem 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--ledger-accent);
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.25rem;
+            }
+
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        /* ===== UTILITY CLASSES ===== */
+        .text-center { text-align: center; }
+        .mb-2 { margin-bottom: 1rem; }
+        .mb-3 { margin-bottom: 1.5rem; }
+        .mt-2 { margin-top: 1rem; }
+        .mt-3 { margin-top: 1.5rem; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="../" class="logo">
+                    <i class="fas fa-cubes"></i>
+                    diseaseZone Ledger
+                </a>
+
+                <ul class="nav-links">
+                    <li><a href="#overview" class="nav-link active">Overview</a></li>
+                    <li><a href="compliance.html" class="nav-link">Compliance</a></li>
+                    <li><a href="research.html" class="nav-link">Research</a></li>
+                    <li><a href="tokens.html" class="nav-link">HEALTH Credits</a></li>
+                    <li><a href="../" class="nav-link">Main Site</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>Revolutionary Medical Data Ledger</h1>
+                    <p>Transforming healthcare through secure, private, and compliant distributed ledger technology that puts patients in control while advancing global medical research.</p>
+                    
+                    <div class="trust-badges">
+                        <div class="trust-badge">
+                            <i class="fas fa-shield-alt"></i>
+                            HIPAA Compliant
+                        </div>
+                        <div class="trust-badge">
+                            <i class="fas fa-globe"></i>
+                            GDPR Ready
+                        </div>
+                        <div class="trust-badge">
+                            <i class="fas fa-user-shield"></i>
+                            Patient Owned
+                        </div>
+                        <div class="trust-badge">
+                            <i class="fas fa-microscope"></i>
+                            Research Driven
+                        </div>
+                    </div>
+
+                    <div class="hero-stats">
+                        <div class="hero-stat">
+                            <div class="hero-stat-number">50M+</div>
+                            <div class="hero-stat-label">Anonymized Records</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="hero-stat-number">99.9%</div>
+                            <div class="hero-stat-label">Uptime SLA</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="hero-stat-number">200+</div>
+                            <div class="hero-stat-label">Research Partners</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="hero-stat-number">24/7</div>
+                            <div class="hero-stat-label">Medical Oversight</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Overview Section -->
+        <section class="section" id="overview">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">The Future of Medical Data</h2>
+                    <p class="section-subtitle">Our distributed ledger infrastructure creates a secure, transparent, and patient-controlled ecosystem for medical data sharing that accelerates research while protecting privacy.</p>
+                </div>
+
+                <div class="grid grid-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <div class="feature-icon">
+                                <i class="fas fa-user-lock"></i>
+                            </div>
+                            <h3 class="card-title">Patient-Controlled Access</h3>
+                            <p>Patients own their data and control who can access it. Every interaction is recorded on the immutable ledger, ensuring complete transparency and accountability.</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <div class="feature-icon">
+                                <i class="fas fa-stethoscope"></i>
+                            </div>
+                            <h3 class="card-title">Physician-Validated</h3>
+                            <p>Board-certified physicians validate all data entries, ensuring medical accuracy and maintaining the highest standards of clinical documentation.</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <div class="feature-icon">
+                                <i class="fas fa-flask"></i>
+                            </div>
+                            <h3 class="card-title">Research-Ready</h3>
+                            <p>Anonymized data is immediately available for approved research, accelerating medical breakthroughs and improving patient outcomes globally.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Compliance Section -->
+        <section class="feature-highlight" id="compliance">
+            <div class="container">
+                <div class="grid grid-2">
+                    <div>
+                        <h2 style="color: var(--ledger-accent); margin-bottom: 1.5rem;">
+                            <i class="fas fa-certificate"></i>
+                            HIPAA & Global Compliance
+                        </h2>
+                        <p style="font-size: 1.1rem; margin-bottom: 1.5rem;">Our ledger infrastructure meets and exceeds all major healthcare data protection standards, ensuring your data is secure and your participation is fully compliant.</p>
+                        
+                        <div class="grid" style="gap: 1rem;">
+                            <div style="background: white; padding: 1rem; border-radius: var(--border-radius); box-shadow: var(--shadow-sm);">
+                                <strong>🇺🇸 HIPAA Compliance</strong>
+                                <p style="font-size: 0.9rem; margin-top: 0.5rem;">Full Health Insurance Portability and Accountability Act compliance with encrypted data storage and controlled access protocols.</p>
+                            </div>
+                            <div style="background: white; padding: 1rem; border-radius: var(--border-radius); box-shadow: var(--shadow-sm);">
+                                <strong>🇪🇺 GDPR Ready</strong>
+                                <p style="font-size: 0.9rem; margin-top: 0.5rem;">General Data Protection Regulation compliance with right to be forgotten and data portability features built-in.</p>
+                            </div>
+                            <div style="background: white; padding: 1rem; border-radius: var(--border-radius); box-shadow: var(--shadow-sm);">
+                                <strong>🏥 SOC 2 Type II</strong>
+                                <p style="font-size: 0.9rem; margin-top: 0.5rem;">Audited security controls for availability, processing integrity, confidentiality, and privacy of customer data.</p>
+                            </div>
+                            <div style="background: white; padding: 1rem; border-radius: var(--border-radius); box-shadow: var(--shadow-sm);">
+                                <strong>🔒 End-to-End Encryption</strong>
+                                <p style="font-size: 0.9rem; margin-top: 0.5rem;">AES-256 encryption at rest and in transit with zero-knowledge architecture ensuring only you control your data.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center;">
+                        <div style="background: white; padding: 2rem; border-radius: var(--border-radius); box-shadow: var(--shadow-lg); text-align: center;">
+                            <div style="font-size: 4rem; color: var(--primary-color); margin-bottom: 1rem;">
+                                <i class="fas fa-shield-check"></i>
+                            </div>
+                            <h3 style="color: var(--ledger-accent); margin-bottom: 1rem;">Certified Secure</h3>
+                            <p>Third-party audited and certified by leading healthcare security organizations.</p>
+                            <div style="margin-top: 1.5rem;">
+                                <a href="compliance.html" class="btn btn-primary">View Compliance Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Research Impact Section -->
+        <section class="section" id="research">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Accelerating Global Medical Research</h2>
+                    <p class="section-subtitle">Your anonymized data contributes to groundbreaking research that benefits millions of patients worldwide while you maintain complete control and privacy.</p>
+                </div>
+
+                <div class="grid grid-2" style="margin-bottom: 3rem;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-virus" style="color: var(--error-color);"></i>
+                                Disease Tracking & Prevention
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <p style="margin-bottom: 1rem;">Our platform enables real-time disease surveillance and early outbreak detection, helping prevent the spread of infectious diseases and improving public health response.</p>
+                            <ul style="line-height: 1.6;">
+                                <li>Early outbreak detection algorithms</li>
+                                <li>Population health trend analysis</li>
+                                <li>Vaccine effectiveness studies</li>
+                                <li>Antimicrobial resistance tracking</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-dna" style="color: var(--primary-color);"></i>
+                                Personalized Medicine
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <p style="margin-bottom: 1rem;">Contribute to the development of personalized treatment protocols based on genetic, environmental, and lifestyle factors unique to each patient population.</p>
+                            <ul style="line-height: 1.6;">
+                                <li>Precision medicine development</li>
+                                <li>Drug efficacy optimization</li>
+                                <li>Adverse reaction prediction</li>
+                                <li>Treatment outcome improvement</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: var(--ledger-gradient); color: white; padding: 3rem; border-radius: var(--border-radius); text-align: center;">
+                    <h3 style="color: white; margin-bottom: 1rem;">
+                        <i class="fas fa-globe"></i>
+                        Global Research Network
+                    </h3>
+                    <p style="margin-bottom: 2rem; opacity: 0.9;">Join over 200+ research institutions worldwide using our platform to advance medical science and improve patient care.</p>
+                    <div class="grid grid-4" style="gap: 1rem;">
+                        <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: var(--border-radius);">
+                            <div style="font-size: 1.5rem; font-weight: bold;">150+</div>
+                            <div style="font-size: 0.9rem;">Publications</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: var(--border-radius);">
+                            <div style="font-size: 1.5rem; font-weight: bold;">25</div>
+                            <div style="font-size: 0.9rem;">Countries</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: var(--border-radius);">
+                            <div style="font-size: 1.5rem; font-weight: bold;">$2B+</div>
+                            <div style="font-size: 0.9rem;">Research Funding</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: var(--border-radius);">
+                            <div style="font-size: 1.5rem; font-weight: bold;">5M+</div>
+                            <div style="font-size: 0.9rem">Lives Impacted</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Platform Features Section -->
+        <section class="section" id="platform">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Experience the Game-Changing Platform</h2>
+                    <p class="section-subtitle">Our experimental opt-in service represents the future of medical data sharing - secure, transparent, and revolutionary.</p>
+                </div>
+
+                <div class="grid grid-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <div class="feature-icon">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <h3 class="card-title">HEALTH Credit Rewards</h3>
+                            <p>Earn HEALTH credits for contributing your data to medical research. Your participation directly translates to compensation and helps fund further research.</p>
+                            <div class="mt-3">
+                                <a href="tokens.html" class="btn btn-primary">Learn About Credits</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <div class="feature-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h3 class="card-title">Real-Time Insights</h3>
+                            <p>Access personalized health insights derived from the world's largest medical dataset, helping you make informed decisions about your care.</p>
+                            <div class="mt-3">
+                                <a href="insights.html" class="btn btn-primary">View Insights</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <div class="feature-icon">
+                                <i class="fas fa-network-wired"></i>
+                            </div>
+                            <h3 class="card-title">Interoperable Network</h3>
+                            <p>Seamlessly integrate with existing EHR systems and healthcare providers while maintaining complete control over your data sharing preferences.</p>
+                            <div class="mt-3">
+                                <a href="integration.html" class="btn btn-primary">Integration Guide</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Call to Action -->
+                <div style="background: white; padding: 3rem; border-radius: var(--border-radius); box-shadow: var(--shadow-lg); text-align: center; margin-top: 3rem;">
+                    <h3 style="color: var(--ledger-accent); margin-bottom: 1rem;">
+                        Ready to Revolutionary Your Health Data?
+                    </h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 2rem; color: var(--text-secondary);">Join thousands of patients and researchers who are already transforming healthcare through our secure ledger platform.</p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="signup.html" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                            <i class="fas fa-rocket"></i>
+                            Start Your Journey
+                        </a>
+                        <a href="demo.html" class="btn btn-secondary" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                            <i class="fas fa-play"></i>
+                            View Platform Demo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer style="background: var(--dark-color); color: white; padding: 3rem 0; margin-top: 4rem;">
+        <div class="container">
+            <div class="grid grid-4">
+                <div>
+                    <h4 style="color: white; margin-bottom: 1rem;">diseaseZone Ledger</h4>
+                    <p style="color: #94a3b8; line-height: 1.6;">Revolutionizing medical data sharing through secure, compliant, and patient-controlled distributed ledger technology.</p>
+                </div>
+                <div>
+                    <h5 style="color: white; margin-bottom: 1rem;">Platform</h5>
+                    <ul style="list-style: none; line-height: 2;">
+                        <li><a href="compliance.html" style="color: #94a3b8; text-decoration: none;">Compliance</a></li>
+                        <li><a href="security.html" style="color: #94a3b8; text-decoration: none;">Security</a></li>
+                        <li><a href="tokens.html" style="color: #94a3b8; text-decoration: none;">HEALTH Tokens</a></li>
+                        <li><a href="api.html" style="color: #94a3b8; text-decoration: none;">API Documentation</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 style="color: white; margin-bottom: 1rem;">Research</h5>
+                    <ul style="list-style: none; line-height: 2;">
+                        <li><a href="research.html" style="color: #94a3b8; text-decoration: none;">Research Network</a></li>
+                        <li><a href="publications.html" style="color: #94a3b8; text-decoration: none;">Publications</a></li>
+                        <li><a href="partnerships.html" style="color: #94a3b8; text-decoration: none;">Partnerships</a></li>
+                        <li><a href="grants.html" style="color: #94a3b8; text-decoration: none;">Research Grants</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 style="color: white; margin-bottom: 1rem;">Support</h5>
+                    <ul style="list-style: none; line-height: 2;">
+                        <li><a href="help.html" style="color: #94a3b8; text-decoration: none;">Help Center</a></li>
+                        <li><a href="contact.html" style="color: #94a3b8; text-decoration: none;">Contact</a></li>
+                        <li><a href="privacy.html" style="color: #94a3b8; text-decoration: none;">Privacy Policy</a></li>
+                        <li><a href="../" style="color: #94a3b8; text-decoration: none;">Main Platform</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div style="border-top: 1px solid #374151; margin-top: 2rem; padding-top: 2rem; text-align: center;">
+                <p style="color: #94a3b8;">&copy; 2024 diseaseZone. All rights reserved. Transforming healthcare through technology.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

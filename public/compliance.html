@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HIPAA & Global Compliance - diseaseZone Ledger</title>
+
+    <!-- Enhanced Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+
+    <!-- External Libraries -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Import ledger theme styles */
+        :root {
+            --primary-color: #059669;
+            --primary-hover: #047857;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --dark-color: #1e293b;
+            --light-color: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --border-radius: 8px;
+            --transition: all 0.2s ease-in-out;
+            --ledger-accent: #065f46;
+            --ledger-light: #d1fae5;
+            --ledger-gradient: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--light-color);
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .logo i { margin-right: 0.5rem; font-size: 1.75rem; }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary-color);
+            background-color: rgba(5, 150, 105, 0.1);
+        }
+
+        .main-content {
+            margin-top: 80px;
+            padding: 2rem 0;
+        }
+
+        .hero {
+            background: var(--ledger-gradient);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--ledger-light);
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--ledger-accent);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .compliance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .requirement-list {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .requirement-list li {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: #f0f9ff;
+            border-left: 4px solid var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .requirement-list li::before {
+            content: "✓";
+            color: var(--success-color);
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .certification-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--ledger-gradient);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin: 0.25rem;
+        }
+
+        .audit-timeline {
+            position: relative;
+            padding: 1rem 0;
+        }
+
+        .audit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .audit-date {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .audit-content {
+            flex: 1;
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .section { margin: 3rem 0; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="ledger.html" class="logo">
+                    <i class="fas fa-cubes"></i>
+                    diseaseZone Ledger
+                </a>
+                <ul class="nav-links">
+                    <li><a href="ledger.html">Overview</a></li>
+                    <li><a href="compliance.html" class="active">Compliance</a></li>
+                    <li><a href="research.html">Research</a></li>
+                    <li><a href="tokens.html">HEALTH Credits</a></li>
+                    <li><a href="../">Main Site</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <h1><i class="fas fa-shield-check"></i> Global Compliance Standards</h1>
+                <p>Our distributed ledger infrastructure exceeds international healthcare data protection standards, ensuring your medical data is secure, compliant, and always under your control.</p>
+            </div>
+        </section>
+
+        <!-- Compliance Overview -->
+        <section class="container">
+            <div class="compliance-grid">
+                <!-- HIPAA Compliance -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="fas fa-flag-usa" style="color: #dc2626;"></i>
+                            HIPAA Compliance
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Health Insurance Portability and Accountability Act</strong> compliance ensures that all Protected Health Information (PHI) is secured according to U.S. federal standards.</p>
+                        
+                        <h4 style="margin: 1.5rem 0 1rem 0; color: var(--ledger-accent);">Administrative Safeguards</h4>
+                        <ul class="requirement-list">
+                            <li>Assigned Security Officer with HIPAA expertise</li>
+                            <li>Workforce training and access management</li>
+                            <li>Information access management protocols</li>
+                            <li>Security awareness and training programs</li>
+                            <li>Security incident procedures and monitoring</li>
+                            <li>Contingency plan and data backup procedures</li>
+                        </ul>
+
+                        <h4 style="margin: 1.5rem 0 1rem 0; color: var(--ledger-accent);">Physical Safeguards</h4>
+                        <ul class="requirement-list">
+                            <li>Facility access controls and monitoring</li>
+                            <li>Workstation use restrictions and policies</li>
+                            <li>Device and media controls for PHI storage</li>
+                        </ul>
+
+                        <h4 style="margin: 1.5rem 0 1rem 0; color: var(--ledger-accent);">Technical Safeguards</h4>
+                        <ul class="requirement-list">
+                            <li>Unique user identification and automatic logoff</li>
+                            <li>Encryption and decryption of PHI</li>
+                            <li>Audit controls and integrity monitoring</li>
+                            <li>Person or entity authentication</li>
+                            <li>Transmission security and end-to-end encryption</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- GDPR Compliance -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="fas fa-european-union" style="color: #2563eb;"></i>
+                            GDPR Ready
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>General Data Protection Regulation</strong> compliance ensures data protection and privacy rights for individuals within the European Union and European Economic Area.</p>
+
+                        <h4 style="margin: 1.5rem 0 1rem 0; color: var(--ledger-accent);">Core Principles</h4>
+                        <ul class="requirement-list">
+                            <li>Lawful, fair, and transparent processing</li>
+                            <li>Purpose limitation and data minimization</li>
+                            <li>Accuracy and storage limitation</li>
+                            <li>Integrity, confidentiality, and accountability</li>
+                        </ul>
+
+                        <h4 style="margin: 1.5rem 0 1rem 0; color: var(--ledger-accent);">Individual Rights</h4>
+                        <ul class="requirement-list">
+                            <li>Right to be informed about data processing</li>
+                            <li>Right of access to personal data</li>
+                            <li>Right to rectification of inaccurate data</li>
+                            <li>Right to erasure ("right to be forgotten")</li>
+                            <li>Right to restrict processing</li>
+                            <li>Right to data portability</li>
+                            <li>Right to object to processing</li>
+                        </ul>
+
+                        <h4 style="margin: 1.5rem 0 1rem 0; color: var(--ledger-accent);">Technical Measures</h4>
+                        <ul class="requirement-list">
+                            <li>Privacy by design and by default</li>
+                            <li>Data Protection Impact Assessments (DPIA)</li>
+                            <li>Appointment of Data Protection Officer</li>
+                            <li>Breach notification within 72 hours</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Certifications -->
+            <div class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="fas fa-certificate"></i>
+                            Additional Certifications & Standards
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div style="margin-bottom: 2rem;">
+                            <h4 style="color: var(--ledger-accent); margin-bottom: 1rem;">Industry Certifications</h4>
+                            <div>
+                                <span class="certification-badge"><i class="fas fa-hospital"></i> SOC 2 Type II</span>
+                                <span class="certification-badge"><i class="fas fa-shield-alt"></i> ISO 27001</span>
+                                <span class="certification-badge"><i class="fas fa-lock"></i> FedRAMP Authorized</span>
+                                <span class="certification-badge"><i class="fas fa-globe"></i> Cloud Security Alliance</span>
+                                <span class="certification-badge"><i class="fas fa-user-shield"></i> Privacy Shield Certified</span>
+                            </div>
+                        </div>
+
+                        <div class="compliance-grid">
+                            <div>
+                                <h4 style="color: var(--ledger-accent); margin-bottom: 1rem;">Healthcare Specific</h4>
+                                <ul class="requirement-list">
+                                    <li>HL7 FHIR R4 compliant data exchange</li>
+                                    <li>21 CFR Part 11 electronic records compliance</li>
+                                    <li>ICD-10/11 medical coding standards</li>
+                                    <li>DICOM imaging data security protocols</li>
+                                    <li>Clinical Data Interchange Standards Consortium (CDISC)</li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h4 style="color: var(--ledger-accent); margin-bottom: 1rem;">International Standards</h4>
+                                <ul class="requirement-list">
+                                    <li>Canada's Personal Information Protection and Electronic Documents Act (PIPEDA)</li>
+                                    <li>Australia's Privacy Act 1988</li>
+                                    <li>Japan's Personal Information Protection Act (PIPA)</li>
+                                    <li>Singapore's Personal Data Protection Act (PDPA)</li>
+                                    <li>Brazil's Lei Geral de Proteção de Dados (LGPD)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Architecture -->
+            <div class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="fas fa-network-wired"></i>
+                            Security Architecture
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="compliance-grid">
+                            <div>
+                                <h4 style="color: var(--ledger-accent); margin-bottom: 1rem;">Encryption Standards</h4>
+                                <ul class="requirement-list">
+                                    <li>AES-256 encryption at rest</li>
+                                    <li>TLS 1.3 for data in transit</li>
+                                    <li>End-to-end encryption for all PHI</li>
+                                    <li>Hardware Security Modules (HSM) for key management</li>
+                                    <li>Zero-knowledge architecture implementation</li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h4 style="color: var(--ledger-accent); margin-bottom: 1rem;">Access Controls</h4>
+                                <ul class="requirement-list">
+                                    <li>Multi-factor authentication (MFA) required</li>
+                                    <li>Role-based access control (RBAC)</li>
+                                    <li>Attribute-based access control (ABAC)</li>
+                                    <li>Single Sign-On (SSO) integration</li>
+                                    <li>Session management and timeout controls</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 2rem;">
+                            <h4 style="color: var(--ledger-accent); margin-bottom: 1rem;">Monitoring & Auditing</h4>
+                            <div class="compliance-grid">
+                                <div>
+                                    <ul class="requirement-list">
+                                        <li>Real-time security monitoring (SIEM)</li>
+                                        <li>Automated threat detection and response</li>
+                                        <li>Comprehensive audit logging</li>
+                                        <li>Blockchain-based immutable audit trails</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <ul class="requirement-list">
+                                        <li>Regular penetration testing</li>
+                                        <li>Vulnerability assessments</li>
+                                        <li>Security incident response procedures</li>
+                                        <li>24/7 security operations center (SOC)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audit Timeline -->
+            <div class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="fas fa-calendar-check"></i>
+                            Recent Audits & Certifications
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="audit-timeline">
+                            <div class="audit-item">
+                                <div class="audit-date">Oct 2024</div>
+                                <div class="audit-content">
+                                    <h4 style="color: var(--ledger-accent); margin-bottom: 0.5rem;">SOC 2 Type II Audit Completed</h4>
+                                    <p>Successfully completed annual SOC 2 Type II audit with zero findings. All security, availability, processing integrity, confidentiality, and privacy controls validated.</p>
+                                </div>
+                            </div>
+
+                            <div class="audit-item">
+                                <div class="audit-date">Sep 2024</div>
+                                <div class="audit-content">
+                                    <h4 style="color: var(--ledger-accent); margin-bottom: 0.5rem;">HIPAA Security Assessment</h4>
+                                    <p>Independent third-party HIPAA security assessment conducted. All administrative, physical, and technical safeguards verified and approved.</p>
+                                </div>
+                            </div>
+
+                            <div class="audit-item">
+                                <div class="audit-date">Jul 2024</div>
+                                <div class="audit-content">
+                                    <h4 style="color: var(--ledger-accent); margin-bottom: 0.5rem;">ISO 27001 Recertification</h4>
+                                    <p>ISO 27001 information security management system recertified. Enhanced security controls and risk management frameworks validated.</p>
+                                </div>
+                            </div>
+
+                            <div class="audit-item">
+                                <div class="audit-date">May 2024</div>
+                                <div class="audit-content">
+                                    <h4 style="color: var(--ledger-accent); margin-bottom: 0.5rem;">Penetration Testing</h4>
+                                    <p>Comprehensive penetration testing performed by certified ethical hackers. All vulnerabilities addressed and security posture strengthened.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact -->
+            <div class="section">
+                <div style="background: var(--ledger-gradient); color: white; padding: 3rem; border-radius: var(--border-radius); text-align: center;">
+                    <h3 style="color: white; margin-bottom: 1rem;">Questions About Our Compliance?</h3>
+                    <p style="margin-bottom: 2rem; opacity: 0.9;">Our compliance and security team is available to answer your questions and provide additional documentation.</p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="mailto:compliance@disease.zone" class="btn btn-secondary">
+                            <i class="fas fa-envelope"></i>
+                            Contact Compliance Team
+                        </a>
+                        <a href="security-audit-reports.html" class="btn" style="background: white; color: var(--primary-color);">
+                            <i class="fas fa-file-alt"></i>
+                            View Audit Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

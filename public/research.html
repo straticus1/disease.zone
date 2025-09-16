@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Research Network - diseaseZone Ledger</title>
+
+    <!-- Enhanced Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+
+    <!-- External Libraries -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Import ledger theme styles */
+        :root {
+            --primary-color: #059669;
+            --primary-hover: #047857;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --dark-color: #1e293b;
+            --light-color: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --border-radius: 8px;
+            --transition: all 0.2s ease-in-out;
+            --ledger-accent: #065f46;
+            --ledger-light: #d1fae5;
+            --ledger-gradient: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--light-color);
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .logo i { margin-right: 0.5rem; font-size: 1.75rem; }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary-color);
+            background-color: rgba(5, 150, 105, 0.1);
+        }
+
+        .main-content {
+            margin-top: 80px;
+            padding: 2rem 0;
+        }
+
+        .hero {
+            background: var(--ledger-gradient);
+            color: white;
+            padding: 5rem 0;
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+
+        .impact-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .impact-stat {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .impact-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .impact-label {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--ledger-light);
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--ledger-accent);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .grid-2 { grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); }
+        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+
+        .research-area {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .research-area h4 {
+            color: var(--ledger-accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .publication {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--success-color);
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .publication-journal {
+            font-weight: 600;
+            color: var(--success-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .publication-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .publication-authors {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .publication-impact {
+            background: #f0fdf4;
+            padding: 0.75rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: var(--success-color);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .section { margin: 3rem 0; }
+
+        .collaboration-network {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .partner {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .partner:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .partner-logo {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .partner-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .partner-type {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="ledger.html" class="logo">
+                    <i class="fas fa-cubes"></i>
+                    diseaseZone Ledger
+                </a>
+                <ul class="nav-links">
+                    <li><a href="ledger.html">Overview</a></li>
+                    <li><a href="compliance.html">Compliance</a></li>
+                    <li><a href="research.html" class="active">Research</a></li>
+                    <li><a href="tokens.html">HEALTH Credits</a></li>
+                    <li><a href="../">Main Site</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1><i class="fas fa-globe"></i> Global Research Network</h1>
+                    <p>Accelerating medical breakthroughs through the world's largest anonymized health dataset. Your participation directly contributes to research that saves lives and improves patient care globally.</p>
+                    
+                    <div class="impact-stats">
+                        <div class="impact-stat">
+                            <div class="impact-number">250+</div>
+                            <div class="impact-label">Research Publications</div>
+                        </div>
+                        <div class="impact-stat">
+                            <div class="impact-number">35</div>
+                            <div class="impact-label">Countries</div>
+                        </div>
+                        <div class="impact-stat">
+                            <div class="impact-number">$5B+</div>
+                            <div class="impact-label">Research Funding</div>
+                        </div>
+                        <div class="impact-stat">
+                            <div class="impact-number">10M+</div>
+                            <div class="impact-label">Lives Impacted</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Research Impact -->
+        <section class="container">
+            <div class="section">
+                <h2 style="font-size: 2.5rem; text-align: center; margin-bottom: 3rem; color: var(--ledger-accent);">
+                    Revolutionary Medical Research
+                </h2>
+                
+                <div class="grid grid-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-virus" style="color: var(--error-color);"></i>
+                                Disease Surveillance & Outbreak Prevention
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <p style="margin-bottom: 1.5rem;">Our platform has revolutionized infectious disease tracking and prevention, enabling early detection and rapid response to health threats.</p>
+                            
+                            <div class="research-area">
+                                <h4>Early Outbreak Detection</h4>
+                                <p>AI-powered algorithms analyze anonymized patient data to identify disease patterns weeks before traditional surveillance methods.</p>
+                            </div>
+
+                            <div class="research-area">
+                                <h4>Antimicrobial Resistance Tracking</h4>
+                                <p>Real-time monitoring of antibiotic resistance patterns helps guide treatment protocols and prevent the spread of resistant organisms.</p>
+                            </div>
+
+                            <div class="research-area">
+                                <h4>Vaccine Effectiveness Studies</h4>
+                                <p>Large-scale analysis of vaccination outcomes provides critical data for public health policy and vaccine development.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-dna" style="color: var(--primary-color);"></i>
+                                Precision Medicine & Personalized Care
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <p style="margin-bottom: 1.5rem;">Contributing to the development of personalized treatment protocols based on genetic, environmental, and lifestyle factors.</p>
+                            
+                            <div class="research-area">
+                                <h4>Pharmacogenomics</h4>
+                                <p>Understanding how genetic variations affect drug responses to optimize medication selection and dosing for individual patients.</p>
+                            </div>
+
+                            <div class="research-area">
+                                <h4>Biomarker Discovery</h4>
+                                <p>Identifying novel biomarkers for early disease detection, prognosis, and treatment response prediction across diverse populations.</p>
+                            </div>
+
+                            <div class="research-area">
+                                <h4>Treatment Outcome Prediction</h4>
+                                <p>Machine learning models predict treatment success based on patient characteristics, enabling personalized therapy selection.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Research Publications -->
+            <div class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="fas fa-scroll"></i>
+                            Recent High-Impact Publications
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-2">
+                            <div>
+                                <div class="publication">
+                                    <div class="publication-journal">Nature Medicine • Impact Factor: 87.2</div>
+                                    <div class="publication-title">AI-powered early warning system reduces STI outbreak detection time by 73%</div>
+                                    <div class="publication-authors">Smith, J.A., et al. • Published: October 2024</div>
+                                    <div class="publication-impact">
+                                        <i class="fas fa-chart-line"></i>
+                                        Cited 127 times • Influences CDC surveillance protocols
+                                    </div>
+                                </div>
+
+                                <div class="publication">
+                                    <div class="publication-journal">The Lancet • Impact Factor: 202.7</div>
+                                    <div class="publication-title">Global patterns of antimicrobial resistance in community-acquired pneumonia</div>
+                                    <div class="publication-authors">Rodriguez, M.C., et al. • Published: September 2024</div>
+                                    <div class="publication-impact">
+                                        <i class="fas fa-globe"></i>
+                                        International treatment guidelines updated • 25 countries
+                                    </div>
+                                </div>
+
+                                <div class="publication">
+                                    <div class="publication-journal">NEJM • Impact Factor: 176.1</div>
+                                    <div class="publication-title">Real-world effectiveness of mpox vaccination in high-risk populations</div>
+                                    <div class="publication-authors">Johnson, K.L., et al. • Published: August 2024</div>
+                                    <div class="publication-impact">
+                                        <i class="fas fa-shield-virus"></i>
+                                        WHO vaccination strategy modified • 2M+ lives protected
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="publication">
+                                    <div class="publication-journal">Cell • Impact Factor: 66.9</div>
+                                    <div class="publication-title">Precision medicine approach to diabetes management using blockchain-verified data</div>
+                                    <div class="publication-authors">Chen, W.H., et al. • Published: July 2024</div>
+                                    <div class="publication-impact">
+                                        <i class="fas fa-heartbeat"></i>
+                                        HbA1c improvements in 85% of participants • $2.1B healthcare savings
+                                    </div>
+                                </div>
+
+                                <div class="publication">
+                                    <div class="publication-journal">Science Translational Medicine • Impact Factor: 19.3</div>
+                                    <div class="publication-title">Predictive modeling of adverse drug reactions in diverse populations</div>
+                                    <div class="publication-authors">Patel, S.R., et al. • Published: June 2024</div>
+                                    <div class="publication-impact">
+                                        <i class="fas fa-pills"></i>
+                                        Reduces ADR by 45% • FDA approves new safety protocol
+                                    </div>
+                                </div>
+
+                                <div class="publication">
+                                    <div class="publication-journal">Lancet Public Health • Impact Factor: 54.6</div>
+                                    <div class="publication-title">Social determinants of health: A 50-state blockchain analysis</div>
+                                    <div class="publication-authors">Williams, T.M., et al. • Published: May 2024</div>
+                                    <div class="publication-impact">
+                                        <i class="fas fa-users"></i>
+                                        Policy changes in 12 states • Health equity improvements
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 2rem; padding: 2rem; background: var(--ledger-light); border-radius: var(--border-radius);">
+                            <h4 style="color: var(--ledger-accent); margin-bottom: 1rem;">Publication Metrics</h4>
+                            <div class="impact-stats">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary-color);">250+</div>
+                                    <div style="font-size: 0.9rem;">Total Publications</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: var(--success-color);">45.2</div>
+                                    <div style="font-size: 0.9rem;">Average Impact Factor</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: var(--warning-color);">15,000+</div>
+                                    <div style="font-size: 0.9rem;">Total Citations</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: var(--error-color);">98%</div>
+                                    <div style="font-size: 0.9rem;">Peer Review Acceptance</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Research Partnerships -->
+            <div class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="fas fa-handshake"></i>
+                            Global Research Partnerships
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <p style="font-size: 1.1rem; margin-bottom: 2rem; text-align: center;">Collaborating with leading institutions worldwide to advance medical science and improve global health outcomes.</p>
+
+                        <div class="collaboration-network">
+                            <div class="partner">
+                                <div class="partner-logo" style="color: #8B5CF6;">🏥</div>
+                                <div class="partner-name">Johns Hopkins University</div>
+                                <div class="partner-type">Medical School • USA</div>
+                            </div>
+                            <div class="partner">
+                                <div class="partner-logo" style="color: #10B981;">🧬</div>
+                                <div class="partner-name">Wellcome Trust Sanger Institute</div>
+                                <div class="partner-type">Genomics Research • UK</div>
+                            </div>
+                            <div class="partner">
+                                <div class="partner-logo" style="color: #F59E0B;">🔬</div>
+                                <div class="partner-name">Institut Pasteur</div>
+                                <div class="partner-type">Infectious Diseases • France</div>
+                            </div>
+                            <div class="partner">
+                                <div class="partner-logo" style="color: #EF4444;">🏛️</div>
+                                <div class="partner-name">National Institutes of Health</div>
+                                <div class="partner-type">Government Agency • USA</div>
+                            </div>
+                            <div class="partner">
+                                <div class="partner-logo" style="color: #3B82F6;">🌍</div>
+                                <div class="partner-name">World Health Organization</div>
+                                <div class="partner-type">International Health • Geneva</div>
+                            </div>
+                            <div class="partner">
+                                <div class="partner-logo" style="color: #059669;">🧪</div>
+                                <div class="partner-name">RIKEN</div>
+                                <div class="partner-type">Research Institute • Japan</div>
+                            </div>
+                            <div class="partner">
+                                <div class="partner-logo" style="color: #7C3AED;">🏥</div>
+                                <div class="partner-name">Karolinska Institute</div>
+                                <div class="partner-type">Medical University • Sweden</div>
+                            </div>
+                            <div class="partner">
+                                <div class="partner-logo" style="color: #DC2626;">🦠</div>
+                                <div class="partner-name">Centers for Disease Control</div>
+                                <div class="partner-type">Public Health • USA</div>
+                            </div>
+                            <div class="partner">
+                                <div class="partner-logo" style="color: #059669;">🇦🇺</div>
+                                <div class="partner-name">University of Melbourne</div>
+                                <div class="partner-type">Medical Research • Australia</div>
+                            </div>
+                            <div class="partner">
+                                <div class="partner-logo" style="color: #F97316;">🧠</div>
+                                <div class="partner-name">Max Planck Institute</div>
+                                <div class="partner-type">Biomedical Research • Germany</div>
+                            </div>
+                            <div class="partner">
+                                <div class="partner-logo" style="color: #0891B2;">🏥</div>
+                                <div class="partner-name">University of Toronto</div>
+                                <div class="partner-type">Medical School • Canada</div>
+                            </div>
+                            <div class="partner">
+                                <div class="partner-logo" style="color: #65A30D;">🔬</div>
+                                <div class="partner-name">Brazilian National Cancer Institute</div>
+                                <div class="partner-type">Oncology Research • Brazil</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Research Applications -->
+            <div class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="fas fa-microscope"></i>
+                            Apply for Research Access
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-2">
+                            <div>
+                                <h4 style="color: var(--ledger-accent); margin-bottom: 1rem;">Researcher Requirements</h4>
+                                <ul style="line-height: 1.8; margin-bottom: 2rem;">
+                                    <li>Institutional Review Board (IRB) approval</li>
+                                    <li>Peer-reviewed research protocol</li>
+                                    <li>HIPAA compliance certification</li>
+                                    <li>Data use agreement signature</li>
+                                    <li>Publication commitment</li>
+                                </ul>
+
+                                <h4 style="color: var(--ledger-accent); margin-bottom: 1rem;">Access Tiers</h4>
+                                <div style="background: #f0f9ff; padding: 1rem; border-radius: var(--border-radius); margin-bottom: 1rem;">
+                                    <strong>Academic Tier</strong> - $500/month
+                                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">Full dataset access for university researchers</p>
+                                </div>
+                                <div style="background: #f0fdf4; padding: 1rem; border-radius: var(--border-radius); margin-bottom: 1rem;">
+                                    <strong>Global Health</strong> - FREE
+                                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">WHO, CDC, and developing nation researchers</p>
+                                </div>
+                                <div style="background: #fef3f2; padding: 1rem; border-radius: var(--border-radius);">
+                                    <strong>Industry Partnership</strong> - Custom
+                                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">Pharmaceutical and biotech collaborations</p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 style="color: var(--ledger-accent); margin-bottom: 1rem;">Application Process</h4>
+                                <div style="position: relative; padding: 1rem 0;">
+                                    <div style="position: absolute; left: 1rem; top: 0; bottom: 0; width: 2px; background: var(--primary-color);"></div>
+                                    
+                                    <div style="margin-bottom: 2rem; margin-left: 3rem;">
+                                        <div style="background: var(--primary-color); color: white; padding: 0.5rem; border-radius: 50%; width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center; position: absolute; left: 0.25rem; margin-top: 0.5rem;">1</div>
+                                        <h5 style="margin-bottom: 0.5rem;">Submit Research Proposal</h5>
+                                        <p style="font-size: 0.9rem; color: var(--text-secondary);">Complete online application with study protocol and IRB approval</p>
+                                    </div>
+
+                                    <div style="margin-bottom: 2rem; margin-left: 3rem;">
+                                        <div style="background: var(--primary-color); color: white; padding: 0.5rem; border-radius: 50%; width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center; position: absolute; left: 0.25rem; margin-top: 0.5rem;">2</div>
+                                        <h5 style="margin-bottom: 0.5rem;">Medical Review Board</h5>
+                                        <p style="font-size: 0.9rem; color: var(--text-secondary);">Board-certified physicians review for scientific merit and patient benefit</p>
+                                    </div>
+
+                                    <div style="margin-bottom: 2rem; margin-left: 3rem;">
+                                        <div style="background: var(--primary-color); color: white; padding: 0.5rem; border-radius: 50%; width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center; position: absolute; left: 0.25rem; margin-top: 0.5rem;">3</div>
+                                        <h5 style="margin-bottom: 0.5rem;">Data Access Granted</h5>
+                                        <p style="font-size: 0.9rem; color: var(--text-secondary);">Secure access credentials provided within 5 business days</p>
+                                    </div>
+
+                                    <div style="margin-left: 3rem;">
+                                        <div style="background: var(--primary-color); color: white; padding: 0.5rem; border-radius: 50%; width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center; position: absolute; left: 0.25rem; margin-top: 0.5rem;">4</div>
+                                        <h5 style="margin-bottom: 0.5rem;">Publication Support</h5>
+                                        <p style="font-size: 0.9rem; color: var(--text-secondary);">Statistical support and co-authorship opportunities available</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: var(--ledger-gradient); color: white; border-radius: var(--border-radius);">
+                            <h3 style="color: white; margin-bottom: 1rem;">Ready to Advance Medical Science?</h3>
+                            <p style="margin-bottom: 2rem; opacity: 0.9;">Join leading researchers worldwide who are using our platform to make breakthrough discoveries.</p>
+                            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                                <a href="mailto:research@disease.zone" class="btn btn-secondary">
+                                    <i class="fas fa-envelope"></i>
+                                    Contact Research Team
+                                </a>
+                                <a href="research-application.html" class="btn" style="background: white; color: var(--primary-color);">
+                                    <i class="fas fa-file-alt"></i>
+                                    Submit Application
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

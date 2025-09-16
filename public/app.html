@@ -87,21 +87,22 @@
         .logo {
             display: flex;
             align-items: center;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: var(--primary-color);
             text-decoration: none;
+            margin-right: 1rem;
         }
 
         .logo i {
-            margin-right: 0.5rem;
-            font-size: 1.75rem;
+            margin-right: 0.4rem;
+            font-size: 1.5rem;
         }
 
         .nav-links {
             display: flex;
             list-style: none;
-            gap: 2rem;
+            gap: 1.5rem;
             align-items: center;
         }
 
@@ -110,7 +111,7 @@
             color: var(--text-secondary);
             font-weight: 500;
             transition: var(--transition);
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 0.75rem;
             border-radius: var(--border-radius);
         }
 
@@ -539,7 +540,7 @@
                     <li><a href="#" onclick="showView('guest')" class="nav-link">Home</a></li>
                     <li><a href="#" onclick="showView('surveillance')" class="nav-link">Surveillance</a></li>
                     <li><a href="#" onclick="showView('research')" class="nav-link">Research</a></li>
-                    <li><a href="#" onclick="showView('blockchain')" class="nav-link">Blockchain</a></li>
+                    <li><a href="//ledger.disease.zone" target="_blank" class="nav-link">Ledger <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i></a></li>
                     <li><a href="#" onclick="showView('news')" class="nav-link" style="color: var(--info-color);">Health News</a></li>
                     <li><a href="//api.disease.zone" target="_blank" class="nav-link" style="color: var(--warning-color);">API Portal <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i></a></li>
                     <li>
@@ -650,13 +651,13 @@
                         </div>
                     </div>
 
-                    <div class="card" style="cursor: pointer;" onclick="showView('blockchain')">
+                    <div class="card" style="cursor: pointer;" onclick="window.open('//ledger.disease.zone', '_blank')">
                         <div class="card-body text-center">
                             <i class="fas fa-link" style="font-size: 3rem; color: var(--warning-color); margin-bottom: 1rem;"></i>
-                            <h3 class="card-title">Blockchain Verified</h3>
-                            <p>Cryptographically secure health data with HEALTH token rewards for contributions.</p>
-                            <button class="btn btn-warning" style="margin-top: 1rem; color: white;" onclick="event.stopPropagation(); showView('blockchain');">
-                                <i class="fas fa-coins"></i> HEALTH Tokens
+                            <h3 class="card-title">Ledger Verified</h3>
+                            <p>Cryptographically secure health data with HEALTH credit rewards for contributions.</p>
+                            <button class="btn btn-warning" style="margin-top: 1rem; color: white;" onclick="event.stopPropagation(); window.open('//ledger.disease.zone/tokens.html', '_blank');">
+                                <i class="fas fa-coins"></i> HEALTH Credits
                             </button>
                         </div>
                     </div>
@@ -706,9 +707,9 @@
                                     <i class="fas fa-stethoscope"></i>
                                     Symptom Analysis
                                 </button>
-                                <button class="btn btn-success" onclick="showView('blockchain')">
+                                <button class="btn btn-success" onclick="window.open('//ledger.disease.zone/tokens.html', '_blank');">
                                     <i class="fas fa-coins"></i>
-                                    View HEALTH Tokens
+                                    View HEALTH Credits
                                 </button>
                             </div>
                         </div>
