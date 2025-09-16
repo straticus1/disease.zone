@@ -1,7 +1,7 @@
 FROM node:18-alpine
 
-# Install curl for health check
-RUN apk add --no-cache curl
+# Install curl for health check and ca-certificates for HTTPS requests to FHIR endpoints
+RUN apk add --no-cache curl ca-certificates
 
 # Set working directory
 WORKDIR /app
@@ -10,7 +10,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install --only=production
+RUN npm ci --only=production --no-audit --no-fund
 
 # Copy application code
 COPY . .

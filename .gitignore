@@ -159,4 +159,10 @@ ledger/dev-chains/
 ledger/**/*private*
 ledger/**/*mnemonic*
 ledger/**/*seed*
-ledger/**/wallet.jsonterraform/.terraform/
+ledger/**/wallet.json
+
+# Terraform
+terraform/.terraform/
+terraform/.terraform/providers/
+terraform/terraform.tfstate*
+terraform/.terraform.lock.hcl

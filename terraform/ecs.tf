@@ -93,6 +93,18 @@ resource "aws_ecs_task_definition" "main" {
         {
           name  = "PORT"
           value = "3000"
+        },
+        {
+          name  = "FHIR_BASE_URL"
+          value = "https://hapi.fhir.org/baseR4"
+        },
+        {
+          name  = "FHIR_TIMEOUT"
+          value = "30000"
+        },
+        {
+          name  = "MAPPING_CACHE_TTL"
+          value = "3600"
         }
       ]
 
