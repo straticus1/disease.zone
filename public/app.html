@@ -583,27 +583,36 @@
 
             <div class="container">
                 <section class="grid grid-3 mt-3">
-                    <div class="card">
+                    <div class="card" style="cursor: pointer;" onclick="showView('surveillance')">
                         <div class="card-body text-center">
                             <i class="fas fa-virus" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
                             <h3 class="card-title">Disease Surveillance</h3>
                             <p>Real-time monitoring of infectious diseases with advanced outbreak detection algorithms.</p>
+                            <button class="btn btn-primary" style="margin-top: 1rem;" onclick="event.stopPropagation(); openModal('diseaseMapModal');">
+                                <i class="fas fa-map-marked-alt"></i> View Global Map
+                            </button>
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="card" style="cursor: pointer;" onclick="showView('research')">
                         <div class="card-body text-center">
                             <i class="fas fa-chart-line" style="font-size: 3rem; color: var(--success-color); margin-bottom: 1rem;"></i>
                             <h3 class="card-title">Data Analytics</h3>
                             <p>Advanced analytics and AI-powered insights from 15+ global health data sources.</p>
+                            <button class="btn btn-success" style="margin-top: 1rem;" onclick="event.stopPropagation(); showView('research');">
+                                <i class="fas fa-microscope"></i> Explore Research
+                            </button>
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="card" style="cursor: pointer;" onclick="showView('blockchain')">
                         <div class="card-body text-center">
                             <i class="fas fa-link" style="font-size: 3rem; color: var(--warning-color); margin-bottom: 1rem;"></i>
                             <h3 class="card-title">Blockchain Verified</h3>
                             <p>Cryptographically secure health data with HEALTH token rewards for contributions.</p>
+                            <button class="btn btn-warning" style="margin-top: 1rem; color: white;" onclick="event.stopPropagation(); showView('blockchain');">
+                                <i class="fas fa-coins"></i> HEALTH Tokens
+                            </button>
                         </div>
                     </div>
                 </section>

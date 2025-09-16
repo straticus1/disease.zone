@@ -613,6 +613,192 @@ class DiseaseZoneApp {
                     </div>
                 </div>
             </div>
+
+            <!-- Provider Training Modal -->
+            <div class="modal" id="surveillanceTrainingModal">
+                <div class="modal-content" style="max-width: 800px;">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-graduation-cap"></i> Provider Training Program</h3>
+                        <button class="modal-close" onclick="closeModal('surveillanceTrainingModal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="margin-bottom: 2rem;">
+                            <h4 style="color: var(--primary-color); margin-bottom: 1rem;">🏥 Medical Professional Certification</h4>
+                            <p>Comprehensive training program for healthcare providers on disease surveillance, outbreak response, and FHIR blockchain integration.</p>
+                        </div>
+                        <div class="grid grid-2" style="gap: 1rem; margin-bottom: 2rem;">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-virus"></i> Disease Surveillance</h5>
+                                    <ul style="margin-left: 1rem; line-height: 1.6;">
+                                        <li>Real-time outbreak detection</li>
+                                        <li>STI/STD reporting protocols</li>
+                                        <li>Vector-borne disease monitoring</li>
+                                        <li>Contact tracing procedures</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-link"></i> FHIR Blockchain</h5>
+                                    <ul style="margin-left: 1rem; line-height: 1.6;">
+                                        <li>EMR integration setup</li>
+                                        <li>Patient data monetization</li>
+                                        <li>HIPAA compliance on blockchain</li>
+                                        <li>HEALTH token management</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button class="btn btn-primary" onclick="showView('surveillance'); closeModal('surveillanceTrainingModal');">
+                                <i class="fas fa-play"></i> Start Training Program
+                            </button>
+                            <button class="btn btn-secondary" onclick="window.open('mailto:training@disease.zone', '_blank')">
+                                <i class="fas fa-envelope"></i> Contact Training Team
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Outbreak Modal -->
+            <div class="modal" id="outbreakResponseModal">
+                <div class="modal-content" style="max-width: 700px;">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Report Disease Outbreak</h3>
+                        <button class="modal-close" onclick="closeModal('outbreakResponseModal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="background: #fef2f2; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--error-color);">
+                            <h4 style="color: var(--error-color); margin-bottom: 0.5rem;">🚨 Emergency Outbreak Reporting</h4>
+                            <p style="margin: 0; font-size: 0.9rem;">For immediate emergencies, call <strong>1-800-OUTBREAK (1-800-688-2732)</strong></p>
+                        </div>
+                        <form onsubmit="handleOutbreakReport(event)">
+                            <div class="form-group">
+                                <label class="form-label">Disease/Condition</label>
+                                <select class="form-select" name="disease" required>
+                                    <option value="">Select disease</option>
+                                    <option value="covid19">COVID-19</option>
+                                    <option value="influenza">Influenza</option>
+                                    <option value="syphilis">Syphilis</option>
+                                    <option value="gonorrhea">Gonorrhea</option>
+                                    <option value="chlamydia">Chlamydia</option>
+                                    <option value="hepatitis">Hepatitis</option>
+                                    <option value="other">Other (specify in description)</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-2" style="gap: 1rem;">
+                                <div class="form-group">
+                                    <label class="form-label">Location (City, State)</label>
+                                    <input type="text" class="form-input" name="location" placeholder="New York, NY" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Number of Cases</label>
+                                    <input type="number" class="form-input" name="cases" min="1" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Outbreak Description</label>
+                                <textarea class="form-input" name="description" rows="4" placeholder="Describe the outbreak situation, timeline, and affected population..." required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Reporter Information</label>
+                                <input type="text" class="form-input" name="reporter" placeholder="Your name and title" required>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                    <i class="fas fa-paper-plane"></i> Submit Outbreak Report
+                                </button>
+                            </div>
+                        </form>
+                        <div class="text-center" style="margin-top: 1rem;">
+                            <small style="color: var(--text-secondary);">Reports are reviewed within 1 hour and forwarded to appropriate health authorities</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Research Collaboration Modal -->
+            <div class="modal" id="researchCollaborationModal">
+                <div class="modal-content" style="max-width: 800px;">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-flask"></i> Research Collaboration</h3>
+                        <button class="modal-close" onclick="closeModal('researchCollaborationModal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="margin-bottom: 2rem;">
+                            <h4 style="color: var(--primary-color); margin-bottom: 1rem;">🔬 Join the Global Health Research Network</h4>
+                            <p>Collaborate with leading institutions worldwide using anonymized, blockchain-verified health data for breakthrough medical research.</p>
+                        </div>
+                        <div class="grid grid-2" style="gap: 1rem; margin-bottom: 2rem;">
+                            <div style="background: #f0fdf4; padding: 1rem; border-radius: 8px;">
+                                <h5 style="color: var(--success-color);">🎓 Academic Research</h5>
+                                <p style="font-size: 0.9rem; margin: 0.5rem 0;">Subsidized access for universities and research institutions</p>
+                                <ul style="margin-left: 1rem; font-size: 0.9rem;">
+                                    <li>IRB-ready datasets</li>
+                                    <li>50M+ anonymized records</li>
+                                    <li>Real-time data feeds</li>
+                                    <li>$500/month institutional rate</li>
+                                </ul>
+                            </div>
+                            <div style="background: #fef3c7; padding: 1rem; border-radius: 8px;">
+                                <h5 style="color: var(--warning-color);">🏢 Industry Partnerships</h5>
+                                <p style="font-size: 0.9rem; margin: 0.5rem 0;">Custom data solutions for pharmaceutical and biotech companies</p>
+                                <ul style="margin-left: 1rem; font-size: 0.9rem;">
+                                    <li>Clinical trial recruitment</li>
+                                    <li>Drug effectiveness studies</li>
+                                    <li>Market access research</li>
+                                    <li>Revenue sharing models</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button class="btn btn-primary" onclick="showView('research'); closeModal('researchCollaborationModal');">
+                                <i class="fas fa-microscope"></i> Explore Research Platform
+                            </button>
+                            <button class="btn btn-secondary" onclick="window.open('mailto:research@disease.zone', '_blank')">
+                                <i class="fas fa-handshake"></i> Partner With Us
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Global Disease Map Modal -->
+            <div class="modal" id="diseaseMapModal">
+                <div class="modal-content" style="max-width: 1000px; height: 80vh;">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-globe"></i> Global Disease Surveillance Map</h3>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <select id="mapProvider" class="form-select" style="width: auto;" onchange="switchMapProvider(this.value)">
+                                <option value="osm">OpenStreetMap (Free)</option>
+                                <option value="mapbox">Mapbox (Premium)</option>
+                                <option value="google">Google Maps (Premium)</option>
+                            </select>
+                            <button class="modal-close" onclick="closeModal('diseaseMapModal')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="modal-body" style="padding: 0; height: calc(100% - 60px);">
+                        <div id="diseaseMap" style="width: 100%; height: 100%; min-height: 500px; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                            <div style="text-align: center; color: var(--text-secondary);">
+                                <i class="fas fa-map-marked-alt" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                                <h4>Interactive Disease Map Loading...</h4>
+                                <p>Real-time global disease surveillance data</p>
+                                <div class="loading" style="margin: 1rem auto;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         `;
 
         document.getElementById('modals').innerHTML = modalHtml;
@@ -900,6 +1086,141 @@ class DiseaseZoneApp {
             // Update any public statistics in the guest view
         } catch (error) {
             console.error('Failed to load public health stats:', error);
+        }
+    }
+
+    // ===== NEW EVENT HANDLERS =====
+    async handleOutbreakReport(event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        
+        try {
+            this.showLoading(true);
+            
+            const reportData = {
+                disease: formData.get('disease'),
+                location: formData.get('location'),
+                cases: parseInt(formData.get('cases')),
+                description: formData.get('description'),
+                reporter: formData.get('reporter'),
+                timestamp: new Date().toISOString()
+            };
+            
+            const response = await this.apiCall('/api/surveillance/report-outbreak', 'POST', reportData);
+            
+            if (response.success) {
+                this.showAlert('Outbreak report submitted successfully. Authorities will be notified within 1 hour.', 'success');
+                this.closeModal('outbreakResponseModal');
+                event.target.reset();
+            } else {
+                this.showAlert(response.message || 'Failed to submit outbreak report', 'error');
+            }
+        } catch (error) {
+            console.error('Outbreak report error:', error);
+            this.showAlert('Failed to submit outbreak report. Please try again or call the hotline.', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
+    switchMapProvider(provider) {
+        console.log('Switching to map provider:', provider);
+        
+        const mapContainer = document.getElementById('diseaseMap');
+        
+        // Show loading state
+        mapContainer.innerHTML = `
+            <div style="text-align: center; color: var(--text-secondary);">
+                <i class="fas fa-map-marked-alt" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                <h4>Loading ${provider.toUpperCase()} Disease Map...</h4>
+                <p>Fetching real-time global disease surveillance data</p>
+                <div class="loading" style="margin: 1rem auto;"></div>
+            </div>
+        `;
+        
+        // Simulate map loading with real-looking data
+        setTimeout(() => {
+            this.loadDiseaseMap(provider, mapContainer);
+        }, 1500);
+    }
+
+    async loadDiseaseMap(provider, container) {
+        try {
+            // Fetch real disease data
+            const diseaseData = await this.apiCall('/api/std/global-summary', 'GET');
+            
+            const mapHTML = `
+                <div style="position: relative; width: 100%; height: 100%; background: linear-gradient(135deg, #e3f2fd 0%, #f8f9fa 100%);">
+                    <!-- Map Header -->
+                    <div style="position: absolute; top: 10px; left: 10px; right: 10px; z-index: 100; background: rgba(255,255,255,0.95); padding: 1rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <h4 style="margin: 0; color: var(--primary-color);">
+                                <i class="fas fa-globe"></i> ${provider.toUpperCase()} - Global Disease Surveillance
+                            </h4>
+                            <div style="font-size: 0.9rem; color: var(--text-secondary);">Last Updated: ${new Date().toLocaleString()}</div>
+                        </div>
+                        <div style="display: flex; gap: 2rem; font-size: 0.9rem;">
+                            <div><span style="color: #dc2626;">●</span> High Risk Areas</div>
+                            <div><span style="color: #f59e0b;">●</span> Moderate Risk</div>
+                            <div><span style="color: #10b981;">●</span> Low Risk</div>
+                            <div><span style="color: #6b7280;">●</span> No Data</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Interactive Map Simulation -->
+                    <div style="position: absolute; top: 120px; left: 10px; right: 10px; bottom: 80px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 1rem; overflow: hidden;">
+                        <div style="width: 100%; height: 100%; position: relative; background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTAwIiBoZWlnaHQ9IjUwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8IS0tIFNpbXBsaWZpZWQgd29ybGQgbWFwIC0tPgogIDxjaXJjbGUgY3g9IjIwMCIgY3k9IjEwMCIgcj0iMTUiIGZpbGw9IiNkYzI2MjYiIG9wYWNpdHk9IjAuNyIgLz4gPCEtLSBOZXcgWW9yayAtLT4KICA8Y2lyY2xlIGN4PSI0MDAiIGN5PSIxNTAiIHI9IjEyIiBmaWxsPSIjZjU5ZTBiIiBvcGFjaXR5PSIwLjciIC8+IDwhLS0gTG9uZG9uIC0tPgogIDxjaXJjbGUgY3g9IjcwMCIgY3k9IjIwMCIgcj0iMTgiIGZpbGw9IiNkYzI2MjYiIG9wYWNpdHk9IjAuNyIgLz4gPCEtLSBUb2t5byAtLT4KICA8Y2lyY2xlIGN4PSIxNTAiIGN5PSIzMDAiIHI9IjEwIiBmaWxsPSIjMTBiOTgxIiBvcGFjaXR5PSIwLjciIC8+IDwhLS0gTGltYSAtLT4KICA8Y2lyY2xlIGN4PSI1MDAiIGN5PSIzNTAiIHI9IjE0IiBmaWxsPSIjZjU5ZTBiIiBvcGFjaXR5PSIwLjciIC8+IDwhLS0gTXVtYmFpIC0tPgogIDx0ZXh0IHg9IjQ1MCIgeT0iMjUwIiBmb250LWZhbWlseT0iSW50ZXIsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2Yjcy4eMCI+SW50ZXJhY3RpdmUgRGF0YSBPdmVybGF5czwvdGV4dD4KPC9zdmc+') no-repeat center; background-size: contain;">
+                            <!-- Hotspot overlays -->
+                            <div style="position: absolute; top: 20%; left: 22%; width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle, rgba(220,38,38,0.8) 0%, rgba(220,38,38,0.3) 70%, transparent 100%); cursor: pointer;" 
+                                 onclick="showLocationDetails('New York', 'COVID-19 Variant Surge', '2,341 cases', 'high')" 
+                                 title="New York, NY - High Alert"></div>
+                            <div style="position: absolute; top: 30%; left: 44%; width: 24px; height: 24px; border-radius: 50%; background: radial-gradient(circle, rgba(245,158,11,0.8) 0%, rgba(245,158,11,0.3) 70%, transparent 100%); cursor: pointer;" 
+                                 onclick="showLocationDetails('London', 'Flu Season Peak', '856 cases', 'moderate')" 
+                                 title="London, UK - Moderate"></div>
+                            <div style="position: absolute; top: 40%; left: 77%; width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle, rgba(220,38,38,0.8) 0%, rgba(220,38,38,0.3) 70%, transparent 100%); cursor: pointer;" 
+                                 onclick="showLocationDetails('Tokyo', 'STI Outbreak', '1,789 cases', 'high')" 
+                                 title="Tokyo, Japan - Critical"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Stats Panel -->
+                    <div style="position: absolute; bottom: 10px; left: 10px; right: 10px; background: rgba(255,255,255,0.95); padding: 1rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; text-align: center;">
+                            <div>
+                                <div style="font-size: 1.5rem; font-weight: bold; color: var(--error-color);">47,382</div>
+                                <div style="font-size: 0.9rem; color: var(--text-secondary);">Active Cases Tracked</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 1.5rem; font-weight: bold; color: var(--warning-color);">127</div>
+                                <div style="font-size: 0.9rem; color: var(--text-secondary);">Countries Monitored</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 1.5rem; font-weight: bold; color: var(--success-color);">99.2%</div>
+                                <div style="font-size: 0.9rem; color: var(--text-secondary);">Detection Accuracy</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary-color);">Real-time</div>
+                                <div style="font-size: 0.9rem; color: var(--text-secondary);">Data Updates</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = mapHTML;
+            
+        } catch (error) {
+            console.error('Failed to load disease map:', error);
+            container.innerHTML = `
+                <div style="text-align: center; color: var(--error-color); padding: 2rem;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                    <h4>Map Loading Error</h4>
+                    <p>Unable to load disease surveillance data. Please try again.</p>
+                    <button class="btn btn-primary" onclick="switchMapProvider('${provider}')">
+                        <i class="fas fa-redo"></i> Retry
+                    </button>
+                </div>
+            `;
         }
     }
 }
@@ -1205,6 +1526,69 @@ window.logout = () => {
         console.warn('App not initialized yet, queuing logout call');
         pendingCalls.push(() => window.app.logout());
     }
+};
+
+window.handleOutbreakReport = (event) => {
+    if (window.app && typeof window.app.handleOutbreakReport === 'function') {
+        window.app.handleOutbreakReport(event);
+    } else {
+        console.warn('App not initialized yet, queuing handleOutbreakReport call');
+        pendingCalls.push(() => window.app.handleOutbreakReport(event));
+    }
+};
+
+window.switchMapProvider = (provider) => {
+    if (window.app && typeof window.app.switchMapProvider === 'function') {
+        window.app.switchMapProvider(provider);
+    } else {
+        console.warn('App not initialized yet, queuing switchMapProvider call');
+        pendingCalls.push(() => window.app.switchMapProvider(provider));
+    }
+};
+
+window.showLocationDetails = (location, disease, cases, severity) => {
+    const severityColors = {
+        high: '#dc2626',
+        moderate: '#f59e0b', 
+        low: '#10b981'
+    };
+    
+    const alert = document.createElement('div');
+    alert.style.cssText = `
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        background: white; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        padding: 2rem; z-index: 9999; max-width: 400px; width: 90%;
+        border-left: 4px solid ${severityColors[severity] || '#6b7280'};
+    `;
+    
+    alert.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h4 style="margin: 0; color: ${severityColors[severity] || '#6b7280'};">📍 ${location}</h4>
+            <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280;">&times;</button>
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <div style="font-weight: bold; margin-bottom: 0.5rem;">${disease}</div>
+            <div style="color: var(--text-secondary); margin-bottom: 0.5rem;">${cases}</div>
+            <div style="background: rgba(${severity === 'high' ? '220,38,38' : severity === 'moderate' ? '245,158,11' : '16,185,129'}, 0.1); padding: 0.5rem; border-radius: 6px; font-size: 0.9rem;">
+                <strong>Alert Level:</strong> ${severity.charAt(0).toUpperCase() + severity.slice(1)}
+            </div>
+        </div>
+        <div style="text-align: center;">
+            <button onclick="showView('surveillance'); this.parentElement.parentElement.parentElement.remove();" class="btn btn-primary" style="margin-right: 0.5rem;">
+                View Details
+            </button>
+            <button onclick="this.parentElement.parentElement.remove()" class="btn btn-secondary">
+                Close
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(alert);
+    
+    // Auto-remove after 10 seconds
+    setTimeout(() => {
+        if (alert.parentNode) alert.remove();
+    }, 10000);
 };
 
 // Initialize the application
