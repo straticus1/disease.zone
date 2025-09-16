@@ -10,6 +10,7 @@ INSERT OR IGNORE INTO diseases (disease_code, name, category, subcategory, icd10
 ('DZ_STD_005', 'Herpes Simplex Virus Type 2 (HSV-2)', 'std', 'viral', '["A60.0", "A60.1", "A60.9", "B00.1"]', 'none', '13% of population 15-49 globally infected'),
 ('DZ_STD_006', 'Trichomoniasis', 'std', 'parasitic', '["A59.0", "A59.8", "A59.9"]', 'none', 'Most common curable STI - 156 million new cases annually worldwide'),
 ('DZ_STD_007', 'Phthirus pubis (Pubic Lice/Crabs)', 'std', 'parasitic', '["B85.3"]', 'none', 'Ectoparasitic infestation - highly contagious through close contact'),
+('DZ_PED_001', 'Head Lice (Pediculus humanus capitis)', 'pediatric', 'parasitic', '["B85.0"]', 'none', 'Common childhood infestation - 6-12 million cases annually in US children'),
 
 -- Neurological Diseases
 ('DZ_NEU_001', 'Alzheimer''s Disease', 'neurological', 'dementia', '["F03", "G30"]', 'complex', '6.9 million Americans age 65+'),

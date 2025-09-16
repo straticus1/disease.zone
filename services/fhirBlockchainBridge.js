@@ -79,6 +79,9 @@ class FHIRBlockchainBridge {
       // Phthirus pubis (Pubic Lice/Crabs) - Ectoparasitic STI
       'B85.3': { code: 'phthirus_pubis', category: 'sti', surveillance: true, tokenBonus: 3 },
 
+      // Head Lice (Pediculus humanus capitis) - Common Pediatric Infestation
+      'B85.0': { code: 'head_lice', category: 'pediatric', surveillance: true, tokenBonus: 2 },
+
       // Herpes Simplex Virus (HSV) - Comprehensive Mapping
       'A60.0': { code: 'hsv2_genital_male', category: 'herpes', surveillance: true, tokenBonus: 10 },
       'A60.1': { code: 'hsv2_genital_female', category: 'herpes', surveillance: true, tokenBonus: 10 },

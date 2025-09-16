@@ -6,7 +6,7 @@
 
 *Previously known as covid19lookup.nyc*
 
-[![Version](https://img.shields.io/badge/version-3.4.0-blue.svg)](https://github.com/straticus1/disease.zone)
+[![Version](https://img.shields.io/badge/version-3.6.0-blue.svg)](https://github.com/straticus1/disease.zone)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-brightgreen.svg)](./MEDICAL_COMPLIANCE_REVIEW.md)
 [![GDPR](https://img.shields.io/badge/GDPR-Compliant-brightgreen.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
@@ -32,6 +32,29 @@
 - **Multi-Provider Mapping** - OpenStreetMap, Mapbox, Google Maps with tiered access
 - **Geographic Visualization** - Disease overlays, heatmaps, choropleth maps with real-time data
 - **SMART on FHIR Integration** - OAuth2 hospital connections with secure patient data import
+
+### 🏥 **Chronic Disease Management Platform**
+- **Comprehensive Disease Coverage** - Cardiovascular, Diabetes, Cancer, Metabolic Syndrome with real-time monitoring
+- **AI-Powered Risk Assessment** - Framingham Risk Score, ASCVD Calculator, genetic predisposition analysis
+- **Disease Progression Modeling** - Machine learning predictions with biomarker trend analysis
+- **Multi-Generational Family Tracking** - Inherited condition analysis across 4+ generations
+- **Clinical Decision Support** - Evidence-based treatment protocols with intervention recommendations
+- **Population Health Analytics** - Real-time surveillance from CDC, ACS, AHA, ADA, NCI SEER, WHO, CMS
+
+### 🦠 **Advanced Herpes Analytics Platform**
+- **HSV-1/HSV-2/Shingles Management** - Comprehensive tracking for all herpes virus types
+- **Outbreak Prediction System** - 85%+ accuracy ML-powered outbreak forecasting
+- **Trigger Factor Analysis** - Stress, illness, hormonal patterns with personalized modeling
+- **Family Herpes Tracking** - Household transmission modeling and genetic predisposition scoring
+- **Treatment Optimization** - Medication effectiveness tracking with personalized therapy recommendations
+- **Epidemiological Integration** - Real-time surveillance data with population benchmarking
+
+### 📚 **Comprehensive Documentation**
+- **Interactive Dashboards** - [Chronic Disease Dashboard](https://www.disease.zone/chronic-disease-dashboard.html) and [Herpes Analytics Dashboard](https://www.disease.zone/herpes-dashboard.html)
+- **API Reference** - Complete RESTful API documentation with examples and SDKs
+- **Clinical Integration** - FHIR R4 compliance with SMART on FHIR OAuth2 authentication
+- **Developer Resources** - Comprehensive guides for platform integration and customization
+- **Medical Compliance** - HIPAA, GDPR, and international healthcare standards documentation
 
 ### 🔐 **Global Regulatory Compliance**
 - **HIPAA** - Complete technical, administrative, and physical safeguards

@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Head Lice Tracking - diseaseZone</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .header p {
+            margin: 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .card h2 {
+            margin: 0 0 20px 0;
+            color: #2d3748;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            font-size: 1.5em;
+        }
+
+        .status-overview {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+        }
+
+        .status-overview h2 {
+            color: white;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .status-item {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .status-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .form-group {
+            margin: 15px 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #fd79a8;
+            box-shadow: 0 0 0 3px rgba(253, 121, 168, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(253, 121, 168, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+        }
+
+        .symptom-tracker {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .symptom-item {
+            background: #fef5e7;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #fed7aa;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .symptom-item:hover {
+            border-color: #fd79a8;
+            background: #fdf2f8;
+        }
+
+        .symptom-item.active {
+            background: #fd79a8;
+            border-color: #fd79a8;
+            color: white;
+        }
+
+        .severity-slider {
+            margin: 15px 0;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fd79a8;
+            cursor: pointer;
+        }
+
+        .timeline {
+            margin: 20px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: #fef5e7;
+            border-radius: 8px;
+            border-left: 4px solid #fd79a8;
+        }
+
+        .timeline-date {
+            font-weight: 600;
+            color: #fd79a8;
+            min-width: 100px;
+        }
+
+        .timeline-content {
+            flex: 1;
+            margin-left: 15px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: #f0fff4;
+            border-color: #48bb78;
+            color: #2f855a;
+        }
+
+        .alert-warning {
+            background: #fffaf0;
+            border-color: #ed8936;
+            color: #c05621;
+        }
+
+        .alert-info {
+            background: #fef5e7;
+            border-color: #fd79a8;
+            color: #b83280;
+        }
+
+        .treatment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .treatment-item {
+            background: #fef5e7;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #fed7aa;
+        }
+
+        .treatment-item h4 {
+            margin: 0 0 10px 0;
+            color: #b83280;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .status-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐛 Head Lice Tracker</h1>
+            <p>Parent-friendly tracking for head lice infestations and treatment</p>
+        </div>
+
+        <!-- Status Overview -->
+        <div class="card status-overview">
+            <h2><span class="icon">📊</span> Infestation Overview</h2>
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-number" id="daysLiceFree">--</div>
+                    <div>Days Lice-Free</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-number" id="totalInfestations">--</div>
+                    <div>Total Infestations</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-number" id="familyMembersAffected">--</div>
+                    <div>Family Members Affected</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-number" id="treatmentCycles">--</div>
+                    <div>Treatment Cycles</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Report New Infestation -->
+            <div class="card">
+                <h2><span class="icon">🚨</span> Report Infestation</h2>
+
+                <div class="form-group">
+                    <label>Family Member</label>
+                    <select class="form-control" id="affectedPerson">
+                        <option value="">Select person</option>
+                        <option value="child1">Child 1</option>
+                        <option value="child2">Child 2</option>
+                        <option value="child3">Child 3</option>
+                        <option value="parent1">Parent 1</option>
+                        <option value="parent2">Parent 2</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>First Noticed</label>
+                    <input type="date" class="form-control" id="infestationDate">
+                </div>
+
+                <div class="form-group">
+                    <label>Severity (1-5)</label>
+                    <input type="range" class="slider" id="infestationSeverity" min="1" max="5" value="3">
+                    <div style="text-align: center; margin-top: 5px;">
+                        <span id="severityValue">3</span>/5
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Current Signs & Symptoms</label>
+                    <div class="symptom-tracker">
+                        <div class="symptom-item" onclick="toggleSymptom(this, 'live_lice')">Live Lice</div>
+                        <div class="symptom-item" onclick="toggleSymptom(this, 'nits_eggs')">Nits/Eggs</div>
+                        <div class="symptom-item" onclick="toggleSymptom(this, 'itching')">Itching</div>
+                        <div class="symptom-item" onclick="toggleSymptom(this, 'scratching')">Scratching</div>
+                        <div class="symptom-item" onclick="toggleSymptom(this, 'irritation')">Scalp Irritation</div>
+                        <div class="symptom-item" onclick="toggleSymptom(this, 'red_bumps')">Red Bumps</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Likely Source</label>
+                    <select class="form-control" id="infestationSource">
+                        <option value="">Unknown</option>
+                        <option value="school">School Contact</option>
+                        <option value="daycare">Daycare/Childcare</option>
+                        <option value="playdate">Playdate/Friend</option>
+                        <option value="family">Family Member</option>
+                        <option value="camp">Summer Camp</option>
+                        <option value="sleepover">Sleepover</option>
+                        <option value="sports">Sports Activity</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="recordInfestation()">Record Infestation</button>
+            </div>
+
+            <!-- Treatment Tracking -->
+            <div class="card">
+                <h2><span class="icon">💊</span> Treatment Tracker</h2>
+
+                <div class="treatment-grid">
+                    <div class="treatment-item">
+                        <h4>Over-the-Counter</h4>
+                        <p>Permethrin 1% (Nix)</p>
+                        <button class="btn btn-secondary" onclick="recordTreatment('otc_permethrin')">Used</button>
+                    </div>
+                    <div class="treatment-item">
+                        <h4>Prescription</h4>
+                        <p>Malathion (Ovide)</p>
+                        <button class="btn btn-secondary" onclick="recordTreatment('prescription_malathion')">Used</button>
+                    </div>
+                    <div class="treatment-item">
+                        <h4>Manual Removal</h4>
+                        <p>Nit comb + wet combing</p>
+                        <button class="btn btn-secondary" onclick="recordTreatment('manual_removal')">Done</button>
+                    </div>
+                    <div class="treatment-item">
+                        <h4>Home Remedy</h4>
+                        <p>Olive oil / Tea tree</p>
+                        <button class="btn btn-secondary" onclick="recordTreatment('home_remedy')">Tried</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Treatment Notes</label>
+                    <textarea class="form-control" id="treatmentNotes" rows="3" placeholder="Treatment details, effectiveness, side effects..."></textarea>
+                </div>
+
+                <button class="btn" onclick="saveTreatmentNotes()">Save Treatment Log</button>
+            </div>
+
+            <!-- School Notification -->
+            <div class="card">
+                <h2><span class="icon">🏫</span> School Communication</h2>
+
+                <div class="alert alert-info">
+                    <strong>📢 Important:</strong> Most schools require notification of head lice cases to prevent spread.
+                </div>
+
+                <div class="form-group">
+                    <label>School/Daycare</label>
+                    <input type="text" class="form-control" id="schoolName" placeholder="Enter school name">
+                </div>
+
+                <div class="form-group">
+                    <label>Notification Status</label>
+                    <select class="form-control" id="notificationStatus">
+                        <option value="not_notified">Not Notified</option>
+                        <option value="notified">School Notified</option>
+                        <option value="clearance_needed">Clearance Needed</option>
+                        <option value="cleared">Cleared to Return</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Return to School Date</label>
+                    <input type="date" class="form-control" id="returnDate">
+                </div>
+
+                <button class="btn" onclick="updateSchoolStatus()">Update School Status</button>
+            </div>
+
+            <!-- Prevention Checklist -->
+            <div class="card">
+                <h2><span class="icon">🛡️</span> Prevention Checklist</h2>
+
+                <div class="form-group">
+                    <h4>Household Items Treated:</h4>
+                    <div class="symptom-tracker">
+                        <div class="symptom-item" onclick="togglePrevention(this, 'bedding')">Bedding</div>
+                        <div class="symptom-item" onclick="togglePrevention(this, 'clothing')">Clothing</div>
+                        <div class="symptom-item" onclick="togglePrevention(this, 'hats_helmets')">Hats/Helmets</div>
+                        <div class="symptom-item" onclick="togglePrevention(this, 'brushes_combs')">Brushes/Combs</div>
+                        <div class="symptom-item" onclick="togglePrevention(this, 'hair_accessories')">Hair Accessories</div>
+                        <div class="symptom-item" onclick="togglePrevention(this, 'car_seats')">Car Seats</div>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning">
+                    <strong>💡 Prevention Tips:</strong>
+                    <ul>
+                        <li>Avoid head-to-head contact during play</li>
+                        <li>Don't share hats, brushes, or hair accessories</li>
+                        <li>Regular head checks, especially after sleepovers</li>
+                        <li>Wash bedding and clothing in hot water (130°F+)</li>
+                    </ul>
+                </div>
+
+                <button class="btn" onclick="savePrevention()">Save Prevention Actions</button>
+            </div>
+
+            <!-- Family Screening -->
+            <div class="card">
+                <h2><span class="icon">👨‍👩‍👧‍👦</span> Family Screening Log</h2>
+
+                <div class="timeline" id="screeningLog">
+                    <div class="timeline-item">
+                        <div class="timeline-date">Today</div>
+                        <div class="timeline-content">
+                            <strong>Family screening completed</strong><br>
+                            All members checked - no additional cases found
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Yesterday</div>
+                        <div class="timeline-content">
+                            <strong>Child 1 infestation discovered</strong><br>
+                            Live lice and nits found behind ears
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Next Screening Date</label>
+                    <input type="date" class="form-control" id="nextScreening">
+                </div>
+
+                <button class="btn" onclick="scheduleScreening()">Schedule Next Check</button>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <h2><span class="icon">📅</span> Recent Activity</h2>
+
+                <div class="timeline" id="recentActivity">
+                    <div class="timeline-item">
+                        <div class="timeline-date">Today</div>
+                        <div class="timeline-content">
+                            <strong>Treatment applied</strong><br>
+                            Permethrin 1% shampoo - Child 1
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Today</div>
+                        <div class="timeline-content">
+                            <strong>School notified</strong><br>
+                            Elementary School - awaiting clearance requirements
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Yesterday</div>
+                        <div class="timeline-content">
+                            <strong>Infestation reported</strong><br>
+                            Child 1 - moderate severity, likely from school
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let selectedSymptoms = [];
+        let preventionActions = [];
+        let familyMembers = ['child1', 'child2', 'child3', 'parent1', 'parent2'];
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboard();
+            setupSliders();
+            setDefaultDates();
+        });
+
+        // Setup slider value displays
+        function setupSliders() {
+            const severitySlider = document.getElementById('infestationSeverity');
+            const severityValue = document.getElementById('severityValue');
+
+            severitySlider.addEventListener('input', function() {
+                severityValue.textContent = this.value;
+            });
+        }
+
+        // Set default dates
+        function setDefaultDates() {
+            const today = new Date();
+            document.getElementById('infestationDate').valueAsDate = today;
+
+            // Set next screening to 7 days from now
+            const nextWeek = new Date();
+            nextWeek.setDate(today.getDate() + 7);
+            document.getElementById('nextScreening').valueAsDate = nextWeek;
+        }
+
+        // Load dashboard data
+        function loadDashboard() {
+            updateStatusNumbers();
+        }
+
+        // Update status overview numbers
+        function updateStatusNumbers() {
+            document.getElementById('daysLiceFree').textContent = '2';
+            document.getElementById('totalInfestations').textContent = '1';
+            document.getElementById('familyMembersAffected').textContent = '1';
+            document.getElementById('treatmentCycles').textContent = '1';
+        }
+
+        // Toggle symptom selection
+        function toggleSymptom(element, symptom) {
+            element.classList.toggle('active');
+
+            if (element.classList.contains('active')) {
+                if (!selectedSymptoms.includes(symptom)) {
+                    selectedSymptoms.push(symptom);
+                }
+            } else {
+                selectedSymptoms = selectedSymptoms.filter(s => s !== symptom);
+            }
+        }
+
+        // Toggle prevention actions
+        function togglePrevention(element, action) {
+            element.classList.toggle('active');
+
+            if (element.classList.contains('active')) {
+                if (!preventionActions.includes(action)) {
+                    preventionActions.push(action);
+                }
+            } else {
+                preventionActions = preventionActions.filter(a => a !== action);
+            }
+        }
+
+        // Record new infestation
+        function recordInfestation() {
+            const infestationData = {
+                person: document.getElementById('affectedPerson').value,
+                date: document.getElementById('infestationDate').value,
+                severity: document.getElementById('infestationSeverity').value,
+                symptoms: selectedSymptoms,
+                source: document.getElementById('infestationSource').value
+            };
+
+            if (!infestationData.person || !infestationData.date) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            console.log('Recording infestation:', infestationData);
+
+            // Show success message
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.innerHTML = '✅ Head lice infestation recorded successfully!';
+
+            const card = event.target.closest('.card');
+            card.insertBefore(alert, card.firstChild);
+            setTimeout(() => alert.remove(), 3000);
+
+            // Reset form
+            resetInfestationForm();
+            updateStatusNumbers();
+        }
+
+        // Record treatment
+        function recordTreatment(treatmentType) {
+            console.log('Recording treatment:', treatmentType);
+
+            // Show success message
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.innerHTML = '✅ Treatment recorded!';
+
+            const card = event.target.closest('.card');
+            card.insertBefore(alert, card.firstChild);
+            setTimeout(() => alert.remove(), 2000);
+        }
+
+        // Save treatment notes
+        function saveTreatmentNotes() {
+            const notes = document.getElementById('treatmentNotes').value;
+
+            console.log('Saving treatment notes:', notes);
+
+            // Show success message
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.innerHTML = '✅ Treatment notes saved!';
+
+            const card = event.target.closest('.card');
+            card.insertBefore(alert, card.firstChild);
+            setTimeout(() => alert.remove(), 2000);
+        }
+
+        // Update school status
+        function updateSchoolStatus() {
+            const schoolData = {
+                school: document.getElementById('schoolName').value,
+                status: document.getElementById('notificationStatus').value,
+                returnDate: document.getElementById('returnDate').value
+            };
+
+            console.log('Updating school status:', schoolData);
+
+            // Show success message
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.innerHTML = '✅ School communication updated!';
+
+            const card = event.target.closest('.card');
+            card.insertBefore(alert, card.firstChild);
+            setTimeout(() => alert.remove(), 3000);
+        }
+
+        // Save prevention actions
+        function savePrevention() {
+            console.log('Saving prevention actions:', preventionActions);
+
+            // Show success message
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.innerHTML = '✅ Prevention checklist updated!';
+
+            const card = event.target.closest('.card');
+            card.insertBefore(alert, card.firstChild);
+            setTimeout(() => alert.remove(), 2000);
+        }
+
+        // Schedule screening
+        function scheduleScreening() {
+            const nextDate = document.getElementById('nextScreening').value;
+
+            console.log('Scheduling next screening:', nextDate);
+
+            // Show success message
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-info';
+            alert.innerHTML = `📅 Next family screening scheduled for ${new Date(nextDate).toLocaleDateString()}`;
+
+            const card = event.target.closest('.card');
+            card.insertBefore(alert, card.firstChild);
+            setTimeout(() => alert.remove(), 4000);
+        }
+
+        // Reset infestation form
+        function resetInfestationForm() {
+            document.getElementById('affectedPerson').value = '';
+            document.getElementById('infestationSeverity').value = '3';
+            document.getElementById('severityValue').textContent = '3';
+            document.getElementById('infestationSource').value = '';
+            selectedSymptoms = [];
+            document.querySelectorAll('.symptom-item.active').forEach(item => {
+                item.classList.remove('active');
+            });
+            setDefaultDates();
+        }
+    </script>
+</body>
+</html>
