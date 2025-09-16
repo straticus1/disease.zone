@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronic Disease Management - diseaseZone</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .header p {
+            margin: 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .card h2 {
+            margin: 0 0 20px 0;
+            color: #2d3748;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            font-size: 1.5em;
+        }
+
+        .status-overview {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .status-overview h2 {
+            color: white;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .status-item {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .status-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .risk-assessment-card {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .risk-assessment-card h2 {
+            color: white;
+        }
+
+        .risk-result {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+
+        .risk-bar {
+            background: rgba(255,255,255,0.3);
+            height: 8px;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .risk-fill {
+            height: 100%;
+            background: white;
+            transition: width 0.5s ease;
+        }
+
+        .risk-level {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .risk-low { background: #48bb78; color: white; }
+        .risk-moderate { background: #ed8936; color: white; }
+        .risk-high { background: #f56565; color: white; }
+        .risk-very-high { background: #9f2f2f; color: white; }
+
+        .progression-card {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #2d3748;
+        }
+
+        .biomarker-trends {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .biomarker-item {
+            background: rgba(255,255,255,0.3);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .biomarker-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .trend-arrow {
+            font-size: 1.2em;
+            margin-left: 5px;
+        }
+
+        .trend-up { color: #f56565; }
+        .trend-down { color: #48bb78; }
+        .trend-stable { color: #718096; }
+
+        .form-group {
+            margin: 15px 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f56565 0%, #c53030 100%);
+        }
+
+        .condition-tracker {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .condition-item {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .condition-item:hover {
+            border-color: #667eea;
+            background: #edf2f7;
+        }
+
+        .condition-item.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+
+        .condition-item.diagnosed {
+            background: #48bb78;
+            border-color: #48bb78;
+            color: white;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .timeline {
+            margin: 20px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .timeline-date {
+            font-weight: 600;
+            color: #667eea;
+            min-width: 100px;
+        }
+
+        .timeline-content {
+            flex: 1;
+            margin-left: 15px;
+        }
+
+        .analytics-chart {
+            height: 300px;
+            background: #f7fafc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #718096;
+            font-size: 1.1em;
+            margin: 20px 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: #f0fff4;
+            border-color: #48bb78;
+            color: #2f855a;
+        }
+
+        .alert-warning {
+            background: #fffaf0;
+            border-color: #ed8936;
+            color: #c05621;
+        }
+
+        .alert-info {
+            background: #ebf8ff;
+            border-color: #4299e1;
+            color: #2b6cb0;
+        }
+
+        .alert-danger {
+            background: #fed7d7;
+            border-color: #f56565;
+            color: #c53030;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 5px;
+            margin: 20px 0;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .family-risk-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .family-risk-item {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .interventions-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .intervention-item {
+            background: #f7fafc;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #48bb78;
+        }
+
+        .intervention-priority {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .priority-high { background: #fed7d7; color: #c53030; }
+        .priority-medium { background: #feebc8; color: #c05621; }
+        .priority-low { background: #e6fffa; color: #2f855a; }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .status-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>❤️ Chronic Disease Management</h1>
+            <p>Comprehensive tracking and prevention for Heart Disease, Diabetes, Hypertension, Cholesterol & Cancer</p>
+        </div>
+
+        <!-- Status Overview -->
+        <div class="card status-overview">
+            <h2><span class="icon">📊</span> Your Health Overview</h2>
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-number" id="overallRiskScore">--</div>
+                    <div>Overall Risk Score</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-number" id="conditionsTracked">--</div>
+                    <div>Conditions Monitored</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-number" id="familyRiskFactors">--</div>
+                    <div>Family Risk Factors</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-number" id="nextScreeningDays">--</div>
+                    <div>Days to Next Screening</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Risk Assessment -->
+            <div class="card risk-assessment-card">
+                <h2><span class="icon">⚠️</span> Risk Assessment</h2>
+                <div class="risk-result" id="riskAssessmentResult">
+                    <div class="loading">Calculating comprehensive risk...</div>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab active" onclick="switchRiskTab('cardiovascular')">Cardio</div>
+                    <div class="tab" onclick="switchRiskTab('diabetes')">Diabetes</div>
+                    <div class="tab" onclick="switchRiskTab('cancer')">Cancer</div>
+                </div>
+
+                <div id="cardiovascular" class="tab-content active">
+                    <div id="framinghamResult">Loading Framingham Risk Score...</div>
+                    <div id="ascvdResult">Loading ASCVD Risk Calculator...</div>
+                </div>
+
+                <div id="diabetes" class="tab-content">
+                    <div id="adaResult">Loading ADA Risk Calculator...</div>
+                </div>
+
+                <div id="cancer" class="tab-content">
+                    <div id="gailResult">Loading Gail Model (Breast Cancer)...</div>
+                    <div id="colonResult">Loading Colon Cancer Risk...</div>
+                </div>
+
+                <button class="btn" onclick="updateRiskAssessment()">Recalculate Risks</button>
+            </div>
+
+            <!-- Disease Progression -->
+            <div class="card progression-card">
+                <h2><span class="icon">📈</span> Disease Progression</h2>
+
+                <div class="biomarker-trends" id="biomarkerTrends">
+                    <div class="biomarker-item">
+                        <div class="biomarker-value">142<span class="trend-arrow trend-up">↗</span></div>
+                        <div>Systolic BP</div>
+                    </div>
+                    <div class="biomarker-item">
+                        <div class="biomarker-value">6.8<span class="trend-arrow trend-down">↘</span></div>
+                        <div>HbA1c (%)</div>
+                    </div>
+                    <div class="biomarker-item">
+                        <div class="biomarker-value">245<span class="trend-arrow trend-stable">→</span></div>
+                        <div>Total Chol</div>
+                    </div>
+                    <div class="biomarker-item">
+                        <div class="biomarker-value">45<span class="trend-arrow trend-down">↘</span></div>
+                        <div>HDL Chol</div>
+                    </div>
+                </div>
+
+                <div class="analytics-chart" id="progressionChart">
+                    Disease progression timeline will appear here
+                </div>
+
+                <button class="btn" onclick="updateProgression()">Update Progression Model</button>
+            </div>
+
+            <!-- Condition Management -->
+            <div class="card">
+                <h2><span class="icon">🏥</span> Condition Management</h2>
+
+                <div class="condition-tracker">
+                    <div class="condition-item" onclick="toggleCondition('heart_disease')" id="condition-heart_disease">
+                        <div>❤️</div>
+                        <div>Heart Disease</div>
+                    </div>
+                    <div class="condition-item" onclick="toggleCondition('type2_diabetes')" id="condition-type2_diabetes">
+                        <div>🍭</div>
+                        <div>Type 2 Diabetes</div>
+                    </div>
+                    <div class="condition-item" onclick="toggleCondition('hypertension')" id="condition-hypertension">
+                        <div>🩺</div>
+                        <div>Hypertension</div>
+                    </div>
+                    <div class="condition-item" onclick="toggleCondition('high_cholesterol')" id="condition-high_cholesterol">
+                        <div>🧈</div>
+                        <div>High Cholesterol</div>
+                    </div>
+                    <div class="condition-item" onclick="toggleCondition('breast_cancer')" id="condition-breast_cancer">
+                        <div>🎗️</div>
+                        <div>Breast Cancer</div>
+                    </div>
+                    <div class="condition-item" onclick="toggleCondition('colon_cancer')" id="condition-colon_cancer">
+                        <div>🎗️</div>
+                        <div>Colon Cancer</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Add New Health Reading</label>
+                    <select class="form-control" id="readingType">
+                        <option value="">Select measurement type</option>
+                        <option value="blood_pressure">Blood Pressure</option>
+                        <option value="blood_glucose">Blood Glucose</option>
+                        <option value="cholesterol">Cholesterol Panel</option>
+                        <option value="hba1c">HbA1c</option>
+                        <option value="weight">Weight</option>
+                        <option value="bmi">BMI</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Value</label>
+                    <input type="text" class="form-control" id="readingValue" placeholder="e.g., 120/80, 95, 180">
+                </div>
+
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" class="form-control" id="readingDate">
+                </div>
+
+                <button class="btn" onclick="addHealthReading()">Add Reading</button>
+            </div>
+
+            <!-- Family Tracking -->
+            <div class="card">
+                <h2><span class="icon">👨‍👩‍👧‍👦</span> Family History & Genetics</h2>
+
+                <div class="family-risk-grid" id="familyRiskGrid">
+                    <div class="family-risk-item">
+                        <h4>Cardiovascular Risk</h4>
+                        <div class="risk-level risk-moderate">MODERATE</div>
+                        <p>Family history detected</p>
+                    </div>
+                    <div class="family-risk-item">
+                        <h4>Cancer Risk</h4>
+                        <div class="risk-level risk-high">HIGH</div>
+                        <p>BRCA screening recommended</p>
+                    </div>
+                    <div class="family-risk-item">
+                        <h4>Diabetes Risk</h4>
+                        <div class="risk-level risk-low">LOW</div>
+                        <p>No family history</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Family Member</label>
+                    <select class="form-control" id="familyMember">
+                        <option value="">Select relationship</option>
+                        <option value="mother">Mother</option>
+                        <option value="father">Father</option>
+                        <option value="sibling">Sibling</option>
+                        <option value="grandparent">Grandparent</option>
+                        <option value="aunt_uncle">Aunt/Uncle</option>
+                        <option value="cousin">Cousin</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Chronic Condition</label>
+                    <select class="form-control" id="familyCondition">
+                        <option value="">Select condition</option>
+                        <option value="heart_disease">Heart Disease</option>
+                        <option value="type2_diabetes">Type 2 Diabetes</option>
+                        <option value="hypertension">Hypertension</option>
+                        <option value="high_cholesterol">High Cholesterol</option>
+                        <option value="breast_cancer">Breast Cancer</option>
+                        <option value="colon_cancer">Colon Cancer</option>
+                        <option value="stroke">Stroke</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Age at Diagnosis</label>
+                    <input type="number" class="form-control" id="familyAge" placeholder="Age when diagnosed">
+                </div>
+
+                <button class="btn" onclick="addFamilyRecord()">Add Family Record</button>
+            </div>
+
+            <!-- Interventions & Recommendations -->
+            <div class="card">
+                <h2><span class="icon">💡</span> Personalized Interventions</h2>
+
+                <ul class="interventions-list" id="interventionsList">
+                    <li class="intervention-item">
+                        <div class="intervention-priority priority-high">HIGH PRIORITY</div>
+                        <strong>Blood Pressure Control</strong>
+                        <p>Your BP is elevated. Consider DASH diet and 30min daily exercise.</p>
+                    </li>
+                    <li class="intervention-item">
+                        <div class="intervention-priority priority-medium">MEDIUM PRIORITY</div>
+                        <strong>Cholesterol Management</strong>
+                        <p>HDL is low. Increase omega-3 intake and aerobic exercise.</p>
+                    </li>
+                    <li class="intervention-item">
+                        <div class="intervention-priority priority-low">LOW PRIORITY</div>
+                        <strong>Cancer Screening</strong>
+                        <p>Schedule mammogram due to family history of breast cancer.</p>
+                    </li>
+                </ul>
+
+                <button class="btn" onclick="generateInterventions()">Update Recommendations</button>
+            </div>
+
+            <!-- Surveillance Data -->
+            <div class="card">
+                <h2><span class="icon">🌍</span> Population Health Data</h2>
+
+                <div class="tabs">
+                    <div class="tab active" onclick="switchSurveillanceTab('cdc')">CDC Data</div>
+                    <div class="tab" onclick="switchSurveillanceTab('who')">WHO Data</div>
+                    <div class="tab" onclick="switchSurveillanceTab('local')">Local Trends</div>
+                </div>
+
+                <div id="cdc" class="tab-content active">
+                    <div id="cdcData">Loading latest CDC surveillance data...</div>
+                </div>
+
+                <div id="who" class="tab-content">
+                    <div id="whoData">Loading WHO global health statistics...</div>
+                </div>
+
+                <div id="local" class="tab-content">
+                    <div id="localData">Loading local disease trends...</div>
+                </div>
+
+                <button class="btn" onclick="updateSurveillanceData()">Refresh Data</button>
+            </div>
+
+            <!-- Lifestyle Tracking -->
+            <div class="card">
+                <h2><span class="icon">🏃‍♂️</span> Lifestyle Factors</h2>
+
+                <div class="form-group">
+                    <label>Physical Activity (minutes/day)</label>
+                    <input type="range" class="slider" id="activityLevel" min="0" max="120" value="30">
+                    <div style="text-align: center; margin-top: 5px;">
+                        <span id="activityValue">30</span> minutes
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Diet Quality (1-10)</label>
+                    <input type="range" class="slider" id="dietQuality" min="1" max="10" value="6">
+                    <div style="text-align: center; margin-top: 5px;">
+                        <span id="dietValue">6</span>/10
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Stress Level (1-10)</label>
+                    <input type="range" class="slider" id="stressLevel" min="1" max="10" value="5">
+                    <div style="text-align: center; margin-top: 5px;">
+                        <span id="stressValue">5</span>/10
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Sleep Quality (1-10)</label>
+                    <input type="range" class="slider" id="sleepQuality" min="1" max="10" value="7">
+                    <div style="text-align: center; margin-top: 5px;">
+                        <span id="sleepValue">7</span>/10
+                    </div>
+                </div>
+
+                <div class="condition-tracker">
+                    <div class="condition-item" onclick="toggleLifestyle(this, 'smoking')">🚭 Non-Smoker</div>
+                    <div class="condition-item" onclick="toggleLifestyle(this, 'alcohol')">🍷 Moderate Alcohol</div>
+                    <div class="condition-item active" onclick="toggleLifestyle(this, 'exercise')">🏃 Regular Exercise</div>
+                </div>
+
+                <button class="btn" onclick="updateLifestyle()">Update Lifestyle Factors</button>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <h2><span class="icon">📅</span> Recent Activity</h2>
+
+                <div class="timeline" id="recentActivity">
+                    <div class="timeline-item">
+                        <div class="timeline-date">Today</div>
+                        <div class="timeline-content">
+                            <strong>Blood pressure reading added</strong><br>
+                            142/90 mmHg - Above target range
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">2 days ago</div>
+                        <div class="timeline-content">
+                            <strong>Risk assessment updated</strong><br>
+                            Framingham Risk Score: 8.3%
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">1 week ago</div>
+                        <div class="timeline-content">
+                            <strong>Family history added</strong><br>
+                            Mother: Breast cancer at age 52
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">2 weeks ago</div>
+                        <div class="timeline-content">
+                            <strong>Lab results integrated</strong><br>
+                            HbA1c: 6.8% - Pre-diabetic range
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let selectedConditions = new Set();
+        let lifestyleFactors = {
+            smoking: false,
+            alcohol: true,
+            exercise: true
+        };
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboard();
+            setupSliders();
+            updateRiskAssessment();
+            loadSurveillanceData();
+            setDefaultDate();
+        });
+
+        // Setup slider value displays
+        function setupSliders() {
+            const sliders = [
+                { id: 'activityLevel', valueId: 'activityValue' },
+                { id: 'dietQuality', valueId: 'dietValue' },
+                { id: 'stressLevel', valueId: 'stressValue' },
+                { id: 'sleepQuality', valueId: 'sleepValue' }
+            ];
+
+            sliders.forEach(slider => {
+                const element = document.getElementById(slider.id);
+                const valueDisplay = document.getElementById(slider.valueId);
+
+                element.addEventListener('input', function() {
+                    valueDisplay.textContent = this.value;
+                });
+            });
+        }
+
+        // Set default date to today
+        function setDefaultDate() {
+            document.getElementById('readingDate').valueAsDate = new Date();
+        }
+
+        // Load dashboard data
+        async function loadDashboard() {
+            try {
+                updateStatusNumbers();
+                loadFamilyRiskAssessment();
+                updateBiomarkerTrends();
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        // Update status overview numbers
+        function updateStatusNumbers() {
+            document.getElementById('overallRiskScore').textContent = '7.8';
+            document.getElementById('conditionsTracked').textContent = '3';
+            document.getElementById('familyRiskFactors').textContent = '2';
+            document.getElementById('nextScreeningDays').textContent = '45';
+        }
+
+        // Update risk assessment
+        async function updateRiskAssessment() {
+            const resultDiv = document.getElementById('riskAssessmentResult');
+            resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Calculating comprehensive risk scores...</div>';
+
+            try {
+                // Simulate API calls to our chronic disease services
+                setTimeout(() => {
+                    updateFraminghamRisk();
+                    updateASCVDRisk();
+                    updateADARisk();
+                    updateGailModel();
+
+                    const overallRisk = {
+                        score: 7.8,
+                        category: 'moderate',
+                        nextReview: '6 months'
+                    };
+
+                    resultDiv.innerHTML = `
+                        <div><strong>Overall Risk Score:</strong></div>
+                        <div style="font-size: 1.5em; margin: 10px 0;">${overallRisk.score}%</div>
+                        <div class="risk-bar">
+                            <div class="risk-fill" style="width: ${overallRisk.score * 10}%"></div>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <span class="risk-level risk-${overallRisk.category}">${overallRisk.category.toUpperCase()} RISK</span>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <strong>Next Review:</strong> ${overallRisk.nextReview}
+                        </div>
+                    `;
+                }, 2000);
+
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="alert alert-warning">Unable to calculate risk scores. Please try again.</div>';
+            }
+        }
+
+        // Update individual risk calculations
+        function updateFraminghamRisk() {
+            document.getElementById('framinghamResult').innerHTML = `
+                <div style="margin: 10px 0;">
+                    <strong>Framingham 10-Year Risk:</strong> 8.3%
+                    <div class="risk-bar">
+                        <div class="risk-fill" style="width: 83%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateASCVDRisk() {
+            document.getElementById('ascvdResult').innerHTML = `
+                <div style="margin: 10px 0;">
+                    <strong>ASCVD 10-Year Risk:</strong> 7.1%
+                    <div class="risk-bar">
+                        <div class="risk-fill" style="width: 71%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateADARisk() {
+            document.getElementById('adaResult').innerHTML = `
+                <div style="margin: 10px 0;">
+                    <strong>ADA Diabetes Risk:</strong> 6.5%
+                    <div class="risk-bar">
+                        <div class="risk-fill" style="width: 65%"></div>
+                    </div>
+                    <div class="risk-level risk-moderate">MODERATE RISK</div>
+                </div>
+            `;
+        }
+
+        function updateGailModel() {
+            document.getElementById('gailResult').innerHTML = `
+                <div style="margin: 10px 0;">
+                    <strong>Gail Model (Breast Cancer):</strong> 2.1%
+                    <div class="risk-bar">
+                        <div class="risk-fill" style="width: 21%"></div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('colonResult').innerHTML = `
+                <div style="margin: 10px 0;">
+                    <strong>Colorectal Cancer Risk:</strong> 4.8%
+                    <div class="risk-bar">
+                        <div class="risk-fill" style="width: 48%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update disease progression
+        function updateProgression() {
+            const progressionChart = document.getElementById('progressionChart');
+            progressionChart.innerHTML = '<div class="loading"><div class="spinner"></div>Updating progression models...</div>';
+
+            setTimeout(() => {
+                progressionChart.innerHTML = `
+                    <div style="text-align: center;">
+                        <h4>5-Year Progression Forecast</h4>
+                        <p>📈 Hypertension progression: 15% likelihood</p>
+                        <p>📊 Diabetes development: 8% likelihood</p>
+                        <p>❤️ Cardiovascular events: 12% likelihood</p>
+                    </div>
+                `;
+            }, 1500);
+        }
+
+        // Toggle condition selection
+        function toggleCondition(conditionType) {
+            const element = document.getElementById(`condition-${conditionType}`);
+
+            if (selectedConditions.has(conditionType)) {
+                selectedConditions.delete(conditionType);
+                element.classList.remove('diagnosed');
+            } else {
+                const confirmed = confirm(`Do you have a confirmed diagnosis of ${conditionType.replace('_', ' ')}?`);
+                if (confirmed) {
+                    selectedConditions.add(conditionType);
+                    element.classList.add('diagnosed');
+                    updateRiskAssessment(); // Recalculate risks
+                }
+            }
+        }
+
+        // Toggle lifestyle factors
+        function toggleLifestyle(element, factor) {
+            element.classList.toggle('active');
+            lifestyleFactors[factor] = element.classList.contains('active');
+        }
+
+        // Add health reading
+        async function addHealthReading() {
+            const readingData = {
+                type: document.getElementById('readingType').value,
+                value: document.getElementById('readingValue').value,
+                date: document.getElementById('readingDate').value
+            };
+
+            if (!readingData.type || !readingData.value || !readingData.date) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            try {
+                console.log('Adding health reading:', readingData);
+
+                // Show success message
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success';
+                alert.innerHTML = '✅ Health reading added successfully!';
+
+                const card = event.target.closest('.card');
+                card.insertBefore(alert, card.firstChild);
+
+                setTimeout(() => alert.remove(), 3000);
+
+                // Reset form
+                document.getElementById('readingType').value = '';
+                document.getElementById('readingValue').value = '';
+                setDefaultDate();
+
+                // Update biomarker trends
+                updateBiomarkerTrends();
+
+            } catch (error) {
+                alert('Error adding health reading. Please try again.');
+            }
+        }
+
+        // Add family record
+        async function addFamilyRecord() {
+            const familyData = {
+                member: document.getElementById('familyMember').value,
+                condition: document.getElementById('familyCondition').value,
+                age: document.getElementById('familyAge').value
+            };
+
+            if (!familyData.member || !familyData.condition) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            try {
+                console.log('Adding family record:', familyData);
+
+                // Show success message
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success';
+                alert.innerHTML = '✅ Family history record added successfully!';
+
+                const card = event.target.closest('.card');
+                card.insertBefore(alert, card.firstChild);
+
+                setTimeout(() => alert.remove(), 3000);
+
+                // Reset form
+                document.getElementById('familyMember').value = '';
+                document.getElementById('familyCondition').value = '';
+                document.getElementById('familyAge').value = '';
+
+                // Update family risk assessment
+                loadFamilyRiskAssessment();
+                updateRiskAssessment();
+
+            } catch (error) {
+                alert('Error adding family record. Please try again.');
+            }
+        }
+
+        // Load family risk assessment
+        function loadFamilyRiskAssessment() {
+            // This would normally call our chronicDiseaseFamilyService
+            const familyRiskGrid = document.getElementById('familyRiskGrid');
+            // Family risk data is already populated in HTML for demo
+        }
+
+        // Update biomarker trends
+        function updateBiomarkerTrends() {
+            // This would normally call our chronicDiseaseProgressionService
+            // Biomarker trends are already populated in HTML for demo
+        }
+
+        // Generate interventions
+        async function generateInterventions() {
+            const interventionsList = document.getElementById('interventionsList');
+            interventionsList.innerHTML = '<div class="loading"><div class="spinner"></div>Generating personalized interventions...</div>';
+
+            try {
+                setTimeout(() => {
+                    interventionsList.innerHTML = `
+                        <li class="intervention-item">
+                            <div class="intervention-priority priority-high">HIGH PRIORITY</div>
+                            <strong>Blood Pressure Control</strong>
+                            <p>Consider ACE inhibitor and reduce sodium intake to <2300mg/day.</p>
+                        </li>
+                        <li class="intervention-item">
+                            <div class="intervention-priority priority-high">HIGH PRIORITY</div>
+                            <strong>Diabetes Prevention</strong>
+                            <p>HbA1c of 6.8% indicates prediabetes. Start metformin and lifestyle intervention.</p>
+                        </li>
+                        <li class="intervention-item">
+                            <div class="intervention-priority priority-medium">MEDIUM PRIORITY</div>
+                            <strong>Cholesterol Management</strong>
+                            <p>Consider statin therapy. Target LDL <100 mg/dL given cardiovascular risk.</p>
+                        </li>
+                        <li class="intervention-item">
+                            <div class="intervention-priority priority-medium">MEDIUM PRIORITY</div>
+                            <strong>Cancer Screening</strong>
+                            <p>Schedule mammogram and genetic counseling for BRCA testing.</p>
+                        </li>
+                        <li class="intervention-item">
+                            <div class="intervention-priority priority-low">LOW PRIORITY</div>
+                            <strong>Lifestyle Optimization</strong>
+                            <p>Increase physical activity to 150min/week and improve sleep hygiene.</p>
+                        </li>
+                    `;
+                }, 1500);
+
+            } catch (error) {
+                interventionsList.innerHTML = '<div class="alert alert-warning">Unable to generate interventions. Please try again.</div>';
+            }
+        }
+
+        // Update lifestyle factors
+        async function updateLifestyle() {
+            const lifestyleData = {
+                activity: document.getElementById('activityLevel').value,
+                diet: document.getElementById('dietQuality').value,
+                stress: document.getElementById('stressLevel').value,
+                sleep: document.getElementById('sleepQuality').value,
+                factors: lifestyleFactors
+            };
+
+            try {
+                console.log('Updating lifestyle factors:', lifestyleData);
+
+                // Show success message
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success';
+                alert.innerHTML = '✅ Lifestyle factors updated!';
+
+                const card = event.target.closest('.card');
+                card.insertBefore(alert, card.firstChild);
+
+                setTimeout(() => alert.remove(), 3000);
+
+                // Update risk assessment
+                updateRiskAssessment();
+
+            } catch (error) {
+                alert('Error updating lifestyle factors. Please try again.');
+            }
+        }
+
+        // Tab switching functions
+        function switchRiskTab(tabName) {
+            const parentCard = event.target.closest('.card');
+            parentCard.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            parentCard.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            parentCard.querySelector(`#${tabName}`).classList.add('active');
+        }
+
+        function switchSurveillanceTab(tabName) {
+            const parentCard = event.target.closest('.card');
+            parentCard.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            parentCard.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            parentCard.querySelector(`#${tabName}`).classList.add('active');
+        }
+
+        // Load surveillance data
+        function loadSurveillanceData() {
+            // This would normally call our chronicDiseaseApiService
+            setTimeout(() => {
+                document.getElementById('cdcData').innerHTML = `
+                    <div class="alert alert-info">
+                        <h4>Latest CDC Statistics (2024)</h4>
+                        <p>• Heart Disease: 695,547 deaths (20.1% of all deaths)</p>
+                        <p>• Cancer: 605,213 deaths (17.5% of all deaths)</p>
+                        <p>• Diabetes: 101,209 deaths (2.9% of all deaths)</p>
+                        <p>• Hypertension: 34.2 million adults (47.3%)</p>
+                    </div>
+                `;
+
+                document.getElementById('whoData').innerHTML = `
+                    <div class="alert alert-info">
+                        <h4>WHO Global Health Observatory</h4>
+                        <p>• CVD: 17.9 million deaths annually worldwide</p>
+                        <p>• Cancer: 10.0 million deaths annually worldwide</p>
+                        <p>• Diabetes: 1.5 million deaths annually worldwide</p>
+                        <p>• 80% of premature CVD deaths are preventable</p>
+                    </div>
+                `;
+
+                document.getElementById('localData').innerHTML = `
+                    <div class="alert alert-info">
+                        <h4>Local Disease Trends</h4>
+                        <p>• Heart disease rates: 15% above national average</p>
+                        <p>• Diabetes prevalence: 12.3% (vs 11.3% national)</p>
+                        <p>• Cancer screening rates: 78% (mammography)</p>
+                        <p>• Hypertension control: 58% achieving targets</p>
+                    </div>
+                `;
+            }, 1000);
+        }
+
+        // Update surveillance data
+        function updateSurveillanceData() {
+            document.getElementById('cdcData').innerHTML = '<div class="loading">Fetching latest CDC data...</div>';
+            document.getElementById('whoData').innerHTML = '<div class="loading">Fetching WHO statistics...</div>';
+            document.getElementById('localData').innerHTML = '<div class="loading">Analyzing local trends...</div>';
+
+            loadSurveillanceData(); // Reload data
+        }
+    </script>
+</body>
+</html>

@@ -70,7 +70,104 @@ class FHIRBlockchainBridge {
       'A56': { code: 'chlamydia', category: 'sti', surveillance: true },
       'A51': { code: 'syphilis', category: 'sti', surveillance: true },
       'B20': { code: 'hiv', category: 'sti', surveillance: true },
-      'A60': { code: 'hsv', category: 'sti', surveillance: true },
+
+      // Trichomoniasis - Parasitic STI
+      'A59.0': { code: 'trichomoniasis_urogenital', category: 'sti', surveillance: true, tokenBonus: 5 },
+      'A59.8': { code: 'trichomoniasis_other', category: 'sti', surveillance: true, tokenBonus: 5 },
+      'A59.9': { code: 'trichomoniasis_unspecified', category: 'sti', surveillance: true, tokenBonus: 5 },
+
+      // Phthirus pubis (Pubic Lice/Crabs) - Ectoparasitic STI
+      'B85.3': { code: 'phthirus_pubis', category: 'sti', surveillance: true, tokenBonus: 3 },
+
+      // Herpes Simplex Virus (HSV) - Comprehensive Mapping
+      'A60.0': { code: 'hsv2_genital_male', category: 'herpes', surveillance: true, tokenBonus: 10 },
+      'A60.1': { code: 'hsv2_genital_female', category: 'herpes', surveillance: true, tokenBonus: 10 },
+      'A60.9': { code: 'hsv2_genital_unspecified', category: 'herpes', surveillance: true, tokenBonus: 10 },
+      'B00.1': { code: 'hsv_vesicular_dermatitis', category: 'herpes', surveillance: true, tokenBonus: 5 },
+      'B00.2': { code: 'hsv_gingivostomatitis', category: 'herpes', surveillance: true, tokenBonus: 5 },
+      'B00.3': { code: 'hsv_meningitis', category: 'herpes', surveillance: true, tokenBonus: 20 },
+      'B00.9': { code: 'hsv_unspecified', category: 'herpes', surveillance: true, tokenBonus: 5 },
+
+      // Herpes Zoster (Shingles) - Comprehensive Mapping
+      'B02.0': { code: 'zoster_encephalitis', category: 'shingles', surveillance: true, tokenBonus: 25 },
+      'B02.1': { code: 'zoster_meningitis', category: 'shingles', surveillance: true, tokenBonus: 25 },
+      'B02.2': { code: 'zoster_eye_complications', category: 'shingles', surveillance: true, tokenBonus: 15 },
+      'B02.3': { code: 'zoster_other_nervous', category: 'shingles', surveillance: true, tokenBonus: 15 },
+      'B02.8': { code: 'zoster_other_complications', category: 'shingles', surveillance: true, tokenBonus: 10 },
+      'B02.9': { code: 'zoster_uncomplicated', category: 'shingles', surveillance: true, tokenBonus: 5 },
+
+      // Cardiovascular Disease - Comprehensive Mapping
+      'I25.1': { code: 'coronary_artery_disease', category: 'cardiovascular', surveillance: true, tokenBonus: 15 },
+      'I25.10': { code: 'cad_native_vessel', category: 'cardiovascular', surveillance: true, tokenBonus: 15 },
+      'I21.0': { code: 'stemi_anterior_wall', category: 'cardiovascular', surveillance: true, tokenBonus: 30 },
+      'I21.1': { code: 'stemi_inferior_wall', category: 'cardiovascular', surveillance: true, tokenBonus: 30 },
+      'I21.9': { code: 'myocardial_infarction_unspecified', category: 'cardiovascular', surveillance: true, tokenBonus: 30 },
+      'I50.1': { code: 'left_heart_failure', category: 'cardiovascular', surveillance: true, tokenBonus: 20 },
+      'I50.20': { code: 'systolic_heart_failure_unspecified', category: 'cardiovascular', surveillance: true, tokenBonus: 20 },
+      'I50.21': { code: 'acute_systolic_heart_failure', category: 'cardiovascular', surveillance: true, tokenBonus: 25 },
+      'I50.22': { code: 'chronic_systolic_heart_failure', category: 'cardiovascular', surveillance: true, tokenBonus: 20 },
+      'I48.0': { code: 'paroxysmal_atrial_fibrillation', category: 'cardiovascular', surveillance: true, tokenBonus: 15 },
+      'I48.1': { code: 'persistent_atrial_fibrillation', category: 'cardiovascular', surveillance: true, tokenBonus: 15 },
+      'I10': { code: 'essential_hypertension', category: 'cardiovascular', surveillance: true, tokenBonus: 10 },
+      'I11.0': { code: 'hypertensive_heart_disease_with_heart_failure', category: 'cardiovascular', surveillance: true, tokenBonus: 20 },
+      'I63.00': { code: 'cerebral_infarction_unspecified', category: 'cardiovascular', surveillance: true, tokenBonus: 25 },
+      'I61.0': { code: 'intracerebral_hemorrhage_hemisphere', category: 'cardiovascular', surveillance: true, tokenBonus: 30 },
+
+      // Cholesterol and Lipid Disorders
+      'E78.0': { code: 'familial_hypercholesterolemia', category: 'metabolic', surveillance: true, tokenBonus: 15 },
+      'E78.1': { code: 'familial_hypertriglyceridemia', category: 'metabolic', surveillance: true, tokenBonus: 10 },
+      'E78.2': { code: 'mixed_hyperlipidemia', category: 'metabolic', surveillance: true, tokenBonus: 10 },
+      'E78.4': { code: 'other_hyperlipidemia', category: 'metabolic', surveillance: true, tokenBonus: 8 },
+      'E78.5': { code: 'hyperlipidemia_unspecified', category: 'metabolic', surveillance: true, tokenBonus: 8 },
+
+      // Diabetes Mellitus - Comprehensive Mapping
+      'E11.0': { code: 'type2_diabetes_hyperosmolarity', category: 'diabetes', surveillance: true, tokenBonus: 25 },
+      'E11.1': { code: 'type2_diabetes_ketoacidosis', category: 'diabetes', surveillance: true, tokenBonus: 30 },
+      'E11.2': { code: 'type2_diabetes_kidney_complications', category: 'diabetes', surveillance: true, tokenBonus: 20 },
+      'E11.3': { code: 'type2_diabetes_ophthalmic_complications', category: 'diabetes', surveillance: true, tokenBonus: 20 },
+      'E11.4': { code: 'type2_diabetes_neurological_complications', category: 'diabetes', surveillance: true, tokenBonus: 20 },
+      'E11.5': { code: 'type2_diabetes_circulatory_complications', category: 'diabetes', surveillance: true, tokenBonus: 20 },
+      'E11.6': { code: 'type2_diabetes_other_complications', category: 'diabetes', surveillance: true, tokenBonus: 15 },
+      'E11.7': { code: 'type2_diabetes_multiple_complications', category: 'diabetes', surveillance: true, tokenBonus: 25 },
+      'E11.8': { code: 'type2_diabetes_unspecified_complications', category: 'diabetes', surveillance: true, tokenBonus: 15 },
+      'E11.9': { code: 'type2_diabetes_without_complications', category: 'diabetes', surveillance: true, tokenBonus: 10 },
+      'R73.03': { code: 'prediabetes', category: 'diabetes', surveillance: true, tokenBonus: 8 },
+      'E88.81': { code: 'metabolic_syndrome', category: 'metabolic', surveillance: true, tokenBonus: 12 },
+
+      // Cancer - Comprehensive Mapping
+      'C50.011': { code: 'breast_cancer_right_nipple', category: 'cancer', surveillance: true, tokenBonus: 40 },
+      'C50.012': { code: 'breast_cancer_left_nipple', category: 'cancer', surveillance: true, tokenBonus: 40 },
+      'C50.111': { code: 'breast_cancer_right_central', category: 'cancer', surveillance: true, tokenBonus: 40 },
+      'C50.112': { code: 'breast_cancer_left_central', category: 'cancer', surveillance: true, tokenBonus: 40 },
+      'C61': { code: 'prostate_cancer', category: 'cancer', surveillance: true, tokenBonus: 40 },
+      'C34.10': { code: 'lung_cancer_unspecified_part', category: 'cancer', surveillance: true, tokenBonus: 50 },
+      'C34.11': { code: 'lung_cancer_right_upper_lobe', category: 'cancer', surveillance: true, tokenBonus: 50 },
+      'C34.12': { code: 'lung_cancer_right_lower_lobe', category: 'cancer', surveillance: true, tokenBonus: 50 },
+      'C18.0': { code: 'colorectal_cancer_cecum', category: 'cancer', surveillance: true, tokenBonus: 45 },
+      'C18.1': { code: 'colorectal_cancer_appendix', category: 'cancer', surveillance: true, tokenBonus: 45 },
+      'C18.2': { code: 'colorectal_cancer_ascending_colon', category: 'cancer', surveillance: true, tokenBonus: 45 },
+      'C19': { code: 'rectosigmoid_junction_cancer', category: 'cancer', surveillance: true, tokenBonus: 45 },
+      'C20': { code: 'rectal_cancer', category: 'cancer', surveillance: true, tokenBonus: 45 },
+      'C25.0': { code: 'pancreatic_cancer_head', category: 'cancer', surveillance: true, tokenBonus: 60 },
+      'C25.1': { code: 'pancreatic_cancer_body', category: 'cancer', surveillance: true, tokenBonus: 60 },
+      'C25.2': { code: 'pancreatic_cancer_tail', category: 'cancer', surveillance: true, tokenBonus: 60 },
+      'C43.0': { code: 'melanoma_lip', category: 'cancer', surveillance: true, tokenBonus: 35 },
+      'C43.1': { code: 'melanoma_eyelid', category: 'cancer', surveillance: true, tokenBonus: 35 },
+      'C43.2': { code: 'melanoma_ear', category: 'cancer', surveillance: true, tokenBonus: 35 },
+      'C43.3': { code: 'melanoma_face', category: 'cancer', surveillance: true, tokenBonus: 35 },
+      'C43.4': { code: 'melanoma_scalp_neck', category: 'cancer', surveillance: true, tokenBonus: 35 },
+      'C56.1': { code: 'ovarian_cancer_right', category: 'cancer', surveillance: true, tokenBonus: 50 },
+      'C56.2': { code: 'ovarian_cancer_left', category: 'cancer', surveillance: true, tokenBonus: 50 },
+      'C91.00': { code: 'acute_lymphoblastic_leukemia', category: 'cancer', surveillance: true, tokenBonus: 55 },
+      'C92.00': { code: 'acute_myeloblastic_leukemia', category: 'cancer', surveillance: true, tokenBonus: 55 },
+
+      // Chronic Kidney Disease
+      'N18.1': { code: 'chronic_kidney_disease_stage1', category: 'renal', surveillance: true, tokenBonus: 15 },
+      'N18.2': { code: 'chronic_kidney_disease_stage2', category: 'renal', surveillance: true, tokenBonus: 18 },
+      'N18.3': { code: 'chronic_kidney_disease_stage3', category: 'renal', surveillance: true, tokenBonus: 20 },
+      'N18.4': { code: 'chronic_kidney_disease_stage4', category: 'renal', surveillance: true, tokenBonus: 25 },
+      'N18.5': { code: 'chronic_kidney_disease_stage5', category: 'renal', surveillance: true, tokenBonus: 30 },
+      'N18.6': { code: 'chronic_kidney_disease_end_stage', category: 'renal', surveillance: true, tokenBonus: 35 },
 
       // Infectious Diseases
       'J09': { code: 'influenza', category: 'respiratory', surveillance: true },

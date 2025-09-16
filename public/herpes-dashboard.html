@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Herpes Tracking & Management - diseaseZone</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .header p {
+            margin: 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .card h2 {
+            margin: 0 0 20px 0;
+            color: #2d3748;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            font-size: 1.5em;
+        }
+
+        .status-overview {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .status-overview h2 {
+            color: white;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .status-item {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .status-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .prediction-card {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .prediction-card h2 {
+            color: white;
+        }
+
+        .prediction-result {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+
+        .confidence-bar {
+            background: rgba(255,255,255,0.3);
+            height: 8px;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: white;
+            transition: width 0.5s ease;
+        }
+
+        .risk-level {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .risk-low { background: #48bb78; color: white; }
+        .risk-moderate { background: #ed8936; color: white; }
+        .risk-high { background: #f56565; color: white; }
+        .risk-very-high { background: #9f2f2f; color: white; }
+
+        .form-group {
+            margin: 15px 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f56565 0%, #c53030 100%);
+        }
+
+        .symptom-tracker {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .symptom-item {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .symptom-item:hover {
+            border-color: #667eea;
+            background: #edf2f7;
+        }
+
+        .symptom-item.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+
+        .trigger-slider {
+            margin: 15px 0;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .timeline {
+            margin: 20px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .timeline-date {
+            font-weight: 600;
+            color: #667eea;
+            min-width: 100px;
+        }
+
+        .timeline-content {
+            flex: 1;
+            margin-left: 15px;
+        }
+
+        .analytics-chart {
+            height: 300px;
+            background: #f7fafc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #718096;
+            font-size: 1.1em;
+            margin: 20px 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: #f0fff4;
+            border-color: #48bb78;
+            color: #2f855a;
+        }
+
+        .alert-warning {
+            background: #fffaf0;
+            border-color: #ed8936;
+            color: #c05621;
+        }
+
+        .alert-info {
+            background: #ebf8ff;
+            border-color: #4299e1;
+            color: #2b6cb0;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 5px;
+            margin: 20px 0;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .status-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦠 Herpes Management Dashboard</h1>
+            <p>Comprehensive tracking and prediction for HSV-1, HSV-2, and Shingles</p>
+        </div>
+
+        <!-- Status Overview -->
+        <div class="card status-overview">
+            <h2><span class="icon">📊</span> Your Herpes Health Overview</h2>
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-number" id="daysOutbreakFree">--</div>
+                    <div>Days Outbreak-Free</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-number" id="totalOutbreaks">--</div>
+                    <div>Total Outbreaks Tracked</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-number" id="averageFrequency">--</div>
+                    <div>Days Between Outbreaks</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-number" id="riskScore">--</div>
+                    <div>Current Risk Score</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Outbreak Prediction -->
+            <div class="card prediction-card">
+                <h2><span class="icon">🔮</span> Outbreak Prediction</h2>
+                <div class="prediction-result" id="predictionResult">
+                    <div class="loading">Analyzing your data...</div>
+                </div>
+                <button class="btn" onclick="updatePrediction()">Update Prediction</button>
+            </div>
+
+            <!-- Condition Management -->
+            <div class="card">
+                <h2><span class="icon">🏥</span> Condition Management</h2>
+
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('hsv1')">HSV-1</div>
+                    <div class="tab" onclick="switchTab('hsv2')">HSV-2</div>
+                    <div class="tab" onclick="switchTab('shingles')">Shingles</div>
+                    <div class="tab" onclick="switchTab('trichomoniasis')">Trich</div>
+                    <div class="tab" onclick="switchTab('pubic_lice')">Crabs</div>
+                </div>
+
+                <div id="hsv1" class="tab-content active">
+                    <p><strong>HSV-1 (Oral Herpes)</strong></p>
+                    <div id="hsv1Status">Not diagnosed</div>
+                    <button class="btn btn-secondary" onclick="addCondition('hsv1')">Update Status</button>
+                </div>
+
+                <div id="hsv2" class="tab-content">
+                    <p><strong>HSV-2 (Genital Herpes)</strong></p>
+                    <div id="hsv2Status">Not diagnosed</div>
+                    <button class="btn btn-secondary" onclick="addCondition('hsv2')">Update Status</button>
+                </div>
+
+                <div id="shingles" class="tab-content">
+                    <p><strong>Shingles (Herpes Zoster)</strong></p>
+                    <div id="shinglesStatus">No history</div>
+                    <button class="btn btn-secondary" onclick="addCondition('shingles')">Update Status</button>
+                </div>
+
+                <div id="trichomoniasis" class="tab-content">
+                    <p><strong>Trichomoniasis (Parasitic STI)</strong></p>
+                    <div id="trichomoniasisStatus">Not diagnosed</div>
+                    <button class="btn btn-secondary" onclick="addCondition('trichomoniasis')">Update Status</button>
+                </div>
+
+                <div id="pubic_lice" class="tab-content">
+                    <p><strong>Phthirus pubis (Pubic Lice/Crabs)</strong></p>
+                    <div id="pubic_liceStatus">Not diagnosed</div>
+                    <button class="btn btn-secondary" onclick="addCondition('pubic_lice')">Update Status</button>
+                </div>
+            </div>
+
+            <!-- Outbreak Tracking -->
+            <div class="card">
+                <h2><span class="icon">📝</span> Track New Outbreak</h2>
+
+                <div class="form-group">
+                    <label>STI Type</label>
+                    <select class="form-control" id="outbreakType">
+                        <option value="">Select type</option>
+                        <option value="hsv1">HSV-1 (Oral)</option>
+                        <option value="hsv2">HSV-2 (Genital)</option>
+                        <option value="shingles">Shingles</option>
+                        <option value="trichomoniasis">Trichomoniasis</option>
+                        <option value="pubic_lice">Pubic Lice (Crabs)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Onset Date</label>
+                    <input type="date" class="form-control" id="outbreakDate">
+                </div>
+
+                <div class="form-group">
+                    <label>Severity (1-10)</label>
+                    <input type="range" class="slider" id="outbreakSeverity" min="1" max="10" value="5">
+                    <div style="text-align: center; margin-top: 5px;">
+                        <span id="severityValue">5</span>/10
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Current Symptoms</label>
+                    <div class="symptom-tracker">
+                        <div class="symptom-item" onclick="toggleSymptom(this, 'tingling')">Tingling</div>
+                        <div class="symptom-item" onclick="toggleSymptom(this, 'burning')">Burning</div>
+                        <div class="symptom-item" onclick="toggleSymptom(this, 'itching')">Itching</div>
+                        <div class="symptom-item" onclick="toggleSymptom(this, 'blisters')">Blisters</div>
+                        <div class="symptom-item" onclick="toggleSymptom(this, 'pain')">Pain</div>
+                        <div class="symptom-item" onclick="toggleSymptom(this, 'swelling')">Swelling</div>
+                        <div class="symptom-item" onclick="toggleSymptom(this, 'discharge')">Discharge</div>
+                        <div class="symptom-item" onclick="toggleSymptom(this, 'odor')">Odor</div>
+                        <div class="symptom-item" onclick="toggleSymptom(this, 'visible_lice')">Visible Lice</div>
+                        <div class="symptom-item" onclick="toggleSymptom(this, 'nits_eggs')">Nits/Eggs</div>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="recordOutbreak()">Record Outbreak</button>
+            </div>
+
+            <!-- Trigger Tracking -->
+            <div class="card">
+                <h2><span class="icon">⚠️</span> Trigger Monitoring</h2>
+
+                <div class="trigger-slider">
+                    <label>Stress Level</label>
+                    <input type="range" class="slider" id="stressLevel" min="0" max="10" value="3">
+                    <div style="text-align: center;">
+                        <span id="stressValue">3</span>/10
+                    </div>
+                </div>
+
+                <div class="trigger-slider">
+                    <label>Sleep Quality</label>
+                    <input type="range" class="slider" id="sleepLevel" min="0" max="10" value="7">
+                    <div style="text-align: center;">
+                        <span id="sleepValue">7</span>/10
+                    </div>
+                </div>
+
+                <div class="trigger-slider">
+                    <label>Illness/Fatigue</label>
+                    <input type="range" class="slider" id="illnessLevel" min="0" max="10" value="2">
+                    <div style="text-align: center;">
+                        <span id="illnessValue">2</span>/10
+                    </div>
+                </div>
+
+                <button class="btn" onclick="updateTriggers()">Save Trigger Levels</button>
+            </div>
+
+            <!-- Family Tracking -->
+            <div class="card">
+                <h2><span class="icon">👨‍👩‍👧‍👦</span> Family History</h2>
+
+                <div class="form-group">
+                    <label>Family Member</label>
+                    <select class="form-control" id="familyMember">
+                        <option value="">Select relationship</option>
+                        <option value="mother">Mother</option>
+                        <option value="father">Father</option>
+                        <option value="sibling">Sibling</option>
+                        <option value="grandparent">Grandparent</option>
+                        <option value="aunt/uncle">Aunt/Uncle</option>
+                        <option value="cousin">Cousin</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Name (optional)</label>
+                    <input type="text" class="form-control" id="familyMemberName" placeholder="Family member's name">
+                </div>
+
+                <div class="form-group">
+                    <label>STI Condition</label>
+                    <select class="form-control" id="familyCondition">
+                        <option value="">Select condition</option>
+                        <option value="hsv1">HSV-1</option>
+                        <option value="hsv2">HSV-2</option>
+                        <option value="shingles">Shingles</option>
+                        <option value="trichomoniasis">Trichomoniasis</option>
+                        <option value="pubic_lice">Pubic Lice (Crabs)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Has Condition</label>
+                    <select class="form-control" id="hasCondition">
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                        <option value="unknown">Unknown</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="addFamilyRecord()">Add Family Record</button>
+            </div>
+
+            <!-- Analytics -->
+            <div class="card">
+                <h2><span class="icon">📈</span> Analytics & Insights</h2>
+
+                <div class="analytics-chart" id="analyticsChart">
+                    Interactive outbreak pattern chart will appear here
+                </div>
+
+                <div id="insights">
+                    <div class="alert alert-info">
+                        <strong>💡 Personal Insight:</strong> Your outbreak patterns show correlation with stress levels. Consider stress management techniques.
+                    </div>
+                </div>
+
+                <button class="btn" onclick="generateInsights()">Generate New Insights</button>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <h2><span class="icon">📅</span> Recent Activity</h2>
+
+                <div class="timeline" id="recentActivity">
+                    <div class="timeline-item">
+                        <div class="timeline-date">Today</div>
+                        <div class="timeline-content">
+                            <strong>Trigger tracking updated</strong><br>
+                            Stress: 3/10, Sleep: 7/10
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">2 days ago</div>
+                        <div class="timeline-content">
+                            <strong>Outbreak prediction updated</strong><br>
+                            Next outbreak risk: Low
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">1 week ago</div>
+                        <div class="timeline-content">
+                            <strong>HSV-2 outbreak recorded</strong><br>
+                            Duration: 6 days, Severity: 4/10
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Treatment & Prevention -->
+            <div class="card">
+                <h2><span class="icon">💊</span> Treatment & Prevention</h2>
+
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTreatmentTab('current')">Current</div>
+                    <div class="tab" onclick="switchTreatmentTab('preventive')">Preventive</div>
+                    <div class="tab" onclick="switchTreatmentTab('emergency')">Emergency</div>
+                </div>
+
+                <div id="current" class="tab-content active">
+                    <h4>Current Medications</h4>
+                    <p>No active medications recorded</p>
+                    <button class="btn btn-secondary">Add Medication</button>
+                </div>
+
+                <div id="preventive" class="tab-content">
+                    <h4>Prevention Strategies</h4>
+                    <ul>
+                        <li>Stress management techniques</li>
+                        <li>Adequate sleep (7-9 hours)</li>
+                        <li>L-lysine supplements</li>
+                        <li>Sun protection for HSV-1</li>
+                    </ul>
+                </div>
+
+                <div id="emergency" class="tab-content">
+                    <h4>Outbreak Action Plan</h4>
+                    <ol>
+                        <li>Start antiviral within 24 hours of symptoms</li>
+                        <li>Apply topical numbing cream</li>
+                        <li>Avoid triggers and get extra rest</li>
+                        <li>Contact healthcare provider if severe</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let selectedSymptoms = [];
+        let userConditions = {
+            hsv1: false,
+            hsv2: false,
+            shingles: false,
+            trichomoniasis: false,
+            pubic_lice: false
+        };
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboard();
+            setupSliders();
+            updatePrediction();
+        });
+
+        // Setup slider value displays
+        function setupSliders() {
+            const sliders = [
+                { id: 'outbreakSeverity', valueId: 'severityValue' },
+                { id: 'stressLevel', valueId: 'stressValue' },
+                { id: 'sleepLevel', valueId: 'sleepValue' },
+                { id: 'illnessLevel', valueId: 'illnessValue' }
+            ];
+
+            sliders.forEach(slider => {
+                const element = document.getElementById(slider.id);
+                const valueDisplay = document.getElementById(slider.valueId);
+
+                element.addEventListener('input', function() {
+                    valueDisplay.textContent = this.value;
+                });
+            });
+        }
+
+        // Load dashboard data
+        async function loadDashboard() {
+            try {
+                // Simulate loading user data
+                updateStatusNumbers();
+                loadRecentActivity();
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        // Update status overview numbers
+        function updateStatusNumbers() {
+            // Simulate data - in real app, would fetch from API
+            document.getElementById('daysOutbreakFree').textContent = '23';
+            document.getElementById('totalOutbreaks').textContent = '8';
+            document.getElementById('averageFrequency').textContent = '45';
+            document.getElementById('riskScore').textContent = '6.2';
+        }
+
+        // Update outbreak prediction
+        async function updatePrediction() {
+            const resultDiv = document.getElementById('predictionResult');
+            resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Analyzing outbreak patterns...</div>';
+
+            try {
+                // Simulate prediction API call
+                setTimeout(() => {
+                    const prediction = {
+                        nextOutbreak: '14 days',
+                        confidence: 78,
+                        riskLevel: 'moderate',
+                        triggers: ['moderate stress', 'seasonal changes']
+                    };
+
+                    resultDiv.innerHTML = `
+                        <div><strong>Next Outbreak Prediction:</strong></div>
+                        <div style="font-size: 1.5em; margin: 10px 0;">${prediction.nextOutbreak}</div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: ${prediction.confidence}%"></div>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <span class="risk-level risk-${prediction.riskLevel}">${prediction.riskLevel.toUpperCase()} RISK</span>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <strong>Key Triggers:</strong> ${prediction.triggers.join(', ')}
+                        </div>
+                    `;
+                }, 2000);
+
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="alert alert-warning">Unable to generate prediction. Please try again.</div>';
+            }
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function switchTreatmentTab(tabName) {
+            // Similar tab switching for treatment section
+            const parentCard = event.target.closest('.card');
+            parentCard.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            parentCard.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            parentCard.querySelector(`#${tabName}`).classList.add('active');
+        }
+
+        // Symptom tracking
+        function toggleSymptom(element, symptom) {
+            element.classList.toggle('active');
+
+            if (element.classList.contains('active')) {
+                if (!selectedSymptoms.includes(symptom)) {
+                    selectedSymptoms.push(symptom);
+                }
+            } else {
+                selectedSymptoms = selectedSymptoms.filter(s => s !== symptom);
+            }
+        }
+
+        // Record outbreak
+        async function recordOutbreak() {
+            const outbreakData = {
+                type: document.getElementById('outbreakType').value,
+                date: document.getElementById('outbreakDate').value,
+                severity: document.getElementById('outbreakSeverity').value,
+                symptoms: selectedSymptoms
+            };
+
+            if (!outbreakData.type || !outbreakData.date) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            try {
+                // Simulate API call
+                console.log('Recording outbreak:', outbreakData);
+
+                // Show success message
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success';
+                alert.innerHTML = '✅ Outbreak recorded successfully!';
+
+                const card = event.target.closest('.card');
+                card.insertBefore(alert, card.firstChild);
+
+                setTimeout(() => alert.remove(), 3000);
+
+                // Reset form
+                document.getElementById('outbreakType').value = '';
+                document.getElementById('outbreakDate').value = '';
+                document.getElementById('outbreakSeverity').value = '5';
+                document.getElementById('severityValue').textContent = '5';
+                selectedSymptoms = [];
+                document.querySelectorAll('.symptom-item.active').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                // Update dashboard
+                updateStatusNumbers();
+                updatePrediction();
+
+            } catch (error) {
+                alert('Error recording outbreak. Please try again.');
+            }
+        }
+
+        // Update triggers
+        async function updateTriggers() {
+            const triggerData = {
+                stress: document.getElementById('stressLevel').value,
+                sleep: document.getElementById('sleepLevel').value,
+                illness: document.getElementById('illnessLevel').value,
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                console.log('Updating triggers:', triggerData);
+
+                // Show success message
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success';
+                alert.innerHTML = '✅ Trigger levels updated!';
+
+                const card = event.target.closest('.card');
+                card.insertBefore(alert, card.firstChild);
+
+                setTimeout(() => alert.remove(), 3000);
+
+                // Update prediction based on new trigger levels
+                updatePrediction();
+
+            } catch (error) {
+                alert('Error updating triggers. Please try again.');
+            }
+        }
+
+        // Add family record
+        async function addFamilyRecord() {
+            const familyData = {
+                member: document.getElementById('familyMember').value,
+                name: document.getElementById('familyMemberName').value,
+                condition: document.getElementById('familyCondition').value,
+                hasCondition: document.getElementById('hasCondition').value
+            };
+
+            if (!familyData.member || !familyData.condition) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            try {
+                console.log('Adding family record:', familyData);
+
+                // Show success message
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success';
+                alert.innerHTML = '✅ Family record added successfully!';
+
+                const card = event.target.closest('.card');
+                card.insertBefore(alert, card.firstChild);
+
+                setTimeout(() => alert.remove(), 3000);
+
+                // Reset form
+                document.getElementById('familyMember').value = '';
+                document.getElementById('familyMemberName').value = '';
+                document.getElementById('familyCondition').value = '';
+                document.getElementById('hasCondition').value = 'true';
+
+            } catch (error) {
+                alert('Error adding family record. Please try again.');
+            }
+        }
+
+        // Add condition
+        function addCondition(conditionType) {
+            const confirmed = confirm(`Do you have a confirmed diagnosis of ${conditionType.toUpperCase()}?`);
+
+            if (confirmed) {
+                userConditions[conditionType] = true;
+                document.getElementById(`${conditionType}Status`).innerHTML =
+                    `<span style="color: #48bb78;">✅ Diagnosed</span>`;
+
+                // Update prediction model
+                updatePrediction();
+            }
+        }
+
+        // Generate insights
+        async function generateInsights() {
+            const insightsDiv = document.getElementById('insights');
+            insightsDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Generating personalized insights...</div>';
+
+            try {
+                setTimeout(() => {
+                    const insights = [
+                        {
+                            type: 'info',
+                            message: '💡 Your outbreaks tend to occur during high stress periods. Consider stress management techniques like meditation or yoga.'
+                        },
+                        {
+                            type: 'warning',
+                            message: '⚠️ Your sleep quality has been below 6/10 for the past week. Poor sleep can trigger outbreaks.'
+                        },
+                        {
+                            type: 'success',
+                            message: '✅ Great job! You\'ve been outbreak-free for 23 days - your longest streak this year.'
+                        }
+                    ];
+
+                    let html = '';
+                    insights.forEach(insight => {
+                        html += `<div class="alert alert-${insight.type}"><strong>${insight.message}</strong></div>`;
+                    });
+
+                    insightsDiv.innerHTML = html;
+                }, 1500);
+
+            } catch (error) {
+                insightsDiv.innerHTML = '<div class="alert alert-warning">Unable to generate insights. Please try again.</div>';
+            }
+        }
+
+        // Load recent activity
+        function loadRecentActivity() {
+            // Activity is already populated in HTML for demo
+            // In real app, would fetch from API
+        }
+    </script>
+</body>
+</html>
