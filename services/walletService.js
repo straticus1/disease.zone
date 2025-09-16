@@ -5,28 +5,50 @@
 
 const { ethers } = require('ethers');
 const axios = require('axios');
+const { BLOCKCHAIN_NETWORKS, TOKEN_CONTRACTS, SAFETY_WARNINGS, DEFAULT_CONFIG } = require('../config/blockchain');
 
 class WalletService {
     constructor() {
-        // Initialize providers for multiple networks
-        this.providers = {
-            polygon: new ethers.JsonRpcProvider(process.env.POLYGON_RPC_URL || 'https://polygon-rpc.com'),
-            mumbai: new ethers.JsonRpcProvider(process.env.MUMBAI_RPC_URL || 'https://rpc-mumbai.matic.today'),
-            ethereum: new ethers.JsonRpcProvider(process.env.ETHEREUM_RPC_URL || `https://mainnet.infura.io/v3/${process.env.INFURA_KEY}`)
-        };
+        // Start in safe testnet mode by default
+        this.currentMode = DEFAULT_CONFIG.mode;
+        this.currentNetwork = DEFAULT_CONFIG.network;
+        
+        // Initialize providers based on current mode
+        this.initializeProviders();
+        
+        // Initialize network configurations
+        this.networkConfig = BLOCKCHAIN_NETWORKS;
+        this.tokenConfig = TOKEN_CONTRACTS;
+        this.safetyWarnings = SAFETY_WARNINGS;
 
-        // Token contract addresses
-        this.tokenContracts = {
-            polygon: {
-                USDC: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
-                WMATIC: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
-                // Add more token contracts as needed
-            },
-            mumbai: {
-                USDC: '0xe6b8a5CF854791412c1f6EFC7CAf629f5Df1c747', // Testnet USDC
-                WMATIC: '0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889' // Testnet WMATIC
+        // Initialize other properties
+        this.initializeProperties();
+    }
+
+    initializeProviders() {
+        const networks = this.networkConfig || BLOCKCHAIN_NETWORKS;
+        const currentNetworks = networks[this.currentMode];
+        
+        this.providers = {};
+        
+        for (const [networkName, config] of Object.entries(currentNetworks)) {
+            try {
+                let rpcUrl = config.rpcUrl;
+                if (rpcUrl.includes('${INFURA_KEY}')) {
+                    rpcUrl = rpcUrl.replace('${INFURA_KEY}', process.env.INFURA_KEY || 'demo');
+                }
+                
+                this.providers[networkName] = new ethers.JsonRpcProvider(rpcUrl);
+                console.log(`✅ Initialized ${config.name} provider (${this.currentMode} mode)`);
+            } catch (error) {
+                console.error(`❌ Failed to initialize ${networkName} provider:`, error.message);
             }
-        };
+        }
+    }
+
+    initializeProperties() {
+        // Token contracts based on current mode and network
+        this.tokenContracts = this.tokenConfig[this.currentMode] || {};
 
         // ERC-20 ABI for token balance checking
         this.erc20Abi = [
@@ -39,6 +61,171 @@ class WalletService {
         // Cache for performance
         this.balanceCache = new Map();
         this.cacheTimeout = 60000; // 1 minute cache
+    }
+
+    // ===== NETWORK MANAGEMENT METHODS =====
+
+    /**
+     * Switch between testnet and mainnet modes
+     */
+    switchMode(newMode, confirmRealMoney = false) {
+        if (newMode === this.currentMode) {
+            return {
+                success: true,
+                message: `Already in ${newMode} mode`,
+                currentMode: this.currentMode
+            };
+        }
+
+        // Safety check: switching to mainnet requires confirmation
+        if (newMode === 'mainnet' && !confirmRealMoney) {
+            return {
+                success: false,
+                requiresConfirmation: true,
+                warning: this.safetyWarnings.testnet_to_mainnet,
+                currentMode: this.currentMode
+            };
+        }
+
+        const oldMode = this.currentMode;
+        this.currentMode = newMode;
+        
+        try {
+            // Reinitialize providers for new mode
+            this.initializeProviders();
+            this.initializeProperties();
+            
+            // Clear cache when switching modes
+            this.balanceCache.clear();
+            
+            console.log(`🔄 Switched from ${oldMode} to ${newMode} mode`);
+            
+            return {
+                success: true,
+                message: `Switched to ${newMode} mode`,
+                previousMode: oldMode,
+                currentMode: this.currentMode,
+                warning: newMode === 'mainnet' ? 'You are now using REAL money!' : 'Safe testnet mode active'
+            };
+        } catch (error) {
+            // Revert on error
+            this.currentMode = oldMode;
+            this.initializeProviders();
+            this.initializeProperties();
+            
+            return {
+                success: false,
+                error: `Failed to switch to ${newMode} mode: ${error.message}`,
+                currentMode: this.currentMode
+            };
+        }
+    }
+
+    /**
+     * Get current network configuration
+     */
+    getCurrentNetworkConfig() {
+        const networks = this.networkConfig[this.currentMode];
+        const currentNetwork = networks[this.currentNetwork];
+        
+        return {
+            mode: this.currentMode,
+            network: this.currentNetwork,
+            config: currentNetwork,
+            isTestnet: this.currentMode === 'testnet',
+            isMainnet: this.currentMode === 'mainnet',
+            warningLevel: currentNetwork?.warningLevel || 'unknown',
+            gasCostWarning: currentNetwork?.gasCostWarning,
+            faucetUrl: currentNetwork?.faucetUrl,
+            explorerUrl: currentNetwork?.explorerUrl
+        };
+    }
+
+    /**
+     * Get available networks for current mode
+     */
+    getAvailableNetworks() {
+        const networks = this.networkConfig[this.currentMode];
+        return Object.keys(networks).map(networkName => ({
+            name: networkName,
+            displayName: networks[networkName].name,
+            chainId: networks[networkName].chainId,
+            warningLevel: networks[networkName].warningLevel,
+            gasCostWarning: networks[networkName].gasCostWarning,
+            faucetUrl: networks[networkName].faucetUrl
+        }));
+    }
+
+    /**
+     * Switch to a different network within the current mode
+     */
+    switchNetwork(newNetwork) {
+        const availableNetworks = this.networkConfig[this.currentMode];
+        
+        if (!availableNetworks[newNetwork]) {
+            return {
+                success: false,
+                error: `Network ${newNetwork} not available in ${this.currentMode} mode`,
+                availableNetworks: Object.keys(availableNetworks)
+            };
+        }
+
+        const oldNetwork = this.currentNetwork;
+        this.currentNetwork = newNetwork;
+        
+        // Clear cache when switching networks
+        this.balanceCache.clear();
+        
+        return {
+            success: true,
+            message: `Switched to ${availableNetworks[newNetwork].name}`,
+            previousNetwork: oldNetwork,
+            currentNetwork: this.currentNetwork,
+            networkConfig: this.getCurrentNetworkConfig()
+        };
+    }
+
+    /**
+     * Validate if a transaction is safe to execute
+     */
+    validateTransactionSafety(transactionData) {
+        const warnings = [];
+        const currentConfig = this.getCurrentNetworkConfig();
+        
+        // Check if we're on mainnet
+        if (this.currentMode === 'mainnet') {
+            warnings.push({
+                type: 'mainnet_warning',
+                severity: 'high',
+                message: 'This transaction will use REAL money and cannot be reversed!',
+                gasCostWarning: currentConfig.gasCostWarning
+            });
+        }
+        
+        // Check transaction amount
+        if (transactionData.amount && parseFloat(transactionData.amount) > 1000) {
+            warnings.push({
+                type: 'large_amount',
+                severity: 'high',
+                message: `Large transaction amount: ${transactionData.amount} ${transactionData.symbol || 'tokens'}`
+            });
+        }
+        
+        return {
+            isMainnet: this.currentMode === 'mainnet',
+            isTestnet: this.currentMode === 'testnet',
+            warningLevel: currentConfig.warningLevel,
+            warnings,
+            requiresConfirmation: this.currentMode === 'mainnet',
+            currentNetwork: currentConfig
+        };
+    }
+
+    /**
+     * Get wallet balance (alias for getNativeBalance for frontend compatibility)
+     */
+    async getBalance(address, network = 'polygon') {
+        return await this.getNativeBalance(address, network);
     }
 
     /**
@@ -58,6 +245,8 @@ class WalletService {
             const balance = await provider.getBalance(address);
             const balanceInEther = ethers.formatEther(balance);
 
+            const networkConfig = this.getCurrentNetworkConfig();
+            
             return {
                 address,
                 network,
@@ -65,6 +254,11 @@ class WalletService {
                 symbol: network === 'ethereum' ? 'ETH' : 'MATIC',
                 raw: balance.toString(),
                 isReal: true,
+                isTestnet: this.currentMode === 'testnet',
+                isMainnet: this.currentMode === 'mainnet',
+                mode: this.currentMode,
+                warningLevel: networkConfig.warningLevel,
+                faucetUrl: networkConfig.faucetUrl,
                 timestamp: new Date().toISOString()
             };
 
@@ -371,6 +565,94 @@ class WalletService {
         }
 
         return status;
+    }
+
+    /**
+     * Get current configuration (frontend compatibility)
+     */
+    getCurrentConfig() {
+        return this.getCurrentNetworkConfig();
+    }
+
+    /**
+     * Get current mode (frontend compatibility)
+     */
+    getCurrentMode() {
+        return this.currentMode;
+    }
+
+    /**
+     * Get current network (frontend compatibility)
+     */
+    getCurrentNetwork() {
+        return this.currentNetwork;
+    }
+
+    /**
+     * Get health status (frontend compatibility)
+     */
+    getHealth() {
+        return {
+            mode: this.currentMode,
+            network: this.currentNetwork,
+            status: 'operational',
+            timestamp: new Date().toISOString()
+        };
+    }
+
+    /**
+     * Validate transaction with comprehensive safety checks
+     */
+    validateTransaction(transactionData) {
+        const { fromAddress, toAddress, amount, network, mode } = transactionData;
+        const warnings = [];
+        
+        // Basic validation
+        if (!ethers.isAddress(fromAddress) || !ethers.isAddress(toAddress)) {
+            throw new Error('Invalid wallet address format');
+        }
+
+        if (amount <= 0) {
+            throw new Error('Transaction amount must be greater than zero');
+        }
+
+        // Mode-specific warnings
+        if (mode === 'mainnet' || this.currentMode === 'mainnet') {
+            warnings.push({
+                type: 'Real Money Warning',
+                level: 'danger',
+                message: 'This transaction will use real cryptocurrency and cannot be undone!'
+            });
+        }
+
+        // Large amount warning
+        if (amount > 1.0) {
+            warnings.push({
+                type: 'Large Amount',
+                level: 'warning',
+                message: `You are about to send ${amount} tokens. Please verify this amount is correct.`
+            });
+        }
+
+        // Network-specific warnings
+        const networkConfig = this.getCurrentNetworkConfig();
+        if (networkConfig.warningLevel === 'high') {
+            warnings.push({
+                type: 'Network Warning',
+                level: 'warning',
+                message: networkConfig.gasCostWarning || 'High gas fees expected on this network'
+            });
+        }
+
+        return {
+            valid: true,
+            warnings,
+            gasEstimate: {
+                gasLimit: '0x5208', // 21000 for simple transfer
+                gasPrice: '0x174876e800' // 100 gwei
+            },
+            networkConfig
+        };
     }
 }
 

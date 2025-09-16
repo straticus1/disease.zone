@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Blockchain Wallet Demo - DiseaseZone</title>
+    
+    <!-- Styles for demo -->
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .demo-container {
+            max-width: 800px;
+            margin: 2rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .demo-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .demo-header h1 {
+            color: #2563eb;
+            margin-bottom: 0.5rem;
+        }
+        
+        .demo-header p {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+        
+        .demo-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #f9fafb;
+        }
+        
+        .demo-section h3 {
+            color: #374151;
+            margin-bottom: 1rem;
+        }
+        
+        .demo-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .demo-feature {
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        
+        .demo-feature h4 {
+            color: #059669;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .demo-feature p {
+            color: #6b7280;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .demo-instructions {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .demo-instructions h3 {
+            color: #d97706;
+            margin-bottom: 1rem;
+        }
+        
+        .demo-instructions ol {
+            color: #92400e;
+            line-height: 1.6;
+        }
+        
+        .demo-instructions ol li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .demo-warning {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        .demo-warning strong {
+            color: #dc2626;
+        }
+        
+        @media (max-width: 768px) {
+            .demo-container {
+                margin: 1rem;
+                padding: 1rem;
+            }
+            
+            .demo-features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>🛡️ Enhanced Blockchain Wallet Interface</h1>
+            <p>Safe testnet/mainnet toggle with comprehensive transaction warnings</p>
+        </div>
+        
+        <div class="demo-warning">
+            <strong>⚠️ Safety Notice:</strong> The wallet interface starts in safe <strong>testnet mode</strong> by default to protect against accidental real money transactions.
+        </div>
+        
+        <div class="demo-section">
+            <h3>🎯 Key Features</h3>
+            <div class="demo-features">
+                <div class="demo-feature">
+                    <h4>🧪 Safe Mode Toggle</h4>
+                    <p>Switch between testnet (safe) and mainnet (real money) with clear warnings and confirmations</p>
+                </div>
+                <div class="demo-feature">
+                    <h4>🔒 Transaction Safety</h4>
+                    <p>Multiple safety checks with warnings for large amounts and real money transactions</p>
+                </div>
+                <div class="demo-feature">
+                    <h4>🌐 Multi-Network</h4>
+                    <p>Support for Ethereum, Polygon, Arbitrum, and Optimism networks with automatic RPC switching</p>
+                </div>
+                <div class="demo-feature">
+                    <h4>💰 Real Balance</h4>
+                    <p>Live balance checking from blockchain networks with fallback to simulated data</p>
+                </div>
+                <div class="demo-feature">
+                    <h4>📝 Smart Validation</h4>
+                    <p>Transaction validation with gas estimation and safety warnings</p>
+                </div>
+                <div class="demo-feature">
+                    <h4>🎨 User-Friendly UI</h4>
+                    <p>Clean interface with clear visual indicators for testnet vs mainnet modes</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-instructions">
+            <h3>📋 How to Test</h3>
+            <ol>
+                <li><strong>Connect MetaMask:</strong> Make sure you have MetaMask installed and available</li>
+                <li><strong>Check Default Mode:</strong> Notice the wallet starts in safe "testnet" mode (green indicator)</li>
+                <li><strong>Test Mode Switch:</strong> Try switching to "mainnet" mode - you'll get a warning confirmation</li>
+                <li><strong>Check Balance:</strong> Click the "Balance" button to see your wallet balance</li>
+                <li><strong>Test Transaction:</strong> Try the "Send" button to see the transaction form with safety warnings</li>
+                <li><strong>Network Switching:</strong> Change networks to see how the interface adapts</li>
+                <li><strong>Faucet Links:</strong> In testnet mode, you'll see links to get test tokens</li>
+            </ol>
+        </div>
+        
+        <div class="demo-section">
+            <h3>🔧 Technical Implementation</h3>
+            <div class="demo-features">
+                <div class="demo-feature">
+                    <h4>🏗️ Architecture</h4>
+                    <p>
+                        • <strong>Frontend:</strong> Enhanced blockchain wallet class with modal UI<br>
+                        • <strong>Backend:</strong> Wallet service with network management<br>
+                        • <strong>Config:</strong> Comprehensive blockchain network definitions
+                    </p>
+                </div>
+                <div class="demo-feature">
+                    <h4>🛡️ Security Features</h4>
+                    <p>
+                        • Real money transaction confirmations<br>
+                        • Address validation and format checking<br>
+                        • Amount validation and large sum warnings<br>
+                        • Rate limiting on all API endpoints
+                    </p>
+                </div>
+                <div class="demo-feature">
+                    <h4>⚡ Performance</h4>
+                    <p>
+                        • Balance caching for improved performance<br>
+                        • Async/await for non-blocking operations<br>
+                        • Error handling with graceful fallbacks<br>
+                        • Provider connection management
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-section" style="text-align: center;">
+            <h3>🚀 Ready to Test!</h3>
+            <p style="color: #6b7280; margin-bottom: 1.5rem;">
+                The enhanced blockchain wallet interface should appear in the top-right corner of this page.
+                <br><strong>Look for the floating wallet panel with testnet/mainnet toggle!</strong>
+            </p>
+            <div style="padding: 1rem; background: #f0f9ff; border-radius: 8px; border: 2px solid #0ea5e9;">
+                <strong style="color: #0369a1;">💡 Pro Tip:</strong>
+                <span style="color: #0369a1;">Start with testnet mode to safely explore all features without risk!</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Include the enhanced blockchain wallet -->
+    <script src="/js/enhanced-blockchain-wallet.js"></script>
+    
+    <script>
+        // Add some demo-specific logging
+        console.log('🎮 Wallet Demo Page Loaded');
+        console.log('🔍 Watch for the enhanced blockchain wallet in the top-right corner');
+        
+        // Add event listener to track wallet events
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('📱 DOM loaded, wallet should initialize automatically');
+            
+            // Check if wallet initialized
+            setTimeout(() => {
+                if (window.blockchainWallet) {
+                    console.log('✅ Enhanced blockchain wallet initialized successfully');
+                } else {
+                    console.log('❌ Enhanced blockchain wallet not found');
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

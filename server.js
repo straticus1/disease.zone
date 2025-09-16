@@ -9,7 +9,7 @@ const cookieParser = require('cookie-parser');
 const STDService = require('./services/stdService');
 const CDCDataService = require('./services/cdcDataService');
 const StateDataService = require('./services/stateDataService');
-const MappingService = require('./services/mappingService');
+const WalletConfigService = require('./services/walletConfigService');
 const NeurologicalDiseaseService = require('./services/neurologicalDiseaseService');
 const GeneticDiseaseService = require('./services/geneticDiseaseService');
 const MusculoskeletalDiseaseService = require('./services/musculoskeletalDiseaseService');
@@ -24,7 +24,7 @@ const HIPAAService = require('./services/hipaaService');
 
 // Enhanced Security and Blockchain
 const SecurityValidator = require('./middleware/security');
-const WalletService = require('./services/walletService');
+const WalletManagementService = require('./services/walletManagementService');
 const ErrorHandler = require('./middleware/errorHandler');
 
 // Middleware
@@ -38,7 +38,7 @@ const PORT = process.env.PORT || 3000;
 
 // Initialize enhanced security and blockchain services
 const securityValidator = new SecurityValidator();
-const walletService = new WalletService();
+const walletService = new WalletManagementService();
 const errorHandler = new ErrorHandler(securityValidator);
 
 // Initialize services
@@ -1384,6 +1384,438 @@ app.get('/api/wallet/health',
       });
     } catch (error) {
       console.error('Error checking wallet service health:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
+
+// Network management endpoints
+app.get('/api/wallet/network-config',
+  securityValidator.createRateLimit(60000, 10, 'Too many network config requests'),
+  async (req, res) => {
+    try {
+      const networkConfig = walletService.getCurrentNetworkConfig();
+      const availableNetworks = walletService.getAvailableNetworks();
+      
+      res.json({
+        success: true,
+        data: {
+          current: networkConfig,
+          available: availableNetworks
+        }
+      });
+    } catch (error) {
+      console.error('Error getting network configuration:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
+
+app.post('/api/wallet/switch-mode',
+  securityValidator.createRateLimit(60000, 3, 'Too many mode switch requests'),
+  securityValidator.validateWalletOperation(),
+  async (req, res) => {
+    try {
+      const { mode, confirmRealMoney } = req.body;
+      
+      if (!mode || !['testnet', 'mainnet'].includes(mode)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid mode. Must be "testnet" or "mainnet"'
+        });
+      }
+      
+      const result = walletService.switchMode(mode, confirmRealMoney);
+      
+      securityValidator.logSecurityEvent('WALLET_MODE_SWITCH', req, {
+        newMode: mode,
+        confirmRealMoney,
+        success: result.success,
+        requiresConfirmation: result.requiresConfirmation
+      });
+      
+      // Return 202 for confirmation required, 200 for success
+      const statusCode = result.requiresConfirmation ? 202 : 200;
+      
+      res.status(statusCode).json({
+        success: result.success,
+        data: result
+      });
+    } catch (error) {
+      console.error('Error switching wallet mode:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
+
+app.post('/api/wallet/switch-network',
+  securityValidator.createRateLimit(60000, 10, 'Too many network switch requests'),
+  securityValidator.validateWalletOperation(),
+  async (req, res) => {
+    try {
+      const { network } = req.body;
+      
+      if (!network) {
+        return res.status(400).json({
+          success: false,
+          error: 'Network is required'
+        });
+      }
+      
+      const result = walletService.switchNetwork(network);
+      
+      securityValidator.logSecurityEvent('WALLET_NETWORK_SWITCH', req, {
+        newNetwork: network,
+        success: result.success
+      });
+      
+      res.json({
+        success: result.success,
+        data: result
+      });
+    } catch (error) {
+      console.error('Error switching wallet network:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
+
+app.post('/api/wallet/validate-transaction-safety',
+  securityValidator.createRateLimit(60000, 20, 'Too many transaction validation requests'),
+  securityValidator.validateWalletOperation(),
+  async (req, res) => {
+    try {
+      const transactionData = req.body;
+      
+      const safetyValidation = walletService.validateTransactionSafety(transactionData);
+      
+      securityValidator.logSecurityEvent('TRANSACTION_SAFETY_CHECK', req, {
+        isMainnet: safetyValidation.isMainnet,
+        warningLevel: safetyValidation.warningLevel,
+        warningCount: safetyValidation.warnings.length
+      });
+      
+      res.json({
+        success: true,
+        data: safetyValidation
+      });
+    } catch (error) {
+      console.error('Error validating transaction safety:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
+
+// ===== COMPREHENSIVE WALLET MANAGEMENT ENDPOINTS =====
+
+// Create new wallet
+app.post('/api/wallet/create',
+  securityValidator.createRateLimit(60000, 5, 'Too many wallet creation requests'),
+  securityValidator.validateWalletOperation(),
+  async (req, res) => {
+    try {
+      const { name, description } = req.body;
+      
+      if (!name || name.trim().length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Wallet name is required'
+        });
+      }
+      
+      const result = await walletService.createNewWallet(name.trim(), description?.trim() || '');
+      
+      securityValidator.logSecurityEvent('WALLET_CREATED', req, {
+        walletName: name,
+        success: result.success,
+        address: result.wallet?.address
+      });
+      
+      res.json({
+        success: result.success,
+        data: result
+      });
+    } catch (error) {
+      console.error('Error creating wallet:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
+
+// Import existing wallet
+app.post('/api/wallet/import',
+  securityValidator.createRateLimit(60000, 3, 'Too many wallet import requests'),
+  securityValidator.validateWalletOperation(),
+  async (req, res) => {
+    try {
+      const { name, privateKeyOrMnemonic, description } = req.body;
+      
+      if (!name || !privateKeyOrMnemonic) {
+        return res.status(400).json({
+          success: false,
+          error: 'Wallet name and private key/mnemonic are required'
+        });
+      }
+      
+      const result = await walletService.importWallet(
+        name.trim(), 
+        privateKeyOrMnemonic.trim(), 
+        description?.trim() || ''
+      );
+      
+      securityValidator.logSecurityEvent('WALLET_IMPORTED', req, {
+        walletName: name,
+        success: result.success,
+        address: result.wallet?.address
+      });
+      
+      res.json({
+        success: result.success,
+        data: result
+      });
+    } catch (error) {
+      console.error('Error importing wallet:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
+
+// Get all wallets
+app.get('/api/wallet/all',
+  securityValidator.createRateLimit(60000, 30, 'Too many wallet list requests'),
+  async (req, res) => {
+    try {
+      const result = await walletService.getAllWallets();
+      
+      res.json({
+        success: result.success,
+        data: result
+      });
+    } catch (error) {
+      console.error('Error getting all wallets:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
+
+// Get specific wallet
+app.get('/api/wallet/:walletId',
+  securityValidator.createRateLimit(60000, 50, 'Too many wallet detail requests'),
+  async (req, res) => {
+    try {
+      const { walletId } = req.params;
+      const { includePrivateKey } = req.query;
+      
+      const result = await walletService.getWallet(walletId, includePrivateKey === 'true');
+      
+      if (includePrivateKey === 'true') {
+        securityValidator.logSecurityEvent('WALLET_PRIVATE_KEY_ACCESSED', req, {
+          walletId,
+          address: result.wallet?.address
+        });
+      }
+      
+      res.json({
+        success: result.success,
+        data: result
+      });
+    } catch (error) {
+      console.error('Error getting wallet:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
+
+// Set active wallet
+app.post('/api/wallet/set-active',
+  securityValidator.createRateLimit(60000, 20, 'Too many active wallet changes'),
+  securityValidator.validateWalletOperation(),
+  async (req, res) => {
+    try {
+      const { walletId } = req.body;
+      
+      if (!walletId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Wallet ID is required'
+        });
+      }
+      
+      const result = await walletService.setActiveWallet(walletId);
+      
+      securityValidator.logSecurityEvent('WALLET_SET_ACTIVE', req, {
+        walletId,
+        success: result.success
+      });
+      
+      res.json({
+        success: result.success,
+        data: result
+      });
+    } catch (error) {
+      console.error('Error setting active wallet:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
+
+// Search wallets
+app.post('/api/wallet/search',
+  securityValidator.createRateLimit(60000, 50, 'Too many wallet search requests'),
+  async (req, res) => {
+    try {
+      const { query, filters } = req.body;
+      
+      const result = await walletService.searchWallets(query || '', filters || {});
+      
+      securityValidator.logSecurityEvent('WALLET_SEARCH', req, {
+        query,
+        filtersCount: Object.keys(filters || {}).length,
+        resultsCount: result.count || 0
+      });
+      
+      res.json({
+        success: result.success,
+        data: result
+      });
+    } catch (error) {
+      console.error('Error searching wallets:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
+
+// Find wallet by address
+app.get('/api/wallet/find/:address',
+  securityValidator.createRateLimit(60000, 30, 'Too many wallet find requests'),
+  async (req, res) => {
+    try {
+      const { address } = req.params;
+      
+      const result = await walletService.findWalletByAddress(address);
+      
+      res.json({
+        success: result.success,
+        data: result
+      });
+    } catch (error) {
+      console.error('Error finding wallet by address:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
+
+// ===== USER WALLET MONITORING ENDPOINTS =====
+
+// Track user wallet
+app.post('/api/wallet/track-user',
+  securityValidator.createRateLimit(60000, 10, 'Too many user wallet tracking requests'),
+  securityValidator.validateWalletOperation(),
+  async (req, res) => {
+    try {
+      const { userId, address, nickname } = req.body;
+      
+      if (!userId || !address) {
+        return res.status(400).json({
+          success: false,
+          error: 'User ID and wallet address are required'
+        });
+      }
+      
+      const result = await walletService.trackUserWallet(userId, address, nickname || '');
+      
+      securityValidator.logSecurityEvent('USER_WALLET_TRACKED', req, {
+        userId,
+        address,
+        success: result.success
+      });
+      
+      res.json({
+        success: result.success,
+        data: result
+      });
+    } catch (error) {
+      console.error('Error tracking user wallet:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
+
+// Get user wallets
+app.get('/api/wallet/users/:userId?',
+  securityValidator.createRateLimit(60000, 20, 'Too many user wallet requests'),
+  async (req, res) => {
+    try {
+      const { userId } = req.params;
+      
+      const result = await walletService.getUserWallets(userId || null);
+      
+      res.json({
+        success: result.success,
+        data: result
+      });
+    } catch (error) {
+      console.error('Error getting user wallets:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
+
+// Get wallet analytics
+app.get('/api/wallet/analytics',
+  securityValidator.createRateLimit(60000, 10, 'Too many analytics requests'),
+  async (req, res) => {
+    try {
+      const result = await walletService.getWalletAnalytics();
+      
+      res.json({
+        success: result.success,
+        data: result
+      });
+    } catch (error) {
+      console.error('Error getting wallet analytics:', error);
       res.status(500).json({
         success: false,
         error: error.message

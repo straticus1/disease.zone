@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Wallet Management Dashboard - DiseaseZone</title>
+    
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-color: #1f2937;
+            --light-color: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .dashboard-header h1 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-success { background: var(--success-color); color: white; }
+        .btn-warning { background: var(--warning-color); color: white; }
+        .btn-danger { background: var(--danger-color); color: white; }
+        .btn-secondary { background: var(--border-color); color: var(--text-primary); }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .wallet-card {
+            background: var(--light-color);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary-color);
+            transition: transform 0.2s;
+        }
+
+        .wallet-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .wallet-card.active {
+            border-left-color: var(--success-color);
+            background: #f0fdf4;
+        }
+
+        .wallet-address {
+            font-family: monospace;
+            font-size: 0.9rem;
+            background: white;
+            padding: 0.5rem;
+            border-radius: 6px;
+            margin: 0.5rem 0;
+        }
+
+        .balance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .balance-item {
+            text-align: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .balance-amount {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .balance-symbol {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success { background: #d1fae5; color: #065f46; border-left: 4px solid var(--success-color); }
+        .alert-error { background: #fee2e2; color: #991b1b; border-left: 4px solid var(--danger-color); }
+        .alert-warning { background: #fef3c7; color: #92400e; border-left: 4px solid var(--warning-color); }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .analytics-card {
+            background: var(--light-color);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .analytics-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .analytics-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <h1>🏦 Comprehensive Wallet Management Dashboard</h1>
+            <p>Create, manage, and monitor all your wallets and user balances</p>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Wallet Creation Section -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2 class="section-title">🎯 Create & Import Wallets</h2>
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn btn-primary" onclick="showCreateWalletModal()">
+                        🆕 Create New Wallet
+                    </button>
+                    <button class="btn btn-secondary" onclick="showImportWalletModal()">
+                        📥 Import Existing Wallet
+                    </button>
+                </div>
+                
+                <div id="creationStatus"></div>
+            </div>
+
+            <!-- Wallet List Section -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2 class="section-title">👛 My Wallets</h2>
+                    <button class="btn btn-primary" onclick="refreshWallets()">
+                        🔄 Refresh
+                    </button>
+                </div>
+                
+                <div id="walletsList">
+                    <div class="loading"></div> Loading wallets...
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Analytics -->
+        <div class="dashboard-grid">
+            <!-- Search Section -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2 class="section-title">🔍 Search Wallets</h2>
+                </div>
+                
+                <div class="form-group">
+                    <input type="text" class="form-input" id="searchQuery" placeholder="Search by name, address, or description...">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Filters:</label>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <label><input type="checkbox" id="filterActive"> Active Only</label>
+                        <label><input type="checkbox" id="filterImported"> Imported Only</label>
+                        <input type="number" class="form-input" id="minBalance" placeholder="Min Balance" style="width: 120px;">
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="searchWallets()">🔍 Search</button>
+                
+                <div id="searchResults"></div>
+            </div>
+
+            <!-- User Wallet Monitoring -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2 class="section-title">👥 User Wallet Monitoring</h2>
+                    <button class="btn btn-success" onclick="showTrackUserModal()">
+                        📊 Track User Wallet
+                    </button>
+                </div>
+                
+                <div id="userWalletsList">
+                    <div class="loading"></div> Loading user wallets...
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div class="dashboard-section full-width">
+            <div class="section-header">
+                <h2 class="section-title">📈 Wallet Analytics</h2>
+                <button class="btn btn-primary" onclick="refreshAnalytics()">
+                    🔄 Refresh Analytics
+                </button>
+            </div>
+            
+            <div id="analyticsContent">
+                <div class="loading"></div> Loading analytics...
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="createWalletModal" class="modal">
+        <div class="modal-content">
+            <h3>🆕 Create New Wallet</h3>
+            <form id="createWalletForm">
+                <div class="form-group">
+                    <label class="form-label">Wallet Name:</label>
+                    <input type="text" class="form-input" id="newWalletName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description (Optional):</label>
+                    <textarea class="form-textarea" id="newWalletDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success">🎯 Create Wallet</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('createWalletModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="importWalletModal" class="modal">
+        <div class="modal-content">
+            <h3>📥 Import Existing Wallet</h3>
+            <form id="importWalletForm">
+                <div class="form-group">
+                    <label class="form-label">Wallet Name:</label>
+                    <input type="text" class="form-input" id="importWalletName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Private Key or Mnemonic Phrase:</label>
+                    <textarea class="form-textarea" id="importWalletKey" rows="3" required placeholder="Enter private key (0x...) or 12/24 word mnemonic phrase"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description (Optional):</label>
+                    <textarea class="form-textarea" id="importWalletDescription" rows="2"></textarea>
+                </div>
+                <div class="alert alert-warning">
+                    ⚠️ Warning: Private keys will be encrypted and stored locally. Never share them!
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success">📥 Import Wallet</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('importWalletModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="trackUserModal" class="modal">
+        <div class="modal-content">
+            <h3>📊 Track User Wallet</h3>
+            <form id="trackUserForm">
+                <div class="form-group">
+                    <label class="form-label">User ID:</label>
+                    <input type="text" class="form-input" id="trackUserId" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Wallet Address:</label>
+                    <input type="text" class="form-input" id="trackUserAddress" required placeholder="0x...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nickname (Optional):</label>
+                    <input type="text" class="form-input" id="trackUserNickname" placeholder="e.g., Main Wallet, Gaming Wallet">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success">📊 Start Tracking</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('trackUserModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let wallets = {};
+        let userWallets = {};
+        let analytics = {};
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🏦 Wallet Dashboard Initialized');
+            
+            // Load all data
+            refreshWallets();
+            refreshUserWallets();
+            refreshAnalytics();
+
+            // Setup form handlers
+            setupFormHandlers();
+        });
+
+        function setupFormHandlers() {
+            // Create wallet form
+            document.getElementById('createWalletForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await createWallet();
+            });
+
+            // Import wallet form
+            document.getElementById('importWalletForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await importWallet();
+            });
+
+            // Track user form
+            document.getElementById('trackUserForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await trackUserWallet();
+            });
+
+            // Search input handler
+            document.getElementById('searchQuery').addEventListener('input', debounce(searchWallets, 300));
+        }
+
+        // ===== WALLET CREATION FUNCTIONS =====
+
+        function showCreateWalletModal() {
+            document.getElementById('createWalletModal').style.display = 'block';
+        }
+
+        function showImportWalletModal() {
+            document.getElementById('importWalletModal').style.display = 'block';
+        }
+
+        function showTrackUserModal() {
+            document.getElementById('trackUserModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        async function createWallet() {
+            const name = document.getElementById('newWalletName').value.trim();
+            const description = document.getElementById('newWalletDescription').value.trim();
+
+            if (!name) {
+                showAlert('creationStatus', 'error', 'Wallet name is required');
+                return;
+            }
+
+            try {
+                showAlert('creationStatus', 'info', 'Creating wallet...');
+
+                const response = await fetch('/api/wallet/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, description })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('creationStatus', 'success', `Wallet "${name}" created successfully!`);
+                    closeModal('createWalletModal');
+                    document.getElementById('createWalletForm').reset();
+                    await refreshWallets();
+                } else {
+                    showAlert('creationStatus', 'error', result.data?.error || 'Failed to create wallet');
+                }
+            } catch (error) {
+                console.error('Error creating wallet:', error);
+                showAlert('creationStatus', 'error', 'Network error while creating wallet');
+            }
+        }
+
+        async function importWallet() {
+            const name = document.getElementById('importWalletName').value.trim();
+            const privateKeyOrMnemonic = document.getElementById('importWalletKey').value.trim();
+            const description = document.getElementById('importWalletDescription').value.trim();
+
+            if (!name || !privateKeyOrMnemonic) {
+                showAlert('creationStatus', 'error', 'Name and private key/mnemonic are required');
+                return;
+            }
+
+            try {
+                showAlert('creationStatus', 'info', 'Importing wallet...');
+
+                const response = await fetch('/api/wallet/import', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, privateKeyOrMnemonic, description })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('creationStatus', 'success', `Wallet "${name}" imported successfully!`);
+                    closeModal('importWalletModal');
+                    document.getElementById('importWalletForm').reset();
+                    await refreshWallets();
+                } else {
+                    showAlert('creationStatus', 'error', result.data?.error || 'Failed to import wallet');
+                }
+            } catch (error) {
+                console.error('Error importing wallet:', error);
+                showAlert('creationStatus', 'error', 'Network error while importing wallet');
+            }
+        }
+
+        // ===== WALLET DISPLAY FUNCTIONS =====
+
+        async function refreshWallets() {
+            try {
+                document.getElementById('walletsList').innerHTML = '<div class="loading"></div> Loading wallets...';
+
+                const response = await fetch('/api/wallet/all');
+                const result = await response.json();
+
+                if (result.success) {
+                    wallets = result.data.wallets;
+                    displayWallets(wallets);
+                } else {
+                    document.getElementById('walletsList').innerHTML = '<div class="alert alert-error">Failed to load wallets</div>';
+                }
+            } catch (error) {
+                console.error('Error refreshing wallets:', error);
+                document.getElementById('walletsList').innerHTML = '<div class="alert alert-error">Network error while loading wallets</div>';
+            }
+        }
+
+        function displayWallets(walletsData) {
+            const container = document.getElementById('walletsList');
+            
+            if (Object.keys(walletsData).length === 0) {
+                container.innerHTML = '<div class="alert alert-warning">No wallets found. Create your first wallet!</div>';
+                return;
+            }
+
+            let html = '';
+            for (const [walletId, wallet] of Object.entries(walletsData)) {
+                html += `
+                    <div class="wallet-card ${wallet.isActive ? 'active' : ''}">
+                        <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 0.5rem;">
+                            <h3>${wallet.name}</h3>
+                            <div>
+                                ${wallet.isActive ? '<span style="color: var(--success-color);">🟢 Active</span>' : ''}
+                                ${wallet.isImported ? '<span style="color: var(--warning-color);">📥 Imported</span>' : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="wallet-address">${wallet.address}</div>
+                        
+                        <div class="balance-grid">
+                            ${Object.entries(wallet.balances || {}).map(([network, balance]) => `
+                                <div class="balance-item">
+                                    <div class="balance-amount">${balance.balance?.toFixed(4) || '0.0000'}</div>
+                                    <div class="balance-symbol">${balance.symbol} (${network})</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                            <button class="btn btn-primary" onclick="setActiveWallet('${walletId}')">
+                                ${wallet.isActive ? '✅ Active' : '🎯 Set Active'}
+                            </button>
+                            <button class="btn btn-secondary" onclick="viewWalletDetails('${walletId}')">
+                                👀 View Details
+                            </button>
+                        </div>
+                        
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                            Created: ${new Date(wallet.createdAt).toLocaleDateString()}
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        async function setActiveWallet(walletId) {
+            try {
+                const response = await fetch('/api/wallet/set-active', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ walletId })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    await refreshWallets();
+                    showAlert('walletsList', 'success', 'Active wallet updated!');
+                } else {
+                    showAlert('walletsList', 'error', result.data?.error || 'Failed to set active wallet');
+                }
+            } catch (error) {
+                console.error('Error setting active wallet:', error);
+                showAlert('walletsList', 'error', 'Network error');
+            }
+        }
+
+        async function viewWalletDetails(walletId) {
+            try {
+                const response = await fetch(`/api/wallet/${walletId}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    const wallet = result.data.wallet;
+                    alert(`Wallet Details:\n\nName: ${wallet.name}\nAddress: ${wallet.address}\nCreated: ${new Date(wallet.createdAt).toLocaleString()}\nNetworks: ${wallet.networks?.join(', ')}`);
+                } else {
+                    alert('Failed to load wallet details');
+                }
+            } catch (error) {
+                console.error('Error viewing wallet details:', error);
+                alert('Error loading wallet details');
+            }
+        }
+
+        // ===== SEARCH FUNCTIONS =====
+
+        async function searchWallets() {
+            const query = document.getElementById('searchQuery').value.trim();
+            const filters = {
+                isActive: document.getElementById('filterActive').checked || undefined,
+                isImported: document.getElementById('filterImported').checked || undefined,
+                minBalance: parseFloat(document.getElementById('minBalance').value) || undefined
+            };
+
+            // Remove undefined values
+            Object.keys(filters).forEach(key => filters[key] === undefined && delete filters[key]);
+
+            try {
+                const response = await fetch('/api/wallet/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, filters })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    displaySearchResults(result.data);
+                } else {
+                    document.getElementById('searchResults').innerHTML = '<div class="alert alert-error">Search failed</div>';
+                }
+            } catch (error) {
+                console.error('Error searching wallets:', error);
+                document.getElementById('searchResults').innerHTML = '<div class="alert alert-error">Search error</div>';
+            }
+        }
+
+        function displaySearchResults(searchData) {
+            const container = document.getElementById('searchResults');
+            
+            if (searchData.count === 0) {
+                container.innerHTML = '<div class="alert alert-warning">No wallets match your search criteria</div>';
+                return;
+            }
+
+            let html = `<div style="margin: 1rem 0;"><strong>Found ${searchData.count} wallet(s)</strong></div>`;
+            
+            for (const [walletId, wallet] of Object.entries(searchData.results)) {
+                html += `
+                    <div class="wallet-card">
+                        <h4>${wallet.name}</h4>
+                        <div class="wallet-address">${wallet.address}</div>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                            ${wallet.isActive ? '🟢 Active' : ''} 
+                            ${wallet.isImported ? '📥 Imported' : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // ===== USER WALLET MONITORING =====
+
+        async function trackUserWallet() {
+            const userId = document.getElementById('trackUserId').value.trim();
+            const address = document.getElementById('trackUserAddress').value.trim();
+            const nickname = document.getElementById('trackUserNickname').value.trim();
+
+            if (!userId || !address) {
+                showAlert('trackUserModal', 'error', 'User ID and address are required');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/wallet/track-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, address, nickname })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('userWalletsList', 'success', 'User wallet is now being tracked!');
+                    closeModal('trackUserModal');
+                    document.getElementById('trackUserForm').reset();
+                    await refreshUserWallets();
+                } else {
+                    showAlert('trackUserModal', 'error', result.data?.error || 'Failed to track user wallet');
+                }
+            } catch (error) {
+                console.error('Error tracking user wallet:', error);
+                showAlert('trackUserModal', 'error', 'Network error');
+            }
+        }
+
+        async function refreshUserWallets() {
+            try {
+                document.getElementById('userWalletsList').innerHTML = '<div class="loading"></div> Loading user wallets...';
+
+                const response = await fetch('/api/wallet/users');
+                const result = await response.json();
+
+                if (result.success) {
+                    userWallets = result.data.userWallets;
+                    displayUserWallets(userWallets);
+                } else {
+                    document.getElementById('userWalletsList').innerHTML = '<div class="alert alert-error">Failed to load user wallets</div>';
+                }
+            } catch (error) {
+                console.error('Error refreshing user wallets:', error);
+                document.getElementById('userWalletsList').innerHTML = '<div class="alert alert-error">Network error</div>';
+            }
+        }
+
+        function displayUserWallets(userWalletsData) {
+            const container = document.getElementById('userWalletsList');
+            
+            if (Object.keys(userWalletsData).length === 0) {
+                container.innerHTML = '<div class="alert alert-warning">No user wallets tracked yet</div>';
+                return;
+            }
+
+            let html = '';
+            for (const [key, wallet] of Object.entries(userWalletsData)) {
+                const [userId] = key.split('_');
+                html += `
+                    <div class="wallet-card">
+                        <div style="display: flex; justify-content: between; align-items: center;">
+                            <div>
+                                <h4>👤 User ${userId}</h4>
+                                ${wallet.nickname ? `<div style="color: var(--text-secondary);">${wallet.nickname}</div>` : ''}
+                            </div>
+                            <div class="balance-amount">$${wallet.totalValue?.toFixed(2) || '0.00'}</div>
+                        </div>
+                        <div class="wallet-address">${wallet.address}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                            Added: ${new Date(wallet.addedAt).toLocaleDateString()}
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // ===== ANALYTICS =====
+
+        async function refreshAnalytics() {
+            try {
+                document.getElementById('analyticsContent').innerHTML = '<div class="loading"></div> Loading analytics...';
+
+                const response = await fetch('/api/wallet/analytics');
+                const result = await response.json();
+
+                if (result.success) {
+                    analytics = result.data.analytics;
+                    displayAnalytics(analytics);
+                } else {
+                    document.getElementById('analyticsContent').innerHTML = '<div class="alert alert-error">Failed to load analytics</div>';
+                }
+            } catch (error) {
+                console.error('Error refreshing analytics:', error);
+                document.getElementById('analyticsContent').innerHTML = '<div class="alert alert-error">Network error</div>';
+            }
+        }
+
+        function displayAnalytics(analyticsData) {
+            const container = document.getElementById('analyticsContent');
+            
+            let html = `
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <div class="analytics-value">${analyticsData.totalWallets}</div>
+                        <div class="analytics-label">Total Tracked Wallets</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-value">$${analyticsData.totalValue?.toFixed(2) || '0.00'}</div>
+                        <div class="analytics-label">Total Value</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-value">$${analyticsData.averageBalance?.toFixed(2) || '0.00'}</div>
+                        <div class="analytics-label">Average Balance</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-value">${Object.keys(analyticsData.byNetwork || {}).length}</div>
+                        <div class="analytics-label">Networks</div>
+                    </div>
+                </div>
+            `;
+
+            // Top wallets
+            if (analyticsData.topWallets?.length > 0) {
+                html += '<h3 style="margin-top: 2rem;">🏆 Top Wallets</h3>';
+                for (const wallet of analyticsData.topWallets.slice(0, 5)) {
+                    html += `
+                        <div class="wallet-card">
+                            <div style="display: flex; justify-content: between; align-items: center;">
+                                <div>
+                                    <div class="wallet-address">${wallet.address}</div>
+                                    ${wallet.nickname ? `<div style="color: var(--text-secondary);">${wallet.nickname}</div>` : ''}
+                                </div>
+                                <div class="balance-amount">$${wallet.totalValue?.toFixed(2) || '0.00'}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            container.innerHTML = html;
+        }
+
+        // ===== UTILITY FUNCTIONS =====
+
+        function showAlert(containerId, type, message) {
+            const alertHtml = `<div class="alert alert-${type}">${message}</div>`;
+            const container = document.getElementById(containerId);
+            
+            // Insert at the beginning
+            container.insertAdjacentHTML('afterbegin', alertHtml);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                const alert = container.querySelector('.alert');
+                if (alert) alert.remove();
+            }, 5000);
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Close modals when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
