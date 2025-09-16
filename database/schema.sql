@@ -324,6 +324,26 @@ CREATE TABLE IF NOT EXISTS user_medical_history (
     FOREIGN KEY (verified_by_user_id) REFERENCES users(id)
 );
 
+-- Contact messages for storing contact form submissions
+CREATE TABLE IF NOT EXISTS contact_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    subject TEXT NOT NULL,
+    message TEXT NOT NULL,
+    status TEXT DEFAULT 'unread', -- 'unread', 'read', 'replied', 'spam', 'archived'
+    ip_address TEXT,
+    user_agent TEXT,
+    user_id INTEGER, -- Optional: if the message is from a logged-in user
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    replied_at DATETIME,
+    replied_by_user_id INTEGER,
+    
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (replied_by_user_id) REFERENCES users(id)
+);
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_uuid ON users(uuid);
@@ -349,3 +369,9 @@ CREATE INDEX IF NOT EXISTS idx_symptom_responses_session_id ON symptom_analysis_
 CREATE INDEX IF NOT EXISTS idx_symptom_disorder_mapping ON symptom_disorder_mappings(symptom_name, disorder_id);
 CREATE INDEX IF NOT EXISTS idx_risk_factor_mapping ON risk_factor_mappings(risk_factor_name, disorder_id);
 CREATE INDEX IF NOT EXISTS idx_user_medical_history_user_id ON user_medical_history(user_id);
+
+-- Contact Messages Indexes
+CREATE INDEX IF NOT EXISTS idx_contact_messages_email ON contact_messages(email);
+CREATE INDEX IF NOT EXISTS idx_contact_messages_status ON contact_messages(status);
+CREATE INDEX IF NOT EXISTS idx_contact_messages_created_at ON contact_messages(created_at);
+CREATE INDEX IF NOT EXISTS idx_contact_messages_user_id ON contact_messages(user_id);

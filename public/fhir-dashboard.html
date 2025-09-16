@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FHIR Hospital Integration - diseaseZone</title>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #059669;
+            margin-bottom: 10px;
+        }
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        input, select, button {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #059669;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #047857;
+        }
+        .hospital-card {
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            background: #fafafa;
+        }
+        .hospital-card h3 {
+            color: #059669;
+            margin-top: 0;
+        }
+        .capability-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin: 2px;
+        }
+        .badge-supported {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .badge-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .connection-status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .status-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status-disconnected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .insight-card {
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #059669;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 FHIR Hospital Integration</h1>
+            <p>Connect your healthcare providers to get personalized health insights and contribute to anonymous disease surveillance.</p>
+        </div>
+
+        <div class="section">
+            <h2>Search FHIR-Enabled Hospitals</h2>
+            <div class="search-form">
+                <input type="text" id="hospitalName" placeholder="Hospital name">
+                <input type="text" id="city" placeholder="City">
+                <input type="text" id="state" placeholder="State">
+                <input type="number" id="radius" placeholder="Radius (miles)" value="50">
+                <label>
+                    <input type="checkbox" id="includeTest"> Include test environments
+                </label>
+                <button onclick="searchHospitals()">Search Hospitals</button>
+            </div>
+            
+            <div id="searchResults">
+                <p>Enter search criteria and click "Search Hospitals" to find FHIR-enabled healthcare providers.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Your Connected Hospitals</h2>
+            <div id="connectedHospitals">
+                <p>No hospital connections found. Search and connect to hospitals above.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Health Insights & Disease Surveillance</h2>
+            <div id="healthInsights">
+                <p>Connect to a hospital to view personalized health insights and your anonymous contribution to disease surveillance.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>FHIR System Status</h2>
+            <button onclick="checkFHIRStatus()">Check System Status</button>
+            <div id="fhirStatus"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        
+        // Check if user is logged in (simplified for demo)
+        async function checkAuthStatus() {
+            try {
+                // In a real implementation, check JWT token or session
+                console.log('Auth check: Using demo mode');
+                return true;
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                return false;
+            }
+        }
+
+        // Search for FHIR hospitals
+        async function searchHospitals() {
+            const searchParams = {
+                name: document.getElementById('hospitalName').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                radius: document.getElementById('radius').value,
+                includeTest: document.getElementById('includeTest').checked
+            };
+
+            const resultsDiv = document.getElementById('searchResults');
+            resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Searching FHIR hospitals...</div>';
+
+            try {
+                const response = await fetch('/api/fhir/hospitals/search?' + new URLSearchParams(searchParams));
+                const data = await response.json();
+
+                if (data.success) {
+                    displayHospitalResults(data.hospitals);
+                } else {
+                    resultsDiv.innerHTML = `<p style="color: red;">Search failed: ${data.error}</p>`;
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                resultsDiv.innerHTML = `<p style="color: red;">Search failed: ${error.message}</p>`;
+            }
+        }
+
+        // Display hospital search results
+        function displayHospitalResults(hospitals) {
+            const resultsDiv = document.getElementById('searchResults');
+            
+            if (hospitals.length === 0) {
+                resultsDiv.innerHTML = '<p>No FHIR-enabled hospitals found. Try adjusting your search criteria.</p>';
+                return;
+            }
+
+            let html = `<h3>Found ${hospitals.length} FHIR-enabled hospitals:</h3>`;
+            
+            hospitals.forEach(hospital => {
+                const capabilities = hospital.capabilities || {};
+                const capabilityBadges = hospital.capabilities ? 
+                    (capabilities.supportedResources || []).map(resource => 
+                        `<span class="capability-badge badge-supported">${resource.type}</span>`
+                    ).join('') :
+                    '<span class="capability-badge badge-error">Capabilities unavailable</span>';
+
+                html += `
+                    <div class="hospital-card">
+                        <h3>${hospital.name}</h3>
+                        <p><strong>FHIR Server:</strong> ${hospital.fhirServerId}</p>
+                        <p><strong>Version:</strong> ${hospital.fhirVersion}</p>
+                        ${hospital.address ? `<p><strong>Address:</strong> ${formatAddress(hospital.address)}</p>` : ''}
+                        ${hospital.distance ? `<p><strong>Distance:</strong> ${hospital.distance.toFixed(1)} miles</p>` : ''}
+                        <p><strong>Test Environment:</strong> ${hospital.testEnvironment ? 'Yes' : 'No'}</p>
+                        
+                        <div style="margin: 10px 0;">
+                            <strong>Supported Resources:</strong><br>
+                            ${capabilityBadges}
+                        </div>
+
+                        <div style="margin-top: 15px;">
+                            <button onclick="connectToHospital('${hospital.id}', '${hospital.name}')">
+                                Connect to Hospital
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            resultsDiv.innerHTML = html;
+        }
+
+        // Connect to a hospital
+        async function connectToHospital(hospitalId, hospitalName) {
+            try {
+                const response = await fetch('/api/fhir/hospitals/connect', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        hospitalId,
+                        scopes: ['patient/*.read'],
+                        purpose: 'disease-surveillance-insights'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`Connection initiated with ${hospitalName}. You will be redirected to authorize the connection.`);
+                    
+                    // Show instructions
+                    const instructions = data.instructions.map(instruction => `• ${instruction}`).join('\n');
+                    alert(`Connection Instructions:\n\n${instructions}`);
+                    
+                    // In a real implementation, redirect to authorization URL
+                    console.log('Authorization URL:', data.authorizationUrl);
+                    
+                    // For demo, simulate connection success
+                    setTimeout(() => {
+                        loadConnectedHospitals();
+                    }, 2000);
+                } else {
+                    alert(`Connection failed: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Connection error:', error);
+                alert(`Connection failed: ${error.message}`);
+            }
+        }
+
+        // Load connected hospitals
+        async function loadConnectedHospitals() {
+            try {
+                const response = await fetch('/api/fhir/connections');
+                const data = await response.json();
+
+                const connectionsDiv = document.getElementById('connectedHospitals');
+                
+                if (data.success && data.connections.length > 0) {
+                    let html = '';
+                    data.connections.forEach(connection => {
+                        const statusClass = `status-${connection.status}`;
+                        html += `
+                            <div class="hospital-card">
+                                <h3>${connection.hospitalName}</h3>
+                                <p><span class="connection-status ${statusClass}">${connection.status.toUpperCase()}</span></p>
+                                <p><strong>Connected:</strong> ${new Date(connection.connectedAt).toLocaleDateString()}</p>
+                                <p><strong>Last Activity:</strong> ${new Date(connection.lastActivity).toLocaleDateString()}</p>
+                                <p><strong>Patient ID:</strong> ${connection.patientId}</p>
+                                
+                                <div style="margin-top: 15px;">
+                                    <button onclick="syncHealthData('${connection.id}')">Sync Health Data</button>
+                                    <button onclick="viewInsights('${connection.id}')">View Insights</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    connectionsDiv.innerHTML = html;
+                } else {
+                    connectionsDiv.innerHTML = '<p>No hospital connections found.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading connections:', error);
+                document.getElementById('connectedHospitals').innerHTML = 
+                    `<p style="color: red;">Error loading connections: ${error.message}</p>`;
+            }
+        }
+
+        // Sync health data from connected hospital
+        async function syncHealthData(connectionId) {
+            try {
+                const response = await fetch(`/api/fhir/sync/${connectionId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        includeObservations: true,
+                        includeConditions: true,
+                        includeImmunizations: true,
+                        anonymizeData: true
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`Health data sync completed! ${data.recordCount} records imported.`);
+                    loadHealthInsights();
+                } else {
+                    alert(`Sync failed: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Sync error:', error);
+                alert(`Sync failed: ${error.message}`);
+            }
+        }
+
+        // View personalized health insights
+        async function viewInsights(connectionId) {
+            try {
+                const response = await fetch(`/api/fhir/insights/${connectionId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    displayHealthInsights(data.insights, data.dataContribution);
+                } else {
+                    alert(`Failed to get insights: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Insights error:', error);
+                alert(`Failed to get insights: ${error.message}`);
+            }
+        }
+
+        // Display health insights
+        function displayHealthInsights(insights, dataContribution) {
+            const insightsDiv = document.getElementById('healthInsights');
+            
+            let html = '<h3>🔍 Personalized Health Insights</h3>';
+            
+            if (insights.diseasePreventionRecommendations && insights.diseasePreventionRecommendations.length > 0) {
+                html += '<div class="insight-card">';
+                html += '<h4>Disease Prevention Recommendations</h4>';
+                insights.diseasePreventionRecommendations.forEach(rec => {
+                    const priorityColor = rec.priority === 'urgent' ? '#ef4444' : '#059669';
+                    html += `
+                        <p><strong>${rec.disease.toUpperCase()}:</strong> ${rec.recommendation}
+                        <span style="color: ${priorityColor}; font-weight: bold;">[${rec.priority}]</span></p>
+                    `;
+                });
+                html += '</div>';
+            }
+
+            if (insights.healthTrends) {
+                html += '<div class="insight-card">';
+                html += '<h4>Health Risk Assessment</h4>';
+                html += `<p><strong>Overall Risk Level:</strong> ${insights.healthTrends.riskLevel}</p>`;
+                if (insights.healthTrends.recommendations) {
+                    html += '<p><strong>Recommendations:</strong></p><ul>';
+                    insights.healthTrends.recommendations.forEach(rec => {
+                        html += `<li>${rec}</li>`;
+                    });
+                    html += '</ul>';
+                }
+                html += '</div>';
+            }
+
+            // Data contribution info
+            html += '<div class="insight-card">';
+            html += '<h4>🔒 Your Privacy-Protected Contribution</h4>';
+            html += '<p>✅ Your data is anonymized before analysis</p>';
+            html += '<p>✅ Helps improve disease surveillance and prevention</p>';
+            html += '<p>✅ No personal information is shared or stored</p>';
+            html += '<p>✅ Contributes to public health research</p>';
+            html += '</div>';
+
+            insightsDiv.innerHTML = html;
+        }
+
+        // Check FHIR system status
+        async function checkFHIRStatus() {
+            const statusDiv = document.getElementById('fhirStatus');
+            statusDiv.innerHTML = '<div class="loading">Checking FHIR system status...</div>';
+
+            try {
+                const response = await fetch('/api/fhir/status');
+                const data = await response.json();
+
+                let html = `
+                    <h3>System Status</h3>
+                    <p><strong>Service:</strong> ${data.service}</p>
+                    <p><strong>FHIR Version:</strong> ${data.fhirVersion}</p>
+                    <p><strong>Total Connections:</strong> ${data.totalConnections}</p>
+                    
+                    <h4>Capabilities</h4>
+                    <ul>
+                `;
+                
+                Object.entries(data.capabilities).forEach(([key, value]) => {
+                    const status = value ? '✅' : '❌';
+                    html += `<li>${status} ${key.replace(/([A-Z])/g, ' $1').toLowerCase()}</li>`;
+                });
+                
+                html += `
+                    </ul>
+                    <h4>Supported Resources</h4>
+                    <p>${data.supportedResources.join(', ')}</p>
+                `;
+
+                statusDiv.innerHTML = html;
+            } catch (error) {
+                console.error('Status check error:', error);
+                statusDiv.innerHTML = `<p style="color: red;">Status check failed: ${error.message}</p>`;
+            }
+        }
+
+        // Helper functions
+        function formatAddress(address) {
+            if (!address) return 'Address not available';
+            const parts = [];
+            if (address.line) parts.push(address.line.join(', '));
+            if (address.city) parts.push(address.city);
+            if (address.state) parts.push(address.state);
+            if (address.postalCode) parts.push(address.postalCode);
+            return parts.join(', ');
+        }
+
+        // Load initial data
+        async function loadInitialData() {
+            await loadConnectedHospitals();
+            await checkFHIRStatus();
+        }
+
+        // Initialize page
+        window.addEventListener('load', async () => {
+            const isAuthenticated = await checkAuthStatus();
+            if (isAuthenticated) {
+                await loadInitialData();
+            } else {
+                document.body.innerHTML = '<div class="container"><div class="header"><h1>Authentication Required</h1><p>Please log in to access FHIR hospital integration.</p></div></div>';
+            }
+        });
+    </script>
+</body>
+</html>

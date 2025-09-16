@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenStreetMap Disease Surveillance Demo</title>
+
+    <!-- Leaflet CSS and JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Our mapping client -->
+    <script src="/js/mapping-client.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .controls {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .control-group {
+            margin: 10px 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+        .control-group label {
+            font-weight: bold;
+            min-width: 100px;
+        }
+        select, input, button {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #005a8b;
+        }
+        .map-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        #map {
+            height: 500px;
+            border-radius: 4px;
+        }
+        .legend {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid #333;
+        }
+        .disease-info {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status-indicator {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-working {
+            background: #4CAF50;
+            color: white;
+        }
+        .status-testing {
+            background: #FF9800;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗺️ OpenStreetMap Disease Surveillance Demo</h1>
+            <p>Testing OpenStreetMap integration with disease data overlays</p>
+            <div>
+                <span class="status-indicator status-working">OSM Working</span>
+                <span class="status-indicator status-testing">Disease Overlays Testing</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <h3>Disease Data Controls</h3>
+            <div class="control-group">
+                <label for="diseaseSelect">Disease:</label>
+                <select id="diseaseSelect">
+                    <option value="chlamydia">Chlamydia</option>
+                    <option value="gonorrhea">Gonorrhea</option>
+                    <option value="syphilis">Syphilis</option>
+                    <option value="hiv">HIV/AIDS</option>
+                </select>
+
+                <label for="overlayType">Overlay Type:</label>
+                <select id="overlayType">
+                    <option value="circles">Circles (Markers)</option>
+                    <option value="heatmap">Heat Map</option>
+                    <option value="choropleth">Choropleth</option>
+                </select>
+
+                <button onclick="loadDiseaseData()">Load Disease Data</button>
+                <button onclick="clearOverlays()">Clear Overlays</button>
+            </div>
+
+            <div class="control-group">
+                <label for="addressInput">Test Geocoding:</label>
+                <input type="text" id="addressInput" placeholder="Enter an address" style="width: 300px;">
+                <button onclick="geocodeAddress()">Geocode</button>
+            </div>
+        </div>
+
+        <div class="legend">
+            <h3>Disease Data Legend</h3>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff0000;"></div>
+                <span>High incidence (>500 cases per 100k)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff8800;"></div>
+                <span>Moderate incidence (100-500 cases per 100k)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ffff00;"></div>
+                <span>Low incidence (<100 cases per 100k)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #00ff00;"></div>
+                <span>No reported cases</span>
+            </div>
+        </div>
+
+        <div class="map-container">
+            <h3>Interactive Disease Surveillance Map</h3>
+            <div id="map"></div>
+        </div>
+
+        <div class="disease-info">
+            <h3>Test Results</h3>
+            <div id="testResults">
+                <p><strong>OpenStreetMap Integration:</strong> <span id="osmStatus">Testing...</span></p>
+                <p><strong>Geocoding Service:</strong> <span id="geocodingStatus">Not tested</span></p>
+                <p><strong>Disease Data Loading:</strong> <span id="diseaseDataStatus">Not tested</span></p>
+                <p><strong>Map Overlays:</strong> <span id="overlayStatus">Not tested</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let mappingClient;
+        let currentMap;
+        let currentOverlays = [];
+
+        // Sample disease data for testing overlays
+        const sampleDiseaseData = {
+            chlamydia: [
+                { city: "New York", lat: 40.7128, lng: -74.0060, cases: 15420, rate: 182.5, state: "NY" },
+                { city: "Los Angeles", lat: 34.0522, lng: -118.2437, cases: 12350, rate: 310.2, state: "CA" },
+                { city: "Chicago", lat: 41.8781, lng: -87.6298, cases: 8750, rate: 322.1, state: "IL" },
+                { city: "Houston", lat: 29.7604, lng: -95.3698, cases: 9230, rate: 405.7, state: "TX" },
+                { city: "Phoenix", lat: 33.4484, lng: -112.0740, cases: 6540, rate: 412.3, state: "AZ" },
+                { city: "Philadelphia", lat: 39.9526, lng: -75.1652, cases: 7890, rate: 503.2, state: "PA" },
+                { city: "San Antonio", lat: 29.4241, lng: -98.4936, cases: 5670, rate: 392.1, state: "TX" },
+                { city: "San Diego", lat: 32.7157, lng: -117.1611, cases: 4320, rate: 306.8, state: "CA" },
+                { city: "Dallas", lat: 32.7767, lng: -96.7970, cases: 6780, rate: 521.4, state: "TX" },
+                { city: "San Jose", lat: 37.3382, lng: -121.8863, cases: 3210, rate: 315.2, state: "CA" }
+            ],
+            gonorrhea: [
+                { city: "New York", lat: 40.7128, lng: -74.0060, cases: 8920, rate: 105.6, state: "NY" },
+                { city: "Los Angeles", lat: 34.0522, lng: -118.2437, cases: 7650, rate: 192.3, state: "CA" },
+                { city: "Chicago", lat: 41.8781, lng: -87.6298, cases: 6890, rate: 253.8, state: "IL" },
+                { city: "Houston", lat: 29.7604, lng: -95.3698, cases: 7240, rate: 318.2, state: "TX" },
+                { city: "Phoenix", lat: 33.4484, lng: -112.0740, cases: 4560, rate: 287.5, state: "AZ" },
+                { city: "Philadelphia", lat: 39.9526, lng: -75.1652, cases: 5670, rate: 361.8, state: "PA" },
+                { city: "San Antonio", lat: 29.4241, lng: -98.4936, cases: 4230, rate: 292.7, state: "TX" },
+                { city: "San Diego", lat: 32.7157, lng: -117.1611, cases: 3450, rate: 245.2, state: "CA" },
+                { city: "Dallas", lat: 32.7767, lng: -96.7970, cases: 5340, rate: 410.3, state: "TX" },
+                { city: "San Jose", lat: 37.3382, lng: -121.8863, cases: 2890, rate: 283.9, state: "CA" }
+            ],
+            syphilis: [
+                { city: "New York", lat: 40.7128, lng: -74.0060, cases: 3420, rate: 40.5, state: "NY" },
+                { city: "Los Angeles", lat: 34.0522, lng: -118.2437, cases: 4560, rate: 114.6, state: "CA" },
+                { city: "Chicago", lat: 41.8781, lng: -87.6298, cases: 2890, rate: 106.5, state: "IL" },
+                { city: "Houston", lat: 29.7604, lng: -95.3698, cases: 3670, rate: 161.4, state: "TX" },
+                { city: "Phoenix", lat: 33.4484, lng: -112.0740, cases: 2340, rate: 147.6, state: "AZ" },
+                { city: "Philadelphia", lat: 39.9526, lng: -75.1652, cases: 2780, rate: 177.3, state: "PA" },
+                { city: "San Antonio", lat: 29.4241, lng: -98.4936, cases: 2120, rate: 146.7, state: "TX" },
+                { city: "San Diego", lat: 32.7157, lng: -117.1611, cases: 1890, rate: 134.3, state: "CA" },
+                { city: "Dallas", lat: 32.7767, lng: -96.7970, cases: 2560, rate: 196.7, state: "TX" },
+                { city: "San Jose", lat: 37.3382, lng: -121.8863, cases: 1340, rate: 131.7, state: "CA" }
+            ],
+            hiv: [
+                { city: "New York", lat: 40.7128, lng: -74.0060, cases: 2890, rate: 34.2, state: "NY" },
+                { city: "Los Angeles", lat: 34.0522, lng: -118.2437, cases: 3450, rate: 86.7, state: "CA" },
+                { city: "Chicago", lat: 41.8781, lng: -87.6298, cases: 1980, rate: 72.9, state: "IL" },
+                { city: "Houston", lat: 29.7604, lng: -95.3698, cases: 2340, rate: 102.9, state: "TX" },
+                { city: "Phoenix", lat: 33.4484, lng: -112.0740, cases: 1560, rate: 98.3, state: "AZ" },
+                { city: "Philadelphia", lat: 39.9526, lng: -75.1652, cases: 1890, rate: 120.6, state: "PA" },
+                { city: "San Antonio", lat: 29.4241, lng: -98.4936, cases: 1450, rate: 100.3, state: "TX" },
+                { city: "San Diego", lat: 32.7157, lng: -117.1611, cases: 1230, rate: 87.4, state: "CA" },
+                { city: "Dallas", lat: 32.7767, lng: -96.7970, cases: 1780, rate: 136.8, state: "TX" },
+                { city: "San Jose", lat: 37.3382, lng: -121.8863, cases: 890, rate: 87.4, state: "CA" }
+            ]
+        };
+
+        // Initialize the demo
+        async function initDemo() {
+            mappingClient = new MappingClient('/api/maps');
+
+            try {
+                // Initialize map with OpenStreetMap
+                const result = await mappingClient.initLeafletMap('map', {
+                    tier: 'free', // This will use OpenStreetMap
+                    center: [-98.5795, 39.8283], // Center of US
+                    zoom: 4
+                });
+
+                currentMap = result.map;
+                document.getElementById('osmStatus').innerHTML = '<span style="color: green;">✅ Working</span>';
+
+                console.log('OpenStreetMap initialized successfully:', result.config);
+                
+                // Test loading some sample disease data
+                setTimeout(() => {
+                    loadDiseaseData();
+                }, 1000);
+
+            } catch (error) {
+                console.error('Failed to initialize map:', error);
+                document.getElementById('osmStatus').innerHTML = '<span style="color: red;">❌ Failed: ' + error.message + '</span>';
+            }
+        }
+
+        async function loadDiseaseData() {
+            const disease = document.getElementById('diseaseSelect').value;
+            const overlayType = document.getElementById('overlayType').value;
+
+            try {
+                document.getElementById('diseaseDataStatus').innerHTML = '<span style="color: orange;">⏳ Loading...</span>';
+                
+                // Clear existing overlays
+                clearOverlays();
+
+                // Get sample data for the selected disease
+                const diseaseData = sampleDiseaseData[disease] || [];
+                
+                if (diseaseData.length === 0) {
+                    document.getElementById('diseaseDataStatus').innerHTML = '<span style="color: red;">❌ No data available</span>';
+                    return;
+                }
+
+                // Create overlays based on type
+                if (overlayType === 'circles') {
+                    createCircleMarkers(diseaseData, disease);
+                } else if (overlayType === 'heatmap') {
+                    createHeatmap(diseaseData, disease);
+                } else if (overlayType === 'choropleth') {
+                    createChoropleth(diseaseData, disease);
+                }
+
+                document.getElementById('diseaseDataStatus').innerHTML = '<span style="color: green;">✅ Loaded ' + diseaseData.length + ' data points</span>';
+                document.getElementById('overlayStatus').innerHTML = '<span style="color: green;">✅ ' + overlayType + ' overlay created</span>';
+
+            } catch (error) {
+                console.error('Error loading disease data:', error);
+                document.getElementById('diseaseDataStatus').innerHTML = '<span style="color: red;">❌ Failed: ' + error.message + '</span>';
+            }
+        }
+
+        function createCircleMarkers(data, disease) {
+            data.forEach(item => {
+                const color = getRateColor(item.rate);
+                const radius = Math.max(5, Math.min(30, item.rate / 20)); // Scale radius based on rate
+                
+                const circle = L.circleMarker([item.lat, item.lng], {
+                    color: '#333',
+                    weight: 2,
+                    opacity: 0.8,
+                    fillColor: color,
+                    fillOpacity: 0.7,
+                    radius: radius
+                });
+                
+                circle.bindPopup(`
+                    <strong>${item.city}, ${item.state}</strong><br>
+                    Disease: ${disease}<br>
+                    Cases: ${item.cases.toLocaleString()}<br>
+                    Rate: ${item.rate} per 100k<br>
+                    <small>Click to zoom</small>
+                `);
+                
+                circle.on('click', () => {
+                    currentMap.setView([item.lat, item.lng], 10);
+                });
+                
+                circle.addTo(currentMap);
+                currentOverlays.push(circle);
+            });
+        }
+
+        function createHeatmap(data, disease) {
+            // Simulate heatmap with graduated circles since leaflet-heat plugin isn't loaded
+            data.forEach(item => {
+                const intensity = item.rate / 600; // Normalize intensity
+                const circle = L.circle([item.lat, item.lng], {
+                    color: 'red',
+                    weight: 1,
+                    opacity: intensity,
+                    fillColor: 'red',
+                    fillOpacity: intensity * 0.5,
+                    radius: item.rate * 100 // Scale radius
+                });
+                
+                circle.bindPopup(`
+                    <strong>${item.city}, ${item.state}</strong><br>
+                    ${disease} intensity: ${(intensity * 100).toFixed(1)}%<br>
+                    Rate: ${item.rate} per 100k
+                `);
+                
+                circle.addTo(currentMap);
+                currentOverlays.push(circle);
+            });
+        }
+
+        function createChoropleth(data, disease) {
+            // Create state-level polygons (simplified demonstration)
+            data.forEach(item => {
+                const color = getRateColor(item.rate);
+                
+                // Create a simplified state boundary representation
+                const bounds = [
+                    [item.lat - 0.5, item.lng - 0.8],
+                    [item.lat + 0.5, item.lng + 0.8]
+                ];
+                
+                const rectangle = L.rectangle(bounds, {
+                    color: '#333',
+                    weight: 2,
+                    opacity: 0.8,
+                    fillColor: color,
+                    fillOpacity: 0.6
+                });
+                
+                rectangle.bindPopup(`
+                    <strong>${item.state} State</strong><br>
+                    Sample City: ${item.city}<br>
+                    ${disease} Rate: ${item.rate} per 100k<br>
+                    Total Cases: ${item.cases.toLocaleString()}
+                `);
+                
+                rectangle.addTo(currentMap);
+                currentOverlays.push(rectangle);
+            });
+        }
+
+        function getRateColor(rate) {
+            if (rate > 500) return '#ff0000';      // Red - High
+            if (rate > 200) return '#ff8800';      // Orange - Moderate-High  
+            if (rate > 100) return '#ffff00';      // Yellow - Moderate
+            if (rate > 50) return '#88ff88';       // Light Green - Low
+            return '#00ff00';                       // Green - Very Low
+        }
+
+        function clearOverlays() {
+            currentOverlays.forEach(overlay => {
+                currentMap.removeLayer(overlay);
+            });
+            currentOverlays = [];
+            document.getElementById('overlayStatus').innerHTML = '<span style="color: gray;">⚪ Cleared</span>';
+        }
+
+        async function geocodeAddress() {
+            const address = document.getElementById('addressInput').value.trim();
+            if (!address) {
+                alert('Please enter an address');
+                return;
+            }
+
+            try {
+                document.getElementById('geocodingStatus').innerHTML = '<span style="color: orange;">⏳ Testing...</span>';
+                
+                const result = await mappingClient.geocode(address, { tier: 'free' });
+                
+                if (result.results && result.results.length > 0) {
+                    const firstResult = result.results[0];
+                    currentMap.setView([firstResult.latitude, firstResult.longitude], 13);
+                    
+                    const marker = L.marker([firstResult.latitude, firstResult.longitude]);
+                    marker.bindPopup(`
+                        <strong>Geocoded Location</strong><br>
+                        ${firstResult.address}<br>
+                        Provider: ${result.provider}<br>
+                        Coordinates: ${firstResult.latitude}, ${firstResult.longitude}
+                    `).openPopup();
+                    marker.addTo(currentMap);
+                    currentOverlays.push(marker);
+                    
+                    document.getElementById('geocodingStatus').innerHTML = '<span style="color: green;">✅ Working</span>';
+                } else {
+                    document.getElementById('geocodingStatus').innerHTML = '<span style="color: orange;">⚠️ No results found</span>';
+                }
+            } catch (error) {
+                console.error('Geocoding failed:', error);
+                document.getElementById('geocodingStatus').innerHTML = '<span style="color: red;">❌ Failed: ' + error.message + '</span>';
+            }
+        }
+
+        // Initialize demo when page loads
+        window.addEventListener('load', initDemo);
+    </script>
+</body>
+</html>

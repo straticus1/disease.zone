@@ -6,7 +6,7 @@
 
 *Previously known as covid19lookup.nyc*
 
-[![Version](https://img.shields.io/badge/version-3.1.4-blue.svg)](https://github.com/straticus1/disease.zone)
+[![Version](https://img.shields.io/badge/version-3.2.0-blue.svg)](https://github.com/straticus1/disease.zone)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-brightgreen.svg)](./MEDICAL_COMPLIANCE_REVIEW.md)
 [![GDPR](https://img.shields.io/badge/GDPR-Compliant-brightgreen.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
@@ -20,6 +20,9 @@
 - **Advanced Data Fusion** - 12+ fusion algorithms (Bayesian, ensemble, neural network) for multi-source intelligence
 - **STI/STD Surveillance** - Comprehensive HIV/AIDS, Herpes, HPV tracking with multi-tier access
 - **Disease.sh Integration** - Immediate access without API keys, expandable with premium data sources
+- **Multi-Provider Mapping** - OpenStreetMap, Mapbox, Google Maps with tiered access
+- **Geographic Visualization** - Disease overlays, heatmaps, choropleth maps with real-time data
+- **FHIR Hospital Integration** - Connect to healthcare providers for personalized insights
 
 ### 🔐 **Global Regulatory Compliance**
 - **HIPAA** - Complete technical, administrative, and physical safeguards
@@ -30,7 +33,9 @@
 
 ### 🏥 **Medical Professional Tools**
 - **Clinical Decision Support** - Drug interactions, genetic counseling recommendations
-- **EHR Integration** - HL7 FHIR R4 compatibility for healthcare interoperability
+- **FHIR R4 Integration** - Full HL7 FHIR R4 hospital connectivity with SMART on FHIR
+- **Hospital Discovery** - Search and connect to FHIR-enabled healthcare providers
+- **Health Data Import** - Secure import of patient data from connected hospitals
 - **Medical Validation** - Real-time terminology and clinical consistency checking
 - **Research Platform** - De-identified data sharing for population health studies
 - **API Access** - Secure API keys for healthcare providers and researchers
@@ -565,6 +570,8 @@ We especially welcome contributions from:
 
 ### Technical Documentation
 - [API System Documentation](./docs/API_SYSTEM_COMPLETE.md) - Complete API feature guide
+- [FHIR Integration Guide](./docs/FHIR_INTEGRATION.md) - Hospital connectivity and health data import
+- [Mapping System Documentation](./docs/MAPPING_SYSTEM.md) - Multi-provider mapping and visualization
 - [CLI Documentation](./docs/CLI_DOCUMENTATION.md) - Comprehensive CLI usage guide
 - [AI Symptom Analysis](./docs/AI_SYMPTOM_ANALYSIS.md) - AI-powered symptom analysis guide
 - [Security Verification](./docs/SECURITY_VERIFICATION.md) - Hash verification and integrity system

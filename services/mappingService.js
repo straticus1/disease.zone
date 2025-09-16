@@ -171,13 +171,12 @@ class MappingService {
         url += `?access_token=${this.apiKeys.mapbox}`;
       }
     } else if (provider === 'google') {
-      // Google uses static map API differently
-      const center = options.center || '0,0';
-      const zoom = options.zoom || z;
-      const size = options.size || '640x640';
-      url = `${providerConfig.baseUrl}?center=${center}&zoom=${zoom}&size=${size}`;
+      // Google Maps tile URL construction
       if (this.apiKeys.google) {
-        url += `&key=${this.apiKeys.google}`;
+        url = `https://maps.googleapis.com/maps/api/staticmap?center=${options.center || '0,0'}&zoom=${z}&size=640x640&maptype=roadmap&key=${this.apiKeys.google}`;
+      } else {
+        // Fallback to Google's tile server format (may require additional auth)
+        url = `https://mt1.google.com/vt/lyrs=m&x=${x}&y=${y}&z=${z}`;
       }
     }
 
@@ -398,6 +397,385 @@ class MappingService {
       return true;
     }
     return false;
+  }
+
+  // Production disease overlay methods
+  generateDiseaseOverlay(diseaseData, overlayType = 'circles', options = {}) {
+    const {
+      colorScheme = 'red-yellow-green',
+      sizeMetric = 'rate',
+      intensityMetric = 'cases',
+      bounds = null,
+      clustering = false
+    } = options;
+
+    if (!Array.isArray(diseaseData) || diseaseData.length === 0) {
+      throw new Error('Disease data must be a non-empty array');
+    }
+
+    // Validate required fields
+    const requiredFields = ['latitude', 'longitude'];
+    const hasRequiredFields = diseaseData.every(item => 
+      requiredFields.every(field => item.hasOwnProperty(field) && typeof item[field] === 'number')
+    );
+
+    if (!hasRequiredFields) {
+      throw new Error('Disease data must contain latitude and longitude fields');
+    }
+
+    switch (overlayType) {
+      case 'circles':
+        return this.generateCircleOverlay(diseaseData, colorScheme, sizeMetric, options);
+      case 'heatmap':
+        return this.generateHeatmapOverlay(diseaseData, intensityMetric, options);
+      case 'choropleth':
+        return this.generateChoroplethOverlay(diseaseData, colorScheme, options);
+      case 'markers':
+        return this.generateMarkerOverlay(diseaseData, options);
+      default:
+        throw new Error(`Unsupported overlay type: ${overlayType}`);
+    }
+  }
+
+  generateCircleOverlay(data, colorScheme, sizeMetric, options = {}) {
+    const { minRadius = 5, maxRadius = 30, opacity = 0.7 } = options;
+    
+    // Calculate min/max values for scaling
+    const values = data.map(item => item[sizeMetric] || 0).filter(v => !isNaN(v));
+    const minValue = Math.min(...values);
+    const maxValue = Math.max(...values);
+    const range = maxValue - minValue || 1;
+
+    return data.map(item => {
+      const value = item[sizeMetric] || 0;
+      const normalizedValue = (value - minValue) / range;
+      
+      return {
+        type: 'circle',
+        coordinates: [item.latitude, item.longitude],
+        properties: {
+          radius: minRadius + (normalizedValue * (maxRadius - minRadius)),
+          fillColor: this.getColorForValue(normalizedValue, colorScheme),
+          color: '#333333',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: opacity
+        },
+        data: item,
+        popupContent: this.generatePopupContent(item)
+      };
+    });
+  }
+
+  generateHeatmapOverlay(data, intensityMetric, options = {}) {
+    const { radius = 25, blur = 15, gradient = null } = options;
+    
+    // Calculate min/max for intensity scaling
+    const values = data.map(item => item[intensityMetric] || 0).filter(v => !isNaN(v));
+    const maxValue = Math.max(...values);
+    
+    return {
+      type: 'heatmap',
+      data: data.map(item => {
+        const intensity = (item[intensityMetric] || 0) / maxValue;
+        return [item.latitude, item.longitude, intensity];
+      }),
+      options: {
+        radius,
+        blur,
+        maxZoom: 17,
+        gradient: gradient || {
+          0.0: 'green',
+          0.2: 'yellow',
+          0.4: 'orange', 
+          0.6: 'red',
+          1.0: 'darkred'
+        }
+      }
+    };
+  }
+
+  generateChoroplethOverlay(data, colorScheme, options = {}) {
+    const { valueField = 'rate', boundaryField = 'state' } = options;
+    
+    // Group data by boundary (e.g., state)
+    const groupedData = data.reduce((acc, item) => {
+      const boundary = item[boundaryField];
+      if (!acc[boundary]) acc[boundary] = [];
+      acc[boundary].push(item);
+      return acc;
+    }, {});
+
+    // Calculate aggregate values for each boundary
+    const boundaryData = Object.entries(groupedData).map(([boundary, items]) => {
+      const totalCases = items.reduce((sum, item) => sum + (item.cases || 0), 0);
+      const avgRate = items.reduce((sum, item) => sum + (item[valueField] || 0), 0) / items.length;
+      
+      return {
+        boundary,
+        value: avgRate,
+        totalCases,
+        itemCount: items.length,
+        items
+      };
+    });
+
+    // Calculate min/max for color scaling
+    const values = boundaryData.map(item => item.value);
+    const minValue = Math.min(...values);
+    const maxValue = Math.max(...values);
+    const range = maxValue - minValue || 1;
+
+    return boundaryData.map(boundary => {
+      const normalizedValue = (boundary.value - minValue) / range;
+      
+      return {
+        type: 'choropleth',
+        boundary: boundary.boundary,
+        properties: {
+          fillColor: this.getColorForValue(normalizedValue, colorScheme),
+          color: '#333333',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.6
+        },
+        data: boundary,
+        popupContent: this.generateBoundaryPopupContent(boundary)
+      };
+    });
+  }
+
+  generateMarkerOverlay(data, options = {}) {
+    const { icon = 'default', clustering = false } = options;
+    
+    return data.map(item => ({
+      type: 'marker',
+      coordinates: [item.latitude, item.longitude],
+      properties: {
+        icon: this.getMarkerIcon(item, icon),
+        title: item.location || item.city || 'Disease Location'
+      },
+      data: item,
+      popupContent: this.generatePopupContent(item)
+    }));
+  }
+
+  getColorForValue(normalizedValue, colorScheme) {
+    // Clamp value between 0 and 1
+    const value = Math.max(0, Math.min(1, normalizedValue));
+    
+    switch (colorScheme) {
+      case 'red-yellow-green':
+        if (value < 0.33) return this.interpolateColor('#00ff00', '#ffff00', value * 3);
+        if (value < 0.67) return this.interpolateColor('#ffff00', '#ff8800', (value - 0.33) * 3);
+        return this.interpolateColor('#ff8800', '#ff0000', (value - 0.67) * 3);
+      
+      case 'blue-red':
+        return this.interpolateColor('#0000ff', '#ff0000', value);
+      
+      case 'heat':
+        if (value < 0.25) return this.interpolateColor('#000080', '#0000ff', value * 4);
+        if (value < 0.5) return this.interpolateColor('#0000ff', '#00ffff', (value - 0.25) * 4);
+        if (value < 0.75) return this.interpolateColor('#00ffff', '#ffff00', (value - 0.5) * 4);
+        return this.interpolateColor('#ffff00', '#ff0000', (value - 0.75) * 4);
+      
+      default:
+        return this.interpolateColor('#00ff00', '#ff0000', value);
+    }
+  }
+
+  interpolateColor(color1, color2, factor) {
+    const hex2rgb = (hex) => {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return [r, g, b];
+    };
+    
+    const [r1, g1, b1] = hex2rgb(color1);
+    const [r2, g2, b2] = hex2rgb(color2);
+    
+    const r = Math.round(r1 + (r2 - r1) * factor);
+    const g = Math.round(g1 + (g2 - g1) * factor);
+    const b = Math.round(b1 + (b2 - b1) * factor);
+    
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+  }
+
+  generatePopupContent(item) {
+    const location = item.location || item.city || 'Unknown Location';
+    const state = item.state ? `, ${item.state}` : '';
+    const disease = item.disease || 'Disease';
+    const cases = item.cases ? item.cases.toLocaleString() : 'N/A';
+    const rate = item.rate ? `${item.rate.toFixed(1)} per 100k` : 'N/A';
+    const lastUpdated = item.lastUpdated ? new Date(item.lastUpdated).toLocaleDateString() : 'Unknown';
+    
+    return `
+      <div class="disease-popup">
+        <h4>${location}${state}</h4>
+        <div class="disease-info">
+          <strong>Disease:</strong> ${disease}<br>
+          <strong>Cases:</strong> ${cases}<br>
+          <strong>Rate:</strong> ${rate}<br>
+          <strong>Last Updated:</strong> ${lastUpdated}
+        </div>
+      </div>
+    `;
+  }
+
+  generateBoundaryPopupContent(boundaryData) {
+    const { boundary, value, totalCases, itemCount } = boundaryData;
+    
+    return `
+      <div class="boundary-popup">
+        <h4>${boundary}</h4>
+        <div class="summary-info">
+          <strong>Average Rate:</strong> ${value.toFixed(1)} per 100k<br>
+          <strong>Total Cases:</strong> ${totalCases.toLocaleString()}<br>
+          <strong>Reporting Areas:</strong> ${itemCount}<br>
+        </div>
+      </div>
+    `;
+  }
+
+  getMarkerIcon(item, iconType) {
+    const severity = this.calculateSeverity(item);
+    
+    switch (iconType) {
+      case 'alert':
+        return {
+          type: 'alert',
+          color: severity === 'high' ? 'red' : severity === 'medium' ? 'orange' : 'yellow',
+          size: severity === 'high' ? 'large' : 'medium'
+        };
+      
+      case 'circle':
+        return {
+          type: 'circle',
+          color: severity === 'high' ? '#ff0000' : severity === 'medium' ? '#ff8800' : '#ffff00',
+          radius: severity === 'high' ? 12 : severity === 'medium' ? 8 : 6
+        };
+      
+      default:
+        return {
+          type: 'default',
+          color: '#ff0000'
+        };
+    }
+  }
+
+  calculateSeverity(item) {
+    const rate = item.rate || 0;
+    const cases = item.cases || 0;
+    
+    // Define thresholds based on disease type or use defaults
+    const highRateThreshold = item.highThreshold || 500;
+    const mediumRateThreshold = item.mediumThreshold || 100;
+    
+    if (rate > highRateThreshold || cases > 10000) return 'high';
+    if (rate > mediumRateThreshold || cases > 1000) return 'medium';
+    return 'low';
+  }
+
+  // Production health check for mapping with disease data
+  async performHealthCheck() {
+    const results = {
+      service: 'Mapping Service with Disease Overlays',
+      timestamp: new Date().toISOString(),
+      status: 'healthy',
+      checks: {}
+    };
+
+    try {
+      // Test OpenStreetMap connectivity
+      const osmTest = await this.testProviderConnectivity('openstreetmap');
+      results.checks.openstreetmap = osmTest;
+
+      // Test geocoding
+      const geocodingTest = await this.testGeocoding();
+      results.checks.geocoding = geocodingTest;
+
+      // Test overlay generation
+      const overlayTest = this.testOverlayGeneration();
+      results.checks.overlays = overlayTest;
+
+      // Determine overall status
+      const allHealthy = Object.values(results.checks).every(check => check.status === 'healthy');
+      results.status = allHealthy ? 'healthy' : 'degraded';
+
+    } catch (error) {
+      results.status = 'unhealthy';
+      results.error = error.message;
+    }
+
+    return results;
+  }
+
+  async testProviderConnectivity(provider) {
+    try {
+      const config = this.providers[provider];
+      if (!config) {
+        return { status: 'unhealthy', message: 'Provider not configured' };
+      }
+
+      // Test with a simple tile request
+      const testUrl = config.baseUrl.replace(/{z}/g, '1').replace(/{x}/g, '1').replace(/{y}/g, '1');
+      const { default: fetch } = await import('node-fetch');
+      
+      const response = await fetch(testUrl, {
+        timeout: 5000,
+        headers: { 'User-Agent': 'diseaseZone Health Check' }
+      });
+
+      return {
+        status: response.ok ? 'healthy' : 'degraded',
+        responseTime: response.headers.get('x-response-time') || 'unknown',
+        message: response.ok ? 'Provider accessible' : `HTTP ${response.status}`
+      };
+    } catch (error) {
+      return {
+        status: 'unhealthy',
+        message: error.message
+      };
+    }
+  }
+
+  async testGeocoding() {
+    try {
+      const result = await this.geocodeOpenStreetMap('New York City');
+      return {
+        status: result.results.length > 0 ? 'healthy' : 'degraded',
+        message: `Geocoding returned ${result.results.length} results`
+      };
+    } catch (error) {
+      return {
+        status: 'unhealthy',
+        message: error.message
+      };
+    }
+  }
+
+  testOverlayGeneration() {
+    try {
+      // Test with sample data
+      const sampleData = [
+        { latitude: 40.7128, longitude: -74.0060, cases: 1000, rate: 150, disease: 'Test' },
+        { latitude: 34.0522, longitude: -118.2437, cases: 800, rate: 120, disease: 'Test' }
+      ];
+
+      const circleOverlay = this.generateDiseaseOverlay(sampleData, 'circles');
+      const heatmapOverlay = this.generateDiseaseOverlay(sampleData, 'heatmap');
+      
+      return {
+        status: 'healthy',
+        message: `Generated ${circleOverlay.length} circle overlays and heatmap data`
+      };
+    } catch (error) {
+      return {
+        status: 'unhealthy',
+        message: error.message
+      };
+    }
   }
 }
 

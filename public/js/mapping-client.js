@@ -346,6 +346,216 @@ class MappingClient {
   }
 
   /**
+   * Get disease overlay data for mapping
+   */
+  async getDiseaseOverlay(disease, options = {}) {
+    const {
+      overlayType = 'circles',
+      colorScheme = 'red-yellow-green',
+      state = null,
+      year = new Date().getFullYear(),
+      tier = this.tier
+    } = options;
+
+    const params = new URLSearchParams({
+      disease,
+      overlayType,
+      colorScheme,
+      ...(state && { state }),
+      year: year.toString(),
+      tier
+    });
+
+    const response = await fetch(`${this.apiBaseUrl}/overlays/disease?${params}`);
+    if (!response.ok) {
+      throw new Error(`Failed to get disease overlay: ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * Get geographic disease data in various formats
+   */
+  async getDiseaseData(disease, options = {}) {
+    const {
+      state = null,
+      year = new Date().getFullYear(),
+      format = 'geojson'
+    } = options;
+
+    const params = new URLSearchParams({
+      ...(state && { state }),
+      year: year.toString(),
+      format
+    });
+
+    const response = await fetch(`${this.apiBaseUrl}/data/disease/${disease}?${params}`);
+    if (!response.ok) {
+      throw new Error(`Failed to get disease data: ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * Get mapping service health status
+   */
+  async getHealthStatus() {
+    const response = await fetch(`${this.apiBaseUrl}/health`);
+    if (!response.ok) {
+      throw new Error(`Failed to get health status: ${response.statusText}`);
+    }
+    return await response.json();
+  }
+
+  /**
+   * Add disease overlays to an existing Leaflet map
+   */
+  async addDiseaseOverlays(map, disease, options = {}) {
+    if (typeof L === 'undefined') {
+      throw new Error('Leaflet library not loaded');
+    }
+
+    try {
+      const overlayData = await this.getDiseaseOverlay(disease, options);
+      const layers = [];
+
+      overlayData.overlays.forEach(overlay => {
+        let layer;
+
+        switch (overlay.type) {
+          case 'circle':
+            layer = L.circleMarker(overlay.coordinates, overlay.properties);
+            if (overlay.popupContent) {
+              layer.bindPopup(overlay.popupContent);
+            }
+            break;
+
+          case 'marker':
+            layer = L.marker(overlay.coordinates, {
+              title: overlay.properties.title
+            });
+            if (overlay.popupContent) {
+              layer.bindPopup(overlay.popupContent);
+            }
+            break;
+
+          case 'heatmap':
+            // Note: Requires leaflet-heat plugin
+            if (typeof L.heatLayer !== 'undefined') {
+              layer = L.heatLayer(overlay.data, overlay.options);
+            } else {
+              console.warn('Leaflet heat plugin not loaded, skipping heatmap');
+              continue;
+            }
+            break;
+
+          default:
+            console.warn(`Unsupported overlay type: ${overlay.type}`);
+            continue;
+        }
+
+        if (layer) {
+          layer.addTo(map);
+          layers.push(layer);
+        }
+      });
+
+      return {
+        layers,
+        disease: overlayData.disease,
+        dataPoints: overlayData.dataPoints,
+        metadata: overlayData.metadata
+      };
+    } catch (error) {
+      console.error('Error adding disease overlays:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create a production-ready disease surveillance map
+   */
+  async initDiseaseMap(containerId, disease, options = {}) {
+    const {
+      tier = this.tier,
+      center = [39.8283, -98.5795], // Center of US
+      zoom = 4,
+      overlayType = 'circles',
+      colorScheme = 'red-yellow-green',
+      showControls = true
+    } = options;
+
+    try {
+      // Initialize base map
+      const mapResult = await this.initLeafletMap(containerId, {
+        tier,
+        center,
+        zoom
+      });
+
+      // Add disease overlays
+      const overlayResult = await this.addDiseaseOverlays(mapResult.map, disease, {
+        overlayType,
+        colorScheme,
+        tier
+      });
+
+      // Add control panel if requested
+      if (showControls) {
+        this.addMapControls(mapResult.map, disease, overlayResult);
+      }
+
+      return {
+        map: mapResult.map,
+        config: mapResult.config,
+        disease: overlayResult.disease,
+        overlayLayers: overlayResult.layers,
+        metadata: overlayResult.metadata
+      };
+    } catch (error) {
+      console.error('Error initializing disease map:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Add map controls for disease data
+   */
+  addMapControls(map, disease, overlayResult) {
+    if (typeof L === 'undefined') return;
+
+    const controlDiv = L.DomUtil.create('div', 'disease-map-controls');
+    controlDiv.style.cssText = `
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      max-width: 200px;
+    `;
+
+    controlDiv.innerHTML = `
+      <h4 style="margin: 0 0 5px 0; color: #333;">${disease.toUpperCase()} Surveillance</h4>
+      <div><strong>Data Points:</strong> ${overlayResult.dataPoints}</div>
+      <div><strong>Last Updated:</strong> ${new Date(overlayResult.metadata.timestamp).toLocaleDateString()}</div>
+      <div style="margin-top: 8px; font-size: 10px; color: #666;">
+        Source: ${overlayResult.metadata.dataSource}
+      </div>
+    `;
+
+    const control = L.control({ position: 'bottomright' });
+    control.onAdd = function() {
+      return controlDiv;
+    };
+    control.addTo(map);
+
+    return control;
+  }
+
+  /**
    * Get current configuration
    */
   getConfig() {

@@ -5,6 +5,164 @@ All notable changes to diseaseZone will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2025-09-16
+
+### 🏥 FHIR Integration & Multi-Provider Mapping System - GAME CHANGER
+
+This release introduces revolutionary healthcare connectivity features that transform diseaseZone from a surveillance platform to a comprehensive healthcare intelligence system.
+
+#### Added
+
+##### 🌐 **Multi-Provider Mapping System**
+- **OpenStreetMap Integration** - Production-ready mapping with no API keys required
+  - Full tile serving, geocoding, and address resolution via Nominatim
+  - User-Agent identification for respectful API usage
+  - Health check monitoring and connectivity verification
+- **MapBox Integration** - Premium mapping for Silver and Gold tier users
+  - Vector tiles, custom styles, satellite imagery
+  - Enhanced geocoding with relevance scoring
+  - API key management and authentication
+- **Google Maps Integration** - Enterprise mapping for Gold tier users
+  - Static Maps API, Street View integration
+  - High-accuracy geocoding with location type classification
+  - Premium data access with usage tracking
+- **Tiered Access System** - Three-tier mapping access model
+  - **Free Tier**: OpenStreetMap only (1,000 requests/day)
+  - **Silver Tier**: OSM + MapBox (10,000 requests/day)
+  - **Gold Tier**: OSM + MapBox + Google (100,000 requests/day)
+- **Load Balancing** - Advanced provider selection strategies
+  - Failover: Primary → Secondary → Tertiary provider switching
+  - Round Robin: Equal distribution across available providers
+  - Weighted: Custom distribution based on provider preferences
+  - Automatic failover with OpenStreetMap as guaranteed fallback
+
+##### 🗺️ **Disease Visualization & Geographic Analysis**
+- **Disease Overlay System** - Multiple visualization methods for surveillance data
+  - **Circle Markers**: Color-coded severity with scalable radius based on incidence rates
+  - **Heatmaps**: Intensity-based visualization with gradient coloring
+  - **Choropleth Maps**: Boundary-based overlays for state/county level data
+  - **Point Markers**: Individual location markers with detailed popups
+- **Interactive Features** - User engagement and data exploration
+  - Click-to-zoom functionality for detailed area investigation
+  - Disease information popups with case counts, rates, and last update
+  - Real-time data updates from surveillance systems
+  - Geographic filtering by state, city, and custom radius
+- **Color-Coded Severity Mapping** - Visual risk assessment
+  - Red-Yellow-Green gradient for easy risk interpretation
+  - Blue-Red intensity mapping for alternative visualization
+  - Heat mapping with customizable gradient schemes
+  - Automatic scaling based on data distribution
+
+##### 🏥 **FHIR R4 Hospital Integration - REVOLUTIONARY**
+- **Hospital Discovery System** - Find and connect to FHIR-enabled healthcare providers
+  - Search by location, name, state, city with distance-based filtering
+  - Real-time FHIR capability statement analysis
+  - Support for production and sandbox environments
+  - Integration with major FHIR servers (Epic, Cerner, HAPI FHIR, Smart Health IT)
+- **SMART on FHIR Authentication** - Secure healthcare provider connections
+  - OAuth2 authorization flow with patient consent
+  - Scoped data access (patient/*.read, patient/*.write)
+  - Connection management with activity tracking
+  - Secure token management with refresh capabilities
+- **Health Data Import** - Comprehensive patient data synchronization
+  - **FHIR Observations**: Lab results, vital signs, clinical measurements
+  - **FHIR Conditions**: Diagnoses, medical conditions with ICD-10 mapping
+  - **FHIR Immunizations**: Vaccination records and immunization history
+  - **FHIR Organizations**: Healthcare provider information and contacts
+  - Real-time sync with incremental updates since last sync
+- **Privacy-First Design** - Complete data anonymization before analysis
+  - ICD-10 to internal disease code mapping for standardization
+  - Geographic anonymization for population-level insights
+  - Age group categorization instead of specific ages
+  - Severity classification without personal identifiers
+
+##### 🎯 **Personalized Health Insights - POWERED BY REAL DATA**
+- **Disease Prevention Recommendations** - Evidence-based personalized guidance
+  - STI/STD specific recommendations (Chlamydia, Gonorrhea, Syphilis, HIV/AIDS)
+  - Priority-based urgency classification (urgent vs standard)
+  - Integration with user's health history from connected hospitals
+  - Local disease pattern comparison for contextual awareness
+- **Risk Factor Analysis** - Comprehensive health risk assessment
+  - Multi-factor risk calculation based on real health data
+  - Overall risk levels: Low, Moderate, Elevated with detailed explanations
+  - Personalized screening and consultation recommendations
+  - Follow-up suggestion scheduling with healthcare providers
+- **Anonymous Disease Surveillance Enhancement** - User data improving public health
+  - Anonymized contribution to national disease surveillance
+  - Geographic pattern analysis for outbreak detection
+  - Temporal trend analysis for epidemic forecasting
+  - Privacy-protected data sharing for research advancement
+
+##### 🔧 **Production-Ready API Endpoints**
+- **Mapping Service APIs**
+  - `/api/maps/status` - Service health monitoring and provider availability
+  - `/api/maps/config` - Map configuration for frontend integration
+  - `/api/maps/tile/:provider/:z/:x/:y` - Tile URL generation for map rendering
+  - `/api/maps/geocode` - Address geocoding with multi-provider support
+  - `/api/maps/tiers` - Available service tiers and provider information
+  - `/api/maps/overlays/disease` - Disease overlay generation for visualization
+  - `/api/maps/data/disease/:disease` - GeoJSON disease data for mapping
+  - `/api/maps/health` - Comprehensive health check for mapping components
+- **FHIR Integration APIs**
+  - `/api/fhir/hospitals/search` - FHIR hospital discovery and search
+  - `/api/fhir/hospitals/connect` - Initiate hospital connection with OAuth2
+  - `/api/fhir/callback` - OAuth2 callback handler for connection completion
+  - `/api/fhir/connections` - User's connected hospitals management
+  - `/api/fhir/sync/:connectionId` - Health data synchronization from hospitals
+  - `/api/fhir/insights/:connectionId` - Personalized health insights generation
+  - `/api/fhir/status` - FHIR system status and capabilities
+
+##### 🎨 **Frontend Integration**
+- **Leaflet.js Integration** - Professional interactive mapping
+  - Automatic provider selection and map initialization
+  - Disease overlay rendering with multiple visualization types
+  - Custom map controls with tier information display
+  - Popup integration with disease information
+- **Mapping Client Library** - Production-ready JavaScript client
+  - `MappingClient` class for easy frontend integration
+  - Automatic caching with configurable expiry
+  - Error handling with graceful degradation
+  - Support for all three mapping providers
+- **FHIR Dashboard** - Complete hospital integration interface
+  - Hospital search and discovery interface
+  - Connection management dashboard
+  - Health data sync monitoring
+  - Personalized insights visualization
+
+#### Enhanced
+- **Database Schema** - Added contact_messages table for contact form submissions
+- **Service Architecture** - Enhanced error handling and health monitoring
+- **Security** - All FHIR connections require authentication and use secure OAuth2
+- **Performance** - Caching layers for mapping tiles and FHIR data
+- **Monitoring** - Comprehensive health checks for all mapping and FHIR components
+
+#### Fixed
+- **Google Maps Integration** - Completed tile URL generation for Gold tier users
+- **MapBox Authentication** - Fixed API key configuration and token management
+- **OpenStreetMap Rate Limiting** - Respectful usage patterns with request tracking
+- **FHIR Error Handling** - Graceful fallbacks when hospitals are unavailable
+
+#### Infrastructure
+- **Multi-Tier Service Model** - Production-ready tiered access system
+- **Load Balancing** - Automatic provider selection with failover capabilities
+- **Health Monitoring** - Real-time service status for all components
+- **Documentation** - Comprehensive guides for FHIR and mapping integration
+
+### 🌟 Impact
+This release transforms diseaseZone from a disease surveillance platform into a comprehensive healthcare intelligence system that:
+- **Connects users to their healthcare providers** through FHIR integration
+- **Provides personalized health insights** based on real medical data
+- **Enhances disease surveillance** through anonymous data contribution
+- **Visualizes disease patterns** with professional mapping capabilities
+- **Maintains complete privacy** while improving public health outcomes
+
+### 📊 Key Metrics
+- **3 Mapping Providers** with tiered access (OpenStreetMap, MapBox, Google Maps)
+- **4 Overlay Types** for disease visualization (circles, heatmaps, choropleth, markers)
+- **7+ FHIR Resource Types** supported (Organization, Patient, Observation, Condition, etc.)
+- **15+ API Endpoints** for mapping and FHIR integration
+- **Privacy-First** design with complete anonymization before analysis
+
 ## [3.1.4] - 2025-09-15
 
 ### 🔧 Emergency Recovery & Authentication Tools
