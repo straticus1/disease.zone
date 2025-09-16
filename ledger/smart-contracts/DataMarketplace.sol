@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-interface IHealthToken {
+interface IHealthCredit {
     function processResearchPayment(address researcher, uint256 amount, string calldata datasetId) external;
     function rewardDataContribution(address contributor, uint256 amount, string calldata dataType) external;
 }
@@ -34,7 +34,7 @@ contract DataMarketplace is ERC721, AccessControl, ReentrancyGuard, Pausable {
     bytes32 public constant COMPLIANCE_ROLE = keccak256("COMPLIANCE_ROLE");
 
     // Contracts
-    IHealthToken public healthToken;
+    IHealthCredit public healthCredit;
 
     // Counters
     Counters.Counter private _datasetIds;
@@ -95,13 +95,13 @@ contract DataMarketplace is ERC721, AccessControl, ReentrancyGuard, Pausable {
     event RevenueDistributed(uint256 indexed datasetId, address indexed provider, uint256 amount);
     event ComplianceUpdated(uint256 indexed datasetId, bool isCompliant);
 
-    constructor(address _healthToken) ERC721("HealthDataLicense", "HDL") {
+    constructor(address _healthCredit) ERC721("HealthDataLicense", "HDL") {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(DATA_PROVIDER_ROLE, msg.sender);
         _grantRole(RESEARCHER_ROLE, msg.sender);
         _grantRole(COMPLIANCE_ROLE, msg.sender);
 
-        healthToken = IHealthToken(_healthToken);
+        healthCredit = IHealthCredit(_healthCredit);
     }
 
     /**
@@ -110,7 +110,7 @@ contract DataMarketplace is ERC721, AccessControl, ReentrancyGuard, Pausable {
      * @param description Dataset description
      * @param dataType Type of health data
      * @param ipfsHash IPFS hash containing metadata
-     * @param price Price in HEALTH tokens
+     * @param price Price in HEALTH credits
      * @param recordCount Number of records in dataset
      * @param tags Array of tags for categorization
      */
@@ -172,8 +172,8 @@ contract DataMarketplace is ERC721, AccessControl, ReentrancyGuard, Pausable {
 
         uint256 totalPrice = dataset.price;
 
-        // Process payment through HEALTH token
-        healthToken.processResearchPayment(msg.sender, totalPrice, dataset.name);
+        // Process payment through HEALTH credits
+        healthCredit.processResearchPayment(msg.sender, totalPrice, dataset.name);
 
         // Mint license NFT
         _licenseIds.increment();

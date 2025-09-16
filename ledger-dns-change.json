@@ -1,0 +1,17 @@
+{
+    "Comment": "Add ledger.disease.app subdomain",
+    "Changes": [
+        {
+            "Action": "CREATE",
+            "ResourceRecordSet": {
+                "Name": "ledger.disease.app",
+                "Type": "A",
+                "AliasTarget": {
+                    "DNSName": "diseasezone-alb-prod-1435674130.us-east-1.elb.amazonaws.com",
+                    "EvaluateTargetHealth": true,
+                    "HostedZoneId": "Z35SXDOTRQ7X7K"
+                }
+            }
+        }
+    ]
+}

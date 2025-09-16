@@ -9,6 +9,7 @@ const cookieParser = require('cookie-parser');
 const STDService = require('./services/stdService');
 const CDCDataService = require('./services/cdcDataService');
 const StateDataService = require('./services/stateDataService');
+const MappingService = require('./services/mappingService');
 const WalletConfigService = require('./services/walletConfigService');
 const NeurologicalDiseaseService = require('./services/neurologicalDiseaseService');
 const GeneticDiseaseService = require('./services/geneticDiseaseService');
@@ -65,6 +66,10 @@ async function initializeServices() {
     // Initialize authentication and user services
     const authMiddleware = new AuthMiddleware(databaseService);
     const userService = new UserService(databaseService, authMiddleware);
+    
+    // Initialize wallet integration service
+    const WalletUserService = require('./services/walletUserService');
+    const walletUserService = new WalletUserService(databaseService, authMiddleware);
 
     // Initialize AI symptom analysis service
     const aiSymptomAnalysisService = new AISymptomAnalysisService(
@@ -82,6 +87,7 @@ async function initializeServices() {
     app.locals.db = databaseService;
     app.locals.auth = authMiddleware;
     app.locals.userService = userService;
+    app.locals.walletUserService = walletUserService;
     app.locals.stdService = stdService;
     app.locals.cdcDataService = cdcDataService;
     app.locals.stateDataService = stateDataService;
@@ -122,9 +128,15 @@ app.get('/', (req, res) => {
   console.log(`🔍 Homepage request from host: "${host}"`);
   
   // If it's the api subdomain, serve the API portal
-  if (host.startsWith('api.') || host.includes('api.disease.zone')) {
+  if (host.startsWith('api.') || host.includes('api.disease.zone') || host.includes('api.disease.app')) {
     console.log('✅ Serving API portal for subdomain:', host);
     return serveApiHomepage(req, res);
+  }
+  
+  // If it's the ledger subdomain, serve the ledger platform
+  if (host.startsWith('ledger.') || host.includes('ledger.disease.zone') || host.includes('ledger.disease.app')) {
+    console.log('✅ Serving ledger platform for subdomain:', host);
+    return serveLedgerHomepage(req, res);
   }
   
   // For main domain, serve the app.html content directly
@@ -609,6 +621,467 @@ function serveApiHomepage(req, res) {
   res.send(html);
 }
 
+// Function to serve the Ledger homepage
+function serveLedgerHomepage(req, res) {
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>diseaseZone Ledger - Health Blockchain Platform</title>
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #1e40af;
+            --accent-color: #06b6d4;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-color: #1f2937;
+            --light-color: #f0f9ff;
+            --border-color: #bfdbfe;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --gradient-bg: linear-gradient(135deg, #3b82f6 0%, #1e40af 50%, #1e3a8a 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--gradient-bg);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--gradient-bg);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .logo h1 {
+            background: var(--gradient-bg);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 3rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.4rem;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .card-title {
+            color: var(--text-primary);
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px 24px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .top-nav {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover {
+            background: var(--light-color);
+            color: var(--primary-color);
+        }
+
+        .nav-links .main-app-link {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .nav-links .main-app-link:hover {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .stats-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: var(--light-color);
+            border-radius: 12px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-bar {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            border-radius: 25px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success-color);
+            border-radius: 50%;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .header { padding: 30px 20px; }
+            .logo h1 { font-size: 2.5rem; }
+            .features-grid { grid-template-columns: 1fr; }
+            .nav-links { flex-wrap: wrap; gap: 15px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="top-nav">
+            <ul class="nav-links">
+                <li><a href="https://www.disease.zone/" class="main-app-link">🏠 Main Application</a></li>
+                <li><a href="https://api.disease.zone/">🔌 API Portal</a></li>
+                <li><a href="#wallet">💰 Wallet</a></li>
+                <li><a href="#network">🌐 Network Status</a></li>
+                <li><a href="mailto:ledger@disease.zone">💬 Ledger Support</a></li>
+            </ul>
+        </nav>
+        
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">⛓️</div>
+                <h1>Ledger</h1>
+            </div>
+            <p class="subtitle">Secure Health Blockchain Platform</p>
+        </div>
+
+        <div class="stats-section">
+            <h3 style="text-align: center; margin-bottom: 20px; color: var(--text-primary);">🚀 Network Statistics</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalTransactions">12,847</div>
+                    <div class="stat-label">Total Transactions</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="activeWallets">3,492</div>
+                    <div class="stat-label">Active Wallets</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="blockHeight">2,847,692</div>
+                    <div class="stat-label">Current Block</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="networkHealth">99.8%</div>
+                    <div class="stat-label">Network Uptime</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="card-header">
+                    <div class="card-icon">💰</div>
+                    <h3 class="card-title">Digital Wallet</h3>
+                </div>
+                <p class="card-description">Secure multi-network wallet supporting Polygon, Ethereum, and other blockchain networks. Store, send, and receive health credits and tokens safely.</p>
+                <a href="/wallet" class="btn">Access Wallet</a>
+            </div>
+
+            <div class="feature-card">
+                <div class="card-header">
+                    <div class="card-icon">🏥</div>
+                    <h3 class="card-title">Health Credits</h3>
+                </div>
+                <p class="card-description">Earn and spend health credits through verified health activities, research participation, and community engagement in the disease tracking ecosystem.</p>
+                <a href="/health-credits" class="btn btn-outline">Learn More</a>
+            </div>
+
+            <div class="feature-card">
+                <div class="card-header">
+                    <div class="card-icon">📊</div>
+                    <h3 class="card-title">Data Marketplace</h3>
+                </div>
+                <p class="card-description">Securely monetize your anonymized health data while contributing to medical research and public health initiatives through blockchain verification.</p>
+                <a href="/marketplace" class="btn btn-outline">Explore Marketplace</a>
+            </div>
+
+            <div class="feature-card">
+                <div class="card-header">
+                    <div class="card-icon">🔐</div>
+                    <h3 class="card-title">Privacy & Security</h3>
+                </div>
+                <p class="card-description">Your health data is encrypted and stored on decentralized networks, ensuring privacy while enabling valuable research contributions.</p>
+                <a href="/security" class="btn btn-outline">Security Details</a>
+            </div>
+
+            <div class="feature-card">
+                <div class="card-header">
+                    <div class="card-icon">🌐</div>
+                    <h3 class="card-title">Network Explorer</h3>
+                </div>
+                <p class="card-description">Explore transactions, validate health data submissions, and monitor the integrity of the health blockchain network in real-time.</p>
+                <a href="/explorer" class="btn btn-outline">View Explorer</a>
+            </div>
+
+            <div class="feature-card">
+                <div class="card-header">
+                    <div class="card-icon">🤝</div>
+                    <h3 class="card-title">Research Partnerships</h3>
+                </div>
+                <p class="card-description">Connect with verified research institutions and pharmaceutical companies for secure, transparent health data collaboration.</p>
+                <a href="/partnerships" class="btn btn-outline">View Partners</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-dot"></div>
+        <span>Ledger Online • Network Healthy</span>
+    </div>
+
+    <script>
+        // Simulate live network statistics
+        function updateStats() {
+            const stats = {
+                totalTransactions: Math.floor(12800 + Math.random() * 100),
+                activeWallets: Math.floor(3480 + Math.random() * 50),
+                blockHeight: Math.floor(2847600 + Math.random() * 200),
+                networkHealth: (99.7 + Math.random() * 0.3).toFixed(1)
+            };
+            
+            Object.keys(stats).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (key === 'networkHealth') {
+                        element.textContent = stats[key] + '%';
+                    } else {
+                        element.textContent = stats[key].toLocaleString();
+                    }
+                }
+            });
+        }
+        
+        // Update stats every 10 seconds
+        setInterval(updateStats, 10000);
+        
+        // Auto-refresh network status every 30 seconds
+        setInterval(() => {
+            fetch('/api/wallet/health')
+                .then(response => response.json())
+                .then(data => {
+                    const statusBar = document.querySelector('.status-bar span');
+                    if (data.success && data.data.status === 'healthy') {
+                        statusBar.textContent = 'Ledger Online • Network Healthy';
+                    } else {
+                        statusBar.textContent = 'Ledger Online • Limited Service';
+                    }
+                })
+                .catch(() => {
+                    const statusBar = document.querySelector('.status-bar span');
+                    statusBar.textContent = 'Ledger Offline';
+                });
+        }, 30000);
+        
+        // Add some interactive animations
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.boxShadow = '0 12px 48px rgba(59, 130, 246, 0.2)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)';
+            });
+        });
+    </script>
+</body>
+</html>
+  `;
+  res.send(html);
+}
+
 // API Routes
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
@@ -745,6 +1218,173 @@ app.get('/api/user/profile',
     } catch (error) {
       console.error('Get profile error:', error);
       res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  });
+
+// Wallet integration endpoints
+app.get('/api/user/wallet',
+  (req, res, next) => {
+    if (app.locals.auth?.authenticateToken) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    return res.status(500).json({ error: 'Authentication service not initialized' });
+  },
+  async (req, res) => {
+    try {
+      const result = await app.locals.walletUserService.getWalletInfo(req.user.id);
+      res.json(result);
+    } catch (error) {
+      console.error('Get wallet info error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  });
+
+app.post('/api/user/wallet/connect',
+  (req, res, next) => {
+    if (app.locals.auth?.authenticateToken) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    return res.status(500).json({ error: 'Authentication service not initialized' });
+  },
+  async (req, res) => {
+    try {
+      const walletService = app.locals.walletUserService;
+      
+      // Apply validation
+      await Promise.all(walletService.getWalletConnectionValidation().map(validation => validation.run(req)));
+      walletService.handleValidationErrors(req);
+      
+      const result = await walletService.connectWallet(
+        req.user.id,
+        req.body,
+        req.ip,
+        req.get('User-Agent')
+      );
+      res.json(result);
+    } catch (error) {
+      console.error('Connect wallet error:', error);
+      res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+  });
+
+app.post('/api/user/wallet/disconnect',
+  (req, res, next) => {
+    if (app.locals.auth?.authenticateToken) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    return res.status(500).json({ error: 'Authentication service not initialized' });
+  },
+  async (req, res) => {
+    try {
+      const result = await app.locals.walletUserService.disconnectWallet(
+        req.user.id,
+        req.ip,
+        req.get('User-Agent')
+      );
+      res.json(result);
+    } catch (error) {
+      console.error('Disconnect wallet error:', error);
+      res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+  });
+
+app.get('/api/user/wallet/transactions',
+  (req, res, next) => {
+    if (app.locals.auth?.authenticateToken) {
+      return app.locals.auth.authenticateToken(req, res, next);
+    }
+    return res.status(500).json({ error: 'Authentication service not initialized' });
+  },
+  async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit) || 50;
+      const offset = parseInt(req.query.offset) || 0;
+      
+      const result = await app.locals.walletUserService.getTransactionHistory(
+        req.user.id,
+        limit,
+        offset
+      );
+      res.json(result);
+    } catch (error) {
+      console.error('Get transaction history error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  });
+
+// Endpoint for ledger subdomain to sync transaction data
+app.post('/api/user/wallet/sync-transaction',
+  (req, res, next) => {
+    // This endpoint is called from the ledger subdomain to sync transaction data
+    // We'll add authentication via API key or special internal auth later
+    next();
+  },
+  async (req, res) => {
+    try {
+      const { userId, transactionData } = req.body;
+      
+      if (!userId || !transactionData) {
+        return res.status(400).json({
+          success: false,
+          error: 'userId and transactionData are required'
+        });
+      }
+      
+      const result = await app.locals.walletUserService.recordHealthTokenTransaction(
+        userId,
+        transactionData
+      );
+      res.json(result);
+    } catch (error) {
+      console.error('Sync transaction error:', error);
+      res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+  });
+
+// Endpoint for ledger subdomain to update user balance
+app.post('/api/user/wallet/sync-balance',
+  (req, res, next) => {
+    // This endpoint is called from the ledger subdomain to sync balance updates
+    next();
+  },
+  async (req, res) => {
+    try {
+      const { userId, newBalance } = req.body;
+      
+      if (!userId || newBalance === undefined) {
+        return res.status(400).json({
+          success: false,
+          error: 'userId and newBalance are required'
+        });
+      }
+      
+      const result = await app.locals.walletUserService.updateHealthTokenBalance(
+        userId,
+        newBalance,
+        'ledger_sync'
+      );
+      res.json(result);
+    } catch (error) {
+      console.error('Sync balance error:', error);
+      res.status(400).json({
         success: false,
         error: error.message
       });

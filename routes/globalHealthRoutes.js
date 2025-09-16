@@ -6,12 +6,14 @@ const GlobalHealthOrchestrator = require('../services/globalHealthOrchestrator')
 const DataFusionEngine = require('../services/dataFusionEngine');
 const OutbreakDetectionEngine = require('../services/outbreakDetectionEngine');
 const ErrorHandlingService = require('../services/errorHandlingService');
+const ExtendedHealthApiService = require('../services/extendedHealthApiService');
 
 // Initialize advanced services
 const globalOrchestrator = new GlobalHealthOrchestrator();
 const dataFusion = new DataFusionEngine();
 const outbreakDetection = new OutbreakDetectionEngine();
 const errorHandler = new ErrorHandlingService();
+const extendedHealthApi = new ExtendedHealthApiService();
 
 // Middleware for advanced features
 router.use((req, res, next) => {
@@ -19,7 +21,8 @@ router.use((req, res, next) => {
     orchestrator: globalOrchestrator,
     fusion: dataFusion,
     outbreakDetection: outbreakDetection,
-    errorHandler: errorHandler
+    errorHandler: errorHandler,
+    extendedHealthApi: extendedHealthApi
   };
   next();
 });
@@ -295,13 +298,42 @@ router.get('/sources', async (req, res) => {
         us_states: {
           california: { name: 'California CHHS', status: 'operational', coverage: 'california' },
           new_york: { name: 'New York Health Data', status: 'operational', coverage: 'new_york' },
-          texas: { name: 'Texas DSHS', status: 'operational', coverage: 'texas' }
+          texas: { name: 'Texas DSHS', status: 'operational', coverage: 'texas' },
+          massachusetts: { name: 'Massachusetts Health Data', status: 'operational', coverage: 'massachusetts' },
+          maryland: { name: 'Maryland Health Department', status: 'operational', coverage: 'maryland' },
+          oregon: { name: 'Oregon Health Authority', status: 'operational', coverage: 'oregon' },
+          colorado: { name: 'Colorado Department of Public Health', status: 'operational', coverage: 'colorado' },
+          delaware: { name: 'Delaware Health and Social Services', status: 'operational', coverage: 'delaware' },
+          nevada: { name: 'Nevada Division of Public and Behavioral Health', status: 'operational', coverage: 'nevada' },
+          vermont: { name: 'Vermont Department of Health', status: 'operational', coverage: 'vermont' },
+          illinois: { name: 'Illinois Department of Public Health', status: 'operational', coverage: 'illinois' },
+          rhode_island: { name: 'Rhode Island Department of Health', status: 'operational', coverage: 'rhode_island' },
+          hawaii: { name: 'Hawaii Department of Health', status: 'operational', coverage: 'hawaii' },
+          pennsylvania: { name: 'Pennsylvania Department of Health', status: 'operational', coverage: 'pennsylvania' },
+          washington: { name: 'Washington State Department of Health', status: 'operational', coverage: 'washington' },
+          kansas: { name: 'Kansas Department of Health and Environment', status: 'operational', coverage: 'kansas' },
+          georgia: { name: 'Georgia Department of Public Health', status: 'operational', coverage: 'georgia' },
+          south_dakota: { name: 'South Dakota Department of Health', status: 'operational', coverage: 'south_dakota' },
+          utah: { name: 'Utah Department of Health and Human Services', status: 'operational', coverage: 'utah' },
+          north_carolina: { name: 'North Carolina Department of Health and Human Services', status: 'operational', coverage: 'north_carolina' },
+          south_carolina: { name: 'South Carolina Department of Health and Environmental Control', status: 'operational', coverage: 'south_carolina' },
+          missouri: { name: 'Missouri Department of Health and Senior Services', status: 'operational', coverage: 'missouri' },
+          montana: { name: 'Montana Department of Public Health and Human Services', status: 'operational', coverage: 'montana' },
+          mississippi: { name: 'Mississippi State Department of Health', status: 'operational', coverage: 'mississippi' },
+          louisiana: { name: 'Louisiana Department of Health', status: 'operational', coverage: 'louisiana' },
+          west_virginia: { name: 'West Virginia Department of Health and Human Resources', status: 'operational', coverage: 'west_virginia' }
         },
         research_academic: {
           our_world_in_data: { name: 'Our World in Data', status: 'operational', coverage: 'global' },
           health_map: { name: 'HealthMap', status: 'operational', coverage: 'global' },
           gisaid: { name: 'GISAID', status: 'requires_auth', coverage: 'global' },
-          promed: { name: 'ProMED', status: 'operational', coverage: 'global' }
+          promed: { name: 'ProMED', status: 'operational', coverage: 'global' },
+          delphi_epidata: { name: 'Delphi Epidata API (CMU)', status: 'operational', coverage: 'usa' }
+        },
+        specialized_sources: {
+          healthdata_gov: { name: 'HealthData.gov', status: 'operational', coverage: 'usa' },
+          americas_health_rankings: { name: 'America\'s Health Rankings', status: 'operational', coverage: 'usa' },
+          openfda_enhanced: { name: 'Enhanced OpenFDA', status: 'operational', coverage: 'usa' }
         },
         existing_integrations: {
           disease_sh: { name: 'disease.sh', status: 'operational', coverage: 'global' },
@@ -572,6 +604,184 @@ router.post('/system/cache/clear', async (req, res) => {
   }
 });
 
+// ============ EXTENDED HEALTH API ENDPOINTS ============
+
+// Delphi Epidata API endpoints
+router.get('/delphi/covid', async (req, res) => {
+  try {
+    const {
+      signal = 'doctor_visits',
+      geo_type = 'state',
+      geo_values = '*',
+      time_values = 'latest'
+    } = req.query;
+
+    const result = await req.advancedServices.extendedHealthApi.getDelphiCovidData({
+      signal,
+      geo_type,
+      geo_values,
+      time_values
+    });
+
+    res.json(result);
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      code: 'DELPHI_COVID_001'
+    });
+  }
+});
+
+router.get('/delphi/flu', async (req, res) => {
+  try {
+    const {
+      regions = ['nat'],
+      epiweeks = 'latest'
+    } = req.query;
+
+    const regionArray = Array.isArray(regions) ? regions : regions.split(',');
+
+    const result = await req.advancedServices.extendedHealthApi.getDelphiFluData({
+      regions: regionArray,
+      epiweeks
+    });
+
+    res.json(result);
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      code: 'DELPHI_FLU_001'
+    });
+  }
+});
+
+// State API endpoints
+router.get('/states/:state/:dataType', async (req, res) => {
+  try {
+    const { state, dataType } = req.params;
+
+    const result = await req.advancedServices.extendedHealthApi.getStateHealthData(state, dataType);
+
+    res.json(result);
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      code: 'STATE_API_001'
+    });
+  }
+});
+
+// HealthData.gov endpoints
+router.get('/healthdata/:dataset_id', async (req, res) => {
+  try {
+    const { dataset_id } = req.params;
+    const {
+      limit = 1000,
+      offset = 0,
+      where = null,
+      order = null
+    } = req.query;
+
+    const result = await req.advancedServices.extendedHealthApi.getHealthDataGov(dataset_id, {
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      where,
+      order
+    });
+
+    res.json(result);
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      code: 'HEALTHDATA_001'
+    });
+  }
+});
+
+// America's Health Rankings
+router.get('/health-rankings', async (req, res) => {
+  try {
+    const {
+      edition = 'annual',
+      measure = 'overall',
+      state = 'all',
+      year = 'latest'
+    } = req.query;
+
+    const result = await req.advancedServices.extendedHealthApi.getAmericasHealthRankings({
+      edition,
+      measure,
+      state,
+      year
+    });
+
+    res.json(result);
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      code: 'HEALTH_RANKINGS_001'
+    });
+  }
+});
+
+// Enhanced OpenFDA endpoints
+router.get('/openfda/:endpoint', async (req, res) => {
+  try {
+    const { endpoint } = req.params;
+    const {
+      search = null,
+      count = null,
+      limit = 100,
+      skip = 0
+    } = req.query;
+
+    const result = await req.advancedServices.extendedHealthApi.getOpenFDAData(endpoint, {
+      search,
+      count,
+      limit: parseInt(limit),
+      skip: parseInt(skip)
+    });
+
+    res.json(result);
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      code: 'OPENFDA_001'
+    });
+  }
+});
+
+// Get available extended data sources
+router.get('/extended-sources', async (req, res) => {
+  try {
+    const sources = await req.advancedServices.extendedHealthApi.getAvailableDataSources();
+
+    res.json({
+      success: true,
+      sources,
+      total_sources: Object.keys(sources).length
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // ============ API DOCUMENTATION ============
 
 router.get('/docs', (req, res) => {
@@ -614,12 +824,22 @@ router.get('/docs', (req, res) => {
         'GET /global/system/health': 'System health check',
         'GET /global/system/metrics': 'System performance metrics',
         'POST /global/system/cache/clear': 'Clear system caches'
+      },
+      extended_apis: {
+        'GET /global/delphi/covid': 'Delphi COVID-19 surveillance data',
+        'GET /global/delphi/flu': 'Delphi influenza surveillance data',
+        'GET /global/states/:state/:dataType': 'State health department data',
+        'GET /global/healthdata/:dataset_id': 'HealthData.gov datasets',
+        'GET /global/health-rankings': 'America\'s Health Rankings data',
+        'GET /global/openfda/:endpoint': 'Enhanced OpenFDA data access',
+        'GET /global/extended-sources': 'Available extended data sources'
       }
     },
     data_sources: {
       global: ['WHO GHO', 'ECDC', 'PAHO', 'Our World in Data', 'HealthMap', 'GISAID', 'ProMED'],
-      us_federal: ['CDC', 'FDA OpenFDA', 'CMS'],
-      us_states: ['California CHHS', 'New York Health', 'Texas DSHS'],
+      us_federal: ['CDC', 'FDA OpenFDA', 'CMS', 'HealthData.gov'],
+      us_states: ['California CHHS', 'New York Health', 'Texas DSHS', 'Massachusetts Health', 'Maryland Health', 'Oregon Health Authority', 'Colorado DPHE', 'Delaware DHSS', 'Nevada DPBH', 'Vermont Health', 'Illinois DPH', 'Rhode Island Health', 'Hawaii DOH', 'Pennsylvania Health', 'Washington DOH', 'Kansas KDHE', 'Georgia DPH', 'South Dakota DOH', 'Utah DHHS', 'North Carolina DHHS', 'South Carolina DHEC', 'Missouri DHSS', 'Montana DPHHS', 'Mississippi DOH', 'Louisiana DOH', 'West Virginia DHHR'],
+      research_academic: ['Delphi Epidata (CMU)', 'America\'s Health Rankings'],
       existing: ['disease.sh', 'Comprehensive STI Service']
     },
     algorithms: {

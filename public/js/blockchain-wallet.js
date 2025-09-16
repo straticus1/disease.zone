@@ -1,14 +1,14 @@
 /**
- * Blockchain Wallet Integration for diseaseZone
- * Handles wallet connections, HEALTH token management, and Web3 interactions
+ * Ledger Wallet Integration for diseaseZone
+ * Handles wallet connections, HEALTH credit management, and Web3 interactions
  */
 
-class BlockchainWallet {
+class LedgerWallet {
     constructor() {
         this.provider = null;
         this.signer = null;
         this.userAddress = null;
-        this.healthTokenBalance = '0';
+        this.healthCreditBalance = '0';
         this.networkConfig = {
             // Testnet configuration for demo
             chainId: '0x89', // Polygon Mainnet
@@ -21,9 +21,9 @@ class BlockchainWallet {
             rpcUrls: ['https://polygon-rpc.com/'],
             blockExplorerUrls: ['https://polygonscan.com/']
         };
-        // Note: This is a demo contract address - real HEALTH token needs to be deployed
-        this.healthTokenContract = '0x1000000000000000000000000000000000000001'; // Mock address for demo
-        this.realHealthTokenContract = null; // Will be set when real token is deployed
+        // Note: This is a demo contract address - real HEALTH credit needs to be deployed
+        this.healthCreditContract = '0x1000000000000000000000000000000000000001'; // Mock address for demo
+        this.realHealthCreditContract = null; // Will be set when real credit is deployed
     }
 
     // Initialize wallet connection
@@ -40,7 +40,7 @@ class BlockchainWallet {
                     this.userAddress = accounts[0];
                     this.updateWalletDisplay();
                     this.updateWalletAddressDisplay();
-                    this.loadHealthTokenBalance();
+                    this.loadHealthCreditBalance();
                 }
             });
 
@@ -77,8 +77,8 @@ class BlockchainWallet {
             // Switch to Polygon network if needed
             await this.ensureCorrectNetwork();
 
-            // Load token balance
-            await this.loadHealthTokenBalance();
+            // Load credit balance
+            await this.loadHealthCreditBalance();
 
             this.updateWalletDisplay();
             this.showWalletConnectedMessage();
@@ -116,20 +116,20 @@ class BlockchainWallet {
         }
     }
 
-    // Load HEALTH token balance (simulated for demo)
-    async loadHealthTokenBalance() {
+    // Load HEALTH credit balance (simulated for demo)
+    async loadHealthCreditBalance() {
         try {
             if (!this.userAddress) return;
 
             // In a real implementation, this would call the actual token contract
             // For demo purposes, we'll simulate the balance
             const simulatedBalance = this.generateRealisticBalance();
-            this.healthTokenBalance = simulatedBalance;
+            this.healthCreditBalance = simulatedBalance;
 
             this.updateTokenDisplay();
         } catch (error) {
             console.error('Error loading token balance:', error);
-            this.healthTokenBalance = '0';
+            this.healthCreditBalance = '0';
         }
     }
 
@@ -156,18 +156,18 @@ class BlockchainWallet {
         return '0';
     }
 
-    // Simulate earning tokens for health data contribution
-    async earnTokens(amount, dataType) {
+    // Simulate earning credits for health data contribution
+    async earnCredits(amount, dataType) {
         try {
-            const currentBalance = parseFloat(this.healthTokenBalance);
+            const currentBalance = parseFloat(this.healthCreditBalance);
             const newBalance = (currentBalance + amount).toFixed(2);
-            this.healthTokenBalance = newBalance;
+            this.healthCreditBalance = newBalance;
 
             this.updateTokenDisplay();
-            this.showTokenEarnedMessage(amount, dataType);
+            this.showCreditEarnedMessage(amount, dataType);
 
             // Store in local storage for demo persistence
-            localStorage.setItem(`healthTokens_${this.userAddress}`, newBalance);
+            localStorage.setItem(`healthCredits_${this.userAddress}`, newBalance);
 
             return true;
         } catch (error) {
@@ -176,23 +176,23 @@ class BlockchainWallet {
         }
     }
 
-    // Simulate spending tokens for research access
-    async spendTokens(amount, purpose) {
+    // Simulate spending credits for research access
+    async spendCredits(amount, purpose) {
         try {
-            const currentBalance = parseFloat(this.healthTokenBalance);
+            const currentBalance = parseFloat(this.healthCreditBalance);
 
             if (currentBalance < amount) {
-                throw new Error('Insufficient HEALTH token balance');
+                throw new Error('Insufficient HEALTH credit balance');
             }
 
             const newBalance = (currentBalance - amount).toFixed(2);
-            this.healthTokenBalance = newBalance;
+            this.healthCreditBalance = newBalance;
 
             this.updateTokenDisplay();
-            this.showTokenSpentMessage(amount, purpose);
+            this.showCreditSpentMessage(amount, purpose);
 
             // Store in local storage for demo persistence
-            localStorage.setItem(`healthTokens_${this.userAddress}`, newBalance);
+            localStorage.setItem(`healthCredits_${this.userAddress}`, newBalance);
 
             return true;
         } catch (error) {
@@ -289,23 +289,23 @@ class BlockchainWallet {
         }
     }
 
-    // Update token balance display
+    // Update credit balance display
     updateTokenDisplay() {
-        const tokenBalance = document.getElementById('healthTokenBalance');
+        const tokenBalance = document.getElementById('healthCreditBalance');
         if (tokenBalance) {
-            tokenBalance.textContent = this.healthTokenBalance;
+            tokenBalance.textContent = this.healthCreditBalance;
         }
 
-        const tokenBalanceFormatted = document.getElementById('healthTokenBalanceFormatted');
+        const tokenBalanceFormatted = document.getElementById('healthCreditBalanceFormatted');
         if (tokenBalanceFormatted) {
-            tokenBalanceFormatted.textContent = `${this.healthTokenBalance} HEALTH`;
+            tokenBalanceFormatted.textContent = `${this.healthCreditBalance} HEALTH`;
         }
     }
 
     // Disconnect wallet
     async disconnectWallet() {
         this.userAddress = null;
-        this.healthTokenBalance = '0';
+        this.healthCreditBalance = '0';
         this.updateWalletDisplay();
         this.updateTokenDisplay();
         this.showWalletDisconnectedMessage();
@@ -325,12 +325,12 @@ class BlockchainWallet {
         this.showNotification('👋 Wallet disconnected', 'info');
     }
 
-    showTokenEarnedMessage(amount, dataType) {
-        this.showNotification(`🪙 Earned ${amount} HEALTH tokens for ${dataType} contribution!`, 'success');
+    showCreditEarnedMessage(amount, dataType) {
+        this.showNotification(`🪙 Earned ${amount} HEALTH credits for ${dataType} contribution!`, 'success');
     }
 
-    showTokenSpentMessage(amount, purpose) {
-        this.showNotification(`💸 Spent ${amount} HEALTH tokens for ${purpose}`, 'info');
+    showCreditSpentMessage(amount, purpose) {
+        this.showNotification(`💸 Spent ${amount} HEALTH credits for ${purpose}`, 'info');
     }
 
     // Show error messages
@@ -383,62 +383,62 @@ class BlockchainWallet {
         }, 4000);
     }
 
-    // Validate HEALTH token on public blockchain
+    // Validate HEALTH credit on public ledger
     async validateHealthToken() {
         try {
             if (!this.provider) {
-                throw new Error('No blockchain provider available');
+                throw new Error('No ledger provider available');
             }
 
             // Check if we're on the correct network
             const chainId = await this.provider.request({ method: 'eth_chainId' });
             if (chainId !== this.networkConfig.chainId) {
-                throw new Error('Please switch to Polygon Mainnet to validate HEALTH tokens');
+                throw new Error('Please switch to Polygon Mainnet to validate HEALTH credits');
             }
 
-            // For demo purposes, we'll simulate token validation
+            // For demo purposes, we'll simulate credit validation
             // In a real implementation, this would query the actual deployed contract
-            const simulatedTokenInfo = {
-                name: 'HEALTH Token',
+            const simulatedCreditInfo = {
+                name: 'HEALTH Credit',
                 symbol: 'HLTH',
-                totalSupply: '1000000000', // 1 billion tokens
+                totalSupply: '1000000000', // 1 billion credits
                 decimals: 18,
-                contractAddress: this.healthTokenContract,
+                contractAddress: this.healthCreditContract,
                 isReal: false, // This indicates it's a mock for demo
-                deploymentStatus: 'Demo Mode - Token not yet deployed on Polygon Mainnet',
+                deploymentStatus: 'Demo Mode - Credit not yet deployed on Polygon Mainnet',
                 verifiedOnPolygonScan: false
             };
 
             // Check PolygonScan for real contract (this would be done server-side in production)
-            const polygonScanUrl = `https://api.polygonscan.com/api?module=contract&action=getsourcecode&address=${this.healthTokenContract}&apikey=demo`;
+            const polygonScanUrl = `https://api.polygonscan.com/api?module=contract&action=getsourcecode&address=${this.healthCreditContract}&apikey=demo`;
 
             this.showNotification(
-                `📊 Token Validation: ${simulatedTokenInfo.deploymentStatus}`,
+                `📊 Credit Validation: ${simulatedCreditInfo.deploymentStatus}`,
                 'info'
             );
 
-            return simulatedTokenInfo;
+            return simulatedCreditInfo;
 
         } catch (error) {
-            console.error('Error validating HEALTH token:', error);
-            this.showNotification(`❌ Token validation failed: ${error.message}`, 'error');
+            console.error('Error validating HEALTH credit:', error);
+            this.showNotification(`❌ Credit validation failed: ${error.message}`, 'error');
             return null;
         }
     }
 
-    // Check token balance via blockchain (for when real token is deployed)
+    // Check credit balance via ledger (for when real credit is deployed)
     async getActualTokenBalance() {
         try {
             if (!this.userAddress || !this.provider) {
                 return '0';
             }
 
-            // This would query the real token contract when deployed
+            // This would query the real credit contract when deployed
             // For now, return simulated balance
-            return this.healthTokenBalance;
+            return this.healthCreditBalance;
 
         } catch (error) {
-            console.error('Error getting actual token balance:', error);
+            console.error('Error getting actual credit balance:', error);
             return '0';
         }
     }
@@ -448,9 +448,9 @@ class BlockchainWallet {
         return {
             connected: !!this.userAddress,
             address: this.userAddress,
-            balance: this.healthTokenBalance,
+            balance: this.healthCreditBalance,
             network: 'Polygon Mainnet',
-            tokenContract: this.healthTokenContract,
+            creditContract: this.healthCreditContract,
             isDemo: true // Indicates this is demo mode
         };
     }
@@ -458,9 +458,9 @@ class BlockchainWallet {
     // Load persisted balance from localStorage
     loadPersistedBalance() {
         if (this.userAddress) {
-            const savedBalance = localStorage.getItem(`healthTokens_${this.userAddress}`);
+            const savedBalance = localStorage.getItem(`healthCredits_${this.userAddress}`);
             if (savedBalance) {
-                this.healthTokenBalance = savedBalance;
+                this.healthCreditBalance = savedBalance;
                 this.updateTokenDisplay();
             }
         }
@@ -480,21 +480,25 @@ class BlockchainWallet {
 
 // Global functions for HTML onclick events
 function viewOnBlockExplorer() {
-    if (blockchain.userAddress) {
-        const url = `https://polygonscan.com/address/${blockchain.userAddress}`;
+    if (ledger.userAddress) {
+        const url = `https://polygonscan.com/address/${ledger.userAddress}`;
         window.open(url, '_blank');
     } else {
-        blockchain.showNotification('Please connect your wallet first', 'warning');
+        ledger.showNotification('Please connect your wallet first', 'warning');
     }
 }
 
-// Initialize global blockchain wallet instance
-window.blockchain = new BlockchainWallet();
+// Initialize global ledger wallet instance
+window.ledger = new LedgerWallet();
+
+// Backward compatibility aliases
+window.blockchain = window.ledger;
+window.BlockchainWallet = LedgerWallet;
 
 // Auto-initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', async () => {
-    const initialized = await blockchain.init();
+    const initialized = await ledger.init();
     if (!initialized) {
-        console.log('Blockchain wallet not available - using demo mode');
+        console.log('Ledger wallet not available - using demo mode');
     }
 });

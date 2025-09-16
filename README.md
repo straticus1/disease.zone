@@ -6,7 +6,7 @@
 
 *Previously known as covid19lookup.nyc*
 
-[![Version](https://img.shields.io/badge/version-3.7.0-blue.svg)](https://github.com/straticus1/disease.zone)
+[![Version](https://img.shields.io/badge/version-3.8.0-blue.svg)](https://github.com/straticus1/disease.zone)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-brightgreen.svg)](./MEDICAL_COMPLIANCE_REVIEW.md)
 [![GDPR](https://img.shields.io/badge/GDPR-Compliant-brightgreen.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
@@ -21,7 +21,7 @@
 - **Patient-Controlled Spending** - Load credits and control healthcare dollars with complete transparency
 - **Universal Acceptance** - Providers convert credits to cash within minutes, not months
 - **No Claim Denials** - Pre-loaded funds guarantee payment (vs 15-20% insurance rejection rates)
-- **Blockchain Transparency** - All transactions recorded on immutable distributed ledger
+- **Ledger Transparency** - All transactions recorded on immutable distributed ledger
 
 ### 🏥 **Revolutionary FHIR-Ledger Bridge**
 - **EMR-Ledger Integration** - World's first FHIR-native ledger platform connecting Electronic Medical Records to distributed ledger
@@ -30,7 +30,7 @@
 - **Smart Contract Automation** - Automated medical workflows with credit distribution and data verification
 - **Clinical CLI Interface** - Complete command-line tools for healthcare providers (`diseasezone fhir`)
 - **HIPAA/GDPR Ledger** - Privacy-compliant ledger storage with advanced anonymization
-- **Cross-Chain Verification** - Multi-blockchain data integrity and provenance tracking
+- **Cross-Chain Verification** - Multi-ledger data integrity and provenance tracking
 
 ### 🌐 **Global Health Intelligence Platform**
 - **15+ Data Sources** - WHO, ECDC, CDC, state health departments, and specialized surveillance systems
@@ -88,7 +88,7 @@
 - **Symptom Monitoring** - Clinical symptom tracking with validation
 - **Treatment History** - Comprehensive medication and therapy documentation
 
-### 🛡️ **Enterprise Security & Blockchain**
+### 🛡️ **Enterprise Security & Ledger**
 - **AES-256 Encryption** - Database encryption at rest for all PHI/PII
 - **Multi-Factor Authentication** - TOTP, SMS, recovery codes for medical professionals
 - **Real-Time Monitoring** - Automated threat detection and security alerting
@@ -96,7 +96,7 @@
 - **Zero-Trust Architecture** - Never trust, always verify security model
 - **Hash Verification** - SHA256 cryptographic integrity verification for all files
 - **Enhanced Input Validation** - XSS, SQL injection, and path traversal protection
-- **Blockchain Wallet Integration** - Real-time balance checking across Polygon, Ethereum
+- **Ledger Wallet Integration** - Real-time balance checking across Polygon, Ethereum
 - **Advanced Rate Limiting** - IPv6-compatible, user-based rate limiting
 - **Geolocation Privacy** - Coordinate obfuscation and privacy-first logging
 - **Transaction Validation** - Pre-transaction balance and gas estimation
@@ -251,7 +251,7 @@ diseasezone fhir status          # Check bridge health
 diseasezone fhir hospitals       # List connected EMRs
 diseasezone fhir connect         # Connect to hospital
 diseasezone fhir import --hospital-id <id> --patient-id <id> --wallet <address>
-diseasezone fhir tokens <wallet-address>  # Check HEALTH token balance
+diseasezone fhir credits <wallet-address>  # Check HEALTH credit balance
 diseasezone fhir history         # View import history
 
 # Start interactive console (perfect for support staff and researchers)

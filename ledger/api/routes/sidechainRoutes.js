@@ -14,7 +14,7 @@ router.get('/status', async (req, res) => {
             gas_price: '0.001',
             last_block_time: new Date(Date.now() - 2000).toISOString(),
             total_transactions: Math.floor(Math.random() * 50000) + 10000,
-            health_token_address: process.env.HEALTH_TOKEN_ADDRESS || '0x1000000000000000000000000000000000000001',
+            health_credit_address: process.env.HEALTH_CREDIT_ADDRESS || '0x1000000000000000000000000000000000000001',
             marketplace_address: process.env.DATA_MARKETPLACE_ADDRESS || '0x1000000000000000000000000000000000000002'
         };
 

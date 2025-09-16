@@ -230,9 +230,9 @@ run_tests() {
     log_success "All tests passed"
 }
 
-# Deploy HEALTH token
-deploy_health_token() {
-    log_info "Deploying HEALTH token contract..."
+# Deploy HEALTH credit
+deploy_health_credit() {
+    log_info "Deploying HEALTH credit contract..."
 
     cd "${LEDGER_ROOT}/smart-contracts"
 
@@ -250,7 +250,7 @@ deploy_health_token() {
         npx hardhat verify --network $NETWORK --constructor-args scripts/token-args.js
     fi
 
-    log_success "HEALTH token deployed successfully"
+    log_success "HEALTH credit deployed successfully"
 }
 
 # Deploy bridge contracts
@@ -313,9 +313,9 @@ save_deployment_info() {
     "environment": "$ENVIRONMENT",
     "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
     "contracts": {
-        "healthToken": {
-            "address": "$(cat ${LEDGER_ROOT}/smart-contracts/deployments/${NETWORK}/HealthToken.json | jq -r '.address')",
-            "blockNumber": "$(cat ${LEDGER_ROOT}/smart-contracts/deployments/${NETWORK}/HealthToken.json | jq -r '.receipt.blockNumber')"
+        "healthCredit": {
+            "address": "$(cat ${LEDGER_ROOT}/smart-contracts/deployments/${NETWORK}/HealthCredit.json | jq -r '.address')",
+            "blockNumber": "$(cat ${LEDGER_ROOT}/smart-contracts/deployments/${NETWORK}/HealthCredit.json | jq -r '.receipt.blockNumber')"
         }
     },
     "networks": {
@@ -343,9 +343,9 @@ print_summary() {
     echo "Timestamp:      $(date)"
     echo
 
-    if [[ -f "${LEDGER_ROOT}/smart-contracts/deployments/${NETWORK}/HealthToken.json" ]]; then
-        local token_address=$(cat "${LEDGER_ROOT}/smart-contracts/deployments/${NETWORK}/HealthToken.json" | jq -r '.address')
-        echo "HEALTH Token:   $token_address"
+    if [[ -f "${LEDGER_ROOT}/smart-contracts/deployments/${NETWORK}/HealthCredit.json" ]]; then
+        local credit_address=$(cat "${LEDGER_ROOT}/smart-contracts/deployments/${NETWORK}/HealthCredit.json" | jq -r '.address')
+        echo "HEALTH Credit:  $credit_address"
     fi
 
     echo
@@ -377,7 +377,7 @@ main() {
 
     # Deploy contracts based on options
     if [[ "$DEPLOY_ALL" == "true" ]] || [[ "$DEPLOY_TOKEN" == "true" ]]; then
-        deploy_health_token
+        deploy_health_credit
     fi
 
     if [[ "$DEPLOY_ALL" == "true" ]] || [[ "$DEPLOY_BRIDGE" == "true" ]]; then

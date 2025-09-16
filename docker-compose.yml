@@ -165,8 +165,7 @@ networks:
   disease-zone-network:
     driver: bridge
   blockchain-network:
-    external: true
-    name: ledger_blockchain-network
+    driver: bridge
 
 volumes:
   postgres-data:

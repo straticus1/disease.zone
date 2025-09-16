@@ -33,6 +33,32 @@ resource "aws_route53_record" "www" {
   }
 }
 
+# Route53 Record for api subdomain
+resource "aws_route53_record" "api" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "api.${var.domain_name}"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.main.dns_name
+    zone_id                = aws_lb.main.zone_id
+    evaluate_target_health = true
+  }
+}
+
+# Route53 Record for ledger subdomain
+resource "aws_route53_record" "ledger" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "ledger.${var.domain_name}"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.main.dns_name
+    zone_id                = aws_lb.main.zone_id
+    evaluate_target_health = true
+  }
+}
+
 # ACM Certificate
 resource "aws_acm_certificate" "main" {
   domain_name               = var.domain_name

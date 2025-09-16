@@ -212,7 +212,7 @@ class DiseaseZoneApp {
                     { text: 'Patients', view: 'patients' },
                     { text: 'Research', view: 'research' },
                     { text: 'Compliance', view: 'compliance' },
-                    { text: 'Blockchain', view: 'blockchain' }
+                    { text: 'Ledger', view: 'blockchain' }
                 ];
                 break;
             case 'insurance':
@@ -220,7 +220,7 @@ class DiseaseZoneApp {
                     { text: 'Analytics', view: 'insurance' },
                     { text: 'Risk Models', view: 'risk' },
                     { text: 'Claims', view: 'claims' },
-                    { text: 'Blockchain', view: 'blockchain' }
+                    { text: 'Ledger', view: 'blockchain' }
                 ];
                 break;
             case 'researcher':
@@ -236,7 +236,7 @@ class DiseaseZoneApp {
                     { text: 'Dashboard', view: 'user' },
                     { text: 'Health Data', view: 'health' },
                     { text: 'Surveillance', view: 'surveillance' },
-                    { text: 'Blockchain', view: 'blockchain' }
+                    { text: 'Ledger', view: 'blockchain' }
                 ];
         }
 
@@ -326,17 +326,17 @@ class DiseaseZoneApp {
             const headers = { 'Authorization': `Bearer ${token}` };
 
             // Load user statistics
-            const [familyDiseases, analysisHistory, blockchainMetrics] = await Promise.all([
+            const [familyDiseases, analysisHistory, ledgerMetrics] = await Promise.all([
                 this.apiCall('/api/user/family-diseases', 'GET', null, headers),
                 this.apiCall('/api/user/symptom-analysis/history', 'GET', null, headers),
-                this.loadBlockchainData()
+                this.loadLedgerData()
             ]);
 
             // Update user dashboard stats
             this.updateUserStats({
                 dataPoints: familyDiseases.success ? familyDiseases.familyDiseases.length : 0,
                 analysisCount: analysisHistory.success ? analysisHistory.sessions.length : 0,
-                blockchainData: blockchainMetrics
+                ledgerData: ledgerMetrics
             });
 
         } catch (error) {
@@ -356,7 +356,7 @@ class DiseaseZoneApp {
                 await this.loadInsuranceDashboardData();
                 break;
             case 'blockchain':
-                await this.loadBlockchainDashboardData();
+                await this.loadLedgerDashboardData();
                 break;
         }
     }
@@ -427,24 +427,24 @@ class DiseaseZoneApp {
         }
     }
 
-    async loadBlockchainDashboardData() {
+    async loadLedgerDashboardData() {
         try {
-            // Load blockchain data from ledger API
-            const blockchainData = await this.loadBlockchainData();
+            // Load ledger data from ledger API
+            const ledgerData = await this.loadLedgerData();
 
-            if (blockchainData) {
-                document.getElementById('healthTokenBalance').textContent = blockchainData.tokenBalance || '0';
-                document.getElementById('dataContributions').textContent = blockchainData.contributions || '0';
-                document.getElementById('marketplaceSales').textContent = blockchainData.sales || '0';
-                document.getElementById('networkStatus').textContent = blockchainData.networkStatus || 'Offline';
+            if (ledgerData) {
+                document.getElementById('healthCreditBalance').textContent = ledgerData.tokenBalance || '0';
+                document.getElementById('dataContributions').textContent = ledgerData.contributions || '0';
+                document.getElementById('marketplaceSales').textContent = ledgerData.sales || '0';
+                document.getElementById('networkStatus').textContent = ledgerData.networkStatus || 'Offline';
             }
 
         } catch (error) {
-            console.error('Failed to load blockchain dashboard data:', error);
+            console.error('Failed to load ledger dashboard data:', error);
         }
     }
 
-    async loadBlockchainData() {
+    async loadLedgerData() {
         try {
             const [tokenResponse, marketplaceResponse, bridgeResponse] = await Promise.all([
                 this.apiCall('/api/v1/token/info', 'GET', null, {}, this.ledgerApiUrl),
@@ -459,7 +459,7 @@ class DiseaseZoneApp {
                 networkStatus: bridgeResponse.success ? 'Online' : 'Offline'
             };
         } catch (error) {
-            console.error('Failed to load blockchain data:', error);
+            console.error('Failed to load ledger data:', error);
             return null;
         }
     }
@@ -653,12 +653,12 @@ class DiseaseZoneApp {
                             </div>
                             <div class="card">
                                 <div class="card-body">
-                                    <h5><i class="fas fa-link"></i> FHIR Blockchain</h5>
+                                    <h5><i class="fas fa-link"></i> FHIR Ledger</h5>
                                     <ul style="margin-left: 1rem; line-height: 1.6;">
                                         <li>EMR integration setup</li>
                                         <li>Patient data monetization</li>
-                                        <li>HIPAA compliance on blockchain</li>
-                                        <li>HEALTH token management</li>
+                                        <li>HIPAA compliance on ledger</li>
+                                        <li>HEALTH credit management</li>
                                     </ul>
                                 </div>
                             </div>
@@ -1061,7 +1061,7 @@ class DiseaseZoneApp {
                             <i class="fas fa-user"></i> Profile
                         </a>
                         <a href="#" onclick="showView('blockchain'); hideUserMenu();" style="display: block; padding: 0.5rem; text-decoration: none; color: var(--text-primary); border-radius: 4px;" onmouseover="this.style.backgroundColor='var(--light-color)';" onmouseout="this.style.backgroundColor='transparent';">
-                            <i class="fas fa-coins"></i> HEALTH Tokens
+                            <i class="fas fa-coins"></i> HEALTH Credits
                         </a>
                         <hr style="margin: 0.5rem 0;">
                         <a href="#" onclick="logout(); hideUserMenu();" style="display: block; padding: 0.5rem; text-decoration: none; color: var(--error-color); border-radius: 4px;" onmouseover="this.style.backgroundColor='var(--light-color)';" onmouseout="this.style.backgroundColor='transparent';">
@@ -1102,8 +1102,8 @@ class DiseaseZoneApp {
         if (stats.analysisCount !== undefined) {
             document.getElementById('userTokensEarned').textContent = stats.analysisCount * 10; // Mock calculation
         }
-        if (stats.blockchainData) {
-            document.getElementById('userTokensEarned').textContent = stats.blockchainData.tokenBalance || '0';
+        if (stats.ledgerData) {
+      document.getElementById('userCreditsEarned').textContent = userData.healthCreditsEarned || 0;
         }
     }
 
@@ -2059,6 +2059,233 @@ async function fetchLocalDiseaseData(locationData) {
         chagasDisease.severity = 'Low';
         chagasDisease.cases = Math.floor(Math.random() * 5) + 1;
         chagasDisease.trend = 'Stable';
+    }
+
+    // Regional health patterns for new states
+    if (locationData.state === 'Nevada') {
+        // Nevada has high rates of Valley Fever (Coccidioidomycosis)
+        commonDiseases.push({
+            name: 'Valley Fever',
+            severity: 'High',
+            cases: Math.floor(Math.random() * 150) + 50,
+            trend: 'Increasing',
+            icon: 'fas fa-lungs',
+            color: '#d97706',
+            description: 'Fungal infection common in desert Southwest'
+        });
+    }
+
+    if (locationData.state === 'Vermont') {
+        // Vermont has high Lyme disease rates
+        commonDiseases.push({
+            name: 'Lyme Disease',
+            severity: 'Very High',
+            cases: Math.floor(Math.random() * 200) + 100,
+            trend: 'Seasonal Peak',
+            icon: 'fas fa-bug',
+            color: '#059669',
+            description: 'Tick-borne bacterial infection endemic to Northeast'
+        });
+    }
+
+    if (locationData.state === 'Illinois') {
+        // Illinois has West Nile Virus concerns
+        commonDiseases.push({
+            name: 'West Nile Virus',
+            severity: 'Moderate',
+            cases: Math.floor(Math.random() * 80) + 20,
+            trend: 'Seasonal',
+            icon: 'fas fa-mosquito',
+            color: '#8b5cf6',
+            description: 'Mosquito-borne viral infection common in Great Lakes region'
+        });
+    }
+
+    if (locationData.state === 'Rhode Island') {
+        // Rhode Island has high Lyme disease and toxic algae concerns
+        commonDiseases.push({
+            name: 'Harmful Algal Blooms',
+            severity: 'High',
+            cases: Math.floor(Math.random() * 50) + 15,
+            trend: 'Increasing',
+            icon: 'fas fa-water',
+            color: '#06b6d4',
+            description: 'Toxic algae in coastal waters causing respiratory and skin issues'
+        });
+    }
+
+    if (locationData.state === 'Hawaii') {
+        // Hawaii has dengue fever and rat lungworm concerns
+        commonDiseases.push({
+            name: 'Rat Lungworm Disease',
+            severity: 'High',
+            cases: Math.floor(Math.random() * 30) + 5,
+            trend: 'Stable',
+            icon: 'fas fa-brain',
+            color: '#dc2626',
+            description: 'Parasitic infection from contaminated produce, endemic to tropical areas'
+        });
+    }
+
+    if (locationData.state === 'Pennsylvania') {
+        // Pennsylvania has high Lyme disease and Legionnaires' disease
+        commonDiseases.push({
+            name: 'Legionnaires\' Disease',
+            severity: 'Moderate',
+            cases: Math.floor(Math.random() * 60) + 15,
+            trend: 'Increasing',
+            icon: 'fas fa-lungs',
+            color: '#f59e0b',
+            description: 'Bacterial pneumonia from contaminated water systems'
+        });
+    }
+
+    if (locationData.state === 'Washington') {
+        // Washington has high rates of pertussis and seasonal respiratory illness
+        commonDiseases.push({
+            name: 'Pertussis (Whooping Cough)',
+            severity: 'High',
+            cases: Math.floor(Math.random() * 120) + 40,
+            trend: 'Increasing',
+            icon: 'fas fa-cough',
+            color: '#ef4444',
+            description: 'Bacterial respiratory infection with cyclic outbreaks in Pacific Northwest'
+        });
+    }
+
+    if (locationData.state === 'Kansas') {
+        // Kansas has high rates of Rocky Mountain Spotted Fever and heat-related illness
+        commonDiseases.push({
+            name: 'Rocky Mountain Spotted Fever',
+            severity: 'High',
+            cases: Math.floor(Math.random() * 40) + 10,
+            trend: 'Seasonal Peak',
+            icon: 'fas fa-bug',
+            color: '#dc2626',
+            description: 'Tick-borne bacterial infection common in Great Plains region'
+        });
+    }
+
+    // Additional state-specific disease patterns - Batch 2
+    if (locationData.state === 'Georgia') {
+        // Georgia has high rates of Rocky Mountain Spotted Fever and West Nile Virus
+        commonDiseases.push({
+            name: 'Rocky Mountain Spotted Fever',
+            severity: 'Very High',
+            cases: Math.floor(Math.random() * 80) + 30,
+            trend: 'Increasing',
+            icon: 'fas fa-bug',
+            color: '#dc2626',
+            description: 'Tick-borne bacterial infection very common in Southeast'
+        });
+    }
+    if (locationData.state === 'South Dakota') {
+        // South Dakota has high rates of West Nile Virus and agricultural-related health issues
+        commonDiseases.push({
+            name: 'Agricultural Respiratory Disease',
+            severity: 'High',
+            cases: Math.floor(Math.random() * 60) + 20,
+            trend: 'Seasonal',
+            icon: 'fas fa-lungs',
+            color: '#8b5cf6',
+            description: 'Respiratory issues from agricultural dust and chemical exposure'
+        });
+    }
+    if (locationData.state === 'Utah') {
+        // Utah has air quality issues and Valley Fever cases
+        commonDiseases.push({
+            name: 'Air Quality-Related Asthma',
+            severity: 'High',
+            cases: Math.floor(Math.random() * 100) + 40,
+            trend: 'Increasing',
+            icon: 'fas fa-lungs',
+            color: '#f59e0b',
+            description: 'Respiratory issues from poor air quality in Salt Lake Valley'
+        });
+    }
+    if (locationData.state === 'North Carolina') {
+        // North Carolina has high rates of vector-borne diseases
+        commonDiseases.push({
+            name: 'Eastern Equine Encephalitis',
+            severity: 'High',
+            cases: Math.floor(Math.random() * 25) + 5,
+            trend: 'Seasonal Peak',
+            icon: 'fas fa-mosquito',
+            color: '#dc2626',
+            description: 'Rare but serious mosquito-borne viral infection'
+        });
+    }
+    if (locationData.state === 'South Carolina') {
+        // South Carolina has coastal health concerns and vector-borne diseases
+        commonDiseases.push({
+            name: 'Vibrio Infections',
+            severity: 'High',
+            cases: Math.floor(Math.random() * 40) + 15,
+            trend: 'Summer Peak',
+            icon: 'fas fa-water',
+            color: '#06b6d4',
+            description: 'Bacterial infections from warm coastal waters and seafood'
+        });
+    }
+    if (locationData.state === 'Missouri') {
+        // Missouri has high rates of tick-borne diseases
+        commonDiseases.push({
+            name: 'Ehrlichiosis',
+            severity: 'High',
+            cases: Math.floor(Math.random() * 70) + 25,
+            trend: 'Increasing',
+            icon: 'fas fa-bug',
+            color: '#8b5cf6',
+            description: 'Tick-borne bacterial infection common in Midwest'
+        });
+    }
+    if (locationData.state === 'Montana') {
+        // Montana has plague and tick-borne diseases
+        commonDiseases.push({
+            name: 'Plague',
+            severity: 'Moderate',
+            cases: Math.floor(Math.random() * 15) + 2,
+            trend: 'Stable',
+            icon: 'fas fa-biohazard',
+            color: '#dc2626',
+            description: 'Bacterial infection from rodent fleas in rural areas'
+        });
+    }
+    if (locationData.state === 'Mississippi') {
+        // Mississippi has high rates of vector-borne diseases and heat-related illness
+        commonDiseases.push({
+            name: 'Mississippi Delta Health Syndrome',
+            severity: 'Very High',
+            cases: Math.floor(Math.random() * 200) + 80,
+            trend: 'Chronic',
+            icon: 'fas fa-heart-broken',
+            color: '#dc2626',
+            description: 'Complex health issues from poverty, environmental factors, and limited healthcare access'
+        });
+    }
+    if (locationData.state === 'Louisiana') {
+        // Louisiana has high rates of tropical diseases and hurricane-related health issues
+        commonDiseases.push({
+            name: 'Vibrio vulnificus Infections',
+            severity: 'Very High',
+            cases: Math.floor(Math.random() * 60) + 25,
+            trend: 'Summer Peak',
+            icon: 'fas fa-water',
+            color: '#dc2626',
+            description: 'Life-threatening bacterial infections from warm Gulf waters'
+        });
+    }
+    if (locationData.state === 'West Virginia') {
+        // West Virginia has high rates of opioid-related health issues and mining-related diseases
+        commonDiseases.push({
+            name: 'Black Lung Disease',
+            severity: 'Very High',
+            cases: Math.floor(Math.random() * 150) + 60,
+            trend: 'Increasing',
+            icon: 'fas fa-lungs',
+            color: '#374151',
+            description: 'Coal worker pneumoconiosis from long-term coal dust exposure'
+        });
     }
 
     return commonDiseases.slice(0, 10); // Return top 10

@@ -730,7 +730,7 @@ class FHIRBlockchainBridge {
 
       // Log reward in audit trail
       await this.audit.logMedicalEvent({
-        eventType: 'health_token_reward_distributed',
+        eventType: 'health_credit_reward_distributed',
         sessionId: sessionId,
         walletAddress: walletAddress,
         tokenAmount: tokenAmount,

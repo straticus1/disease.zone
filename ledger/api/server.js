@@ -6,7 +6,7 @@ require('dotenv').config();
 const fabricRoutes = require('./routes/fabricRoutes');
 const sidechainRoutes = require('./routes/sidechainRoutes');
 const bridgeRoutes = require('./routes/bridgeRoutes');
-const healthTokenRoutes = require('./routes/healthTokenRoutes');
+const healthCreditRoutes = require('./routes/healthCreditRoutes');
 const marketplaceRoutes = require('./routes/marketplaceRoutes');
 const integrationRoutes = require('./routes/integrationRoutes');
 
@@ -30,7 +30,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/v1/fabric', fabricRoutes);
 app.use('/api/v1/sidechain', sidechainRoutes);
 app.use('/api/v1/bridge', bridgeRoutes);
-app.use('/api/v1/token', healthTokenRoutes);
+app.use('/api/v1/token', healthCreditRoutes);
 app.use('/api/v1/marketplace', marketplaceRoutes);
 app.use('/api/v1/integration', integrationRoutes);
 
@@ -45,7 +45,7 @@ app.get('/health', (req, res) => {
             hyperledger_fabric: 'operational',
             polygon_supernet: 'operational',
             cross_chain_bridge: 'operational',
-            health_token: 'operational',
+            health_credit: 'operational',
             data_marketplace: 'operational'
         }
     });
@@ -75,7 +75,7 @@ app.get('/api/v1/status', (req, res) => {
                 validated_proofs: 567
             },
             smart_contracts: {
-                health_token: {
+                health_credit: {
                     address: process.env.HEALTH_TOKEN_ADDRESS || 'pending_deployment',
                     total_supply: '100000000',
                     holders: 1234

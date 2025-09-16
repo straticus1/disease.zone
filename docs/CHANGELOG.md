@@ -5,6 +5,43 @@ All notable changes to diseaseZone will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.8.0] - 2025-09-16
+
+### 🪙 Health Token to Health Credit Terminology Update
+
+This release standardizes all terminology from "Health Token" to "Health Credit" across the entire platform to improve user understanding and branding consistency.
+
+#### Changed
+- **Backend Services**: Updated all database references from `health_token_*` to `health_credit_*`
+  - Modified `walletUserService.js` to use `health_credit_transactions` table
+  - Updated `userService.js` with credit-based transaction handling
+  - Changed audit logging in `fhirBlockchainBridge.js` to use `health_credit_reward_distributed`
+- **Database Schema**: Renamed database columns and tables
+  - `health_token_balance` → `health_credit_balance`
+  - `health_token_transactions` → `health_credit_transactions`
+  - Updated migration script `add_wallet_fields.sql` with new naming
+- **Frontend Interface**: Updated all UI elements and labels
+  - Changed "HEALTH Tokens" to "HEALTH Credits" throughout `app.html`
+  - Updated JavaScript element IDs from `healthToken*` to `healthCredit*`
+  - Modified wallet interface to display credit terminology
+- **Ledger Platform**: Updated blockchain integration terminology
+  - Renamed `healthTokenRoutes.js` to `healthCreditRoutes.js`
+  - Updated API responses and integration endpoints
+  - Modified smart contracts from `IHealthToken` to `IHealthCredit`
+  - Updated deployment scripts and configuration references
+- **Documentation**: Updated README and CLI references from tokens to credits
+
+#### Benefits
+- **Consistent Branding**: All user-facing interfaces now use "Credit" terminology
+- **Clear User Experience**: Users see consistent language across platform
+- **Better Differentiation**: Credits vs tokens clarifies reward vs underlying blockchain tokens
+- **API Alignment**: All endpoints and responses use consistent credit naming
+
+#### Files Updated
+- 14 total files across backend services, database, frontend, and ledger platform
+- Complete terminology consistency from database to user interface
+- All references updated while maintaining functional compatibility
+
 ## [3.2.0] - 2025-09-16
 
 ### 🏥 FHIR Integration & Multi-Provider Mapping System - GAME CHANGER

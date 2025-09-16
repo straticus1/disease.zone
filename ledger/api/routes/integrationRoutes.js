@@ -285,7 +285,7 @@ router.get('/metrics', async (req, res) => {
                 success_rate: 0.998,
                 average_verification_time: '45 seconds'
             },
-            health_token: {
+            health_credit: {
                 total_supply: '100000000',
                 circulating_supply: '25000000',
                 holders: 1234,

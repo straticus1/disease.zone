@@ -233,9 +233,30 @@ class UserService {
         throw new Error('User not found');
       }
 
+      // Get recent HEALTH credit transactions if wallet is connected
+      let recentTransactions = [];
+      if (user.wallet_connected) {
+        recentTransactions = await this.db.all(`
+          SELECT transaction_type, amount, description, source_action, created_at, status
+          FROM health_credit_transactions
+          WHERE user_id = ? 
+          ORDER BY created_at DESC 
+          LIMIT 5
+        `, [userId]);
+      }
+
       // Remove sensitive information
       delete user.password_hash;
       delete user.verification_token;
+      delete user.wallet_public_key; // Keep private keys private
+
+      // Add wallet summary to user profile
+      user.wallet_summary = {
+        connected: user.wallet_connected || false,
+        address: user.wallet_connected ? user.wallet_address : null,
+        health_credit_balance: user.health_credit_balance || 0,
+        recent_transactions: recentTransactions
+      };
 
       return {
         success: true,
