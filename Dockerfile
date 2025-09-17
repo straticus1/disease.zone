@@ -1,7 +1,14 @@
 FROM node:18-alpine
 
-# Install curl for health check and ca-certificates for HTTPS requests to FHIR endpoints
-RUN apk add --no-cache curl ca-certificates
+# Install system dependencies for ML/AI libraries and FHIR endpoints
+RUN apk add --no-cache \
+    curl \
+    ca-certificates \
+    python3 \
+    make \
+    g++ \
+    linux-headers \
+    libc6-compat
 
 # Set working directory
 WORKDIR /app

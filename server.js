@@ -30,6 +30,8 @@ const NeurologicalDiseaseService = require('./services/neurologicalDiseaseServic
 const GeneticDiseaseService = require('./services/geneticDiseaseService');
 const CountryHealthService = require('./services/countryHealthService');
 const MusculoskeletalDiseaseService = require('./services/musculoskeletalDiseaseService');
+const NeuralSearchService = require('./services/neuralSearchService');
+const ModelTrainingScheduler = require('./services/modelTrainingScheduler');
 const DatabaseService = require('./services/databaseService');
 const UserService = require('./services/userService');
 const AISymptomAnalysisService = require('./services/aiSymptomAnalysisService');
@@ -82,6 +84,8 @@ async function initializeServices() {
     const geneticService = new GeneticDiseaseService();
     const musculoskeletalService = new MusculoskeletalDiseaseService();
     const countryHealthService = new CountryHealthService();
+    const neuralSearchService = new NeuralSearchService();
+    const modelTrainingScheduler = new ModelTrainingScheduler(neuralSearchService, databaseService);
 
     // Initialize compliance and security services
     const auditLoggingService = new AuditLoggingService(databaseService);
@@ -145,7 +149,17 @@ async function initializeServices() {
     app.locals.passwordResetService = passwordResetService;
     app.locals.metaSearchService = metaSearchService;
     app.locals.redirectService = redirectService;
+    app.locals.neuralSearchService = neuralSearchService;
+    app.locals.modelTrainingScheduler = modelTrainingScheduler;
     app.locals.config = config;
+
+    // Initialize neural search service
+    console.log('🧠 Initializing Neural Search Service...');
+    await neuralSearchService.initialize();
+
+    // Start model training scheduler
+    console.log('⏰ Starting model training scheduler...');
+    modelTrainingScheduler.start();
 
     console.log('All services initialized successfully');
   } catch (error) {
@@ -2177,7 +2191,34 @@ app.get('/api/metasearch/search', async (req, res) => {
       searchOptions.sources = sourceList;
     }
 
-    const results = await app.locals.metaSearchService.search(query.trim(), searchOptions);
+    let results;
+
+    // Use neural search for AI mode
+    if (req.query.aiMode === 'true' && req.query.engine === 'neural') {
+      console.log('🧠 Using Neural Search Engine');
+
+      const enhancedQuery = await app.locals.neuralSearchService.enhanceQuery(query.trim(), {
+        dataFocus: req.query.dataFocus,
+        audience: req.query.audience,
+        context: req.query.context
+      });
+
+      // Use enhanced query for search
+      results = await app.locals.metaSearchService.search(enhancedQuery.enhancedQuery, searchOptions);
+
+      // Add neural network insights to results
+      results.neuralInsights = {
+        originalQuery: enhancedQuery.originalQuery,
+        enhancedQuery: enhancedQuery.enhancedQuery,
+        confidence: enhancedQuery.confidence,
+        entities: enhancedQuery.entities,
+        relatedTerms: enhancedQuery.relatedTerms,
+        embedding: enhancedQuery.embedding ? enhancedQuery.embedding.slice(0, 5) : null // First 5 dimensions for display
+      };
+    } else {
+      // Use regular meta-search
+      results = await app.locals.metaSearchService.search(query.trim(), searchOptions);
+    }
 
     // Process results to include redirect URLs
     const processedResults = {
@@ -4193,6 +4234,208 @@ app.post('/api/countries/health/bulk', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to fetch bulk health data',
+      message: error.message
+    });
+  }
+});
+
+// ===== NEURAL NETWORK SEARCH API ENDPOINTS =====
+
+// Get neural search service status
+app.get('/api/neural/status', async (req, res) => {
+  try {
+    const status = app.locals.neuralSearchService.getStatus();
+    res.json({
+      success: true,
+      status,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error getting neural search status:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get neural search status',
+      message: error.message
+    });
+  }
+});
+
+// Neural query enhancement endpoint
+app.post('/api/neural/enhance-query', async (req, res) => {
+  try {
+    const { query, context = {} } = req.body;
+
+    if (!query || typeof query !== 'string') {
+      return res.status(400).json({
+        success: false,
+        error: 'Query is required and must be a string'
+      });
+    }
+
+    console.log(`🧠 Neural query enhancement requested for: "${query}"`);
+
+    const enhancement = await app.locals.neuralSearchService.enhanceQuery(query, context);
+
+    res.json({
+      success: true,
+      enhancement,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error enhancing query:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to enhance query',
+      message: error.message
+    });
+  }
+});
+
+// Generate embeddings for custom text
+app.post('/api/neural/embeddings', async (req, res) => {
+  try {
+    const { text } = req.body;
+
+    if (!text || typeof text !== 'string') {
+      return res.status(400).json({
+        success: false,
+        error: 'Text is required and must be a string'
+      });
+    }
+
+    console.log(`🔢 Generating embeddings for: "${text.substring(0, 50)}..."`);
+
+    const embedding = await app.locals.neuralSearchService.generateQueryEmbedding(text);
+
+    res.json({
+      success: true,
+      text,
+      embedding,
+      dimensions: embedding.length,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error generating embeddings:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate embeddings',
+      message: error.message
+    });
+  }
+});
+
+// Model training status and control
+app.get('/api/neural/training/status', async (req, res) => {
+  try {
+    const status = app.locals.modelTrainingScheduler.getStatus();
+    res.json({
+      success: true,
+      training: status,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error getting training status:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get training status',
+      message: error.message
+    });
+  }
+});
+
+// Manual model training trigger (for testing/admin use)
+app.post('/api/neural/training/trigger',
+  // Add authentication check for admin users
+  (req, res, next) => {
+    // For now, allow without auth - in production, restrict to admin users
+    next();
+  },
+  async (req, res) => {
+    try {
+      const { type = 'manual' } = req.body;
+
+      console.log(`🏋️ Manual training triggered (type: ${type})`);
+
+      // Trigger training in background
+      app.locals.modelTrainingScheduler.manualTraining(type)
+        .then(() => {
+          console.log('✅ Manual training completed successfully');
+        })
+        .catch(error => {
+          console.error('❌ Manual training failed:', error);
+        });
+
+      res.json({
+        success: true,
+        message: `${type} training started`,
+        type,
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      console.error('Error triggering training:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to trigger training',
+        message: error.message
+      });
+    }
+  }
+);
+
+// Similarity search endpoint
+app.post('/api/neural/similarity', async (req, res) => {
+  try {
+    const { query, documents = [], limit = 10 } = req.body;
+
+    if (!query || typeof query !== 'string') {
+      return res.status(400).json({
+        success: false,
+        error: 'Query is required and must be a string'
+      });
+    }
+
+    console.log(`🔍 Similarity search for: "${query}" across ${documents.length} documents`);
+
+    // Generate query embedding
+    const queryEmbedding = await app.locals.neuralSearchService.generateQueryEmbedding(query);
+
+    // Generate embeddings for documents
+    const documentEmbeddings = new Map();
+    for (let i = 0; i < documents.length; i++) {
+      const doc = documents[i];
+      const docId = doc.id || `doc_${i}`;
+      const docText = doc.text || doc.content || doc.title || '';
+
+      if (docText) {
+        const embedding = await app.locals.neuralSearchService.generateQueryEmbedding(docText);
+        documentEmbeddings.set(docId, embedding);
+      }
+    }
+
+    // Find similar documents
+    const similarities = await app.locals.neuralSearchService.findSimilarDocuments(
+      queryEmbedding,
+      documentEmbeddings,
+      limit
+    );
+
+    res.json({
+      success: true,
+      query,
+      queryEmbedding: queryEmbedding.slice(0, 5), // First 5 dimensions for display
+      similarities,
+      documentsProcessed: documents.length,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error performing similarity search:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to perform similarity search',
       message: error.message
     });
   }

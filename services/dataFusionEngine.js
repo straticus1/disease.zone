@@ -611,18 +611,185 @@ class DataFusionEngine {
   }
 
   async neuralNetworkFusion(sources, options = {}) {
-    // Placeholder neural network fusion
-    return await this.weightedAverageFusion(sources, options);
+    try {
+      // Use real neural network if available
+      if (global.neuralSearchService && global.neuralSearchService.isInitialized) {
+        console.log('🧠 Using real neural network for data fusion');
+
+        // Convert sources to text for embedding
+        const sourceTexts = sources.map(source => {
+          if (typeof source === 'string') return source;
+          if (source.text) return source.text;
+          if (source.content) return source.content;
+          return JSON.stringify(source);
+        });
+
+        // Generate embeddings for all sources
+        const embeddings = [];
+        for (const text of sourceTexts) {
+          try {
+            const embedding = await global.neuralSearchService.generateQueryEmbedding(text);
+            embeddings.push(embedding);
+          } catch (error) {
+            console.warn('Failed to generate embedding, using fallback');
+            embeddings.push(null);
+          }
+        }
+
+        // Perform neural fusion by averaging embeddings and finding consensus
+        const validEmbeddings = embeddings.filter(e => e !== null);
+        if (validEmbeddings.length > 0) {
+          const fusedEmbedding = this.averageEmbeddings(validEmbeddings);
+
+          // Find most similar source to the fused embedding
+          let bestSource = sources[0];
+          let bestSimilarity = 0;
+
+          for (let i = 0; i < embeddings.length; i++) {
+            if (embeddings[i]) {
+              const similarity = this.calculateCosineSimilarity(fusedEmbedding, embeddings[i]);
+              if (similarity > bestSimilarity) {
+                bestSimilarity = similarity;
+                bestSource = sources[i];
+              }
+            }
+          }
+
+          return {
+            fusedData: bestSource,
+            method: 'neural_network_fusion',
+            confidence: bestSimilarity,
+            embeddingDimensions: fusedEmbedding.length,
+            sourcesProcessed: sources.length
+          };
+        }
+      }
+
+      // Fallback to weighted average if neural network not available
+      console.log('⚠️ Neural network not available, using weighted average fallback');
+      return await this.weightedAverageFusion(sources, options);
+
+    } catch (error) {
+      console.error('Neural network fusion failed:', error);
+      // Fallback to weighted average fusion
+      return await this.weightedAverageFusion(sources, options);
+    }
+  }
+
+  averageEmbeddings(embeddings) {
+    if (embeddings.length === 0) return [];
+
+    const dimensions = embeddings[0].length;
+    const averaged = new Array(dimensions).fill(0);
+
+    for (const embedding of embeddings) {
+      for (let i = 0; i < dimensions; i++) {
+        averaged[i] += embedding[i];
+      }
+    }
+
+    // Normalize by number of embeddings
+    for (let i = 0; i < dimensions; i++) {
+      averaged[i] /= embeddings.length;
+    }
+
+    return averaged;
+  }
+
+  calculateCosineSimilarity(vec1, vec2) {
+    if (vec1.length !== vec2.length) return 0;
+
+    let dotProduct = 0;
+    let magnitude1 = 0;
+    let magnitude2 = 0;
+
+    for (let i = 0; i < vec1.length; i++) {
+      dotProduct += vec1[i] * vec2[i];
+      magnitude1 += vec1[i] * vec1[i];
+      magnitude2 += vec2[i] * vec2[i];
+    }
+
+    magnitude1 = Math.sqrt(magnitude1);
+    magnitude2 = Math.sqrt(magnitude2);
+
+    if (magnitude1 === 0 || magnitude2 === 0) return 0;
+    return dotProduct / (magnitude1 * magnitude2);
   }
 
   async decisionTreeFusion(sources, options = {}) {
-    // Placeholder decision tree fusion
-    return await this.consensusFusion(sources, options);
+    try {
+      console.log('🌳 Using decision tree fusion algorithm');
+
+      // Convert sources to feature vectors
+      const features = this.extractFeatures(sources);
+
+      if (features.length === 0) {
+        return await this.consensusFusion(sources, options);
+      }
+
+      // Simple decision tree implementation
+      const decisions = this.buildDecisionTree(features, sources);
+
+      // Apply decision tree logic
+      const bestSource = this.applyDecisionTree(decisions, sources);
+
+      return {
+        fusedData: bestSource,
+        method: 'decision_tree_fusion',
+        confidence: this.calculateTreeConfidence(decisions),
+        treeDepth: decisions.depth || 1,
+        sourcesProcessed: sources.length
+      };
+
+    } catch (error) {
+      console.error('Decision tree fusion failed:', error);
+      return await this.consensusFusion(sources, options);
+    }
   }
 
   async randomForestFusion(sources, options = {}) {
-    // Placeholder random forest fusion
-    return await this.ensembleFusion(sources, options);
+    try {
+      console.log('🌲 Using random forest fusion algorithm');
+
+      const numTrees = Math.min(10, sources.length * 2);
+      const trees = [];
+
+      // Create multiple decision trees with random subsets
+      for (let i = 0; i < numTrees; i++) {
+        const sampleSources = this.randomSample(sources, Math.ceil(sources.length * 0.7));
+        const treeResult = await this.decisionTreeFusion(sampleSources, options);
+        trees.push(treeResult);
+      }
+
+      // Ensemble voting - find most common prediction
+      const votes = {};
+      trees.forEach(tree => {
+        const key = JSON.stringify(tree.fusedData);
+        votes[key] = (votes[key] || 0) + tree.confidence;
+      });
+
+      // Find best vote
+      let bestVote = null;
+      let bestScore = 0;
+      for (const [vote, score] of Object.entries(votes)) {
+        if (score > bestScore) {
+          bestScore = score;
+          bestVote = vote;
+        }
+      }
+
+      return {
+        fusedData: bestVote ? JSON.parse(bestVote) : sources[0],
+        method: 'random_forest_fusion',
+        confidence: bestScore / numTrees,
+        treesUsed: numTrees,
+        sourcesProcessed: sources.length
+      };
+
+    } catch (error) {
+      console.error('Random forest fusion failed:', error);
+      return await this.ensembleFusion(sources, options);
+    }
   }
 
   async trendAnalysisFusion(sources, options = {}) {
@@ -729,6 +896,93 @@ class DataFusionEngine {
 
   async calculateTrendAdjustments(sources) {
     return sources.map(() => 0); // No adjustment by default
+  }
+
+  // Decision Tree Helper Methods
+  extractFeatures(sources) {
+    const features = [];
+
+    sources.forEach((source, index) => {
+      const feature = {
+        index,
+        reliability: this.calculateReliability(source),
+        timeliness: this.calculateTimeliness(source),
+        completeness: this.calculateCompleteness(source),
+        dataQuality: this.calculateDataQuality(source)
+      };
+      features.push(feature);
+    });
+
+    return features;
+  }
+
+  buildDecisionTree(features, sources) {
+    if (features.length <= 1) {
+      return {
+        decision: features[0]?.index || 0,
+        confidence: 1.0,
+        depth: 1
+      };
+    }
+
+    // Find best split based on information gain
+    let bestSplit = null;
+    let bestGain = -1;
+
+    const attributes = ['reliability', 'timeliness', 'completeness', 'dataQuality'];
+
+    for (const attr of attributes) {
+      const gain = this.calculateInformationGain(features, attr);
+      if (gain > bestGain) {
+        bestGain = gain;
+        bestSplit = attr;
+      }
+    }
+
+    if (!bestSplit) {
+      return {
+        decision: features[0].index,
+        confidence: 0.5,
+        depth: 1
+      };
+    }
+
+    // Simple threshold-based split
+    const threshold = features.reduce((sum, f) => sum + f[bestSplit], 0) / features.length;
+    const highQuality = features.filter(f => f[bestSplit] >= threshold);
+
+    return {
+      decision: highQuality.length > 0 ? highQuality[0].index : features[0].index,
+      confidence: Math.max(0.1, bestGain),
+      depth: 2,
+      splitAttribute: bestSplit,
+      threshold
+    };
+  }
+
+  calculateInformationGain(features, attribute) {
+    if (features.length === 0) return 0;
+
+    const values = features.map(f => f[attribute]);
+    const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
+    const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+
+    return Math.max(0, 1 - variance); // Simple information gain approximation
+  }
+
+  applyDecisionTree(decisions, sources) {
+    const selectedIndex = decisions.decision;
+    return sources[selectedIndex] || sources[0];
+  }
+
+  calculateTreeConfidence(decisions) {
+    return Math.min(1.0, Math.max(0.1, decisions.confidence || 0.5));
+  }
+
+  // Random Forest Helper Methods
+  randomSample(array, sampleSize) {
+    const shuffled = [...array].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, sampleSize);
   }
 
   fuseTemporalData(timeSeriesData) {
