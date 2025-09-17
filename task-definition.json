@@ -1,0 +1,40 @@
+{
+  "family": "disease-zone-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::515966511618:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::515966511618:role/ecsTaskRole",
+  "containerDefinitions": [
+    {
+      "name": "disease-zone",
+      "image": "515966511618.dkr.ecr.us-west-2.amazonaws.com/disease-zone:v1.6.2",
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "environment": [
+        {
+          "name": "NODE_ENV",
+          "value": "production"
+        },
+        {
+          "name": "PORT",
+          "value": "3000"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/disease-zone",
+          "awslogs-region": "us-west-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}

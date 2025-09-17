@@ -578,6 +578,7 @@
                     <li><a href="#" onclick="showView('guest'); return false;" class="nav-link">Home</a></li>
                     <li><a href="#" onclick="showView('surveillance'); return false;" class="nav-link">Surveillance</a></li>
                     <li><a href="#" onclick="showView('research'); return false;" class="nav-link">Research</a></li>
+                    <li><a href="#" onclick="showView('metasearch'); return false;" class="nav-link" style="color: var(--success-color);"><i class="fas fa-search"></i> Search</a></li>
                     <li><a href="#" onclick="showView('resources'); return false;" class="nav-link">Resources</a></li>
                     <li><a href="//ledger.disease.zone" target="_blank" class="nav-link">Ledger <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i></a></li>
                     <li><a href="#" onclick="showView('news'); return false;" class="nav-link" style="color: var(--info-color);">Health News</a></li>
@@ -1610,6 +1611,253 @@
                                 </p>
                                 <p style="font-size: 0.9rem; opacity: 0.9;">Platform technical assistance</p>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MetaSearch View -->
+        <div class="view" id="metasearchView">
+            <div class="container dashboard">
+                <div class="dashboard-header">
+                    <h1><i class="fas fa-search"></i> Disease Data MetaSearch</h1>
+                    <p>Search across multiple authoritative health databases and research sources</p>
+                </div>
+
+                <!-- Search Mode Toggle -->
+                <div style="background: var(--light-color); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+                        <h3 style="margin: 0; color: var(--text-primary);">Search Mode</h3>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="radio" name="searchMode" value="basic" checked onchange="toggleSearchMode('basic')" style="accent-color: var(--primary-color);">
+                                <span style="font-weight: 500;">Basic Search</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="radio" name="searchMode" value="advanced" onchange="toggleSearchMode('advanced')" style="accent-color: var(--primary-color);">
+                                <span style="font-weight: 500;">Advanced Search</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="radio" name="searchMode" value="blockchain" onchange="toggleSearchMode('blockchain')" style="accent-color: var(--warning-color);">
+                                <span style="font-weight: 500; color: var(--warning-color);">🔗 Blockchain Search</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Basic Search Form -->
+                    <div id="basicSearchForm">
+                        <div style="display: flex; gap: 1rem; align-items: end;">
+                            <div style="flex: 1;">
+                                <label for="basicQuery" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Search Query</label>
+                                <input type="text" id="basicQuery" placeholder="e.g., COVID-19, diabetes, influenza surveillance..."
+                                       style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem;"
+                                       onkeypress="if(event.key==='Enter') performBasicSearch()">
+                            </div>
+                            <button onclick="performBasicSearch()" class="btn btn-primary" style="padding: 0.75rem 2rem;">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                        <p style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">
+                            Searches across CDC, WHO, NIH, ECDC, and US Government Open Data
+                        </p>
+                    </div>
+
+                    <!-- Advanced Search Form (Hidden by default) -->
+                    <div id="advancedSearchForm" style="display: none;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div>
+                                <label for="advancedQuery" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Search Query</label>
+                                <input type="text" id="advancedQuery" placeholder="Enter search terms..."
+                                       style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem;"
+                                       onkeypress="if(event.key==='Enter') performAdvancedSearch()">
+                            </div>
+                            <div>
+                                <label for="maxResults" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Max Results per Source</label>
+                                <select id="maxResults" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem;">
+                                    <option value="3">3 results</option>
+                                    <option value="5" selected>5 results</option>
+                                    <option value="10">10 results</option>
+                                    <option value="15">15 results</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Data Sources</label>
+                            <div id="dataSources" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; margin-bottom: 1rem;">
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" value="CDC" checked style="accent-color: var(--primary-color);">
+                                    <span style="font-size: 0.9rem;">CDC (Centers for Disease Control)</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" value="WHO" checked style="accent-color: var(--primary-color);">
+                                    <span style="font-size: 0.9rem;">WHO (World Health Organization)</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" value="NIH" checked style="accent-color: var(--primary-color);">
+                                    <span style="font-size: 0.9rem;">NIH (National Institutes of Health)</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" value="EU ECDC" checked style="accent-color: var(--primary-color);">
+                                    <span style="font-size: 0.9rem;">EU ECDC (European CDC)</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" value="OpenData" checked style="accent-color: var(--primary-color);">
+                                    <span style="font-size: 0.9rem;">US Government Open Data</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button onclick="performAdvancedSearch()" class="btn btn-primary" style="padding: 0.75rem 2rem;">
+                            <i class="fas fa-search"></i> Advanced Search
+                        </button>
+                    </div>
+
+                    <!-- Blockchain Search Form (Hidden by default) -->
+                    <div id="blockchainSearchForm" style="display: none;">
+                        <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; color: white;">
+                            <h4 style="color: white; margin-bottom: 0.5rem;"><i class="fas fa-lock"></i> Private Blockchain Search</h4>
+                            <p style="opacity: 0.9; margin: 0; font-size: 0.9rem;">
+                                Search health data stored on diseaseZone's private blockchain. This includes verified patient records, clinical trials, and research data with cryptographic integrity guarantees.
+                            </p>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div>
+                                <label for="blockchainQuery" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Search Query</label>
+                                <input type="text" id="blockchainQuery" placeholder="Enter search terms for blockchain data..."
+                                       style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem;"
+                                       onkeypress="if(event.key==='Enter') performBlockchainSearch()">
+                            </div>
+                            <div>
+                                <label for="blockchainDataType" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Data Type</label>
+                                <select id="blockchainDataType" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem;">
+                                    <option value="all">All Data Types</option>
+                                    <option value="patient_records">Patient Records</option>
+                                    <option value="clinical_trials">Clinical Trials</option>
+                                    <option value="research_data">Research Data</option>
+                                    <option value="surveillance_data">Surveillance Data</option>
+                                    <option value="fhir_resources">FHIR Resources</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div>
+                                <label for="blockchainTimeRange" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Time Range</label>
+                                <select id="blockchainTimeRange" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem;">
+                                    <option value="all">All Time</option>
+                                    <option value="24h">Last 24 Hours</option>
+                                    <option value="7d">Last 7 Days</option>
+                                    <option value="30d">Last 30 Days</option>
+                                    <option value="90d">Last 90 Days</option>
+                                    <option value="1y">Last Year</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="blockchainNetwork" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Blockchain Network</label>
+                                <select id="blockchainNetwork" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem;">
+                                    <option value="mainnet">Main Network</option>
+                                    <option value="testnet">Test Network</option>
+                                    <option value="polygon">Polygon Network</option>
+                                    <option value="arbitrum">Arbitrum Network</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                            <strong style="color: #d97706;">🔐 Privacy & Security:</strong>
+                            <span style="color: #92400e; font-size: 0.9rem;">
+                                All blockchain searches are conducted with zero-knowledge proofs to protect patient privacy. Only aggregated, anonymized data is returned in search results.
+                            </span>
+                        </div>
+
+                        <button onclick="performBlockchainSearch()" class="btn" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 0.75rem 2rem; border: none;">
+                            <i class="fas fa-link"></i> Search Blockchain
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="searchLoading" style="display: none; text-align: center; padding: 2rem;">
+                    <div class="loading" style="margin: 0 auto 1rem;"></div>
+                    <p style="color: var(--text-secondary);">Searching across multiple health databases...</p>
+                </div>
+
+                <!-- Search Results -->
+                <div id="searchResults" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h3 id="resultsTitle" style="margin: 0; color: var(--text-primary);">Search Results</h3>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <span id="resultsCount" style="color: var(--text-secondary); font-size: 0.9rem;"></span>
+                            <button onclick="clearResults()" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                                <i class="fas fa-times"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="resultsContainer">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Data Sources Information -->
+                <div class="card" style="margin-top: 2rem;">
+                    <div class="card-header">
+                        <h3 class="card-title">Available Data Sources</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-2" style="gap: 1.5rem;">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <div style="width: 12px; height: 12px; background: #005fcc; border-radius: 50%;"></div>
+                                    <strong>CDC</strong> - Centers for Disease Control and Prevention
+                                </div>
+                                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                                    Official US health surveillance and disease data including outbreak tracking, vaccination data, and public health statistics.
+                                </p>
+
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <div style="width: 12px; height: 12px; background: #0093d0; border-radius: 50%;"></div>
+                                    <strong>WHO</strong> - World Health Organization
+                                </div>
+                                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                                    Global health statistics, disease surveillance data, and international health regulations from the UN's health agency.
+                                </p>
+
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <div style="width: 12px; height: 12px; background: #20558a; border-radius: 50%;"></div>
+                                    <strong>NIH</strong> - National Institutes of Health
+                                </div>
+                                <p style="font-size: 0.9rem; color: var(--text-secondary);">
+                                    Biomedical research publications, clinical studies, and health information from PubMed and NIH databases.
+                                </p>
+                            </div>
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <div style="width: 12px; height: 12px; background: #003d82; border-radius: 50%;"></div>
+                                    <strong>EU ECDC</strong> - European Centre for Disease Prevention and Control
+                                </div>
+                                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                                    European disease surveillance data, outbreak investigations, and public health guidance for EU member states.
+                                </p>
+
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <div style="width: 12px; height: 12px; background: #112e51; border-radius: 50%;"></div>
+                                    <strong>US Open Data</strong> - Government Data Portal
+                                </div>
+                                <p style="font-size: 0.9rem; color: var(--text-secondary);">
+                                    Federal government health datasets, including FDA data, USDA food safety information, and health policy data.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 1rem; margin-top: 1.5rem;">
+                            <strong style="color: #d97706;">🔗 Source Attribution:</strong>
+                            <span style="color: #92400e; font-size: 0.9rem;">
+                                All search results include proper source attribution. When you click on a result, you'll be taken to a brief attribution page before being redirected to the original source.
+                            </span>
                         </div>
                     </div>
                 </div>

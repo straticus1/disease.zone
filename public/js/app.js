@@ -3094,3 +3094,297 @@ setTimeout(() => {
         console.log('✅ Modals verified present after 2 seconds');
     }
 }, 2000);
+
+// ===== METASEARCH FUNCTIONALITY =====
+
+// Toggle search mode between basic, advanced, and blockchain
+window.toggleSearchMode = function(mode) {
+    const basicForm = document.getElementById('basicSearchForm');
+    const advancedForm = document.getElementById('advancedSearchForm');
+    const blockchainForm = document.getElementById('blockchainSearchForm');
+
+    // Hide all forms
+    basicForm.style.display = 'none';
+    advancedForm.style.display = 'none';
+    blockchainForm.style.display = 'none';
+
+    // Show selected form
+    switch(mode) {
+        case 'basic':
+            basicForm.style.display = 'block';
+            break;
+        case 'advanced':
+            advancedForm.style.display = 'block';
+            break;
+        case 'blockchain':
+            blockchainForm.style.display = 'block';
+            break;
+    }
+};
+
+// Basic search function
+window.performBasicSearch = async function() {
+    const query = document.getElementById('basicQuery').value.trim();
+
+    if (!query || query.length < 2) {
+        alert('Please enter at least 2 characters for your search query.');
+        return;
+    }
+
+    try {
+        showSearchLoading();
+
+        const response = await fetch(`/api/metasearch/search?q=${encodeURIComponent(query)}&maxResults=5`);
+        const data = await response.json();
+
+        if (data.success) {
+            displaySearchResults(data, query);
+        } else {
+            showSearchError(data.error || 'Search failed');
+        }
+    } catch (error) {
+        console.error('Basic search error:', error);
+        showSearchError('Network error. Please try again.');
+    } finally {
+        hideSearchLoading();
+    }
+};
+
+// Advanced search function
+window.performAdvancedSearch = async function() {
+    const query = document.getElementById('advancedQuery').value.trim();
+    const maxResults = document.getElementById('maxResults').value;
+
+    // Get selected sources
+    const sourceCheckboxes = document.querySelectorAll('#dataSources input[type="checkbox"]:checked');
+    const sources = Array.from(sourceCheckboxes).map(cb => cb.value);
+
+    if (!query || query.length < 2) {
+        alert('Please enter at least 2 characters for your search query.');
+        return;
+    }
+
+    if (sources.length === 0) {
+        alert('Please select at least one data source.');
+        return;
+    }
+
+    try {
+        showSearchLoading();
+
+        const params = new URLSearchParams({
+            q: query,
+            maxResults: maxResults,
+            advanced: 'true',
+            sources: sources.join(',')
+        });
+
+        const response = await fetch(`/api/metasearch/search?${params}`);
+        const data = await response.json();
+
+        if (data.success) {
+            displaySearchResults(data, query);
+        } else {
+            showSearchError(data.error || 'Search failed');
+        }
+    } catch (error) {
+        console.error('Advanced search error:', error);
+        showSearchError('Network error. Please try again.');
+    } finally {
+        hideSearchLoading();
+    }
+};
+
+// Blockchain search function
+window.performBlockchainSearch = async function() {
+    const query = document.getElementById('blockchainQuery').value.trim();
+    const dataType = document.getElementById('blockchainDataType').value;
+    const timeRange = document.getElementById('blockchainTimeRange').value;
+    const network = document.getElementById('blockchainNetwork').value;
+
+    if (!query || query.length < 2) {
+        alert('Please enter at least 2 characters for your search query.');
+        return;
+    }
+
+    try {
+        showSearchLoading();
+
+        const params = new URLSearchParams({
+            q: query,
+            dataType: dataType,
+            timeRange: timeRange,
+            network: network
+        });
+
+        const response = await fetch(`/api/blockchain/search?${params}`);
+        const data = await response.json();
+
+        if (data.success) {
+            displayBlockchainResults(data, query);
+        } else {
+            showSearchError(data.error || 'Blockchain search failed');
+        }
+    } catch (error) {
+        console.error('Blockchain search error:', error);
+        showSearchError('Blockchain search temporarily unavailable. Please try again later.');
+    } finally {
+        hideSearchLoading();
+    }
+};
+
+// Show search loading state
+function showSearchLoading() {
+    document.getElementById('searchLoading').style.display = 'block';
+    document.getElementById('searchResults').style.display = 'none';
+}
+
+// Hide search loading state
+function hideSearchLoading() {
+    document.getElementById('searchLoading').style.display = 'none';
+}
+
+// Display search results
+function displaySearchResults(data, query) {
+    const resultsContainer = document.getElementById('resultsContainer');
+    const resultsTitle = document.getElementById('resultsTitle');
+    const resultsCount = document.getElementById('resultsCount');
+
+    resultsTitle.textContent = `Search Results for "${query}"`;
+    resultsCount.textContent = `${data.totalResults} results from ${data.totalSources} sources`;
+
+    if (data.results.length === 0) {
+        resultsContainer.innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                <h3>No results found</h3>
+                <p>Try different search terms or check your spelling.</p>
+            </div>
+        `;
+    } else {
+        resultsContainer.innerHTML = data.results.map(result => `
+            <div class="card" style="margin-bottom: 1rem;">
+                <div class="card-body" style="padding: 1.5rem;">
+                    <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 1rem;">
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 0.5rem 0; color: var(--text-primary);">
+                                <a href="${result.redirectUrl}" style="color: var(--primary-color); text-decoration: none;"
+                                   onmouseover="this.style.textDecoration='underline'"
+                                   onmouseout="this.style.textDecoration='none'">
+                                    ${result.title}
+                                </a>
+                            </h4>
+                            <p style="margin: 0 0 1rem 0; color: var(--text-secondary); line-height: 1.5;">
+                                ${result.description}
+                            </p>
+                        </div>
+                        <div style="margin-left: 1rem;">
+                            <span style="background: ${result.sourceColor}; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">
+                                ${result.source}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; color: var(--text-secondary);">
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <span><i class="fas fa-database"></i> ${result.dataType}</span>
+                            ${result.lastUpdated ? `<span><i class="fas fa-clock"></i> ${new Date(result.lastUpdated).toLocaleDateString()}</span>` : ''}
+                            ${result.categories.length > 0 ? `<span><i class="fas fa-tags"></i> ${result.categories.slice(0, 2).join(', ')}</span>` : ''}
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary);">
+                            <span style="color: ${result.sourceColor};">• ${result.sourceFullName}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    document.getElementById('searchResults').style.display = 'block';
+}
+
+// Display blockchain search results
+function displayBlockchainResults(data, query) {
+    const resultsContainer = document.getElementById('resultsContainer');
+    const resultsTitle = document.getElementById('resultsTitle');
+    const resultsCount = document.getElementById('resultsCount');
+
+    resultsTitle.textContent = `Blockchain Search Results for "${query}"`;
+    resultsCount.textContent = `${data.totalResults || 0} records found on blockchain`;
+
+    if (!data.results || data.results.length === 0) {
+        resultsContainer.innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                <i class="fas fa-link" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                <h3>No blockchain records found</h3>
+                <p>Try different search terms or adjust your filters.</p>
+            </div>
+        `;
+    } else {
+        resultsContainer.innerHTML = data.results.map(result => `
+            <div class="card" style="margin-bottom: 1rem; border-left: 4px solid var(--warning-color);">
+                <div class="card-body" style="padding: 1.5rem;">
+                    <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 1rem;">
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 0.5rem 0; color: var(--text-primary);">
+                                <i class="fas fa-lock" style="color: var(--warning-color); margin-right: 0.5rem;"></i>
+                                ${result.title || 'Blockchain Record'}
+                            </h4>
+                            <p style="margin: 0 0 1rem 0; color: var(--text-secondary); line-height: 1.5;">
+                                ${result.description || 'Anonymized blockchain health record'}
+                            </p>
+                        </div>
+                        <div style="margin-left: 1rem;">
+                            <span style="background: var(--warning-color); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">
+                                Blockchain
+                            </span>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; color: var(--text-secondary);">
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <span><i class="fas fa-network-wired"></i> ${result.network || 'Private Network'}</span>
+                            <span><i class="fas fa-database"></i> ${result.dataType || 'Health Record'}</span>
+                            ${result.blockNumber ? `<span><i class="fas fa-cube"></i> Block ${result.blockNumber}</span>` : ''}
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--warning-color);">
+                            <span>• Zero-Knowledge Verified</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    document.getElementById('searchResults').style.display = 'block';
+}
+
+// Show search error
+function showSearchError(message) {
+    const resultsContainer = document.getElementById('resultsContainer');
+    const resultsTitle = document.getElementById('resultsTitle');
+    const resultsCount = document.getElementById('resultsCount');
+
+    resultsTitle.textContent = 'Search Error';
+    resultsCount.textContent = '';
+
+    resultsContainer.innerHTML = `
+        <div style="text-align: center; padding: 2rem; color: var(--error-color);">
+            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+            <h3>Search Error</h3>
+            <p>${message}</p>
+        </div>
+    `;
+
+    document.getElementById('searchResults').style.display = 'block';
+}
+
+// Clear search results
+window.clearResults = function() {
+    document.getElementById('searchResults').style.display = 'none';
+
+    // Clear all search inputs
+    document.getElementById('basicQuery').value = '';
+    document.getElementById('advancedQuery').value = '';
+    document.getElementById('blockchainQuery').value = '';
+};

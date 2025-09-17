@@ -42,6 +42,10 @@ const HIPAAService = require('./services/hipaaService');
 const EmailService = require('./services/emailService');
 const PasswordResetService = require('./services/passwordResetService');
 
+// MetaSearch and Redirect Services
+const MetaSearchService = require('./services/metaSearchService');
+const RedirectService = require('./services/redirectService');
+
 // Enhanced Security and Blockchain
 const SecurityValidator = require('./middleware/security');
 const WalletManagementService = require('./services/walletManagementService');
@@ -107,6 +111,15 @@ async function initializeServices() {
     const passwordResetService = new PasswordResetService(databaseService, emailService, config.security?.passwordReset);
     passwordResetService.startPeriodicCleanup();
 
+    // Initialize metasearch and redirect services
+    const metaSearchService = new MetaSearchService();
+    const redirectService = new RedirectService();
+
+    // Cleanup old redirects every hour
+    setInterval(() => {
+      redirectService.cleanupOldRedirects();
+    }, 60 * 60 * 1000);
+
     // Make services available to routes
     app.locals.db = databaseService;
     app.locals.auth = authMiddleware;
@@ -128,6 +141,8 @@ async function initializeServices() {
     app.locals.walletService = walletService;
     app.locals.emailService = emailService;
     app.locals.passwordResetService = passwordResetService;
+    app.locals.metaSearchService = metaSearchService;
+    app.locals.redirectService = redirectService;
     app.locals.config = config;
 
     console.log('All services initialized successfully');
@@ -2108,6 +2123,128 @@ app.get('/api/diseases/category/:category', async (req, res) => {
       success: false,
       error: 'Failed to fetch diseases by category'
     });
+  }
+});
+
+// MetaSearch API endpoints
+app.get('/api/metasearch/sources', async (req, res) => {
+  try {
+    const sources = app.locals.metaSearchService.getDataSources();
+    res.json({
+      success: true,
+      sources,
+      count: sources.length
+    });
+  } catch (error) {
+    console.error('Get data sources error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch data sources'
+    });
+  }
+});
+
+app.get('/api/metasearch/search', async (req, res) => {
+  try {
+    const { q: query, sources, maxResults = 5, advanced = false } = req.query;
+
+    if (!query || query.trim().length < 2) {
+      return res.status(400).json({
+        success: false,
+        error: 'Query must be at least 2 characters long'
+      });
+    }
+
+    const searchOptions = {
+      maxResults: parseInt(maxResults),
+      timeout: 15000
+    };
+
+    // Handle source filtering for advanced search
+    if (advanced === 'true' && sources) {
+      const sourceList = Array.isArray(sources) ? sources : sources.split(',');
+      searchOptions.sources = sourceList;
+    }
+
+    const results = await app.locals.metaSearchService.search(query.trim(), searchOptions);
+
+    // Process results to include redirect URLs
+    const processedResults = {
+      ...results,
+      results: results.results.map(result => ({
+        ...result,
+        redirectUrl: app.locals.redirectService.createRedirectUrl(
+          result.url,
+          result.source,
+          query,
+          result.title
+        )
+      }))
+    };
+
+    res.json({
+      success: true,
+      ...processedResults
+    });
+
+  } catch (error) {
+    console.error('MetaSearch error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Search failed. Please try again.'
+    });
+  }
+});
+
+// Redirect endpoints
+app.get('/redirect/:redirectId', async (req, res) => {
+  try {
+    const { redirectId } = req.params;
+    const redirectInfo = app.locals.redirectService.getRedirectInfo(redirectId);
+
+    if (!redirectInfo) {
+      return res.status(404).send(`
+        <div style="padding: 40px; text-align: center;">
+          <h2>🔍 Redirect Not Found</h2>
+          <p>This redirect link has expired or is invalid.</p>
+          <a href="/" style="color: #2563eb;">← Return to diseaseZone</a>
+        </div>
+      `);
+    }
+
+    // Process the redirect (mark as clicked)
+    const processedRedirect = app.locals.redirectService.processRedirect(
+      redirectId,
+      req.ip
+    );
+
+    // Generate and send the attribution page
+    const redirectPage = app.locals.redirectService.generateRedirectPage(processedRedirect);
+    res.send(redirectPage);
+
+  } catch (error) {
+    console.error('Redirect error:', error);
+    res.status(500).send(`
+      <div style="padding: 40px; text-align: center;">
+        <h2>❌ Redirect Error</h2>
+        <p>An error occurred while processing this redirect.</p>
+        <a href="/" style="color: #2563eb;">← Return to diseaseZone</a>
+      </div>
+    `);
+  }
+});
+
+app.post('/api/redirect/track', async (req, res) => {
+  try {
+    const { redirectId, manual } = req.body;
+
+    // Optional: Add additional tracking logic here
+    console.log(`📊 Redirect tracking: ${redirectId} - Manual: ${manual}`);
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Redirect tracking error:', error);
+    res.status(500).json({ success: false });
   }
 });
 
