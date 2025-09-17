@@ -6,7 +6,7 @@
 
 *Previously known as covid19lookup.nyc*
 
-[![Version](https://img.shields.io/badge/version-1.6.1-blue.svg)](https://github.com/straticus1/disease.zone)
+[![Version](https://img.shields.io/badge/version-1.6.2-blue.svg)](https://github.com/straticus1/disease.zone)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-brightgreen.svg)](./MEDICAL_COMPLIANCE_REVIEW.md)
 [![GDPR](https://img.shields.io/badge/GDPR-Compliant-brightgreen.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
@@ -14,7 +14,10 @@
 
 ## 🌟 Features
 
-### 🆕 **NEW IN v1.6.1: Major Platform Enhancement**
+### 🎆 **NEW IN v1.6.2: Everything is Clickable Now!**
+- **🔗 Fully Interactive Interface** - All cards, buttons, and navigation elements are now clickable and responsive
+- **🔒 Enhanced CSP Security** - Fixed Content Security Policy to allow interactive elements while maintaining security
+- **✨ Seamless User Experience** - Smooth navigation between all dashboard sections and features
 - **📰 Professional News API** - RSS aggregation from WHO, CDC, ProMED, Nature Medicine, The Lancet
 - **📧 Enterprise Email Service** - AWS SES integration with beautiful HTML templates
 - **🔐 Secure Password Reset** - Cryptographically secure tokens with rate limiting
