@@ -2724,7 +2724,7 @@ function getSeverityColor(severity) {
     }
 }
 
-// Make function globally available
+// Make function globally available immediately
 window.getLocalDiseaseData = getLocalDiseaseData;
 
 // ===== HEALTH NEWS FUNCTIONALITY =====

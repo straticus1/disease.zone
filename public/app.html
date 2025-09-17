@@ -575,12 +575,12 @@
                 </a>
 
                 <ul class="nav-links" id="navLinks">
-                    <li><a href="#" onclick="showView('guest')" class="nav-link">Home</a></li>
-                    <li><a href="#" onclick="showView('surveillance')" class="nav-link">Surveillance</a></li>
-                    <li><a href="#" onclick="showView('research')" class="nav-link">Research</a></li>
-                    <li><a href="#" onclick="showView('resources')" class="nav-link">Resources</a></li>
+                    <li><a href="#" onclick="showView('guest'); return false;" class="nav-link">Home</a></li>
+                    <li><a href="#" onclick="showView('surveillance'); return false;" class="nav-link">Surveillance</a></li>
+                    <li><a href="#" onclick="showView('research'); return false;" class="nav-link">Research</a></li>
+                    <li><a href="#" onclick="showView('resources'); return false;" class="nav-link">Resources</a></li>
                     <li><a href="//ledger.disease.zone" target="_blank" class="nav-link">Ledger <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i></a></li>
-                    <li><a href="#" onclick="showView('news')" class="nav-link" style="color: var(--info-color);">Health News</a></li>
+                    <li><a href="#" onclick="showView('news'); return false;" class="nav-link" style="color: var(--info-color);">Health News</a></li>
                     <li><a href="//api.disease.zone" target="_blank" class="nav-link" style="color: var(--warning-color);">API Portal <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i></a></li>
                 </ul>
 
@@ -606,15 +606,15 @@
                     <h1>Global Health Intelligence Platform</h1>
                     <p>Comprehensive disease surveillance, outbreak detection, and ledger-verified health data for the modern world.</p>
                     <div class="cta-buttons">
-                        <a href="#" onclick="openModal('loginModal')" class="btn btn-primary">
+                        <a href="#" onclick="openModal('loginModal'); return false;" class="btn btn-primary">
                             <i class="fas fa-sign-in-alt"></i>
                             Login
                         </a>
-                        <a href="#" onclick="openModal('registerModal')" class="btn btn-secondary">
+                        <a href="#" onclick="openModal('registerModal'); return false;" class="btn btn-secondary">
                             <i class="fas fa-user-plus"></i>
                             Register
                         </a>
-                        <a href="#" onclick="showView('demo')" class="btn btn-secondary">
+                        <a href="#" onclick="showView('demo'); return false;" class="btn btn-secondary">
                             <i class="fas fa-play"></i>
                             View Demo
                         </a>

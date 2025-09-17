@@ -189,9 +189,10 @@ class SecurityValidator {
                     "https://fonts.googleapis.com"
                 ],
                 scriptSrc: [
-                    "'self'", 
-                    "'unsafe-inline'", 
-                    "https://unpkg.com", 
+                    "'self'",
+                    "'unsafe-inline'",
+                    "'unsafe-eval'",
+                    "https://unpkg.com",
                     "https://api.mapbox.com",
                     "https://cdn.ethers.io",
                     "https://cdn.jsdelivr.net"

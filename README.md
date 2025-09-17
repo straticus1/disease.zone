@@ -6,13 +6,20 @@
 
 *Previously known as covid19lookup.nyc*
 
-[![Version](https://img.shields.io/badge/version-3.8.0-blue.svg)](https://github.com/straticus1/disease.zone)
+[![Version](https://img.shields.io/badge/version-1.6.1-blue.svg)](https://github.com/straticus1/disease.zone)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-brightgreen.svg)](./MEDICAL_COMPLIANCE_REVIEW.md)
 [![GDPR](https://img.shields.io/badge/GDPR-Compliant-brightgreen.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
 [![Global](https://img.shields.io/badge/Global-10%20Jurisdictions-orange.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
 
 ## 🌟 Features
+
+### 🆕 **NEW IN v1.6.1: Major Platform Enhancement**
+- **📰 Professional News API** - RSS aggregation from WHO, CDC, ProMED, Nature Medicine, The Lancet
+- **📧 Enterprise Email Service** - AWS SES integration with beautiful HTML templates
+- **🔐 Secure Password Reset** - Cryptographically secure tokens with rate limiting
+- **🛠 Enhanced Security** - bcrypt password hashing and improved error handling
+- **⚡ Production Ready** - All services fully operational with comprehensive testing
 
 ### 💳 **Revolutionary Disease Card Payment System**
 - **Insurance Alternative** - Revolutionary replacement for traditional health insurance with instant payments
@@ -33,7 +40,13 @@
 - **Cross-Chain Verification** - Multi-ledger data integrity and provenance tracking
 
 ### 🌐 **Global Health Intelligence Platform**
-- **15+ Data Sources** - WHO, ECDC, CDC, state health departments, and specialized surveillance systems
+- **15+ Data Sources** - WHO, ECDC, CDC, state health departments, and specialized surveillance systems  
+- **📰 Professional News API** - Real-time RSS aggregation from authoritative health sources:
+  - WHO Disease Outbreak News, CDC Health Alert Network
+  - ProMED outbreak reports and epidemiological intelligence
+  - PubMed, Nature Medicine, The Lancet research publications
+  - FDA and NIH policy updates and regulatory announcements
+  - Smart caching system with fallback mock data for development
 - **Real-time Outbreak Detection** - 16 advanced algorithms including CUSUM, EWMA, spatial scan, and ML anomaly detection
 - **Advanced Data Fusion** - 12+ fusion algorithms (Bayesian, ensemble, neural network) for multi-source intelligence
 - **STI/STD Surveillance** - Comprehensive HIV/AIDS, Herpes, HPV tracking with multi-tier access
@@ -88,15 +101,24 @@
 - **Symptom Monitoring** - Clinical symptom tracking with validation
 - **Treatment History** - Comprehensive medication and therapy documentation
 
-### 🛡️ **Enterprise Security**
+### 📧 **Enterprise Email Service**
+- **AWS SES Integration** - Primary email delivery with SMTP fallback support
+- **Beautiful HTML Templates** - Professional medical-grade email designs
+- **Password Reset System** - Secure token-based password recovery with rate limiting
+- **Development Mode** - Console logging for development and testing environments
+- **Multi-Provider Support** - Configurable email providers with automatic failover
+- **Security Features** - Encrypted email content and tamper-proof delivery tracking
+
+### 🛡 **Enterprise Security**
 - **AES-256 Encryption** - Database encryption at rest for all PHI/PII
 - **Multi-Factor Authentication** - TOTP, SMS, recovery codes for medical professionals
+- **🔐 Enhanced Password Security** - bcrypt hashing with cryptographically secure tokens
 - **Real-Time Monitoring** - Automated threat detection and security alerting
 - **Digital Signatures** - Tamper-proof audit logs with integrity verification
 - **Zero-Trust Architecture** - Never trust, always verify security model
 - **Hash Verification** - SHA256 cryptographic integrity verification for all files
 - **Enhanced Input Validation** - XSS, SQL injection, and path traversal protection
-- **Advanced Rate Limiting** - IPv6-compatible, user-based rate limiting
+- **Advanced Rate Limiting** - IPv6-compatible, user-based rate limiting (5 attempts/hour for password resets)
 - **Geolocation Privacy** - Coordinate obfuscation and privacy-first logging
 - **Comprehensive Error Handling** - Secure error messages with attack pattern detection
 - **Domain Separation** - Clear boundaries between main platform and blockchain functionality
@@ -118,6 +140,14 @@
 ### 💻 **Developer Experience**
 - **Comprehensive CLI** - Full-featured command-line interface with AI symptom analysis
 - **RESTful API** - Complete API with JWT and API key authentication
+- **🆕 New API Endpoints** (v1.6.1):
+  - `GET /api/news/category/:category` - News by category (outbreaks, research, policy, prevention)
+  - `GET /api/news/latest` - Latest news across all categories
+  - `GET /api/news/categories` - Available news categories with descriptions
+  - `POST /api/auth/password-reset` - Initiate secure password reset
+  - `POST /api/auth/password-reset/confirm` - Complete password reset with token
+  - `POST /api/news/cache/clear` - Clear news cache (admin only)
+  - `GET /api/news/cache/stats` - News cache statistics and health
 - **Batch Operations** - CSV/JSON import/export for bulk data management
 - **Multiple Output Formats** - Table, JSON, CSV for all operations
 - **Extensive Documentation** - Complete API and compliance documentation

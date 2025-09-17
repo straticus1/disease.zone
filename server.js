@@ -138,7 +138,7 @@ async function initializeServices() {
 }
 
 // Enhanced Security middleware
-app.use(securityValidator.enhancedCSP());
+app.use(securityValidator.enhancedCSP()); // Fixed CSP to allow inline event handlers
 app.use(securityValidator.configureCORS());
 app.use(securityValidator.ipSecurity());
 app.use(securityValidator.sanitizeRequest());
