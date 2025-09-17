@@ -6,7 +6,7 @@
 
 *Previously known as covid19lookup.nyc*
 
-[![Version](https://img.shields.io/badge/version-1.6.3-blue.svg)](https://github.com/straticus1/disease.zone)
+[![Version](https://img.shields.io/badge/version-1.6.5-blue.svg)](https://github.com/straticus1/disease.zone)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-brightgreen.svg)](./MEDICAL_COMPLIANCE_REVIEW.md)
 [![GDPR](https://img.shields.io/badge/GDPR-Compliant-brightgreen.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
@@ -14,15 +14,15 @@
 
 ## 🌟 Features
 
-### 🔍 **NEW IN v1.6.3: Advanced Search & Cloud Infrastructure**
-- **🔍 MetaSearchService** - Unified search across multiple data sources with intelligent ranking
-- **🔄 RedirectService** - Smart URL redirection with analytics and A/B testing support
-- **☁️ AWS ECS Infrastructure** - Production-ready containerization with Fargate deployment
-- **🎨 Enhanced Frontend** - Improved search integration and responsive user interface
-- **🛡️ Security Enhancements** - Production-grade security configurations and monitoring
-- **📊 Analytics Ready** - Search and redirect tracking infrastructure for insights
-- **🌐 Cloud-Native Architecture** - Complete deployment configuration with IAM roles
-- **📈 Performance Optimized** - Efficient search algorithms and caching strategies
+### 🔍 **NEW IN v1.6.5: Advanced MetaSearch & Production Optimization**
+- **🚀 Enhanced MetaSearchService** - Advanced multi-source search with intelligent ranking and analytics
+- **📱 Responsive Search UI** - Modern blue/white theme with interactive cards and animations
+- **☁️ US-EAST-1 Production** - Optimized deployment in correct region with DNS preservation
+- **🌐 Network Infrastructure** - All existing DNS, load balancers, and IP addresses preserved
+- **🛠 Enhanced Backend** - Improved server initialization and service integration
+- **🔧 Search Optimization** - Real-time search analytics, caching, and performance tracking
+- **🎨 UI/UX Improvements** - Better accessibility, keyboard navigation, and visual feedback
+- **📊 Production Ready** - Zero-downtime deployments with health checks and monitoring
 
 ### 🎆 **v1.6.2 Features: Everything is Clickable!**
 - **📰 Professional News API** - RSS aggregation from WHO, CDC, ProMED, Nature Medicine, The Lancet

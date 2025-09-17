@@ -2146,7 +2146,14 @@ app.get('/api/metasearch/sources', async (req, res) => {
 
 app.get('/api/metasearch/search', async (req, res) => {
   try {
-    const { q: query, sources, maxResults = 5, advanced = false } = req.query;
+    const {
+      q: query,
+      sources,
+      maxResults = 15,
+      advanced = false,
+      page = 1,
+      pageSize = 50
+    } = req.query;
 
     if (!query || query.trim().length < 2) {
       return res.status(400).json({
@@ -2157,6 +2164,8 @@ app.get('/api/metasearch/search', async (req, res) => {
 
     const searchOptions = {
       maxResults: parseInt(maxResults),
+      page: parseInt(page),
+      pageSize: parseInt(pageSize),
       timeout: 15000
     };
 

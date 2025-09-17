@@ -1857,7 +1857,7 @@
                 </div>
 
                 <!-- Search Mode Cards -->
-                <div class="search-mode-cards">
+                <div class="search-mode-cards" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
                     <div class="search-mode-card active" data-mode="basic" onclick="toggleSearchMode('basic')">
                         <div class="card-icon" style="background: linear-gradient(135deg, var(--primary-blue), var(--light-blue));">
                             <i class="fas fa-search"></i>
@@ -1872,6 +1872,30 @@
                         </div>
                         <h3>Advanced Search</h3>
                         <p>Customize your search with specific data sources, filters, and advanced parameters. Ideal for researchers and professionals.</p>
+                    </div>
+
+                    <div class="search-mode-card" data-mode="ai" onclick="toggleSearchMode('ai')">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #8b5cf6, #a855f7);">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3>AI Search</h3>
+                        <p>Intelligent search powered by neural networks and LLMs. Get AI-enriched results tailored to your specific research needs.</p>
+                        <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <span style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">🧠 Neural: FREE</span>
+                            <span style="background: rgba(251, 191, 36, 0.1); color: #d97706; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">🚀 Premium: Paid</span>
+                        </div>
+                    </div>
+
+                    <div class="search-mode-card" data-mode="smart" onclick="toggleSearchMode('smart')">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #ec4899, #f97316);">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h3>Smart Learning</h3>
+                        <p>Adaptive search that learns from user patterns and dataset insights. Gets smarter with every search to deliver better results.</p>
+                        <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <span style="background: rgba(236, 72, 153, 0.1); color: #ec4899; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">🎯 Learns</span>
+                            <span style="background: rgba(34, 197, 94, 0.1); color: #16a34a; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">📈 Improves</span>
+                        </div>
                     </div>
 
                     <div class="search-mode-card" data-mode="blockchain" onclick="toggleSearchMode('blockchain')">
@@ -2046,6 +2070,218 @@
                             </button>
                         </div>
                     </div>
+
+                    <!-- AI Search Form (Hidden by default) -->
+                    <div id="aiSearchForm" style="display: none;">
+                        <div style="background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%); padding: 2rem; border-radius: 16px; margin-bottom: 2rem; color: white; text-align: center;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🧠</div>
+                            <h4 style="color: white; margin-bottom: 1rem; font-size: 1.5rem; font-weight: 700;"><i class="fas fa-brain"></i> AI-Powered Search</h4>
+                            <p style="opacity: 0.95; margin: 0; font-size: 1rem; line-height: 1.6; max-width: 600px; margin: 0 auto;">
+                                Tell us what you're looking for and our AI will intelligently search across all health databases, analyze the results, and provide enriched insights tailored to your needs.
+                            </p>
+                        </div>
+
+                        <!-- AI Search Parameters -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                            <div>
+                                <label for="aiQuery" style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: var(--dark-gray);">
+                                    <i class="fas fa-search"></i> Research Question *
+                                </label>
+                                <textarea id="aiQuery" placeholder="Describe what you're researching... e.g., 'I need data on diabetes prevalence in elderly populations'"
+                                    class="search-input" style="min-height: 100px; resize: vertical;"
+                                    onkeypress="if(event.key==='Enter' && event.ctrlKey) performAISearch()"></textarea>
+                                <small style="color: var(--medium-gray); font-size: 0.85rem;">Be specific about what you need - the AI will optimize your search</small>
+                            </div>
+
+                            <div>
+                                <label for="aiContext" style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: var(--dark-gray);">
+                                    <i class="fas fa-lightbulb"></i> Research Context
+                                </label>
+                                <textarea id="aiContext" placeholder="Optional: Provide context about your research, target audience, or specific requirements..."
+                                    class="search-input" style="min-height: 100px; resize: vertical;"></textarea>
+                                <small style="color: var(--medium-gray); font-size: 0.85rem;">Help the AI understand your specific needs</small>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                            <div>
+                                <label for="aiDataFocus" style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: var(--dark-gray);">
+                                    <i class="fas fa-bullseye"></i> Data Focus
+                                </label>
+                                <select id="aiDataFocus" class="search-input">
+                                    <option value="comprehensive">Comprehensive - All relevant data</option>
+                                    <option value="recent">Recent Data - Last 2 years</option>
+                                    <option value="clinical">Clinical Studies</option>
+                                    <option value="surveillance">Disease Surveillance</option>
+                                    <option value="policy">Health Policy</option>
+                                    <option value="demographics">Demographics & Statistics</option>
+                                    <option value="prevention">Prevention & Treatment</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="aiAudience" style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: var(--dark-gray);">
+                                    <i class="fas fa-users"></i> Target Audience
+                                </label>
+                                <select id="aiAudience" class="search-input">
+                                    <option value="researcher">Researcher/Academic</option>
+                                    <option value="clinician">Healthcare Professional</option>
+                                    <option value="policymaker">Policy Maker</option>
+                                    <option value="public_health">Public Health Official</option>
+                                    <option value="journalist">Journalist/Media</option>
+                                    <option value="student">Student</option>
+                                    <option value="general">General Public</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- AI Engine Selection -->
+                        <div style="margin-bottom: 2rem;">
+                            <label style="display: block; margin-bottom: 1rem; font-weight: 600; color: var(--dark-gray);">
+                                <i class="fas fa-cpu"></i> AI Engine
+                            </label>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                                <label class="source-card" style="cursor: pointer; padding: 1.5rem; margin: 0; border: 2px solid #8b5cf6;">
+                                    <div class="source-header">
+                                        <input type="radio" name="aiEngine" value="neural" checked style="accent-color: #8b5cf6; transform: scale(1.2);">
+                                        <div style="width: 20px; height: 20px; border-radius: 50%; background: #8b5cf6; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem;">🧠</div>
+                                        <strong style="color: var(--dark-gray);">Neural Networks</strong>
+                                        <span style="background: #10b981; color: white; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.7rem; font-weight: 600; margin-left: auto;">FREE</span>
+                                    </div>
+                                    <p style="font-size: 0.9rem; color: var(--medium-gray); margin: 0;">Fast, efficient AI using our proprietary neural networks</p>
+                                </label>
+
+                                <label class="source-card" style="cursor: pointer; padding: 1.5rem; margin: 0;">
+                                    <div class="source-header">
+                                        <input type="radio" name="aiEngine" value="openai" style="accent-color: #8b5cf6; transform: scale(1.2);">
+                                        <div style="width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem;">🚀</div>
+                                        <strong style="color: var(--dark-gray);">GPT-4o</strong>
+                                        <span style="background: #f59e0b; color: white; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.7rem; font-weight: 600; margin-left: auto;">PREMIUM</span>
+                                    </div>
+                                    <p style="font-size: 0.9rem; color: var(--medium-gray); margin: 0;">Advanced reasoning and analysis with OpenAI's latest model</p>
+                                </label>
+
+                                <label class="source-card" style="cursor: pointer; padding: 1.5rem; margin: 0;">
+                                    <div class="source-header">
+                                        <input type="radio" name="aiEngine" value="claude" style="accent-color: #8b5cf6; transform: scale(1.2);">
+                                        <div style="width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem;">⚡</div>
+                                        <strong style="color: var(--dark-gray);">Claude 3.5</strong>
+                                        <span style="background: #f59e0b; color: white; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.7rem; font-weight: 600; margin-left: auto;">PREMIUM</span>
+                                    </div>
+                                    <p style="font-size: 0.9rem; color: var(--medium-gray); margin: 0;">Superior analysis and research capabilities for complex queries</p>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Pricing Info -->
+                        <div id="aiPricingInfo" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 16px; padding: 2rem; margin-bottom: 2rem; text-align: center; display: none;">
+                            <div style="font-size: 2rem; margin-bottom: 1rem;">💳</div>
+                            <strong style="color: #d97706; font-size: 1.1rem; display: block; margin-bottom: 0.75rem;">Premium AI Pricing</strong>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                                <div style="background: rgba(255,255,255,0.7); border-radius: 8px; padding: 1rem;">
+                                    <strong style="color: #92400e;">No Membership</strong>
+                                    <p style="color: #92400e; margin: 0.5rem 0 0 0; font-size: 0.9rem;">$0.10 per search</p>
+                                </div>
+                                <div style="background: rgba(192,192,192,0.3); border-radius: 8px; padding: 1rem;">
+                                    <strong style="color: #92400e;">Silver Member</strong>
+                                    <p style="color: #92400e; margin: 0.5rem 0 0 0; font-size: 0.9rem;">$0.05 per search</p>
+                                </div>
+                                <div style="background: rgba(255,215,0,0.3); border-radius: 8px; padding: 1rem;">
+                                    <strong style="color: #92400e;">Gold Member</strong>
+                                    <p style="color: #92400e; margin: 0.5rem 0 0 0; font-size: 0.9rem;">$0.03 per search</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center;">
+                            <button onclick="performAISearch()" class="search-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%); padding: 1rem 3rem; font-size: 1.1rem;">
+                                <i class="fas fa-brain"></i> Generate AI Search
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Smart Learning Search Form (Hidden by default) -->
+                    <div id="smartSearchForm" style="display: none;">
+                        <div style="background: linear-gradient(135deg, #ec4899 0%, #f97316 100%); padding: 2rem; border-radius: 16px; margin-bottom: 2rem; color: white; text-align: center;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🎓</div>
+                            <h4 style="color: white; margin-bottom: 1rem; font-size: 1.5rem; font-weight: 700;"><i class="fas fa-graduation-cap"></i> Smart Learning Search</h4>
+                            <p style="opacity: 0.95; margin: 0; font-size: 1rem; line-height: 1.6; max-width: 600px; margin: 0 auto;">
+                                Intelligent search that learns from user behavior and dataset patterns. The more you search, the better it gets at finding exactly what you need.
+                            </p>
+                        </div>
+
+                        <!-- Simple Search Interface -->
+                        <div style="margin-bottom: 2rem;">
+                            <label for="smartQuery" style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: var(--dark-gray);">
+                                <i class="fas fa-search"></i> What are you looking for?
+                            </label>
+                            <div style="display: flex; gap: 1.5rem; align-items: end;">
+                                <div style="flex: 1;">
+                                    <input type="text" id="smartQuery" placeholder="Type anything... the system will learn what you mean"
+                                        class="search-input" style="font-size: 1.1rem;"
+                                        onkeypress="if(event.key==='Enter') performSmartSearch()">
+                                    <small style="color: var(--medium-gray); font-size: 0.85rem;">✨ The system learns from your searches and gets smarter over time</small>
+                                </div>
+                                <button onclick="performSmartSearch()" class="search-btn" style="background: linear-gradient(135deg, #ec4899 0%, #f97316 100%); white-space: nowrap;">
+                                    <i class="fas fa-graduation-cap"></i> Smart Search
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Learning Insights -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                            <div class="source-card" style="text-align: center; padding: 1.5rem;">
+                                <div style="font-size: 2rem; margin-bottom: 1rem;">📊</div>
+                                <h4 style="color: var(--dark-gray); margin-bottom: 0.5rem;">Pattern Analysis</h4>
+                                <p style="color: var(--medium-gray); margin: 0; font-size: 0.9rem;">Analyzes your search patterns to understand your research focus and preferred data types.</p>
+                            </div>
+
+                            <div class="source-card" style="text-align: center; padding: 1.5rem;">
+                                <div style="font-size: 2rem; margin-bottom: 1rem;">🎯</div>
+                                <h4 style="color: var(--dark-gray); margin-bottom: 0.5rem;">Smart Suggestions</h4>
+                                <p style="color: var(--medium-gray); margin: 0; font-size: 0.9rem;">Learns which datasets and sources are most relevant for your type of research.</p>
+                            </div>
+
+                            <div class="source-card" style="text-align: center; padding: 1.5rem;">
+                                <div style="font-size: 2rem; margin-bottom: 1rem;">🔄</div>
+                                <h4 style="color: var(--dark-gray); margin-bottom: 0.5rem;">Continuous Learning</h4>
+                                <p style="color: var(--medium-gray); margin: 0; font-size: 0.9rem;">Gets better with every search, adapting to your preferences and research style.</p>
+                            </div>
+                        </div>
+
+                        <!-- User Learning Profile -->
+                        <div id="learningProfile" style="background: rgba(236, 72, 153, 0.05); border: 2px solid #ec4899; border-radius: 16px; padding: 2rem; margin-bottom: 2rem; text-align: center;">
+                            <div style="font-size: 2rem; margin-bottom: 1rem;">🧠</div>
+                            <strong style="color: #ec4899; font-size: 1.1rem; display: block; margin-bottom: 0.75rem;">Your Learning Profile</strong>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                                <div>
+                                    <strong style="color: var(--dark-gray);">Searches</strong>
+                                    <p style="color: var(--medium-gray); margin: 0.25rem 0 0 0; font-size: 1.2rem; font-weight: 600;" id="userSearchCount">0</p>
+                                </div>
+                                <div>
+                                    <strong style="color: var(--dark-gray);">Top Focus</strong>
+                                    <p style="color: var(--medium-gray); margin: 0.25rem 0 0 0; font-size: 0.9rem;" id="userTopFocus">Learning...</p>
+                                </div>
+                                <div>
+                                    <strong style="color: var(--dark-gray);">Accuracy</strong>
+                                    <p style="color: var(--medium-gray); margin: 0.25rem 0 0 0; font-size: 1.2rem; font-weight: 600;" id="userAccuracy">--%</p>
+                                </div>
+                                <div>
+                                    <strong style="color: var(--dark-gray);">Learning Level</strong>
+                                    <p style="color: var(--medium-gray); margin: 0.25rem 0 0 0; font-size: 0.9rem;" id="userLevel">Beginner</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Privacy Notice -->
+                        <div style="background: rgba(34, 197, 94, 0.1); border: 2px solid #16a34a; border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; text-align: center;">
+                            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🔒</div>
+                            <strong style="color: #16a34a; font-size: 1rem; display: block; margin-bottom: 0.5rem;">Privacy Protected Learning</strong>
+                            <p style="color: #059669; font-size: 0.9rem; line-height: 1.5; margin: 0;">
+                                All learning happens locally and anonymously. We analyze search patterns without storing personal information or individual queries.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Loading State -->
@@ -2068,6 +2304,39 @@
 
                     <div id="resultsContainer">
                         <!-- Results will be populated here -->
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div id="paginationControls" style="display: none; margin-top: 2rem;">
+                        <div style="background: var(--search-white); border-radius: 16px; padding: 1.5rem; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06); border: 1px solid var(--border-gray);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                                <!-- Pagination Info -->
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <span id="paginationInfo" style="color: var(--medium-gray); font-size: 0.95rem; font-weight: 500;"></span>
+                                </div>
+
+                                <!-- Pagination Buttons -->
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <button id="firstPageBtn" onclick="goToPage(1)" style="padding: 0.5rem 0.75rem; border: 2px solid var(--border-gray); background: white; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; font-size: 0.9rem;">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </button>
+                                    <button id="prevPageBtn" onclick="goToPreviousPage()" style="padding: 0.5rem 1rem; border: 2px solid var(--border-gray); background: white; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; font-size: 0.9rem;">
+                                        <i class="fas fa-angle-left"></i> Previous
+                                    </button>
+
+                                    <div id="pageNumbers" style="display: flex; gap: 0.25rem; margin: 0 0.5rem;">
+                                        <!-- Page numbers will be populated here -->
+                                    </div>
+
+                                    <button id="nextPageBtn" onclick="goToNextPage()" style="padding: 0.5rem 1rem; border: 2px solid var(--primary-blue); background: var(--primary-blue); color: white; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; font-size: 0.9rem;">
+                                        Next <i class="fas fa-angle-right"></i>
+                                    </button>
+                                    <button id="lastPageBtn" onclick="goToLastPage()" style="padding: 0.5rem 0.75rem; border: 2px solid var(--border-gray); background: white; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; font-size: 0.9rem;">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

@@ -65,13 +65,15 @@ class MetaSearchService {
     async search(query, options = {}) {
         const {
             sources = this.dataSources.map(s => s.name),
-            maxResults = 5,
-            timeout = 10000
+            maxResults = 15,
+            timeout = 10000,
+            page = 1,
+            pageSize = 50
         } = options;
 
-        console.log(`🔍 MetaSearch: Searching for "${query}" across ${sources.length} sources`);
+        console.log(`🔍 MetaSearch: Searching for "${query}" across ${sources.length} sources (Page ${page})`);
 
-        const cacheKey = `${query}_${sources.join(',')}_${maxResults}`;
+        const cacheKey = `${query}_${sources.join(',')}_${maxResults}_${page}_${pageSize}`;
 
         // Check cache first
         if (this.cache.has(cacheKey)) {
@@ -95,14 +97,21 @@ class MetaSearchService {
 
         try {
             const allResults = await Promise.all(searchPromises);
-            const combinedResults = this.combineAndRankResults(allResults, query);
+            const { paginatedResults, totalResults } = this.combineAndRankResults(allResults, query, page, pageSize);
+
+            const totalPages = Math.ceil(totalResults / pageSize);
 
             const result = {
                 query,
                 totalSources: sources.length,
-                totalResults: combinedResults.length,
+                totalResults,
+                currentPage: page,
+                pageSize,
+                totalPages,
+                hasNextPage: page < totalPages,
+                hasPreviousPage: page > 1,
                 searchTime: Date.now(),
-                results: combinedResults
+                results: paginatedResults
             };
 
             // Cache the results
@@ -309,9 +318,9 @@ class MetaSearchService {
     }
 
     /**
-     * Combine and rank results from all sources
+     * Combine and rank results from all sources with pagination
      */
-    combineAndRankResults(allResults, query) {
+    combineAndRankResults(allResults, query, page = 1, pageSize = 50) {
         const combined = [];
 
         allResults.forEach((sourceResults, index) => {
@@ -321,7 +330,7 @@ class MetaSearchService {
         });
 
         // Sort by relevance score, then by data type preference
-        return combined
+        const sorted = combined
             .sort((a, b) => {
                 // Primary sort: relevance score
                 if (Math.abs(a.score - b.score) > 0.1) {
@@ -331,8 +340,17 @@ class MetaSearchService {
                 // Secondary sort: prefer datasets and research over external links
                 const typeOrder = { dataset: 3, research: 2, external: 1 };
                 return (typeOrder[b.dataType] || 0) - (typeOrder[a.dataType] || 0);
-            })
-            .slice(0, 20); // Limit total results
+            });
+
+        const totalResults = sorted.length;
+        const startIndex = (page - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        const paginatedResults = sorted.slice(startIndex, endIndex);
+
+        return {
+            paginatedResults,
+            totalResults
+        };
     }
 
     /**

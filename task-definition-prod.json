@@ -9,7 +9,7 @@
   "containerDefinitions": [
     {
       "name": "diseaseZone",
-      "image": "515966511618.dkr.ecr.us-east-1.amazonaws.com/diseasezone-prod:v1.6.3",
+      "image": "515966511618.dkr.ecr.us-east-1.amazonaws.com/diseasezone-prod:v1.6.4",
       "portMappings": [
         {
           "containerPort": 3000,
