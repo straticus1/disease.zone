@@ -28,6 +28,7 @@ const MappingService = require('./services/mappingService');
 const WalletConfigService = require('./services/walletConfigService');
 const NeurologicalDiseaseService = require('./services/neurologicalDiseaseService');
 const GeneticDiseaseService = require('./services/geneticDiseaseService');
+const CountryHealthService = require('./services/countryHealthService');
 const MusculoskeletalDiseaseService = require('./services/musculoskeletalDiseaseService');
 const DatabaseService = require('./services/databaseService');
 const UserService = require('./services/userService');
@@ -80,6 +81,7 @@ async function initializeServices() {
     const neurologicalService = new NeurologicalDiseaseService();
     const geneticService = new GeneticDiseaseService();
     const musculoskeletalService = new MusculoskeletalDiseaseService();
+    const countryHealthService = new CountryHealthService();
 
     // Initialize compliance and security services
     const auditLoggingService = new AuditLoggingService(databaseService);
@@ -4052,6 +4054,145 @@ app.get('/api/maps/data/disease/:disease', async (req, res) => {
     console.error('Error fetching geographic disease data:', error);
     res.status(500).json({
       error: 'Failed to fetch geographic disease data',
+      message: error.message
+    });
+  }
+});
+
+// ===== COUNTRY HEALTH DATA API ENDPOINTS =====
+
+// Get health data for a specific country
+app.get('/api/countries/:countryCode/health', async (req, res) => {
+  try {
+    const { countryCode } = req.params;
+    const {
+      region = 'all',
+      dataType = 'covid',
+      startDate = null,
+      endDate = null,
+      limit = 100
+    } = req.query;
+
+    console.log(`🌍 API: Fetching health data for ${countryCode}, region: ${region}, type: ${dataType}`);
+
+    const healthData = await countryHealthService.getCountryHealthData(countryCode, {
+      region,
+      dataType,
+      startDate,
+      endDate,
+      limit: parseInt(limit)
+    });
+
+    res.json({
+      success: true,
+      data: healthData,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error fetching country health data:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch country health data',
+      message: error.message
+    });
+  }
+});
+
+// Get available regions for a country
+app.get('/api/countries/:countryCode/regions', async (req, res) => {
+  try {
+    const { countryCode } = req.params;
+
+    const regions = countryHealthService.getAvailableRegions(countryCode);
+
+    res.json({
+      success: true,
+      country: countryCode,
+      regions,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error fetching country regions:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch country regions',
+      message: error.message
+    });
+  }
+});
+
+// Get API status for all country health services
+app.get('/api/countries/health/status', async (req, res) => {
+  try {
+    console.log('🔍 API: Checking country health API status');
+
+    const status = await countryHealthService.getAPIStatus();
+
+    res.json({
+      success: true,
+      apis: status,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error fetching API status:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch API status',
+      message: error.message
+    });
+  }
+});
+
+// Bulk health data endpoint for multiple countries
+app.post('/api/countries/health/bulk', async (req, res) => {
+  try {
+    const { countries, dataType = 'covid', region = 'all' } = req.body;
+
+    if (!Array.isArray(countries) || countries.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Countries array is required'
+      });
+    }
+
+    console.log(`🌍 API: Bulk fetching health data for ${countries.length} countries`);
+
+    const results = {};
+
+    // Fetch data for each country in parallel
+    const promises = countries.map(async (countryCode) => {
+      try {
+        const data = await countryHealthService.getCountryHealthData(countryCode, {
+          region,
+          dataType,
+          limit: 50
+        });
+        results[countryCode] = { success: true, data };
+      } catch (error) {
+        results[countryCode] = {
+          success: false,
+          error: error.message
+        };
+      }
+    });
+
+    await Promise.all(promises);
+
+    res.json({
+      success: true,
+      results,
+      totalCountries: countries.length,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error in bulk health data fetch:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch bulk health data',
       message: error.message
     });
   }

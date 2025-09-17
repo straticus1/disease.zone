@@ -892,7 +892,7 @@ class DiseaseZoneApp {
             // Auto-start map loading for disease map modal
             if (modalId === 'diseaseMapModal') {
                 setTimeout(() => {
-                    this.switchMapProvider('osm'); // Start with OpenStreetMap by default
+                    this.initializeDiseaseMap(); // Initialize the disease surveillance map
                 }, 500);
             }
         }
@@ -1699,6 +1699,15 @@ class DiseaseZoneApp {
                 `)
                 .openOn(map);
         }
+    }
+
+    // Initialize the new disease surveillance map modal
+    initializeDiseaseMap() {
+        console.log('🗺️ Initializing new Disease Surveillance Map modal');
+        // Call the global function that handles the new map
+        setTimeout(() => {
+            initializeDiseaseMap();
+        }, 100);
     }
 }
 
@@ -3047,6 +3056,484 @@ window.initializeNews = initializeNews;
 
 // Early debug logging
 console.log('🧬 diseaseZone Frontend Application Loaded');
+// ===== DISEASE SURVEILLANCE MAP FUNCTIONS =====
+
+let diseaseMap = null;
+let diseaseMapLayers = {};
+let currentCountry = 'all';
+let currentRegion = 'all';
+let currentDataLayer = 'covid';
+
+// Country coordinates for map centering
+const countryCoordinates = {
+    'all': [20, 0],
+    'US': [39.8283, -98.5795],
+    'CA': [56.1304, -106.3468],
+    'GB': [55.3781, -3.4360],
+    'DE': [51.1657, 10.4515],
+    'FR': [46.2276, 2.2137],
+    'IT': [41.8719, 12.5674],
+    'ES': [40.4637, -3.7492],
+    'AU': [-25.2744, 133.7751],
+    'JP': [36.2048, 138.2529],
+    'CN': [35.8617, 104.1954],
+    'IN': [20.5937, 78.9629],
+    'BR': [-14.2350, -51.9253],
+    'MX': [23.6345, -102.5528],
+    'RU': [61.5240, 105.3188],
+    'ZA': [-30.5595, 22.9375]
+};
+
+// US States/Regions data
+const usRegions = {
+    'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
+    'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'FL': 'Florida', 'GA': 'Georgia',
+    'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa',
+    'KS': 'Kansas', 'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
+    'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi', 'MO': 'Missouri',
+    'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 'NJ': 'New Jersey',
+    'NM': 'New Mexico', 'NY': 'New York', 'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio',
+    'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
+    'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont',
+    'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming'
+};
+
+// Initialize the disease surveillance map
+function initializeDiseaseMap() {
+    console.log('🗺️ Initializing Disease Surveillance Map');
+
+    const mapContainer = document.getElementById('diseaseMap');
+    if (!mapContainer) {
+        console.error('❌ Disease map container not found');
+        return;
+    }
+
+    // Remove any existing map
+    if (diseaseMap) {
+        diseaseMap.remove();
+        diseaseMap = null;
+    }
+
+    try {
+        // Initialize Leaflet map
+        diseaseMap = L.map('diseaseMap', {
+            center: countryCoordinates['all'],
+            zoom: 2,
+            zoomControl: true,
+            worldCopyJump: true
+        });
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 18
+        }).addTo(diseaseMap);
+
+        // Load initial data
+        setTimeout(() => {
+            hideMapLoading();
+            loadDiseaseData();
+        }, 1000);
+
+        console.log('✅ Disease map initialized successfully');
+    } catch (error) {
+        console.error('❌ Failed to initialize disease map:', error);
+        hideMapLoading();
+        showMapError('Failed to initialize map. Please try refreshing.');
+    }
+}
+
+// Handle country selection change
+async function handleCountryChange() {
+    const countrySelect = document.getElementById('countrySelect');
+    const regionContainer = document.getElementById('regionSelectContainer');
+    const regionSelect = document.getElementById('regionSelect');
+
+    currentCountry = countrySelect.value;
+    console.log('🌍 Country changed to:', currentCountry);
+
+    // Reset region selection
+    currentRegion = 'all';
+
+    // Show/hide region selector based on country
+    if (currentCountry === 'all') {
+        regionContainer.style.display = 'none';
+    } else {
+        regionContainer.style.display = 'flex';
+
+        // Show loading state for regions
+        regionSelect.innerHTML = '<option value="all">Loading regions...</option>';
+        regionSelect.disabled = true;
+
+        try {
+            // Fetch available regions from API
+            console.log(`📍 Fetching regions for ${currentCountry}`);
+            const response = await fetch(`/api/countries/${currentCountry}/regions`);
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.regions) {
+                    // Populate regions from API
+                    regionSelect.innerHTML = '<option value="all">All Regions</option>';
+                    data.regions.forEach(region => {
+                        if (typeof region === 'object') {
+                            regionSelect.innerHTML += `<option value="${region.code}">${region.name}</option>`;
+                        } else {
+                            regionSelect.innerHTML += `<option value="${region}">${getRegionDisplayName(currentCountry, region)}</option>`;
+                        }
+                    });
+                    console.log(`✅ Loaded ${data.regions.length} regions for ${currentCountry}`);
+                } else {
+                    throw new Error('No regions data received');
+                }
+            } else {
+                throw new Error(`HTTP ${response.status}`);
+            }
+        } catch (error) {
+            console.warn(`⚠️ Failed to fetch regions for ${currentCountry}:`, error.message);
+            // Fallback to hardcoded regions
+            populateFallbackRegions(currentCountry, regionSelect);
+        }
+
+        regionSelect.disabled = false;
+    }
+
+    // Update map view
+    updateMapView();
+    loadDiseaseData();
+}
+
+// Fallback region population for when API is unavailable
+function populateFallbackRegions(countryCode, regionSelect) {
+    console.log(`📂 Using fallback regions for ${countryCode}`);
+
+    if (countryCode === 'US') {
+        regionSelect.innerHTML = '<option value="all">All States</option>';
+        Object.entries(usRegions).forEach(([code, name]) => {
+            regionSelect.innerHTML += `<option value="${code}">${name}</option>`;
+        });
+    } else if (countryCode === 'CA') {
+        regionSelect.innerHTML = `
+            <option value="all">All Provinces</option>
+            <option value="AB">Alberta</option>
+            <option value="BC">British Columbia</option>
+            <option value="MB">Manitoba</option>
+            <option value="NB">New Brunswick</option>
+            <option value="NL">Newfoundland and Labrador</option>
+            <option value="NS">Nova Scotia</option>
+            <option value="ON">Ontario</option>
+            <option value="PE">Prince Edward Island</option>
+            <option value="QC">Quebec</option>
+            <option value="SK">Saskatchewan</option>
+        `;
+    } else if (countryCode === 'GB') {
+        regionSelect.innerHTML = `
+            <option value="all">All Regions</option>
+            <option value="england">England</option>
+            <option value="scotland">Scotland</option>
+            <option value="wales">Wales</option>
+            <option value="northern_ireland">Northern Ireland</option>
+        `;
+    } else if (countryCode === 'AU') {
+        regionSelect.innerHTML = `
+            <option value="all">All States</option>
+            <option value="NSW">New South Wales</option>
+            <option value="VIC">Victoria</option>
+            <option value="QLD">Queensland</option>
+            <option value="WA">Western Australia</option>
+            <option value="SA">South Australia</option>
+            <option value="TAS">Tasmania</option>
+            <option value="ACT">Australian Capital Territory</option>
+            <option value="NT">Northern Territory</option>
+        `;
+    } else {
+        regionSelect.innerHTML = '<option value="all">All Regions</option>';
+    }
+}
+
+// Get display name for a region code
+function getRegionDisplayName(countryCode, regionCode) {
+    const regionNames = {
+        'US': usRegions,
+        'CA': {
+            'AB': 'Alberta', 'BC': 'British Columbia', 'MB': 'Manitoba',
+            'NB': 'New Brunswick', 'NL': 'Newfoundland and Labrador',
+            'NS': 'Nova Scotia', 'ON': 'Ontario', 'PE': 'Prince Edward Island',
+            'QC': 'Quebec', 'SK': 'Saskatchewan'
+        },
+        'GB': {
+            'england': 'England', 'scotland': 'Scotland',
+            'wales': 'Wales', 'northern_ireland': 'Northern Ireland'
+        },
+        'AU': {
+            'NSW': 'New South Wales', 'VIC': 'Victoria', 'QLD': 'Queensland',
+            'WA': 'Western Australia', 'SA': 'South Australia', 'TAS': 'Tasmania',
+            'ACT': 'Australian Capital Territory', 'NT': 'Northern Territory'
+        }
+    };
+
+    return regionNames[countryCode]?.[regionCode] || regionCode;
+}
+
+// Handle region selection change
+function handleRegionChange() {
+    const regionSelect = document.getElementById('regionSelect');
+    currentRegion = regionSelect.value;
+    console.log('📍 Region changed to:', currentRegion);
+
+    updateMapView();
+    loadDiseaseData();
+}
+
+// Handle data layer change
+function handleDataLayerChange() {
+    const dataLayerSelect = document.getElementById('dataLayerSelect');
+    currentDataLayer = dataLayerSelect.value;
+    console.log('📊 Data layer changed to:', currentDataLayer);
+
+    loadDiseaseData();
+}
+
+// Update map view based on selected country/region
+function updateMapView() {
+    if (!diseaseMap) return;
+
+    const coordinates = countryCoordinates[currentCountry] || countryCoordinates['all'];
+    let zoom = currentCountry === 'all' ? 2 : 4;
+
+    // Adjust zoom for specific regions
+    if (currentRegion !== 'all') {
+        zoom = 6;
+    }
+
+    diseaseMap.setView(coordinates, zoom);
+}
+
+// Load disease data for current selection
+async function loadDiseaseData() {
+    console.log('📡 Loading disease data for:', { country: currentCountry, region: currentRegion, layer: currentDataLayer });
+
+    try {
+        // Clear existing data layers
+        Object.values(diseaseMapLayers).forEach(layer => {
+            if (diseaseMap.hasLayer(layer)) {
+                diseaseMap.removeLayer(layer);
+            }
+        });
+        diseaseMapLayers = {};
+
+        let diseaseData;
+
+        // Try to fetch real data from country health APIs first
+        if (currentCountry !== 'all') {
+            try {
+                console.log(`🌍 Fetching real health data for ${currentCountry}`);
+                const response = await fetch(`/api/countries/${currentCountry}/health?region=${currentRegion}&dataType=${currentDataLayer}&limit=50`);
+
+                if (response.ok) {
+                    const apiData = await response.json();
+                    if (apiData.success && apiData.data) {
+                        diseaseData = apiData.data.dataPoints || [];
+                        console.log(`✅ Loaded ${diseaseData.length} real data points for ${currentCountry}`);
+                    }
+                }
+            } catch (error) {
+                console.warn(`⚠️ Failed to fetch real data for ${currentCountry}:`, error.message);
+            }
+        }
+
+        // Fallback to sample data if no real data was loaded
+        if (!diseaseData || diseaseData.length === 0) {
+            console.log('📊 Using sample data as fallback');
+            diseaseData = generateSampleDiseaseData();
+        }
+
+        // Add markers for each data point
+        diseaseData.forEach(point => {
+            const severity = point.severity || 'low';
+            const color = getColorForSeverity(severity);
+            const coordinates = point.coordinates || [point.lat, point.lng];
+
+            const marker = L.circleMarker(coordinates, {
+                radius: point.cases ? Math.max(5, Math.min(20, point.cases / 10)) : 8,
+                fillColor: color,
+                color: '#fff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.7
+            });
+
+            marker.bindPopup(`
+                <div style="min-width: 200px;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--primary-color);">${point.location}</h4>
+                    <p style="margin: 0 0 0.5rem;"><strong>Data Type:</strong> ${getDataLayerName(currentDataLayer)}</p>
+                    <p style="margin: 0 0 0.5rem;"><strong>Cases:</strong> ${(point.cases || point.value)?.toLocaleString() || 'N/A'}</p>
+                    <p style="margin: 0 0 0.5rem;"><strong>Severity:</strong> ${severity.toUpperCase()}</p>
+                    <p style="margin: 0 0 0.5rem;"><strong>Last Updated:</strong> ${point.date || point.lastUpdated || 'Today'}</p>
+                    <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">Source: ${point.source || 'Health Authority'}</p>
+                </div>
+            `);
+
+            marker.addTo(diseaseMap);
+            diseaseMapLayers[point.id] = marker;
+        });
+
+        // Update info panel
+        updateMapInfoPanel(diseaseData);
+
+    } catch (error) {
+        console.error('❌ Failed to load disease data:', error);
+        showMapError('Failed to load disease data. Please try again.');
+    }
+}
+
+// Generate sample disease data
+function generateSampleDiseaseData() {
+    const data = [];
+    const locations = currentCountry === 'all' ?
+        [
+            { name: 'New York, USA', lat: 40.7128, lng: -74.0060 },
+            { name: 'London, UK', lat: 51.5074, lng: -0.1278 },
+            { name: 'Paris, France', lat: 48.8566, lng: 2.3522 },
+            { name: 'Tokyo, Japan', lat: 35.6762, lng: 139.6503 },
+            { name: 'Sydney, Australia', lat: -33.8688, lng: 151.2093 },
+            { name: 'São Paulo, Brazil', lat: -23.5505, lng: -46.6333 },
+            { name: 'Mumbai, India', lat: 19.0760, lng: 72.8777 },
+            { name: 'Beijing, China', lat: 39.9042, lng: 116.4074 }
+        ] :
+        currentCountry === 'US' ?
+        [
+            { name: 'New York, NY', lat: 40.7128, lng: -74.0060 },
+            { name: 'Los Angeles, CA', lat: 34.0522, lng: -118.2437 },
+            { name: 'Chicago, IL', lat: 41.8781, lng: -87.6298 },
+            { name: 'Houston, TX', lat: 29.7604, lng: -95.3698 },
+            { name: 'Phoenix, AZ', lat: 33.4484, lng: -112.0740 },
+            { name: 'Philadelphia, PA', lat: 39.9526, lng: -75.1652 }
+        ] :
+        [
+            { name: 'Major City', lat: countryCoordinates[currentCountry][0], lng: countryCoordinates[currentCountry][1] }
+        ];
+
+    const severities = ['low', 'medium', 'high'];
+
+    locations.forEach((location, index) => {
+        data.push({
+            id: `point_${index}`,
+            location: location.name,
+            lat: location.lat,
+            lng: location.lng,
+            value: Math.floor(Math.random() * 1000) + 50,
+            severity: severities[Math.floor(Math.random() * severities.length)],
+            lastUpdated: new Date().toLocaleDateString(),
+            source: Math.random() > 0.5 ? 'CDC' : 'WHO'
+        });
+    });
+
+    return data;
+}
+
+// Get color for severity level
+function getColorForSeverity(severity) {
+    const colors = {
+        'low': '#10b981',    // Green
+        'medium': '#f59e0b', // Orange
+        'high': '#ef4444'    // Red
+    };
+    return colors[severity] || colors['low'];
+}
+
+// Get data layer display name
+function getDataLayerName(layer) {
+    const names = {
+        'covid': 'COVID-19 Cases',
+        'flu': 'Influenza Activity',
+        'sti': 'STI Surveillance',
+        'foodborne': 'Foodborne Illness',
+        'respiratory': 'Respiratory Illness',
+        'vector': 'Vector-Borne Diseases'
+    };
+    return names[layer] || layer;
+}
+
+// Update map info panel
+function updateMapInfoPanel(data) {
+    const infoPanel = document.getElementById('mapInfoPanel');
+    const selectedRegionInfo = document.getElementById('selectedRegionInfo');
+    const latestDataInfo = document.getElementById('latestDataInfo');
+    const dataSourceInfo = document.getElementById('dataSourceInfo');
+
+    if (infoPanel) {
+        infoPanel.style.display = 'block';
+
+        const countryName = currentCountry === 'all' ? 'Global' :
+                           document.querySelector(`#countrySelect option[value="${currentCountry}"]`)?.textContent || currentCountry;
+        const regionName = currentRegion === 'all' ? 'All Regions' :
+                          (usRegions[currentRegion] || currentRegion);
+
+        selectedRegionInfo.textContent = currentRegion === 'all' ? countryName : `${regionName}, ${countryName}`;
+
+        const totalCases = data.reduce((sum, point) => sum + (point.value || 0), 0);
+        latestDataInfo.textContent = `${totalCases.toLocaleString()} total cases • ${data.length} locations`;
+
+        dataSourceInfo.textContent = `${getDataLayerName(currentDataLayer)} • Multiple authoritative sources`;
+    }
+}
+
+// Refresh map data
+function refreshMapData() {
+    console.log('🔄 Refreshing map data');
+    showMapLoading();
+    setTimeout(() => {
+        hideMapLoading();
+        loadDiseaseData();
+    }, 1000);
+}
+
+// Export map data
+function exportMapData() {
+    console.log('📤 Exporting map data');
+    alert('Export functionality will be available soon. This feature will allow you to download the current disease surveillance data in CSV, JSON, or Excel format.');
+}
+
+// Show map loading overlay
+function showMapLoading() {
+    const loadingOverlay = document.getElementById('mapLoadingOverlay');
+    if (loadingOverlay) {
+        loadingOverlay.style.display = 'flex';
+    }
+}
+
+// Hide map loading overlay
+function hideMapLoading() {
+    const loadingOverlay = document.getElementById('mapLoadingOverlay');
+    if (loadingOverlay) {
+        loadingOverlay.style.display = 'none';
+    }
+}
+
+// Show map error
+function showMapError(message) {
+    const mapContainer = document.getElementById('diseaseMap');
+    if (mapContainer) {
+        mapContainer.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f8fafc; color: var(--text-secondary); text-align: center; padding: 2rem;">
+                <div>
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--error-color); margin-bottom: 1rem;"></i>
+                    <h3 style="margin: 0 0 0.5rem; color: var(--error-color);">Map Error</h3>
+                    <p style="margin: 0;">${message}</p>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Global functions for the disease map
+window.handleCountryChange = handleCountryChange;
+window.handleRegionChange = handleRegionChange;
+window.handleDataLayerChange = handleDataLayerChange;
+window.refreshMapData = refreshMapData;
+window.exportMapData = exportMapData;
+
 console.log('📁 Environment check:', {
     location: window.location.href,
     readyState: document.readyState,

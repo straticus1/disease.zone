@@ -1,5 +1,44 @@
 # Changelog
 
+## [1.6.6] - 2025-09-17
+
+### 🌍 **Global Health Intelligence & Country-Specific Data Integration**
+
+#### **🎯 NEW FEATURES:**
+- 🌍 **CountryHealthService** - Advanced country-specific health data integration
+  - Multi-national government API integration (US, CA, GB, AU)
+  - CDC Data API integration with COVID-19, flu, STI, and wastewater surveillance
+  - Health Canada API support for provincial and regional data
+  - UKHSA Dashboard API integration for UK health intelligence
+  - Australian NNDSS API connectivity for national disease surveillance
+  - Intelligent caching system with 15-minute health data refresh cycles
+
+#### **🗺 REGIONAL DATA COVERAGE:**
+- 🇺🇸 **United States** - State and county-level health surveillance
+  - Real-time CDC COVID-19 case surveillance data
+  - Weekly flu admission tracking and forecasting
+  - STI surveillance with geographic mapping
+  - Wastewater-based epidemiological monitoring
+- 🇨🇦 **Canada** - Provincial and health region analysis
+- 🇬🇧 **United Kingdom** - Nation, region, and local authority data
+- 🇦🇺 **Australia** - State and territory health intelligence
+
+#### **🚀 TECHNICAL ENHANCEMENTS:**
+- 🛠 **Advanced API Management** - Rate limiting and intelligent fallback systems
+- 📊 **Data Processing Pipeline** - Standardized health data normalization
+- 📈 **Performance Optimization** - Smart caching with geographic partitioning
+- 🔒 **Security Integration** - API key management and secure endpoints
+- ⏱ **Real-time Updates** - 15-minute cache refresh for critical health data
+
+#### **🌐 GLOBAL HEALTH SURVEILLANCE:**
+- 📅 **Historical Data Analysis** - Date range filtering and trend analysis
+- 🗺 **Geographic Intelligence** - Multi-level regional health mapping
+- 📊 **Multi-Source Integration** - Government and health authority APIs
+- 🔍 **Advanced Search** - Country-specific health data discovery
+- 💡 **Intelligent Fallbacks** - Sample data generation for API failures
+
+---
+
 ## [1.6.5] - 2025-09-17
 
 ### 🔍 **Advanced MetaSearch & Production Deployment Optimization**
