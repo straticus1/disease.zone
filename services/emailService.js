@@ -44,7 +44,7 @@ class EmailService {
 
             // Initialize SMTP transporter (works for both AWS SES SMTP and other providers)
             const smtpConfig = this.config.smtp || this.config;
-            this.transporter = nodemailer.createTransporter({
+            this.transporter = nodemailer.createTransport({
                 host: smtpConfig.host,
                 port: smtpConfig.port,
                 secure: smtpConfig.secure,

@@ -578,6 +578,7 @@
                     <li><a href="#" onclick="showView('guest')" class="nav-link">Home</a></li>
                     <li><a href="#" onclick="showView('surveillance')" class="nav-link">Surveillance</a></li>
                     <li><a href="#" onclick="showView('research')" class="nav-link">Research</a></li>
+                    <li><a href="#" onclick="showView('resources')" class="nav-link">Resources</a></li>
                     <li><a href="//ledger.disease.zone" target="_blank" class="nav-link">Ledger <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i></a></li>
                     <li><a href="#" onclick="showView('news')" class="nav-link" style="color: var(--info-color);">Health News</a></li>
                     <li><a href="//api.disease.zone" target="_blank" class="nav-link" style="color: var(--warning-color);">API Portal <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i></a></li>
@@ -1479,6 +1480,136 @@
                         </div>
                         <div style="margin-top: 1rem; text-align: center; font-size: 0.9rem; color: var(--text-secondary);">
                             <i class="fas fa-info-circle"></i> All news articles are verified and sourced from official health organizations
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resources View -->
+        <div class="view" id="resourcesView">
+            <div class="container dashboard">
+                <div class="dashboard-header">
+                    <h1>diseaseZone Resources</h1>
+                    <p>Comprehensive tools, documentation, and support for global health intelligence</p>
+                </div>
+
+                <div class="grid grid-3" style="gap: 2rem; margin-bottom: 2rem;">
+                    <!-- Documentation -->
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-book" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+                            <h3>Documentation</h3>
+                            <p>Complete API documentation, user guides, and technical specifications for platform integration.</p>
+                            <button class="btn btn-primary" onclick="openModal('documentationModal');">
+                                <i class="fas fa-external-link-alt"></i> Browse Docs
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Developer APIs -->
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-code" style="font-size: 3rem; color: var(--success-color); margin-bottom: 1rem;"></i>
+                            <h3>Developer APIs</h3>
+                            <p>RESTful APIs for disease data, surveillance endpoints, and blockchain integration tools.</p>
+                            <button class="btn btn-success" onclick="window.open('//api.disease.zone', '_blank');">
+                                <i class="fas fa-external-link-alt"></i> API Portal
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Support Center -->
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-headset" style="font-size: 3rem; color: var(--info-color); margin-bottom: 1rem;"></i>
+                            <h3>Support Center</h3>
+                            <p>Get help from our team, submit tickets, and access community forums for assistance.</p>
+                            <button class="btn btn-info" onclick="openModal('supportModal');">
+                                <i class="fas fa-life-ring"></i> Get Support
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Training Materials -->
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-graduation-cap" style="font-size: 3rem; color: var(--warning-color); margin-bottom: 1rem;"></i>
+                            <h3>Training Materials</h3>
+                            <p>Educational resources, certification programs, and best practices for health professionals.</p>
+                            <button class="btn btn-warning" onclick="openModal('surveillanceTrainingModal');">
+                                <i class="fas fa-play"></i> Start Training
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Data Governance -->
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-shield-alt" style="font-size: 3rem; color: var(--error-color); margin-bottom: 1rem;"></i>
+                            <h3>Data Governance</h3>
+                            <p>Privacy policies, data usage guidelines, and compliance information for healthcare data.</p>
+                            <button class="btn" style="background: var(--error-color); color: white;" onclick="openModal('dataGovernanceModal');">
+                                <i class="fas fa-file-contract"></i> View Policies
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Downloads -->
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-download" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 1rem;"></i>
+                            <h3>Downloads</h3>
+                            <p>Mobile apps, desktop tools, and integration libraries for disease.zone platform.</p>
+                            <button class="btn btn-secondary" onclick="openModal('downloadsModal');">
+                                <i class="fas fa-mobile-alt"></i> Get Apps
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Links Section -->
+                <div class="card">
+                    <div class="card-body">
+                        <h3 style="margin-bottom: 1.5rem;">Quick Links</h3>
+                        <div class="grid grid-4" style="gap: 1rem;">
+                            <a href="#" onclick="showView('surveillance')" class="btn btn-outline-primary">
+                                <i class="fas fa-virus"></i> Disease Surveillance
+                            </a>
+                            <a href="#" onclick="showView('research')" class="btn btn-outline-success">
+                                <i class="fas fa-microscope"></i> Research Platform
+                            </a>
+                            <a href="#" onclick="showView('news')" class="btn btn-outline-info">
+                                <i class="fas fa-newspaper"></i> Health News
+                            </a>
+                            <a href="//ledger.disease.zone" target="_blank" class="btn btn-outline-warning">
+                                <i class="fas fa-link"></i> Ledger Platform
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency Contacts -->
+                <div class="card">
+                    <div class="card-body" style="background: linear-gradient(135deg, var(--error-color), #dc2626); color: white;">
+                        <h3 style="color: white; margin-bottom: 1rem;">
+                            <i class="fas fa-phone-alt"></i> Emergency Health Contacts
+                        </h3>
+                        <div class="grid grid-2" style="gap: 2rem;">
+                            <div>
+                                <h4 style="color: white;">Outbreak Reporting</h4>
+                                <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">
+                                    <strong>1-800-OUTBREAK</strong> (1-800-688-2732)
+                                </p>
+                                <p style="font-size: 0.9rem; opacity: 0.9;">24/7 hotline for disease outbreak reporting</p>
+                            </div>
+                            <div>
+                                <h4 style="color: white;">Technical Support</h4>
+                                <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">
+                                    <strong>support@disease.zone</strong>
+                                </p>
+                                <p style="font-size: 0.9rem; opacity: 0.9;">Platform technical assistance</p>
+                            </div>
                         </div>
                     </div>
                 </div>

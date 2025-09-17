@@ -1,5 +1,70 @@
 # Changelog
 
+## [1.6.1] - 2025-09-17
+
+### 🐛 **Critical Bug Fixes**
+
+#### **📧 Email Service Fix**
+- 🔧 **Fixed nodemailer method name** - Corrected `createTransporter()` to `createTransport()`
+  - Email service now properly initializes SMTP connections
+  - Password reset emails and notifications now work correctly
+  - AWS SES integration fully functional
+
+#### **🔒 Enhanced Security Dependencies**
+- ➕ **Added bcrypt package** - Additional password hashing library for enhanced security
+- 📝 **Updated .gitignore** - Improved development file exclusions
+- 🎨 **UI Enhancements** - Updated app.html with improved user interface elements
+
+#### **⚡ Quick Deployment Fixes**
+- All services now initialize properly without dependency errors
+- News API, Email Service, and Password Reset fully operational
+- Enhanced error handling and logging
+
+---
+
+## [1.6.0] - 2025-09-17
+
+### 🚀 **Major Platform Enhancement with News API, Email Service, and Password Reset**
+
+#### **🔥 NEW FEATURES:**
+- 📰 **Professional News API Service** with RSS feed aggregation
+  - WHO Disease Outbreak News
+  - CDC Health Alert Network  
+  - ProMED outbreak reports
+  - PubMed, Nature Medicine, The Lancet research feeds
+  - FDA and NIH policy updates
+  - Healthline prevention content
+  - Smart caching and fallback mock data
+
+- 📧 **Enterprise Email Service** 
+  - AWS SES integration with SMTP fallback
+  - Beautiful HTML email templates
+  - Password reset emails with professional styling
+  - Development mode console logging
+
+- 🔐 **Secure Password Reset System**
+  - Cryptographically secure token generation
+  - Rate limiting (5 attempts per hour)
+  - Strong password validation
+  - Token expiration and cleanup
+  - Security best practices
+
+#### **🛠 TECHNICAL IMPROVEMENTS:**
+- New dependencies: aws-sdk, nodemailer, rss-parser
+- RESTful news API endpoints (/api/news/*)
+- Enhanced user service with password reset integration
+- Modular service architecture
+- Comprehensive error handling and logging
+
+#### **🎯 API ENDPOINTS:**
+- GET /api/news/category/:category - News by category
+- GET /api/news/latest - Latest news across all categories  
+- GET /api/news/categories - Available news categories
+- POST /api/auth/password-reset - Initiate password reset
+- POST /api/auth/password-reset/confirm - Complete password reset
+
+---
+
 ## [3.7.0] - 2025-09-16
 
 ### 🚀 **Ledger Rebranding & Revolutionary Disease Card Payment System**
