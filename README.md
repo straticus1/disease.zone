@@ -6,7 +6,7 @@
 
 *Previously known as covid19lookup.nyc*
 
-[![Version](https://img.shields.io/badge/version-1.6.2-blue.svg)](https://github.com/straticus1/disease.zone)
+[![Version](https://img.shields.io/badge/version-1.6.3-blue.svg)](https://github.com/straticus1/disease.zone)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-brightgreen.svg)](./MEDICAL_COMPLIANCE_REVIEW.md)
 [![GDPR](https://img.shields.io/badge/GDPR-Compliant-brightgreen.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
@@ -14,15 +14,20 @@
 
 ## 🌟 Features
 
-### 🎆 **NEW IN v1.6.2: Everything is Clickable Now!**
-- **🔗 Fully Interactive Interface** - All cards, buttons, and navigation elements are now clickable and responsive
-- **🔒 Enhanced CSP Security** - Fixed Content Security Policy to allow interactive elements while maintaining security
-- **✨ Seamless User Experience** - Smooth navigation between all dashboard sections and features
+### 🔍 **NEW IN v1.6.3: Advanced Search & Cloud Infrastructure**
+- **🔍 MetaSearchService** - Unified search across multiple data sources with intelligent ranking
+- **🔄 RedirectService** - Smart URL redirection with analytics and A/B testing support
+- **☁️ AWS ECS Infrastructure** - Production-ready containerization with Fargate deployment
+- **🎨 Enhanced Frontend** - Improved search integration and responsive user interface
+- **🛡️ Security Enhancements** - Production-grade security configurations and monitoring
+- **📊 Analytics Ready** - Search and redirect tracking infrastructure for insights
+- **🌐 Cloud-Native Architecture** - Complete deployment configuration with IAM roles
+- **📈 Performance Optimized** - Efficient search algorithms and caching strategies
+
+### 🎆 **v1.6.2 Features: Everything is Clickable!**
 - **📰 Professional News API** - RSS aggregation from WHO, CDC, ProMED, Nature Medicine, The Lancet
 - **📧 Enterprise Email Service** - AWS SES integration with beautiful HTML templates
 - **🔐 Secure Password Reset** - Cryptographically secure tokens with rate limiting
-- **🛠 Enhanced Security** - bcrypt password hashing and improved error handling
-- **⚡ Production Ready** - All services fully operational with comprehensive testing
 
 ### 💳 **Revolutionary Disease Card Payment System**
 - **Insurance Alternative** - Revolutionary replacement for traditional health insurance with instant payments
