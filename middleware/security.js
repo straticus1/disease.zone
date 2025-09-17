@@ -182,9 +182,9 @@ class SecurityValidator {
             directives: {
                 defaultSrc: ["'self'"],
                 styleSrc: [
-                    "'self'", 
-                    "'unsafe-inline'", 
-                    "https://unpkg.com", 
+                    "'self'",
+                    "'unsafe-inline'",
+                    "https://unpkg.com",
                     "https://api.mapbox.com",
                     "https://fonts.googleapis.com"
                 ],
@@ -197,9 +197,10 @@ class SecurityValidator {
                     "https://cdn.ethers.io",
                     "https://cdn.jsdelivr.net"
                 ],
+                scriptSrcAttr: ["'unsafe-inline'"], // Allow inline event handlers
                 connectSrc: [
-                    "'self'", 
-                    "https:", 
+                    "'self'",
+                    "https:",
                     "wss:",
                     "https://polygon-rpc.com",
                     "https://rpc-mumbai.matic.today",
