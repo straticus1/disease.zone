@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disease Data Search - diseaseZone</title>
+
+    <!-- External Libraries -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Enhanced Blue & White Theme */
+        :root {
+            --primary-blue: #1e40af;
+            --light-blue: #3b82f6;
+            --accent-blue: #60a5fa;
+            --dark-blue: #1e3a8a;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --white: #ffffff;
+            --light-gray: #f8fafc;
+            --medium-gray: #6b7280;
+            --dark-gray: #374151;
+            --border-gray: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%);
+            min-height: 100vh;
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Header */
+        .hero-header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--light-blue) 50%, var(--accent-blue) 100%);
+            padding: 4rem 2rem;
+            border-radius: 24px;
+            margin-bottom: 3rem;
+            text-align: center;
+            color: white;
+            box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a" cx="50%" cy="50%"><stop offset="0%" style="stop-color:rgba(255,255,255,0.1)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></radialGradient></defs><circle cx="200" cy="200" r="100" fill="url(%23a)"/><circle cx="800" cy="300" r="150" fill="url(%23a)"/><circle cx="400" cy="700" r="120" fill="url(%23a)"/></svg>') no-repeat center;
+            background-size: cover;
+            opacity: 0.1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.95;
+            font-weight: 400;
+        }
+
+        .feature-badges {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .feature-badge {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 1.2rem 2rem;
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .feature-badge:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 0.8rem;
+        }
+
+        .feature-text {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Search Mode Cards */
+        .search-modes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .mode-card {
+            background: white;
+            border: 3px solid var(--border-gray);
+            border-radius: 20px;
+            padding: 2.5rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--light-blue), var(--accent-blue));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .mode-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border-color: var(--light-blue);
+        }
+
+        .mode-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .mode-card.active {
+            border-color: var(--light-blue);
+            background: linear-gradient(135deg, #f0f9ff 0%, white 100%);
+            transform: translateY(-4px);
+        }
+
+        .mode-card.active::before {
+            transform: scaleX(1);
+        }
+
+        .mode-icon {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 2.2rem;
+            color: white;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        .mode-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+            color: var(--primary-blue);
+        }
+
+        .mode-description {
+            color: var(--medium-gray);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 1.05rem;
+        }
+
+        .mode-features {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .mode-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .mode-feature:last-child {
+            margin-bottom: 0;
+        }
+
+        .mode-indicator {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--border-gray);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .mode-card.active .mode-indicator {
+            background: var(--light-blue);
+            border-color: var(--light-blue);
+        }
+
+        .mode-card.active .mode-indicator::after {
+            content: '✓';
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Search Interface */
+        .search-interface {
+            background: white;
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-gray);
+            margin-bottom: 3rem;
+        }
+
+        .search-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .search-title {
+            color: var(--primary-blue);
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+        }
+
+        .search-subtitle {
+            color: var(--medium-gray);
+            font-size: 1.15rem;
+        }
+
+        .search-form {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .search-input-group {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            border: 2px solid var(--border-gray);
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--light-blue);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-button {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--light-blue) 100%);
+            color: white;
+            border: none;
+            padding: 1.2rem 3rem;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
+            display: block;
+            margin: 0 auto;
+        }
+
+        .search-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(59, 130, 246, 0.4);
+        }
+
+        .advanced-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .option-group {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-gray);
+        }
+
+        .option-label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: var(--dark-gray);
+        }
+
+        .option-input, .option-select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid var(--border-gray);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .option-input:focus, .option-select:focus {
+            outline: none;
+            border-color: var(--light-blue);
+        }
+
+        .source-checkboxes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .checkbox-group:hover {
+            background: #f1f5f9;
+        }
+
+        .checkbox-input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--light-blue);
+        }
+
+        .data-sources-info {
+            background: linear-gradient(135deg, #f0f9ff 0%, white 100%);
+            border-radius: 20px;
+            padding: 3rem;
+            border: 1px solid var(--border-gray);
+        }
+
+        .sources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .source-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-gray);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .source-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .source-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+
+        .source-name {
+            font-weight: 700;
+            color: var(--dark-gray);
+        }
+
+        .source-description {
+            color: var(--medium-gray);
+            line-height: 1.6;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid var(--light-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results-container {
+            display: none;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-gray);
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .search-modes {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-badges {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero Header -->
+        <div class="hero-header">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <i class="fas fa-search"></i> Disease Data MetaSearch
+                </h1>
+                <p class="hero-subtitle">
+                    Search across <strong>5 authoritative health databases</strong> including CDC, WHO, NIH, and government sources with real-time results and proper source attribution.
+                </p>
+
+                <div class="feature-badges">
+                    <div class="feature-badge">
+                        <i class="fas fa-database feature-icon"></i>
+                        <div class="feature-text">5+ Data Sources</div>
+                    </div>
+                    <div class="feature-badge">
+                        <i class="fas fa-shield-alt feature-icon"></i>
+                        <div class="feature-text">Privacy Protected</div>
+                    </div>
+                    <div class="feature-badge">
+                        <i class="fas fa-bolt feature-icon"></i>
+                        <div class="feature-text">Real-time Results</div>
+                    </div>
+                    <div class="feature-badge">
+                        <i class="fas fa-link feature-icon"></i>
+                        <div class="feature-text">Source Attribution</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Mode Selection -->
+        <div class="search-modes">
+            <!-- Basic Search Card -->
+            <div class="mode-card active" data-mode="basic" onclick="selectSearchMode('basic')">
+                <div class="mode-indicator"></div>
+                <div class="mode-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3 class="mode-title">Basic Search</h3>
+                <p class="mode-description">Quick search across all health databases with instant results and comprehensive coverage.</p>
+                <div class="mode-features">
+                    <div class="mode-feature">
+                        <i class="fas fa-check" style="color: #10b981;"></i>
+                        <span>All 5 data sources included</span>
+                    </div>
+                    <div class="mode-feature">
+                        <i class="fas fa-check" style="color: #10b981;"></i>
+                        <span>Instant search results</span>
+                    </div>
+                    <div class="mode-feature">
+                        <i class="fas fa-check" style="color: #10b981;"></i>
+                        <span>Simple, user-friendly interface</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Search Card -->
+            <div class="mode-card" data-mode="advanced" onclick="selectSearchMode('advanced')">
+                <div class="mode-indicator"></div>
+                <div class="mode-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                    <i class="fas fa-sliders-h"></i>
+                </div>
+                <h3 class="mode-title">Advanced Search</h3>
+                <p class="mode-description">Customize your search with source filters, result limits, and advanced parameters.</p>
+                <div class="mode-features">
+                    <div class="mode-feature">
+                        <i class="fas fa-check" style="color: #8b5cf6;"></i>
+                        <span>Select specific data sources</span>
+                    </div>
+                    <div class="mode-feature">
+                        <i class="fas fa-check" style="color: #8b5cf6;"></i>
+                        <span>Customize result limits</span>
+                    </div>
+                    <div class="mode-feature">
+                        <i class="fas fa-check" style="color: #8b5cf6;"></i>
+                        <span>Advanced filtering options</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blockchain Search Card -->
+            <div class="mode-card" data-mode="blockchain" onclick="selectSearchMode('blockchain')">
+                <div class="mode-indicator"></div>
+                <div class="mode-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <i class="fas fa-link"></i>
+                </div>
+                <h3 class="mode-title">🔗 Blockchain Search</h3>
+                <p class="mode-description">Search private blockchain data with zero-knowledge privacy protection and HIPAA compliance.</p>
+                <div class="mode-features">
+                    <div class="mode-feature">
+                        <i class="fas fa-check" style="color: #f59e0b;"></i>
+                        <span>Private blockchain access</span>
+                    </div>
+                    <div class="mode-feature">
+                        <i class="fas fa-check" style="color: #f59e0b;"></i>
+                        <span>Zero-knowledge privacy</span>
+                    </div>
+                    <div class="mode-feature">
+                        <i class="fas fa-check" style="color: #f59e0b;"></i>
+                        <span>HIPAA compliant results</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Interface -->
+        <div class="search-interface">
+            <div class="search-header">
+                <h2 class="search-title" id="searchModeTitle">Basic Search</h2>
+                <p class="search-subtitle" id="searchModeSubtitle">Search across all authoritative health databases</p>
+            </div>
+
+            <!-- Basic Search Form -->
+            <div id="basicSearchForm" class="search-form">
+                <div class="search-input-group">
+                    <input type="text" id="basicQuery" class="search-input" placeholder="Enter your search terms (e.g., COVID-19, diabetes, influenza surveillance)...">
+                </div>
+                <button onclick="performBasicSearch()" class="search-button">
+                    <i class="fas fa-search" style="margin-right: 0.5rem;"></i>
+                    Search All Databases
+                </button>
+                <div style="text-align: center; margin-top: 1rem; color: var(--medium-gray);">
+                    Searches across CDC, WHO, NIH, ECDC, and US Government Open Data
+                </div>
+            </div>
+
+            <!-- Advanced Search Form -->
+            <div id="advancedSearchForm" class="search-form" style="display: none;">
+                <div class="advanced-options">
+                    <div class="option-group">
+                        <label class="option-label">Search Query</label>
+                        <input type="text" id="advancedQuery" class="option-input" placeholder="Enter search terms...">
+                    </div>
+                    <div class="option-group">
+                        <label class="option-label">Max Results per Source</label>
+                        <select id="maxResults" class="option-select">
+                            <option value="3">3 results</option>
+                            <option value="5" selected>5 results</option>
+                            <option value="10">10 results</option>
+                            <option value="15">15 results</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="option-group">
+                    <label class="option-label">Select Data Sources</label>
+                    <div class="source-checkboxes" id="dataSources">
+                        <div class="checkbox-group">
+                            <input type="checkbox" value="CDC" checked class="checkbox-input">
+                            <span>CDC (Centers for Disease Control)</span>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" value="WHO" checked class="checkbox-input">
+                            <span>WHO (World Health Organization)</span>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" value="NIH" checked class="checkbox-input">
+                            <span>NIH (National Institutes of Health)</span>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" value="EU ECDC" checked class="checkbox-input">
+                            <span>EU ECDC (European CDC)</span>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" value="OpenData" checked class="checkbox-input">
+                            <span>US Government Open Data</span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="performAdvancedSearch()" class="search-button">
+                    <i class="fas fa-sliders-h" style="margin-right: 0.5rem;"></i>
+                    Advanced Search
+                </button>
+            </div>
+
+            <!-- Blockchain Search Form -->
+            <div id="blockchainSearchForm" class="search-form" style="display: none;">
+                <div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); padding: 2rem; border-radius: 16px; margin-bottom: 2rem; border: 1px solid #f59e0b;">
+                    <h4 style="color: #92400e; margin-bottom: 1rem;"><i class="fas fa-lock"></i> Private Blockchain Search</h4>
+                    <p style="color: #92400e; margin: 0;">
+                        Search health data stored on diseaseZone's private blockchain. All searches use zero-knowledge proofs to protect patient privacy and return only aggregated, anonymized results.
+                    </p>
+                </div>
+
+                <div class="advanced-options">
+                    <div class="option-group">
+                        <label class="option-label">Search Query</label>
+                        <input type="text" id="blockchainQuery" class="option-input" placeholder="Enter search terms for blockchain data...">
+                    </div>
+                    <div class="option-group">
+                        <label class="option-label">Data Type</label>
+                        <select id="blockchainDataType" class="option-select">
+                            <option value="all">All Data Types</option>
+                            <option value="patient_records">Patient Records</option>
+                            <option value="clinical_trials">Clinical Trials</option>
+                            <option value="research_data">Research Data</option>
+                            <option value="surveillance_data">Surveillance Data</option>
+                            <option value="fhir_resources">FHIR Resources</option>
+                        </select>
+                    </div>
+                    <div class="option-group">
+                        <label class="option-label">Time Range</label>
+                        <select id="blockchainTimeRange" class="option-select">
+                            <option value="all">All Time</option>
+                            <option value="24h">Last 24 Hours</option>
+                            <option value="7d">Last 7 Days</option>
+                            <option value="30d">Last 30 Days</option>
+                            <option value="90d">Last 90 Days</option>
+                            <option value="1y">Last Year</option>
+                        </select>
+                    </div>
+                    <div class="option-group">
+                        <label class="option-label">Blockchain Network</label>
+                        <select id="blockchainNetwork" class="option-select">
+                            <option value="mainnet">Main Network</option>
+                            <option value="testnet">Test Network</option>
+                            <option value="polygon">Polygon Network</option>
+                            <option value="arbitrum">Arbitrum Network</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button onclick="performBlockchainSearch()" class="search-button" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <i class="fas fa-link" style="margin-right: 0.5rem;"></i>
+                    Search Blockchain
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="searchLoading" class="loading">
+            <div class="loading-spinner"></div>
+            <h3 style="color: var(--primary-blue); margin-bottom: 0.5rem;">Searching Health Databases...</h3>
+            <p style="color: var(--medium-gray);">Please wait while we search across multiple authoritative sources</p>
+        </div>
+
+        <!-- Search Results -->
+        <div id="searchResults" class="results-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h3 id="resultsTitle" style="color: var(--primary-blue); font-size: 1.8rem; margin: 0;">Search Results</h3>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <span id="resultsCount" style="color: var(--medium-gray);"></span>
+                    <button onclick="clearResults()" style="background: #f3f4f6; border: 1px solid var(--border-gray); padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer;">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+            </div>
+            <div id="resultsContainer"></div>
+        </div>
+
+        <!-- Data Sources Information -->
+        <div class="data-sources-info">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h2 style="color: var(--primary-blue); font-size: 2rem; margin-bottom: 0.5rem;">Available Data Sources</h2>
+                <p style="color: var(--medium-gray); font-size: 1.1rem;">Authoritative health databases and research repositories</p>
+            </div>
+
+            <div class="sources-grid">
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-dot" style="background: #005fcc;"></div>
+                        <div class="source-name">CDC - Centers for Disease Control and Prevention</div>
+                    </div>
+                    <p class="source-description">
+                        Official US health surveillance and disease data including outbreak tracking, vaccination data, and public health statistics.
+                    </p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-dot" style="background: #0093d0;"></div>
+                        <div class="source-name">WHO - World Health Organization</div>
+                    </div>
+                    <p class="source-description">
+                        Global health statistics, disease surveillance data, and international health regulations from the UN's health agency.
+                    </p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-dot" style="background: #20558a;"></div>
+                        <div class="source-name">NIH - National Institutes of Health</div>
+                    </div>
+                    <p class="source-description">
+                        Biomedical research publications, clinical studies, and health information from PubMed and NIH databases.
+                    </p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-dot" style="background: #003d82;"></div>
+                        <div class="source-name">EU ECDC - European Centre for Disease Prevention and Control</div>
+                    </div>
+                    <p class="source-description">
+                        European disease surveillance data, outbreak investigations, and public health guidance for EU member states.
+                    </p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-dot" style="background: #112e51;"></div>
+                        <div class="source-name">US Government Open Data</div>
+                    </div>
+                    <p class="source-description">
+                        Federal government health datasets, including FDA data, USDA food safety information, and health policy data.
+                    </p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-dot" style="background: #f59e0b;"></div>
+                        <div class="source-name">🔗 Private Blockchain</div>
+                    </div>
+                    <p class="source-description">
+                        Secure, encrypted health records stored on diseaseZone's private blockchain with zero-knowledge privacy protection.
+                    </p>
+                </div>
+            </div>
+
+            <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 16px; padding: 2rem; margin-top: 2rem;">
+                <strong style="color: #d97706; font-size: 1.1rem;">🔗 Source Attribution Notice:</strong>
+                <p style="color: #92400e; margin: 0.5rem 0 0; line-height: 1.6;">
+                    All search results include proper source attribution. When you click on a result, you'll be taken to a brief attribution page showing the source information before being redirected to the original source. This ensures transparency and gives proper credit to data providers.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Search mode selection
+        let currentMode = 'basic';
+
+        function selectSearchMode(mode) {
+            currentMode = mode;
+
+            // Update mode cards
+            document.querySelectorAll('.mode-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+
+            // Update search interface
+            const title = document.getElementById('searchModeTitle');
+            const subtitle = document.getElementById('searchModeSubtitle');
+            const forms = ['basicSearchForm', 'advancedSearchForm', 'blockchainSearchForm'];
+
+            // Hide all forms
+            forms.forEach(formId => {
+                document.getElementById(formId).style.display = 'none';
+            });
+
+            // Show selected form and update title
+            switch(mode) {
+                case 'basic':
+                    document.getElementById('basicSearchForm').style.display = 'block';
+                    title.textContent = 'Basic Search';
+                    subtitle.textContent = 'Search across all authoritative health databases';
+                    break;
+                case 'advanced':
+                    document.getElementById('advancedSearchForm').style.display = 'block';
+                    title.textContent = 'Advanced Search';
+                    subtitle.textContent = 'Customize your search with filters and source selection';
+                    break;
+                case 'blockchain':
+                    document.getElementById('blockchainSearchForm').style.display = 'block';
+                    title.textContent = 'Blockchain Search';
+                    subtitle.textContent = 'Search private blockchain with zero-knowledge privacy';
+                    break;
+            }
+        }
+
+        // Search functions (placeholder - these would connect to your actual API)
+        async function performBasicSearch() {
+            const query = document.getElementById('basicQuery').value.trim();
+            if (!query) {
+                alert('Please enter a search query');
+                return;
+            }
+
+            showLoading();
+            // Here you would call your actual API
+            setTimeout(() => {
+                hideLoading();
+                showMockResults(query, 'basic');
+            }, 2000);
+        }
+
+        async function performAdvancedSearch() {
+            const query = document.getElementById('advancedQuery').value.trim();
+            if (!query) {
+                alert('Please enter a search query');
+                return;
+            }
+
+            showLoading();
+            // Here you would call your actual API
+            setTimeout(() => {
+                hideLoading();
+                showMockResults(query, 'advanced');
+            }, 2000);
+        }
+
+        async function performBlockchainSearch() {
+            const query = document.getElementById('blockchainQuery').value.trim();
+            if (!query) {
+                alert('Please enter a search query');
+                return;
+            }
+
+            showLoading();
+            // Here you would call your actual API
+            setTimeout(() => {
+                hideLoading();
+                showMockResults(query, 'blockchain');
+            }, 3000);
+        }
+
+        function showLoading() {
+            document.getElementById('searchLoading').style.display = 'block';
+            document.getElementById('searchResults').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('searchLoading').style.display = 'none';
+        }
+
+        function showMockResults(query, mode) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            const resultsTitle = document.getElementById('resultsTitle');
+            const resultsCount = document.getElementById('resultsCount');
+
+            resultsTitle.textContent = `${mode.charAt(0).toUpperCase() + mode.slice(1)} Search Results for "${query}"`;
+            resultsCount.textContent = `5 results found across multiple sources`;
+
+            resultsContainer.innerHTML = `
+                <div class="result-card">
+                    <h4 style="color: var(--primary-blue); margin-bottom: 0.5rem;">
+                        <a href="#" style="color: var(--primary-blue); text-decoration: none;">Sample Result: ${query} Surveillance Data</a>
+                    </h4>
+                    <p style="color: var(--medium-gray); margin-bottom: 1rem;">
+                        This is a sample result showing how your search results would appear. Real results would show relevant health data from authoritative sources.
+                    </p>
+                    <div style="display: flex; gap: 1rem; align-items: center; font-size: 0.9rem; color: var(--medium-gray);">
+                        <span><i class="fas fa-database"></i> dataset</span>
+                        <span><i class="fas fa-clock"></i> Updated recently</span>
+                        <span style="background: #005fcc; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">CDC</span>
+                    </div>
+                </div>
+                <div style="text-align: center; padding: 2rem; color: var(--medium-gray);">
+                    <p>This is a demo interface. Connect to your actual MetaSearch API to see real results.</p>
+                </div>
+            `;
+
+            document.getElementById('searchResults').style.display = 'block';
+        }
+
+        function clearResults() {
+            document.getElementById('searchResults').style.display = 'none';
+            document.getElementById('basicQuery').value = '';
+            document.getElementById('advancedQuery').value = '';
+            document.getElementById('blockchainQuery').value = '';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            selectSearchMode('basic');
+        });
+    </script>
+</body>
+</html>

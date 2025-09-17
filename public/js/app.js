@@ -3103,6 +3103,15 @@ window.toggleSearchMode = function(mode) {
     const advancedForm = document.getElementById('advancedSearchForm');
     const blockchainForm = document.getElementById('blockchainSearchForm');
 
+    // Update card active states
+    const cards = document.querySelectorAll('.search-mode-card');
+    cards.forEach(card => {
+        card.classList.remove('active');
+        if (card.dataset.mode === mode) {
+            card.classList.add('active');
+        }
+    });
+
     // Hide all forms
     basicForm.style.display = 'none';
     advancedForm.style.display = 'none';
@@ -3120,6 +3129,8 @@ window.toggleSearchMode = function(mode) {
             blockchainForm.style.display = 'block';
             break;
     }
+
+    console.log(`🔍 Search mode switched to: ${mode}`);
 };
 
 // Basic search function

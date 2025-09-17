@@ -1619,62 +1619,300 @@
 
         <!-- MetaSearch View -->
         <div class="view" id="metasearchView">
-            <div class="container dashboard">
-                <div class="dashboard-header">
-                    <h1><i class="fas fa-search"></i> Disease Data MetaSearch</h1>
-                    <p>Search across multiple authoritative health databases and research sources</p>
-                </div>
+            <style>
+                /* Enhanced Blue & White Theme for MetaSearch */
+                #metasearchView {
+                    --primary-blue: #1e40af;
+                    --light-blue: #3b82f6;
+                    --accent-blue: #60a5fa;
+                    --dark-blue: #1e3a8a;
+                    --success-green: #10b981;
+                    --warning-orange: #f59e0b;
+                    --search-white: #ffffff;
+                    --light-gray: #f8fafc;
+                    --medium-gray: #6b7280;
+                    --dark-gray: #374151;
+                    --border-gray: #e5e7eb;
+                    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%);
+                    min-height: 100vh;
+                    padding-top: 2rem;
+                }
 
-                <!-- Search Mode Toggle -->
-                <div style="background: var(--light-color); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
-                        <h3 style="margin: 0; color: var(--text-primary);">Search Mode</h3>
-                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                <input type="radio" name="searchMode" value="basic" checked onchange="toggleSearchMode('basic')" style="accent-color: var(--primary-color);">
-                                <span style="font-weight: 500;">Basic Search</span>
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                <input type="radio" name="searchMode" value="advanced" onchange="toggleSearchMode('advanced')" style="accent-color: var(--primary-color);">
-                                <span style="font-weight: 500;">Advanced Search</span>
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                <input type="radio" name="searchMode" value="blockchain" onchange="toggleSearchMode('blockchain')" style="accent-color: var(--warning-color);">
-                                <span style="font-weight: 500; color: var(--warning-color);">🔗 Blockchain Search</span>
-                            </label>
+                .search-hero {
+                    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--light-blue) 50%, var(--accent-blue) 100%);
+                    padding: 4rem 2rem;
+                    border-radius: 24px;
+                    margin-bottom: 3rem;
+                    text-align: center;
+                    color: white;
+                    box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.25);
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                .search-hero::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a" cx="50%" cy="50%"><stop offset="0%" style="stop-color:rgba(255,255,255,0.1)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></radialGradient></defs><circle cx="200" cy="200" r="100" fill="url(%23a)"/><circle cx="800" cy="300" r="150" fill="url(%23a)"/><circle cx="400" cy="700" r="120" fill="url(%23a)"/></svg>') no-repeat center;
+                    background-size: cover;
+                    opacity: 0.1;
+                }
+
+                .search-hero-content {
+                    position: relative;
+                    z-index: 1;
+                    max-width: 800px;
+                    margin: 0 auto;
+                }
+
+                .search-hero h1 {
+                    font-size: 3.5rem;
+                    font-weight: 800;
+                    margin-bottom: 1.5rem;
+                    text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                }
+
+                .search-hero p {
+                    font-size: 1.3rem;
+                    margin-bottom: 2.5rem;
+                    opacity: 0.95;
+                    font-weight: 400;
+                }
+
+                .feature-badges {
+                    display: flex;
+                    justify-content: center;
+                    gap: 2rem;
+                    flex-wrap: wrap;
+                    margin-top: 2rem;
+                }
+
+                .feature-badge {
+                    background: rgba(255, 255, 255, 0.15);
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    border-radius: 50px;
+                    padding: 0.75rem 1.5rem;
+                    font-weight: 600;
+                    font-size: 0.9rem;
+                    transition: all 0.3s ease;
+                    cursor: default;
+                }
+
+                .search-mode-cards {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                    gap: 2rem;
+                    margin-bottom: 3rem;
+                }
+
+                .search-mode-card {
+                    background: var(--search-white);
+                    border-radius: 20px;
+                    padding: 2.5rem;
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+                    border: 2px solid transparent;
+                    transition: all 0.3s ease;
+                    cursor: pointer;
+                    position: relative;
+                }
+
+                .search-mode-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+                }
+
+                .search-mode-card.active {
+                    border-color: var(--primary-blue);
+                    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+                    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+                }
+
+                .search-mode-card .card-icon {
+                    width: 60px;
+                    height: 60px;
+                    border-radius: 15px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 1.5rem;
+                    color: white;
+                    margin-bottom: 1.5rem;
+                }
+
+                .search-mode-card h3 {
+                    font-size: 1.5rem;
+                    font-weight: 700;
+                    color: var(--dark-gray);
+                    margin-bottom: 0.75rem;
+                }
+
+                .search-mode-card p {
+                    color: var(--medium-gray);
+                    font-size: 1rem;
+                    line-height: 1.6;
+                    margin-bottom: 0;
+                }
+
+                .search-form-container {
+                    background: var(--search-white);
+                    border-radius: 20px;
+                    padding: 2.5rem;
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+                    margin-bottom: 2rem;
+                }
+
+                .search-input {
+                    width: 100%;
+                    padding: 1rem 1.5rem;
+                    border: 2px solid var(--border-gray);
+                    border-radius: 12px;
+                    font-size: 1.1rem;
+                    transition: all 0.3s ease;
+                    background: #ffffff;
+                    font-family: inherit;
+                }
+
+                .search-input:focus {
+                    outline: none;
+                    border-color: var(--primary-blue);
+                    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+                }
+
+                .search-btn {
+                    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--light-blue) 100%);
+                    color: white;
+                    border: none;
+                    border-radius: 12px;
+                    padding: 1rem 2rem;
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+                }
+
+                .search-btn:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 20px rgba(30, 64, 175, 0.4);
+                }
+
+                .data-sources-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                    gap: 1.5rem;
+                    margin: 2rem 0;
+                }
+
+                .source-card {
+                    background: var(--search-white);
+                    border-radius: 16px;
+                    padding: 2rem;
+                    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+                    border: 1px solid var(--border-gray);
+                    transition: all 0.3s ease;
+                }
+
+                .source-card:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+                }
+
+                .source-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                    margin-bottom: 1rem;
+                }
+
+                .source-dot {
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 50%;
+                }
+            </style>
+
+            <div class="container dashboard">
+                <!-- Hero Header -->
+                <div class="search-hero">
+                    <div class="search-hero-content">
+                        <h1><i class="fas fa-search"></i> Disease Data MetaSearch</h1>
+                        <p>Search across multiple authoritative health databases and research sources</p>
+                        <div class="feature-badges">
+                            <div class="feature-badge">
+                                <i class="fas fa-shield-alt"></i> Verified Sources
+                            </div>
+                            <div class="feature-badge">
+                                <i class="fas fa-globe"></i> Global Coverage
+                            </div>
+                            <div class="feature-badge">
+                                <i class="fas fa-lock"></i> Privacy Protected
+                            </div>
                         </div>
                     </div>
+                </div>
 
+                <!-- Search Mode Cards -->
+                <div class="search-mode-cards">
+                    <div class="search-mode-card active" data-mode="basic" onclick="toggleSearchMode('basic')">
+                        <div class="card-icon" style="background: linear-gradient(135deg, var(--primary-blue), var(--light-blue));">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3>Basic Search</h3>
+                        <p>Quick and simple search across all major health databases. Perfect for general inquiries and broad topic exploration.</p>
+                    </div>
+
+                    <div class="search-mode-card" data-mode="advanced" onclick="toggleSearchMode('advanced')">
+                        <div class="card-icon" style="background: linear-gradient(135deg, var(--success-green), #059669);">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <h3>Advanced Search</h3>
+                        <p>Customize your search with specific data sources, filters, and advanced parameters. Ideal for researchers and professionals.</p>
+                    </div>
+
+                    <div class="search-mode-card" data-mode="blockchain" onclick="toggleSearchMode('blockchain')">
+                        <div class="card-icon" style="background: linear-gradient(135deg, var(--warning-orange), #d97706);">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <h3>Blockchain Search</h3>
+                        <p>Search private blockchain data with zero-knowledge proofs. Access verified clinical data while maintaining patient privacy.</p>
+                    </div>
+                </div>
+
+                <!-- Search Forms -->
+                <div class="search-form-container">
                     <!-- Basic Search Form -->
                     <div id="basicSearchForm">
-                        <div style="display: flex; gap: 1rem; align-items: end;">
+                        <div style="display: flex; gap: 1.5rem; align-items: end; margin-bottom: 1rem;">
                             <div style="flex: 1;">
-                                <label for="basicQuery" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Search Query</label>
-                                <input type="text" id="basicQuery" placeholder="e.g., COVID-19, diabetes, influenza surveillance..."
-                                       style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem;"
+                                <label for="basicQuery" style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: var(--dark-gray);">Search Query</label>
+                                <input type="text" id="basicQuery" placeholder="e.g., COVID-19, diabetes, influenza surveillance..." class="search-input"
                                        onkeypress="if(event.key==='Enter') performBasicSearch()">
                             </div>
-                            <button onclick="performBasicSearch()" class="btn btn-primary" style="padding: 0.75rem 2rem;">
+                            <button onclick="performBasicSearch()" class="search-btn">
                                 <i class="fas fa-search"></i> Search
                             </button>
                         </div>
-                        <p style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">
-                            Searches across CDC, WHO, NIH, ECDC, and US Government Open Data
+                        <p style="color: var(--medium-gray); font-size: 0.95rem; text-align: center; margin: 0;">
+                            <i class="fas fa-database"></i> Searches across CDC, WHO, NIH, ECDC, and US Government Open Data
                         </p>
                     </div>
 
                     <!-- Advanced Search Form (Hidden by default) -->
                     <div id="advancedSearchForm" style="display: none;">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
                             <div>
-                                <label for="advancedQuery" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Search Query</label>
-                                <input type="text" id="advancedQuery" placeholder="Enter search terms..."
-                                       style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem;"
+                                <label for="advancedQuery" style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: var(--dark-gray);">Search Query</label>
+                                <input type="text" id="advancedQuery" placeholder="Enter search terms..." class="search-input"
                                        onkeypress="if(event.key==='Enter') performAdvancedSearch()">
                             </div>
                             <div>
-                                <label for="maxResults" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Max Results per Source</label>
-                                <select id="maxResults" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem;">
+                                <label for="maxResults" style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: var(--dark-gray);">Max Results per Source</label>
+                                <select id="maxResults" class="search-input">
                                     <option value="3">3 results</option>
                                     <option value="5" selected>5 results</option>
                                     <option value="10">10 results</option>
@@ -1683,56 +1921,84 @@
                             </div>
                         </div>
 
-                        <div>
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Data Sources</label>
-                            <div id="dataSources" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; margin-bottom: 1rem;">
-                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                    <input type="checkbox" value="CDC" checked style="accent-color: var(--primary-color);">
-                                    <span style="font-size: 0.9rem;">CDC (Centers for Disease Control)</span>
+                        <div style="margin-bottom: 2rem;">
+                            <label style="display: block; margin-bottom: 1rem; font-weight: 600; color: var(--dark-gray);">
+                                <i class="fas fa-database"></i> Data Sources
+                            </label>
+                            <div class="data-sources-grid">
+                                <label class="source-card" style="cursor: pointer; padding: 1.5rem; margin: 0;">
+                                    <div class="source-header">
+                                        <input type="checkbox" value="CDC" checked style="accent-color: var(--primary-blue); transform: scale(1.2);">
+                                        <div class="source-dot" style="background: #005fcc;"></div>
+                                        <strong style="color: var(--dark-gray);">CDC</strong>
+                                    </div>
+                                    <p style="font-size: 0.9rem; color: var(--medium-gray); margin: 0;">Centers for Disease Control and Prevention</p>
                                 </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                    <input type="checkbox" value="WHO" checked style="accent-color: var(--primary-color);">
-                                    <span style="font-size: 0.9rem;">WHO (World Health Organization)</span>
+
+                                <label class="source-card" style="cursor: pointer; padding: 1.5rem; margin: 0;">
+                                    <div class="source-header">
+                                        <input type="checkbox" value="WHO" checked style="accent-color: var(--primary-blue); transform: scale(1.2);">
+                                        <div class="source-dot" style="background: #0093d0;"></div>
+                                        <strong style="color: var(--dark-gray);">WHO</strong>
+                                    </div>
+                                    <p style="font-size: 0.9rem; color: var(--medium-gray); margin: 0;">World Health Organization</p>
                                 </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                    <input type="checkbox" value="NIH" checked style="accent-color: var(--primary-color);">
-                                    <span style="font-size: 0.9rem;">NIH (National Institutes of Health)</span>
+
+                                <label class="source-card" style="cursor: pointer; padding: 1.5rem; margin: 0;">
+                                    <div class="source-header">
+                                        <input type="checkbox" value="NIH" checked style="accent-color: var(--primary-blue); transform: scale(1.2);">
+                                        <div class="source-dot" style="background: #20558a;"></div>
+                                        <strong style="color: var(--dark-gray);">NIH</strong>
+                                    </div>
+                                    <p style="font-size: 0.9rem; color: var(--medium-gray); margin: 0;">National Institutes of Health</p>
                                 </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                    <input type="checkbox" value="EU ECDC" checked style="accent-color: var(--primary-color);">
-                                    <span style="font-size: 0.9rem;">EU ECDC (European CDC)</span>
+
+                                <label class="source-card" style="cursor: pointer; padding: 1.5rem; margin: 0;">
+                                    <div class="source-header">
+                                        <input type="checkbox" value="EU ECDC" checked style="accent-color: var(--primary-blue); transform: scale(1.2);">
+                                        <div class="source-dot" style="background: #003d82;"></div>
+                                        <strong style="color: var(--dark-gray);">EU ECDC</strong>
+                                    </div>
+                                    <p style="font-size: 0.9rem; color: var(--medium-gray); margin: 0;">European Centre for Disease Prevention</p>
                                 </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                    <input type="checkbox" value="OpenData" checked style="accent-color: var(--primary-color);">
-                                    <span style="font-size: 0.9rem;">US Government Open Data</span>
+
+                                <label class="source-card" style="cursor: pointer; padding: 1.5rem; margin: 0;">
+                                    <div class="source-header">
+                                        <input type="checkbox" value="OpenData" checked style="accent-color: var(--primary-blue); transform: scale(1.2);">
+                                        <div class="source-dot" style="background: #112e51;"></div>
+                                        <strong style="color: var(--dark-gray);">US Open Data</strong>
+                                    </div>
+                                    <p style="font-size: 0.9rem; color: var(--medium-gray); margin: 0;">Government Data Portal</p>
                                 </label>
                             </div>
                         </div>
 
-                        <button onclick="performAdvancedSearch()" class="btn btn-primary" style="padding: 0.75rem 2rem;">
-                            <i class="fas fa-search"></i> Advanced Search
-                        </button>
+                        <div style="text-align: center;">
+                            <button onclick="performAdvancedSearch()" class="search-btn" style="padding: 1rem 3rem; font-size: 1.1rem;">
+                                <i class="fas fa-cogs"></i> Advanced Search
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Blockchain Search Form (Hidden by default) -->
                     <div id="blockchainSearchForm" style="display: none;">
-                        <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; color: white;">
-                            <h4 style="color: white; margin-bottom: 0.5rem;"><i class="fas fa-lock"></i> Private Blockchain Search</h4>
-                            <p style="opacity: 0.9; margin: 0; font-size: 0.9rem;">
+                        <div style="background: linear-gradient(135deg, var(--warning-orange) 0%, #d97706 100%); padding: 2rem; border-radius: 16px; margin-bottom: 2rem; color: white; text-align: center;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🔗</div>
+                            <h4 style="color: white; margin-bottom: 1rem; font-size: 1.5rem; font-weight: 700;"><i class="fas fa-lock"></i> Private Blockchain Search</h4>
+                            <p style="opacity: 0.95; margin: 0; font-size: 1rem; line-height: 1.6; max-width: 600px; margin: 0 auto;">
                                 Search health data stored on diseaseZone's private blockchain. This includes verified patient records, clinical trials, and research data with cryptographic integrity guarantees.
                             </p>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
                             <div>
-                                <label for="blockchainQuery" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Search Query</label>
-                                <input type="text" id="blockchainQuery" placeholder="Enter search terms for blockchain data..."
-                                       style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem;"
+                                <label for="blockchainQuery" style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: var(--dark-gray);">Search Query</label>
+                                <input type="text" id="blockchainQuery" placeholder="Enter search terms for blockchain data..." class="search-input"
                                        onkeypress="if(event.key==='Enter') performBlockchainSearch()">
                             </div>
                             <div>
-                                <label for="blockchainDataType" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Data Type</label>
-                                <select id="blockchainDataType" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem;">
+                                <label for="blockchainDataType" style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: var(--dark-gray);">Data Type</label>
+                                <select id="blockchainDataType" class="search-input">
                                     <option value="all">All Data Types</option>
                                     <option value="patient_records">Patient Records</option>
                                     <option value="clinical_trials">Clinical Trials</option>
@@ -1743,10 +2009,10 @@
                             </div>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
                             <div>
-                                <label for="blockchainTimeRange" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Time Range</label>
-                                <select id="blockchainTimeRange" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem;">
+                                <label for="blockchainTimeRange" style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: var(--dark-gray);">Time Range</label>
+                                <select id="blockchainTimeRange" class="search-input">
                                     <option value="all">All Time</option>
                                     <option value="24h">Last 24 Hours</option>
                                     <option value="7d">Last 7 Days</option>
@@ -1756,8 +2022,8 @@
                                 </select>
                             </div>
                             <div>
-                                <label for="blockchainNetwork" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Blockchain Network</label>
-                                <select id="blockchainNetwork" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem;">
+                                <label for="blockchainNetwork" style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: var(--dark-gray);">Blockchain Network</label>
+                                <select id="blockchainNetwork" class="search-input">
                                     <option value="mainnet">Main Network</option>
                                     <option value="testnet">Test Network</option>
                                     <option value="polygon">Polygon Network</option>
@@ -1766,16 +2032,19 @@
                             </div>
                         </div>
 
-                        <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
-                            <strong style="color: #d97706;">🔐 Privacy & Security:</strong>
-                            <span style="color: #92400e; font-size: 0.9rem;">
+                        <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid var(--warning-orange); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; text-align: center;">
+                            <div style="font-size: 2rem; margin-bottom: 1rem;">🔐</div>
+                            <strong style="color: #d97706; font-size: 1.1rem; display: block; margin-bottom: 0.75rem;">Privacy & Security</strong>
+                            <p style="color: #92400e; font-size: 1rem; line-height: 1.6; margin: 0;">
                                 All blockchain searches are conducted with zero-knowledge proofs to protect patient privacy. Only aggregated, anonymized data is returned in search results.
-                            </span>
+                            </p>
                         </div>
 
-                        <button onclick="performBlockchainSearch()" class="btn" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 0.75rem 2rem; border: none;">
-                            <i class="fas fa-link"></i> Search Blockchain
-                        </button>
+                        <div style="text-align: center;">
+                            <button onclick="performBlockchainSearch()" class="search-btn" style="background: linear-gradient(135deg, var(--warning-orange) 0%, #d97706 100%); padding: 1rem 3rem; font-size: 1.1rem;">
+                                <i class="fas fa-link"></i> Search Blockchain
+                            </button>
+                        </div>
                     </div>
                 </div>
 
