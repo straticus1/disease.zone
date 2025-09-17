@@ -211,23 +211,20 @@ class DiseaseZoneApp {
                     { text: 'Dashboard', view: 'medical' },
                     { text: 'Patients', view: 'patients' },
                     { text: 'Research', view: 'research' },
-                    { text: 'Compliance', view: 'compliance' },
-                    { text: 'Ledger', view: 'blockchain' }
+                    { text: 'Compliance', view: 'compliance' }
                 ];
                 break;
             case 'insurance':
                 links = [
                     { text: 'Analytics', view: 'insurance' },
                     { text: 'Risk Models', view: 'risk' },
-                    { text: 'Claims', view: 'claims' },
-                    { text: 'Ledger', view: 'blockchain' }
+                    { text: 'Claims', view: 'claims' }
                 ];
                 break;
             case 'researcher':
                 links = [
                     { text: 'Dashboard', view: 'user' },
                     { text: 'Data Access', view: 'research' },
-                    { text: 'Marketplace', view: 'blockchain' },
                     { text: 'Analytics', view: 'analytics' }
                 ];
                 break;
@@ -235,8 +232,7 @@ class DiseaseZoneApp {
                 links = [
                     { text: 'Dashboard', view: 'user' },
                     { text: 'Health Data', view: 'health' },
-                    { text: 'Surveillance', view: 'surveillance' },
-                    { text: 'Ledger', view: 'blockchain' }
+                    { text: 'Surveillance', view: 'surveillance' }
                 ];
         }
 
@@ -326,17 +322,15 @@ class DiseaseZoneApp {
             const headers = { 'Authorization': `Bearer ${token}` };
 
             // Load user statistics
-            const [familyDiseases, analysisHistory, ledgerMetrics] = await Promise.all([
+            const [familyDiseases, analysisHistory] = await Promise.all([
                 this.apiCall('/api/user/family-diseases', 'GET', null, headers),
-                this.apiCall('/api/user/symptom-analysis/history', 'GET', null, headers),
-                this.loadLedgerData()
+                this.apiCall('/api/user/symptom-analysis/history', 'GET', null, headers)
             ]);
 
             // Update user dashboard stats
             this.updateUserStats({
                 dataPoints: familyDiseases.success ? familyDiseases.familyDiseases.length : 0,
-                analysisCount: analysisHistory.success ? analysisHistory.sessions.length : 0,
-                ledgerData: ledgerMetrics
+                analysisCount: analysisHistory.success ? analysisHistory.sessions.length : 0
             });
 
         } catch (error) {
@@ -355,9 +349,6 @@ class DiseaseZoneApp {
             case 'insurance':
                 await this.loadInsuranceDashboardData();
                 break;
-            case 'blockchain':
-                await this.loadLedgerDashboardData();
-                break;
         }
     }
 
@@ -368,8 +359,11 @@ class DiseaseZoneApp {
             const token = localStorage.getItem('diseaseZoneToken');
             const headers = { 'Authorization': `Bearer ${token}` };
 
-            // Load user activity
-            const activityResponse = await this.apiCall('/api/user/family-diseases', 'GET', null, headers);
+            // Load user profile data (includes wallet info)
+            const [activityResponse, profileResponse] = await Promise.all([
+                this.apiCall('/api/user/family-diseases', 'GET', null, headers),
+                this.apiCall('/api/user/profile', 'GET', null, headers)
+            ]);
 
             if (activityResponse.success) {
                 const activityHtml = activityResponse.familyDiseases.slice(0, 5).map(disease => `
@@ -386,6 +380,11 @@ class DiseaseZoneApp {
             document.getElementById('userDataPoints').textContent = activityResponse.success ? activityResponse.familyDiseases.length : '0';
             document.getElementById('userLastUpdate').textContent = activityResponse.success && activityResponse.familyDiseases.length > 0 ?
                 new Date(activityResponse.familyDiseases[0].created_at).toLocaleDateString() : 'Never';
+
+            // Update wallet information if available
+            if (profileResponse.success && profileResponse.user.wallet_summary) {
+                this.updateWalletDisplay(profileResponse.user.wallet_summary);
+            }
 
         } catch (error) {
             console.error('Failed to load user dashboard data:', error);
@@ -424,43 +423,6 @@ class DiseaseZoneApp {
 
         } catch (error) {
             console.error('Failed to load insurance dashboard data:', error);
-        }
-    }
-
-    async loadLedgerDashboardData() {
-        try {
-            // Load ledger data from ledger API
-            const ledgerData = await this.loadLedgerData();
-
-            if (ledgerData) {
-                document.getElementById('healthCreditBalance').textContent = ledgerData.tokenBalance || '0';
-                document.getElementById('dataContributions').textContent = ledgerData.contributions || '0';
-                document.getElementById('marketplaceSales').textContent = ledgerData.sales || '0';
-                document.getElementById('networkStatus').textContent = ledgerData.networkStatus || 'Offline';
-            }
-
-        } catch (error) {
-            console.error('Failed to load ledger dashboard data:', error);
-        }
-    }
-
-    async loadLedgerData() {
-        try {
-            const [tokenResponse, marketplaceResponse, bridgeResponse] = await Promise.all([
-                this.apiCall('/api/v1/token/info', 'GET', null, {}, this.ledgerApiUrl),
-                this.apiCall('/api/v1/marketplace/status', 'GET', null, {}, this.ledgerApiUrl),
-                this.apiCall('/api/v1/bridge/status', 'GET', null, {}, this.ledgerApiUrl)
-            ]);
-
-            return {
-                tokenBalance: tokenResponse.success ? '1,234' : '0', // Mock user balance
-                contributions: tokenResponse.success ? '15' : '0',
-                sales: marketplaceResponse.success ? marketplaceResponse.status?.total_licenses_sold || '0' : '0',
-                networkStatus: bridgeResponse.success ? 'Online' : 'Offline'
-            };
-        } catch (error) {
-            console.error('Failed to load ledger data:', error);
-            return null;
         }
     }
 
@@ -1060,8 +1022,8 @@ class DiseaseZoneApp {
                         <a href="#" onclick="showView('user'); hideUserMenu();" style="display: block; padding: 0.5rem; text-decoration: none; color: var(--text-primary); border-radius: 4px;" onmouseover="this.style.backgroundColor='var(--light-color)';" onmouseout="this.style.backgroundColor='transparent';">
                             <i class="fas fa-user"></i> Profile
                         </a>
-                        <a href="#" onclick="showView('blockchain'); hideUserMenu();" style="display: block; padding: 0.5rem; text-decoration: none; color: var(--text-primary); border-radius: 4px;" onmouseover="this.style.backgroundColor='var(--light-color)';" onmouseout="this.style.backgroundColor='transparent';">
-                            <i class="fas fa-coins"></i> HEALTH Credits
+                        <a href="https://ledger.disease.zone" target="_blank" onclick="hideUserMenu();" style="display: block; padding: 0.5rem; text-decoration: none; color: var(--text-primary); border-radius: 4px;" onmouseover="this.style.backgroundColor='var(--light-color)';" onmouseout="this.style.backgroundColor='transparent';">
+                            <i class="fas fa-external-link-alt"></i> Ledger Platform
                         </a>
                         <hr style="margin: 0.5rem 0;">
                         <a href="#" onclick="logout(); hideUserMenu();" style="display: block; padding: 0.5rem; text-decoration: none; color: var(--error-color); border-radius: 4px;" onmouseover="this.style.backgroundColor='var(--light-color)';" onmouseout="this.style.backgroundColor='transparent';">
@@ -1100,10 +1062,47 @@ class DiseaseZoneApp {
             document.getElementById('userDataPoints').textContent = stats.dataPoints;
         }
         if (stats.analysisCount !== undefined) {
-            document.getElementById('userTokensEarned').textContent = stats.analysisCount * 10; // Mock calculation
+            const creditsElement = document.getElementById('userCreditsEarned');
+            if (creditsElement) {
+                creditsElement.textContent = stats.analysisCount * 10; // Mock calculation for research credits
+            }
         }
-        if (stats.ledgerData) {
-      document.getElementById('userCreditsEarned').textContent = userData.healthCreditsEarned || 0;
+    }
+
+    updateWalletDisplay(walletSummary) {
+        // Update health credits earned from actual wallet data
+        if (walletSummary.connected) {
+            const creditsElement = document.getElementById('userCreditsEarned');
+            if (creditsElement) {
+                creditsElement.textContent = parseFloat(walletSummary.health_credit_balance).toFixed(2);
+            }
+        }
+        
+        // If there's a wallet info section in the UI, update it
+        const walletInfoElement = document.getElementById('walletInfo');
+        if (walletInfoElement) {
+            if (walletSummary.connected && walletSummary.address) {
+                walletInfoElement.innerHTML = `
+                    <div class="wallet-connected">
+                        <h4><i class="fas fa-wallet"></i> Wallet Connected</h4>
+                        <p><strong>Address:</strong> <code>${walletSummary.address.substring(0, 6)}...${walletSummary.address.substring(walletSummary.address.length - 4)}</code></p>
+                        <p><strong>HEALTH Balance:</strong> ${parseFloat(walletSummary.health_credit_balance).toFixed(2)}</p>
+                        <p><a href="https://ledger.disease.zone" target="_blank" class="btn btn-sm btn-primary">
+                            <i class="fas fa-external-link-alt"></i> Manage on Ledger Platform
+                        </a></p>
+                    </div>
+                `;
+            } else {
+                walletInfoElement.innerHTML = `
+                    <div class="wallet-disconnected">
+                        <h4><i class="fas fa-wallet"></i> Wallet Not Connected</h4>
+                        <p>Connect your wallet on the ledger platform to earn HEALTH tokens.</p>
+                        <p><a href="https://ledger.disease.zone" target="_blank" class="btn btn-sm btn-warning">
+                            <i class="fas fa-external-link-alt"></i> Connect Wallet on Ledger Platform
+                        </a></p>
+                    </div>
+                `;
+            }
         }
     }
 
