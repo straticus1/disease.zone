@@ -37,10 +37,24 @@ This release standardizes all terminology from "Health Token" to "Health Credit"
 - **Better Differentiation**: Credits vs tokens clarifies reward vs underlying blockchain tokens
 - **API Alignment**: All endpoints and responses use consistent credit naming
 
+#### Deployment Success
+- **AWS ECS**: Successfully deployed v3.8.0 with zero downtime
+- **Docker Containers**: Rebuilt and pushed to ECR with latest changes
+- **DNS Preservation**: All Route53 records and SSL certificates maintained
+- **Health Checks**: All endpoints (www, ledger, api subdomains) responding correctly
+
+#### Main Platform Simplifications
+- **Removed Blockchain Dashboard**: Entire ledger view section removed from main app.html
+- **Simplified Navigation**: Removed ledger links from main platform footer
+- **Cleaned Test Elements**: Removed debug buttons and test scripts
+- **Streamlined User Experience**: Main platform now focuses solely on health intelligence
+- **Label Refinement**: "HEALTH Credits Earned" → "Research Credits Earned" for clarity
+
 #### Files Updated
 - 14 total files across backend services, database, frontend, and ledger platform
 - Complete terminology consistency from database to user interface
 - All references updated while maintaining functional compatibility
+- Main platform HTML significantly simplified (removed ~500 lines of blockchain UI)
 
 ## [3.2.0] - 2025-09-16
 

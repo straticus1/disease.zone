@@ -88,7 +88,7 @@
 - **Symptom Monitoring** - Clinical symptom tracking with validation
 - **Treatment History** - Comprehensive medication and therapy documentation
 
-### 🛡️ **Enterprise Security & Ledger**
+### 🛡️ **Enterprise Security**
 - **AES-256 Encryption** - Database encryption at rest for all PHI/PII
 - **Multi-Factor Authentication** - TOTP, SMS, recovery codes for medical professionals
 - **Real-Time Monitoring** - Automated threat detection and security alerting
@@ -96,11 +96,10 @@
 - **Zero-Trust Architecture** - Never trust, always verify security model
 - **Hash Verification** - SHA256 cryptographic integrity verification for all files
 - **Enhanced Input Validation** - XSS, SQL injection, and path traversal protection
-- **Ledger Wallet Integration** - Real-time balance checking across Polygon, Ethereum
 - **Advanced Rate Limiting** - IPv6-compatible, user-based rate limiting
 - **Geolocation Privacy** - Coordinate obfuscation and privacy-first logging
-- **Transaction Validation** - Pre-transaction balance and gas estimation
 - **Comprehensive Error Handling** - Secure error messages with attack pattern detection
+- **Domain Separation** - Clear boundaries between main platform and blockchain functionality
 
 ### 🧠 **AI-Powered Health Analysis**
 - **Symptom Analysis** - Advanced AI-powered symptom analysis with adaptive questioning
@@ -131,24 +130,24 @@
 - **API Portal**: [https://api.disease.zone](https://api.disease.zone) - Developer dashboard and API documentation
 
 ### **Platform Features**
-- **Main Domain (www.disease.zone)**:
-  - Complete health intelligence platform with ledger integration
-  - Patient dashboards, medical professional tools, research marketplace
-  - HEALTH credit wallet and staking functionality
-  - Real-time disease surveillance and analytics
+- **Main Domain (www.disease.zone)**: 🎯 *Streamlined & Focused*
+  - **Health Intelligence Platform** - Disease surveillance, outbreak detection, analytics
+  - **Patient Dashboards** - Family disease tracking, medical professional tools
+  - **FHIR Integration** - Hospital connectivity and secure health data import
+  - **Research Platform** - De-identified data sharing for population health studies
+  - **Clean User Experience** - Simplified interface focusing on core health intelligence
 
-- **Ledger Domain (ledger.disease.zone)**:
-  - Revolutionary Disease Card payment system
-  - HEALTH Credits ecosystem with instant healthcare payments
-  - Global compliance documentation (HIPAA, GDPR, SOC 2)
-  - Research network platform with 250+ publications
-  - Insurance alternative with patient-controlled spending
+- **Ledger Domain (ledger.disease.zone)**: 🪙 *Dedicated Blockchain Platform*
+  - **Revolutionary Disease Card** - Alternative to traditional health insurance
+  - **HEALTH Credits Ecosystem** - Native digital currency for healthcare transactions
+  - **Wallet & Staking** - Complete DeFi functionality for healthcare payments
+  - **Data Marketplace** - Monetized research data with patient consent
+  - **Multi-Chain Architecture** - Polygon Supernet, Ethereum, Hyperledger Fabric
 
-- **API Domain (api.disease.zone)**:
-  - Developer-focused API documentation and testing tools
-  - Interactive API search forms and quick access links
-  - Medical professional API key management
-  - Cross-platform navigation to main application
+- **API Domain (api.disease.zone)**: 🔧 *Developer-Focused*
+  - **Interactive Documentation** - Complete API testing and search tools
+  - **Medical Professional APIs** - Secure key management and integration guides
+  - **Cross-Platform Navigation** - Seamless access between main and ledger platforms
 
 ## 🚀 Quick Start
 
