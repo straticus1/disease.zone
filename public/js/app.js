@@ -112,14 +112,16 @@ class DiseaseZoneApp {
         }
     }
 
-    async login(email, password) {
+    async login(email, password, captchaToken = null) {
         try {
             this.showLoading(true);
 
-            const response = await this.apiCall('/api/auth/login', 'POST', {
-                email,
-                password
-            });
+            const loginData = { email, password };
+            if (captchaToken) {
+                loginData.captchaToken = captchaToken;
+            }
+
+            const response = await this.apiCall('/api/auth/login', 'POST', loginData);
 
             if (response.success) {
                 localStorage.setItem('diseaseZoneToken', response.token);
@@ -139,7 +141,14 @@ class DiseaseZoneApp {
             }
         } catch (error) {
             console.error('Login error:', error);
-            this.showAlert('Login failed. Please try again.', 'error');
+
+            // Handle captcha required error
+            if (error.response && error.response.data && error.response.data.captcha_required) {
+                this.showCaptchaInLogin(error.response.data.captcha);
+                this.showAlert(error.response.data.error || 'Please solve the captcha to continue.', 'warning');
+            } else {
+                this.showAlert(error.message || 'Login failed. Please try again.', 'error');
+            }
         } finally {
             this.showLoading(false);
         }
@@ -349,6 +358,9 @@ class DiseaseZoneApp {
             case 'insurance':
                 await this.loadInsuranceDashboardData();
                 break;
+            case 'news':
+                await this.loadNewsData();
+                break;
         }
     }
 
@@ -426,6 +438,24 @@ class DiseaseZoneApp {
         }
     }
 
+    async loadNewsData() {
+        try {
+            // Initialize news with outbreaks category
+            if (typeof window.initializeNews === 'function') {
+                window.initializeNews();
+            } else {
+                // Fallback if function not available yet
+                setTimeout(() => {
+                    if (typeof window.loadNewsCategory === 'function') {
+                        window.loadNewsCategory('outbreaks');
+                    }
+                }, 100);
+            }
+        } catch (error) {
+            console.error('Failed to load news data:', error);
+        }
+    }
+
     // ===== MODAL MANAGEMENT =====
     createModals() {
         const modalHtml = `
@@ -454,7 +484,10 @@ class DiseaseZoneApp {
                                     Login
                                 </button>
                             </div>
-                            <div class="text-center">
+                            <div class="text-center" style="margin-top: 1rem;">
+                                <a href="#" onclick="closeModal('loginModal'); openModal('forgotPasswordModal');" style="color: var(--error-color); margin-bottom: 1rem; display: block;">
+                                    Forgot your password?
+                                </a>
                                 <a href="#" onclick="closeModal('loginModal'); openModal('registerModal');">
                                     Don't have an account? Register here
                                 </a>
@@ -772,6 +805,79 @@ class DiseaseZoneApp {
                     </div>
                 </div>
             </div>
+
+            <!-- Forgot Password Modal -->
+            <div class="modal" id="forgotPasswordModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Reset Your Password</h3>
+                        <button class="modal-close" onclick="closeModal('forgotPasswordModal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">
+                            Enter your email address and we'll send you a link to reset your password.
+                        </p>
+                        <form onsubmit="handleForgotPassword(event)">
+                            <div class="form-group">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" class="form-input" name="email" placeholder="Enter your email" required>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary" style="width: 100%;" id="forgotPasswordBtn">
+                                    <i class="fas fa-envelope"></i>
+                                    Send Reset Link
+                                </button>
+                            </div>
+                            <div class="text-center">
+                                <a href="#" onclick="closeModal('forgotPasswordModal'); openModal('loginModal');">
+                                    Back to Login
+                                </a>
+                            </div>
+                        </form>
+                        <div id="forgotPasswordResult" style="display: none; margin-top: 1rem;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reset Password Modal -->
+            <div class="modal" id="resetPasswordModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Set New Password</h3>
+                        <button class="modal-close" onclick="closeModal('resetPasswordModal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">
+                            Please enter your new password below.
+                        </p>
+                        <form onsubmit="handleResetPassword(event)">
+                            <input type="hidden" name="token" id="resetToken">
+                            <div class="form-group">
+                                <label class="form-label">New Password</label>
+                                <input type="password" class="form-input" name="newPassword" placeholder="Enter new password" required minlength="8">
+                                <small style="color: var(--text-secondary); font-size: 0.8rem;">
+                                    Must be at least 8 characters with uppercase, lowercase, number, and special character
+                                </small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-input" name="confirmPassword" placeholder="Confirm new password" required minlength="8">
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary" style="width: 100%;" id="resetPasswordBtn">
+                                    <i class="fas fa-key"></i>
+                                    Update Password
+                                </button>
+                            </div>
+                        </form>
+                        <div id="resetPasswordResult" style="display: none; margin-top: 1rem;"></div>
+                    </div>
+                </div>
+            </div>
         `;
 
         document.getElementById('modals').innerHTML = modalHtml;
@@ -807,6 +913,14 @@ class DiseaseZoneApp {
                     console.warn('Error cleaning up map:', error);
                 }
             }
+
+            // Clear captcha if closing login modal
+            if (modalId === 'loginModal') {
+                const captchaContainer = modal.querySelector('.captcha-container');
+                if (captchaContainer) {
+                    captchaContainer.remove();
+                }
+            }
         }
     }
 
@@ -817,7 +931,16 @@ class DiseaseZoneApp {
         const email = formData.get('email');
         const password = formData.get('password');
 
-        await this.login(email, password);
+        // Check for captcha
+        const captchaAnswer = formData.get('captchaAnswer');
+        const captchaQuestion = formData.get('captchaQuestion');
+
+        let captchaToken = null;
+        if (captchaAnswer && captchaQuestion) {
+            captchaToken = `${captchaQuestion}_${captchaAnswer}`;
+        }
+
+        await this.login(email, password, captchaToken);
     }
 
     async handleRegister(event) {
@@ -840,6 +963,130 @@ class DiseaseZoneApp {
         }
 
         await this.register(userData);
+    }
+
+    async handleForgotPassword(event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const email = formData.get('email');
+
+        if (!email) {
+            this.showAlert('Please enter your email address', 'error');
+            return;
+        }
+
+        try {
+            this.showLoading(true);
+
+            const response = await this.apiCall('/api/auth/forgot-password', 'POST', { email });
+
+            if (response.success) {
+                this.showAlert('Password reset link sent to your email if the account exists', 'success');
+                this.closeModal('forgotPasswordModal');
+                event.target.reset();
+            } else {
+                this.showAlert(response.message || 'Failed to send password reset email', 'error');
+            }
+        } catch (error) {
+            console.error('Forgot password error:', error);
+            this.showAlert('Failed to send password reset email. Please try again.', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
+    async handleResetPassword(event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const newPassword = formData.get('newPassword');
+        const confirmPassword = formData.get('confirmPassword');
+        const token = formData.get('token') || this.getResetTokenFromUrl();
+
+        if (!token) {
+            this.showAlert('Invalid or missing reset token', 'error');
+            return;
+        }
+
+        if (!newPassword || !confirmPassword) {
+            this.showAlert('Please fill in all password fields', 'error');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            this.showAlert('Passwords do not match', 'error');
+            return;
+        }
+
+        if (newPassword.length < 8) {
+            this.showAlert('Password must be at least 8 characters long', 'error');
+            return;
+        }
+
+        try {
+            this.showLoading(true);
+
+            const response = await this.apiCall('/api/auth/reset-password', 'POST', {
+                token,
+                newPassword
+            });
+
+            if (response.success) {
+                this.showAlert('Password successfully reset! You can now log in with your new password.', 'success');
+                this.closeModal('resetPasswordModal');
+                event.target.reset();
+
+                // Optionally redirect to login after successful reset
+                setTimeout(() => {
+                    this.openModal('loginModal');
+                }, 2000);
+            } else {
+                this.showAlert(response.message || 'Failed to reset password', 'error');
+            }
+        } catch (error) {
+            console.error('Reset password error:', error);
+            this.showAlert('Failed to reset password. Please try again or request a new reset link.', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
+    getResetTokenFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('token');
+    }
+
+    showCaptchaInLogin(captcha) {
+        const loginForm = document.querySelector('#loginModal form');
+        if (!loginForm) return;
+
+        // Remove existing captcha if any
+        const existingCaptcha = loginForm.querySelector('.captcha-container');
+        if (existingCaptcha) {
+            existingCaptcha.remove();
+        }
+
+        // Create captcha container
+        const captchaContainer = document.createElement('div');
+        captchaContainer.className = 'captcha-container';
+        captchaContainer.style.marginBottom = '1rem';
+        captchaContainer.innerHTML = `
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-shield-alt"></i> Security Check: What is ${captcha.question}?
+                </label>
+                <input type="number" class="form-input" name="captchaAnswer" placeholder="Enter your answer" required>
+                <input type="hidden" name="captchaQuestion" value="${captcha.question}">
+                <small style="color: var(--text-secondary); font-size: 0.8rem;">
+                    Too many failed login attempts detected. Please solve this math problem to continue.
+                </small>
+            </div>
+        `;
+
+        // Insert before the login button
+        const submitButton = loginForm.querySelector('button[type="submit"]');
+        if (submitButton && submitButton.parentNode) {
+            submitButton.parentNode.insertBefore(captchaContainer, submitButton.parentNode);
+        }
     }
 
     handleRoleChange(event) {
@@ -944,7 +1191,15 @@ class DiseaseZoneApp {
         }
 
         const response = await fetch(url, options);
-        return await response.json();
+        const responseData = await response.json();
+
+        if (!response.ok) {
+            const error = new Error(responseData.error || 'API request failed');
+            error.response = { data: responseData };
+            throw error;
+        }
+
+        return responseData;
     }
 
     showAlert(message, type = 'info') {
@@ -1691,6 +1946,77 @@ window.handleRegister = (event) => {
     }
 };
 
+window.handleForgotPassword = (event) => {
+    if (window.app && typeof window.app.handleForgotPassword === 'function') {
+        window.app.handleForgotPassword(event);
+    } else if (window.app) {
+        console.warn('App exists but handleForgotPassword method missing, using fallback');
+        emergencyHandleForgotPassword(event);
+    } else {
+        console.warn('App not initialized yet, using emergency forgot password handler');
+        emergencyHandleForgotPassword(event);
+    }
+};
+
+window.handleResetPassword = (event) => {
+    if (window.app && typeof window.app.handleResetPassword === 'function') {
+        window.app.handleResetPassword(event);
+    } else if (window.app) {
+        console.warn('App exists but handleResetPassword method missing, using fallback');
+        emergencyHandleResetPassword(event);
+    } else {
+        console.warn('App not initialized yet, using emergency reset password handler');
+        emergencyHandleResetPassword(event);
+    }
+};
+
+function emergencyHandleForgotPassword(event) {
+    event.preventDefault();
+    try {
+        const form = event.target;
+        const formData = new FormData(form);
+        const email = formData.get('email');
+
+        console.log('Emergency forgot password for:', email);
+        alert('App is still loading. Please wait a moment and try again.');
+
+        const modal = document.getElementById('forgotPasswordModal');
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    } catch (error) {
+        console.error('❌ Emergency handleForgotPassword error:', error);
+    }
+}
+
+function emergencyHandleResetPassword(event) {
+    event.preventDefault();
+    try {
+        const form = event.target;
+        const formData = new FormData(form);
+        const newPassword = formData.get('newPassword');
+        const confirmPassword = formData.get('confirmPassword');
+
+        console.log('Emergency reset password attempt');
+
+        if (newPassword !== confirmPassword) {
+            alert('Passwords do not match');
+            return;
+        }
+
+        alert('App is still loading. Please wait a moment and try again.');
+
+        const modal = document.getElementById('resetPasswordModal');
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    } catch (error) {
+        console.error('❌ Emergency handleResetPassword error:', error);
+    }
+}
+
 function emergencyHandleRegister(event) {
     event.preventDefault();
     try {
@@ -1823,6 +2149,24 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             console.log('🔄 Executing pending calls, queue length:', pendingCalls.length);
             executePendingCalls();
+
+            // Check for password reset token in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const resetToken = urlParams.get('token');
+            if (resetToken) {
+                console.log('🔑 Reset token found in URL, opening reset password modal');
+                setTimeout(() => {
+                    if (window.app && typeof window.app.openModal === 'function') {
+                        window.app.openModal('resetPasswordModal');
+
+                        // Pre-fill the token in the form if modal exists
+                        const tokenInput = document.querySelector('#resetPasswordModal input[name="token"]');
+                        if (tokenInput) {
+                            tokenInput.value = resetToken;
+                        }
+                    }
+                }, 500);
+            }
         }, 100);
     } catch (error) {
         console.error('❌ FATAL ERROR during DOMContentLoaded initialization:', error);
@@ -1839,27 +2183,44 @@ document.addEventListener('DOMContentLoaded', () => {
 // ===== GEOLOCATION-BASED DISEASE DETECTION =====
 
 async function getLocalDiseaseData() {
+    console.log('🌍 Location-based alerts requested');
     const geolocationStatus = document.getElementById('geolocationStatus');
     const localDiseaseData = document.getElementById('localDiseaseData');
 
+    if (!geolocationStatus) {
+        console.error('❌ geolocationStatus element not found');
+        return;
+    }
+
     try {
+        // Check if geolocation is supported
+        if (!navigator.geolocation) {
+            throw new Error('Geolocation is not supported by this browser');
+        }
+
         // Show loading state
         geolocationStatus.innerHTML = `
             <div style="text-align: center; padding: 1rem;">
                 <h3><i class="fas fa-spinner fa-spin"></i> Getting Your Location...</h3>
                 <p>Please allow location access to see local health data</p>
+                <small style="opacity: 0.8;">This may take a few seconds...</small>
             </div>
         `;
+
+        console.log('📍 Requesting location permission...');
 
         // Get user's location
         const position = await getCurrentPosition();
         const { latitude, longitude } = position.coords;
+        console.log(`📍 Location obtained: ${latitude}, ${longitude}`);
 
         // Reverse geocode to get location details
         const locationData = await reverseGeocode(latitude, longitude);
+        console.log(`🏙️ Location: ${locationData.city}, ${locationData.state}`);
 
         // Get local disease data
         const diseaseData = await fetchLocalDiseaseData(locationData);
+        console.log(`📊 Fetched ${diseaseData.length} local disease entries`);
 
         // Update UI with location info
         geolocationStatus.innerHTML = `
@@ -1871,14 +2232,37 @@ async function getLocalDiseaseData() {
 
         // Show disease data
         displayLocalDiseaseData(diseaseData);
-        localDiseaseData.style.display = 'block';
+        if (localDiseaseData) {
+            localDiseaseData.style.display = 'block';
+        }
+
+        console.log('✅ Location-based alerts successfully enabled');
 
     } catch (error) {
-        console.error('Error getting local disease data:', error);
+        console.error('❌ Error getting local disease data:', error);
+
+        let errorMessage = 'Unable to get your location. Please enable location services and try again.';
+        let errorTitle = 'Location Access Required';
+
+        // Provide more specific error messages
+        if (error.code === 1) { // PERMISSION_DENIED
+            errorMessage = 'Location access was denied. Please enable location permission in your browser settings and try again.';
+            errorTitle = 'Location Permission Denied';
+        } else if (error.code === 2) { // POSITION_UNAVAILABLE
+            errorMessage = 'Your location could not be determined. Please check your internet connection and try again.';
+            errorTitle = 'Location Unavailable';
+        } else if (error.code === 3) { // TIMEOUT
+            errorMessage = 'Location request timed out. Please try again.';
+            errorTitle = 'Location Request Timeout';
+        } else if (error.message.includes('not supported')) {
+            errorMessage = 'Location services are not supported in this browser. Try using Chrome, Firefox, or Safari.';
+            errorTitle = 'Location Not Supported';
+        }
+
         geolocationStatus.innerHTML = `
             <div style="text-align: center; padding: 1rem;">
-                <h3><i class="fas fa-exclamation-triangle"></i> Location Access Required</h3>
-                <p>Unable to get your location. Please enable location services and try again.</p>
+                <h3><i class="fas fa-exclamation-triangle"></i> ${errorTitle}</h3>
+                <p>${errorMessage}</p>
                 <button class="btn btn-secondary" onclick="getLocalDiseaseData()" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);">
                     <i class="fas fa-redo"></i> Try Again
                 </button>
@@ -2390,8 +2774,35 @@ async function loadNewsCategory(category) {
 }
 
 async function fetchHealthNews(category) {
-    // Simulated news data - in production this would fetch from real sources
-    const newsDatabase = {
+    try {
+        // Make API call to our news service
+        const response = await fetch(`/api/news/category/${category}?limit=10`);
+        const result = await response.json();
+
+        if (result.success) {
+            // Transform API response to match expected format
+            return result.news.map(article => ({
+                title: article.title,
+                source: article.source,
+                date: new Date(article.publishedAt).toISOString().split('T')[0], // Convert to YYYY-MM-DD
+                severity: article.severity || 'Low',
+                summary: article.description,
+                location: article.location || 'Global',
+                tags: [article.category, 'Health News'],
+                url: article.url
+            }));
+        } else {
+            throw new Error(result.error || 'Failed to fetch news');
+        }
+    } catch (error) {
+        console.error('Error fetching news from API:', error);
+        // Return fallback mock data if API fails
+        return getFallbackNews(category);
+    }
+}
+
+function getFallbackNews(category) {
+    const fallbackData = {
         'outbreaks': [
             {
                 title: 'CDC Issues Alert: Chagas Disease Cases Rising in Southern United States',
@@ -2542,10 +2953,7 @@ async function fetchHealthNews(category) {
         ]
     };
 
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 800));
-
-    return newsDatabase[category] || [];
+    return fallbackData[category] || [];
 }
 
 function displayHealthNews(newsData, category) {
@@ -2652,6 +3060,8 @@ console.log('📋 Global functions defined:', {
     closeModal: typeof window.closeModal,
     handleLogin: typeof window.handleLogin,
     handleRegister: typeof window.handleRegister,
+    handleForgotPassword: typeof window.handleForgotPassword,
+    handleResetPassword: typeof window.handleResetPassword,
     toggleUserMenu: typeof window.toggleUserMenu,
     toggleMobileMenu: typeof window.toggleMobileMenu
 });

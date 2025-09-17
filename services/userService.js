@@ -2,9 +2,10 @@ const { v4: uuidv4 } = require('uuid');
 const { body, validationResult } = require('express-validator');
 
 class UserService {
-  constructor(databaseService, authMiddleware) {
+  constructor(databaseService, authMiddleware, config = {}) {
     this.db = databaseService;
     this.auth = authMiddleware;
+    this.config = config?.captcha || {};
   }
 
   // Validation rules
@@ -173,19 +174,41 @@ class UserService {
   }
 
   // User login
-  async loginUser(email, password, ip_address, user_agent) {
+  async loginUser(email, password, ip_address, user_agent, captchaToken = null) {
     try {
+      // Check failed login attempts and require captcha if needed
+      const failedAttempts = await this.getFailedLoginAttempts(email, ip_address);
+      const captchaRequired = failedAttempts >= (this.config?.failedLoginThreshold || 7);
+
+      if (captchaRequired && !captchaToken) {
+        throw new Error('CAPTCHA_REQUIRED');
+      }
+
+      if (captchaRequired && captchaToken) {
+        const isValidCaptcha = await this.validateCaptcha(captchaToken);
+        if (!isValidCaptcha) {
+          throw new Error('Invalid captcha. Please try again.');
+        }
+      }
+
       // Get user by email
       const user = await this.db.getUserByEmail(email);
       if (!user) {
+        // Log failed attempt
+        await this.logFailedLoginAttempt(email, ip_address, user_agent, 'invalid_user');
         throw new Error('Invalid email or password');
       }
 
       // Verify password
       const isValidPassword = await this.auth.comparePassword(password, user.password_hash);
       if (!isValidPassword) {
+        // Log failed attempt
+        await this.logFailedLoginAttempt(email, ip_address, user_agent, 'invalid_password');
         throw new Error('Invalid email or password');
       }
+
+      // Clear failed attempts on successful login
+      await this.clearFailedLoginAttempts(email, ip_address);
 
       // Generate JWT token
       const token = this.auth.generateToken(user.id);
@@ -456,6 +479,124 @@ class UserService {
       const errorMessages = errors.array().map(error => error.msg);
       throw new Error(`Validation failed: ${errorMessages.join(', ')}`);
     }
+  }
+
+  // Failed login attempt tracking
+  async getFailedLoginAttempts(email, ip_address) {
+    try {
+      const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+
+      const result = await this.db.get(`
+        SELECT COUNT(*) as attempts
+        FROM audit_log
+        WHERE (details LIKE '%"failed_login_email":"${email}"%' OR details LIKE '%"failed_login_ip":"${ip_address}"%')
+        AND action = 'failed_login'
+        AND timestamp > ?
+      `, [fifteenMinutesAgo]);
+
+      return result ? result.attempts : 0;
+    } catch (error) {
+      console.error('Error getting failed login attempts:', error);
+      return 0;
+    }
+  }
+
+  async logFailedLoginAttempt(email, ip_address, user_agent, reason) {
+    try {
+      await this.db.logAudit({
+        user_id: null,
+        action: 'failed_login',
+        resource_type: 'auth',
+        resource_id: 'login_attempt',
+        details: {
+          failed_login_email: email,
+          failed_login_ip: ip_address,
+          reason: reason
+        },
+        ip_address,
+        user_agent
+      });
+    } catch (error) {
+      console.error('Error logging failed login attempt:', error);
+    }
+  }
+
+  async clearFailedLoginAttempts(email, ip_address) {
+    try {
+      // We don't actually delete the audit log entries, just log a successful login
+      // The getFailedLoginAttempts method uses a time window, so old attempts naturally expire
+      console.log(`Cleared failed login attempts for ${email} from ${ip_address}`);
+    } catch (error) {
+      console.error('Error clearing failed login attempts:', error);
+    }
+  }
+
+  // Simple captcha validation (for development)
+  async validateCaptcha(captchaToken) {
+    try {
+      // For development, we'll use a simple math captcha
+      // In production, you'd integrate with Google reCAPTCHA or similar
+
+      if (!captchaToken || typeof captchaToken !== 'string') {
+        return false;
+      }
+
+      // Simple format: "question_answer" e.g., "5+3_8"
+      const parts = captchaToken.split('_');
+      if (parts.length !== 2) {
+        return false;
+      }
+
+      const [question, answer] = parts;
+      const userAnswer = parseInt(answer);
+
+      // Evaluate simple math expressions like "5+3", "7-2", "4*2"
+      try {
+        // Only allow simple math operations for security
+        if (!/^[\d\+\-\*\s]+$/.test(question)) {
+          return false;
+        }
+
+        const correctAnswer = eval(question.replace(/\s/g, ''));
+        return userAnswer === correctAnswer;
+      } catch (error) {
+        return false;
+      }
+    } catch (error) {
+      console.error('Error validating captcha:', error);
+      return false;
+    }
+  }
+
+  // Generate simple math captcha
+  generateCaptcha() {
+    const operations = ['+', '-', '*'];
+    const operation = operations[Math.floor(Math.random() * operations.length)];
+
+    let num1, num2, answer;
+
+    switch (operation) {
+      case '+':
+        num1 = Math.floor(Math.random() * 20) + 1;
+        num2 = Math.floor(Math.random() * 20) + 1;
+        answer = num1 + num2;
+        break;
+      case '-':
+        num1 = Math.floor(Math.random() * 20) + 10;
+        num2 = Math.floor(Math.random() * 10) + 1;
+        answer = num1 - num2;
+        break;
+      case '*':
+        num1 = Math.floor(Math.random() * 10) + 1;
+        num2 = Math.floor(Math.random() * 10) + 1;
+        answer = num1 * num2;
+        break;
+    }
+
+    return {
+      question: `${num1} ${operation} ${num2}`,
+      answer: answer
+    };
   }
 }
 

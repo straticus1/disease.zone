@@ -1,0 +1,55 @@
+{
+  "email": {
+    "provider": "aws-ses",
+    "aws": {
+      "region": "us-east-1",
+      "accessKeyId": "${AWS_SES_ACCESS_KEY_ID}",
+      "secretAccessKey": "${AWS_SES_SECRET_ACCESS_KEY}"
+    },
+    "smtp": {
+      "host": "email-smtp.us-east-1.amazonaws.com",
+      "port": 587,
+      "secure": false,
+      "auth": {
+        "user": "${AWS_SES_SMTP_USERNAME}",
+        "pass": "${AWS_SES_SMTP_PASSWORD}"
+      }
+    },
+    "from": "diseaseZone Platform <noreply@disease.zone>",
+    "replyTo": "support@disease.zone"
+  },
+  "security": {
+    "captcha": {
+      "enabled": true,
+      "failedLoginThreshold": 7,
+      "lockoutDurationMinutes": 15
+    },
+    "passwordReset": {
+      "tokenExpirationMinutes": 60,
+      "maxAttemptsPerHour": 5
+    },
+    "jwt": {
+      "secret": "your-jwt-secret-here-change-in-production",
+      "expirationTime": "24h"
+    }
+  },
+  "app": {
+    "name": "diseaseZone",
+    "url": "https://disease.zone",
+    "supportEmail": "support@disease.zone",
+    "environment": "development"
+  },
+  "database": {
+    "connectionTimeout": 30000,
+    "queryTimeout": 10000
+  },
+  "rateLimit": {
+    "windowMs": 900000,
+    "maxRequests": 100,
+    "skipSuccessfulRequests": false
+  },
+  "logging": {
+    "level": "info",
+    "auditRetentionDays": 90
+  }
+}

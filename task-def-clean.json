@@ -1,0 +1,69 @@
+{
+    "containerDefinitions": [
+        {
+            "name": "diseaseZone",
+            "image": "515966511618.dkr.ecr.us-east-1.amazonaws.com/diseasezone-prod:latest",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "containerPort": 3000,
+                    "hostPort": 3000,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "PORT",
+                    "value": "3000"
+                },
+                {
+                    "name": "NODE_ENV",
+                    "value": "prod"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "secrets": [
+                {
+                    "name": "MAPBOX_ACCESS_TOKEN",
+                    "valueFrom": "arn:aws:ssm:us-east-1:515966511618:parameter/diseasezone/prod/mapbox-token"
+                },
+                {
+                    "name": "GOOGLE_MAPS_API_KEY",
+                    "valueFrom": "arn:aws:ssm:us-east-1:515966511618:parameter/diseasezone/prod/google-maps-key"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/diseasezone-prod",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "healthCheck": {
+                "command": [
+                    "CMD-SHELL",
+                    "curl -f http://localhost:3000/api/health || exit 1"
+                ],
+                "interval": 30,
+                "timeout": 5,
+                "retries": 3,
+                "startPeriod": 60
+            },
+            "systemControls": []
+        }
+    ],
+    "family": "diseasezone-prod",
+    "taskRoleArn": "arn:aws:iam::515966511618:role/diseasezone-ecs-task-role-prod",
+    "executionRoleArn": "arn:aws:iam::515966511618:role/diseasezone-ecs-execution-role-prod",
+    "networkMode": "awsvpc",
+    "volumes": [],
+    "placementConstraints": [],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "256",
+    "memory": "512"
+}

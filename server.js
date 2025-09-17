@@ -4,6 +4,21 @@ const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
+const fs = require('fs');
+
+// Load configuration
+let config = {};
+try {
+    config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
+    console.log('✅ Configuration loaded successfully');
+} catch (error) {
+    console.warn('⚠️ Could not load config.json, using defaults:', error.message);
+    config = {
+        security: { captcha: { failedLoginThreshold: 7 }, passwordReset: {} },
+        email: {},
+        app: { name: 'diseaseZone', url: 'https://disease.zone' }
+    };
+}
 
 // Services
 const STDService = require('./services/stdService');
@@ -22,6 +37,10 @@ const AISymptomAnalysisService = require('./services/aiSymptomAnalysisService');
 const MedicalValidationService = require('./services/medicalValidationService');
 const AuditLoggingService = require('./services/auditLoggingService');
 const HIPAAService = require('./services/hipaaService');
+
+// Email and Password Reset Services
+const EmailService = require('./services/emailService');
+const PasswordResetService = require('./services/passwordResetService');
 
 // Enhanced Security and Blockchain
 const SecurityValidator = require('./middleware/security');
@@ -65,7 +84,7 @@ async function initializeServices() {
 
     // Initialize authentication and user services
     const authMiddleware = new AuthMiddleware(databaseService);
-    const userService = new UserService(databaseService, authMiddleware);
+    const userService = new UserService(databaseService, authMiddleware, config);
     
     // Initialize wallet integration service
     const WalletUserService = require('./services/walletUserService');
@@ -82,6 +101,11 @@ async function initializeServices() {
     // Initialize FHIR service
     const FHIRService = require('./services/fhirService');
     const fhirService = new FHIRService();
+
+    // Initialize email and password reset services
+    const emailService = new EmailService(config);
+    const passwordResetService = new PasswordResetService(databaseService, emailService, config.security?.passwordReset);
+    passwordResetService.startPeriodicCleanup();
 
     // Make services available to routes
     app.locals.db = databaseService;
@@ -102,6 +126,9 @@ async function initializeServices() {
     app.locals.fhirService = fhirService;
     app.locals.securityValidator = securityValidator;
     app.locals.walletService = walletService;
+    app.locals.emailService = emailService;
+    app.locals.passwordResetService = passwordResetService;
+    app.locals.config = config;
 
     console.log('All services initialized successfully');
   } catch (error) {
@@ -1090,12 +1117,14 @@ app.get('/api/health', (req, res) => {
 // Import and use new route modules
 const stiRoutes = require('./routes/stiRoutes');
 const globalHealthRoutes = require('./routes/globalHealthRoutes');
+const newsRoutes = require('./routes/newsRoutes');
 // Temporarily comment out FHIR blockchain routes due to initialization issues
 // const fhirBlockchainRoutes = require('./routes/fhirBlockchainRoutes');
 
 // Mount the new route modules
 app.use('/sti', stiRoutes);
 app.use('/global', globalHealthRoutes);
+app.use('/api/news', newsRoutes);
 // app.use('/api/fhir/blockchain', fhirBlockchainRoutes);
 
 // Authentication endpoints
@@ -1146,8 +1175,8 @@ app.post('/api/auth/login',
       await Promise.all(userService.getLoginValidation().map(validation => validation.run(req)));
       userService.handleValidationErrors(req);
 
-      const { email, password } = req.body;
-      const result = await userService.loginUser(email, password, req.ip, req.get('User-Agent'));
+      const { email, password, captchaToken } = req.body;
+      const result = await userService.loginUser(email, password, req.ip, req.get('User-Agent'), captchaToken);
 
       // Set HTTP-only cookie for browser clients
       res.cookie('session_token', result.token, {
@@ -1160,12 +1189,64 @@ app.post('/api/auth/login',
       res.json(result);
     } catch (error) {
       console.error('Login error:', error);
+
+      // Special handling for captcha required
+      if (error.message === 'CAPTCHA_REQUIRED') {
+        const captcha = userService.generateCaptcha();
+        return res.status(401).json({
+          success: false,
+          error: 'Too many failed login attempts. Please solve the captcha.',
+          captcha_required: true,
+          captcha: captcha
+        });
+      }
+
       res.status(401).json({
         success: false,
         error: error.message
       });
     }
   });
+
+// Check if captcha is required for login
+app.post('/api/auth/check-captcha-required', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const userService = app.locals.userService;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email is required'
+      });
+    }
+
+    const failedAttempts = await userService.getFailedLoginAttempts(email, req.ip);
+    const captchaRequired = failedAttempts >= (config?.security?.captcha?.failedLoginThreshold || 7);
+
+    if (captchaRequired) {
+      const captcha = userService.generateCaptcha();
+      res.json({
+        success: true,
+        captcha_required: true,
+        captcha: captcha,
+        failed_attempts: failedAttempts
+      });
+    } else {
+      res.json({
+        success: true,
+        captcha_required: false,
+        failed_attempts: failedAttempts
+      });
+    }
+  } catch (error) {
+    console.error('Check captcha required error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
 
 app.post('/api/auth/logout',
   (req, res, next) => {
@@ -1202,6 +1283,126 @@ app.post('/api/auth/logout',
       });
     }
   });
+
+// Password reset endpoints
+app.post('/api/auth/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email is required'
+      });
+    }
+
+    // Basic email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid email format'
+      });
+    }
+
+    const result = await app.locals.passwordResetService.initiatePasswordReset(email);
+
+    // Log the attempt
+    await app.locals.db.logAudit({
+      user_id: null,
+      action: 'password_reset_requested',
+      resource_type: 'user',
+      resource_id: email,
+      details: { email },
+      ip_address: req.ip,
+      user_agent: req.get('User-Agent')
+    });
+
+    res.json(result);
+
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to process password reset request'
+    });
+  }
+});
+
+app.post('/api/auth/reset-password', async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        error: 'Reset token and new password are required'
+      });
+    }
+
+    const result = await app.locals.passwordResetService.resetPassword(token, newPassword);
+
+    // Log successful password reset
+    await app.locals.db.logAudit({
+      user_id: null,
+      action: 'password_reset_completed',
+      resource_type: 'user',
+      resource_id: token.substring(0, 8) + '...',
+      details: { success: true },
+      ip_address: req.ip,
+      user_agent: req.get('User-Agent')
+    });
+
+    res.json(result);
+
+  } catch (error) {
+    console.error('Reset password error:', error);
+
+    // Log failed password reset attempt
+    await app.locals.db.logAudit({
+      user_id: null,
+      action: 'password_reset_failed',
+      resource_type: 'user',
+      resource_id: req.body.token ? req.body.token.substring(0, 8) + '...' : 'unknown',
+      details: { error: error.message },
+      ip_address: req.ip,
+      user_agent: req.get('User-Agent')
+    });
+
+    res.status(400).json({
+      success: false,
+      error: error.message || 'Failed to reset password'
+    });
+  }
+});
+
+app.get('/api/auth/validate-reset-token/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        error: 'Reset token is required'
+      });
+    }
+
+    // Validate the token (but don't return sensitive info)
+    await app.locals.passwordResetService.validateResetToken(token);
+
+    res.json({
+      success: true,
+      message: 'Reset token is valid'
+    });
+
+  } catch (error) {
+    console.error('Validate reset token error:', error);
+    res.status(400).json({
+      success: false,
+      error: error.message || 'Invalid or expired reset token'
+    });
+  }
+});
 
 // User profile endpoints
 app.get('/api/user/profile',
