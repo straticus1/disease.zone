@@ -1,5 +1,61 @@
 # Changelog
 
+## [1.6.7] - 2025-09-17
+
+### 🧠 **Advanced Neural Network & Machine Learning Integration**
+
+#### **🤖 NEURAL SEARCH INTELLIGENCE:**
+- 🧠 **NeuralSearchService** - Full TensorFlow.js integration with advanced ML capabilities
+  - Real neural network processing for disease data search and query enhancement
+  - Custom disease-specific vocabulary with 200+ medical terms and health keywords
+  - Multi-layer neural network architecture (128→64→32 neurons) with dropout regularization
+  - Advanced text embedding and semantic similarity matching using cosine distance
+  - Intelligent query clustering with K-means algorithm for pattern recognition
+  - Real-time model training and retraining capabilities with synthetic data generation
+
+- ⏰ **ModelTrainingScheduler** - Automated ML model management with cron scheduling
+  - Daily model retraining at 2:00 AM EST with 24-hour search data integration
+  - Weekly comprehensive retraining on Sundays at 3:00 AM EST with 7-day data analysis
+  - Hourly lightweight updates during business hours (9 AM - 5 PM EST, weekdays)
+  - Advanced training history tracking with performance metrics and error logging
+  - Intelligent data collection from search patterns and trending health terms
+
+#### **📊 MACHINE LEARNING PIPELINE:**
+- 🎯 **TensorFlow.js Backend** - CPU-optimized neural network processing
+  - Adam optimizer with 0.001 learning rate for optimal convergence
+  - Mean squared error loss function with accuracy metrics tracking
+  - Dropout layers (30% and 20%) for improved generalization and overfitting prevention
+  - Tanh activation in output layer for normalized embedding vectors
+
+- 🔬 **Advanced NLP Processing** - Natural language understanding for medical queries
+  - Natural.js integration for tokenization and stemming
+  - Compromise.js for advanced grammatical analysis and entity recognition
+  - Custom disease-specific stemming with medical term normalization
+  - Intelligent query expansion and synonym matching for better search results
+
+#### **🚀 TECHNICAL ENHANCEMENTS:**
+- 📦 **New Dependencies Added:**
+  - @tensorflow/tfjs-node: ^4.22.0 - Neural network processing
+  - natural: ^6.12.0 - Advanced natural language processing
+  - compromise: ^14.14.4 - Grammatical analysis and entity extraction
+  - ml-distance: ^4.0.1 - Cosine similarity and distance calculations
+  - ml-kmeans: ^6.0.0 - Clustering algorithms for pattern recognition
+  - stemmer: ^2.0.1 - Word stemming and normalization
+
+- 🗄️ **Model Persistence & Caching:**
+  - Automated model saving and loading from filesystem
+  - Vocabulary persistence with JSON serialization
+  - Document embeddings caching for improved query performance
+  - Training history logging with comprehensive performance analytics
+
+#### **🎯 PRODUCTION DEPLOYMENT:**
+- 🐳 **Enhanced Docker Configuration** - Updated Dockerfile with ML dependencies
+- ⚙️ **Service Integration** - Neural services integrated into main server architecture
+- 📈 **Performance Optimization** - Efficient memory management for neural network operations
+- 🔒 **Production Security** - Secure model file handling and validation
+
+---
+
 ## [1.6.6] - 2025-09-17
 
 ### 🌍 **Global Health Intelligence & Country-Specific Data Integration**

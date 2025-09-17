@@ -6,7 +6,7 @@
 
 *Previously known as covid19lookup.nyc*
 
-[![Version](https://img.shields.io/badge/version-1.6.6-blue.svg)](https://github.com/straticus1/disease.zone)
+[![Version](https://img.shields.io/badge/version-1.6.7-blue.svg)](https://github.com/straticus1/disease.zone)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-brightgreen.svg)](./MEDICAL_COMPLIANCE_REVIEW.md)
 [![GDPR](https://img.shields.io/badge/GDPR-Compliant-brightgreen.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
@@ -14,15 +14,15 @@
 
 ## 🌟 Features
 
-### 🌍 **NEW IN v1.6.6: Global Health Intelligence & Multi-Country Integration**
-- **🌍 CountryHealthService** - Advanced integration with government health APIs from US, Canada, UK, Australia
-- **🇺🇸 CDC Data Integration** - Real-time COVID-19, flu, STI, and wastewater surveillance from CDC APIs
-- **🌎 Multi-National Coverage** - Provincial data (Canada), regional data (UK), state/territory data (Australia)
-- **🗺 Geographic Intelligence** - Multi-level regional health mapping with intelligent data processing
-- **⏱ Real-time Health Data** - 15-minute cache refresh cycles for critical health surveillance
-- **📊 Advanced Analytics** - Historical trend analysis with date range filtering and geographic partitioning
-- **🔒 Secure API Management** - Rate limiting, intelligent fallbacks, and API key security
-- **💡 Smart Fallbacks** - Sample data generation for API failures ensuring continuous service
+### 🧠 **NEW IN v1.6.7: Advanced Neural Network & Machine Learning Integration**
+- **🤖 NeuralSearchService** - Full TensorFlow.js integration with real neural network processing for disease data search
+- **📊 ML Pipeline** - Multi-layer neural architecture (128→64→32 neurons) with dropout regularization and Adam optimizer
+- **🔬 Advanced NLP** - Natural language processing with medical term normalization and semantic similarity matching
+- **⏰ Automated Training** - Daily/weekly model retraining with cron scheduling and business-hour lightweight updates
+- **🎯 Pattern Recognition** - K-means clustering and cosine distance calculations for intelligent query enhancement
+- **📈 Performance Analytics** - Training history tracking with comprehensive performance metrics and error logging
+- **🐳 Production Ready** - Enhanced Docker configuration with ML dependencies and optimized memory management
+- **🔒 Secure ML Operations** - Model persistence, vocabulary caching, and secure neural network file handling
 
 ### 🎆 **v1.6.2 Features: Everything is Clickable!**
 - **📰 Professional News API** - RSS aggregation from WHO, CDC, ProMED, Nature Medicine, The Lancet

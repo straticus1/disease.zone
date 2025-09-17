@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. AI - Disease Intelligence Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chatbot-container {
+            width: 400px;
+            height: 600px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .chatbot-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .chatbot-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .chatbot-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message-bot {
+            align-self: flex-start;
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        .message-user {
+            align-self: flex-end;
+            background: #667eea;
+            color: white;
+        }
+
+        .message-typing {
+            align-self: flex-start;
+            background: #f1f5f9;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .chatbot-input {
+            padding: 20px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .input-field:focus {
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .send-btn:hover {
+            background: #5a67d8;
+        }
+
+        .send-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+        }
+
+        .quick-actions {
+            padding: 15px 20px;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .quick-action {
+            padding: 6px 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-action:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .disease-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 8px 0;
+        }
+
+        .disease-name {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .disease-info {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .risk-indicator {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-left: 8px;
+        }
+
+        .risk-low { background: #dcfce7; color: #166534; }
+        .risk-moderate { background: #fef3c7; color: #92400e; }
+        .risk-high { background: #fecaca; color: #991b1b; }
+
+        /* Mobile responsive */
+        @media (max-width: 480px) {
+            .chatbot-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chatbot-container">
+        <div class="chatbot-header">
+            <div class="chatbot-title">🩺 Dr. AI</div>
+            <div class="chatbot-subtitle">Disease Intelligence Assistant</div>
+            <div class="chatbot-status">
+                <div class="status-dot"></div>
+                <span>Online & Ready</span>
+            </div>
+        </div>
+
+        <div class="chatbot-messages" id="messages">
+            <div class="message message-bot">
+                👋 Hello! I'm Dr. AI, your disease intelligence assistant. I can help you with:
+                <br><br>
+                🔍 Disease outbreak information<br>
+                📊 Risk assessments<br>
+                💉 Prevention guidelines<br>
+                🌍 Global health trends<br>
+                <br>
+                What would you like to know?
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <div class="quick-action" onclick="sendQuickMessage('What diseases are trending?')">Trending Diseases</div>
+            <div class="quick-action" onclick="sendQuickMessage('COVID risk in my area')">COVID Risk</div>
+            <div class="quick-action" onclick="sendQuickMessage('Flu prevention tips')">Flu Prevention</div>
+            <div class="quick-action" onclick="sendQuickMessage('Travel health advice')">Travel Health</div>
+        </div>
+
+        <div class="chatbot-input">
+            <input type="text" class="input-field" id="messageInput" placeholder="Ask about diseases, outbreaks, or health..." onkeypress="handleKeyPress(event)">
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                <span>➤</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        class DiseaseAI {
+            constructor() {
+                this.messages = document.getElementById('messages');
+                this.messageInput = document.getElementById('messageInput');
+                this.sendBtn = document.getElementById('sendBtn');
+                this.isTyping = false;
+
+                // Disease knowledge base (simulated AI responses)
+                this.knowledgeBase = {
+                    diseases: {
+                        'covid': {
+                            name: 'COVID-19',
+                            currentRisk: 'moderate',
+                            info: 'Respiratory virus causing varying symptoms from mild to severe',
+                            prevention: 'Vaccination, masking, social distancing, hand hygiene'
+                        },
+                        'influenza': {
+                            name: 'Influenza',
+                            currentRisk: 'seasonal',
+                            info: 'Seasonal respiratory virus, peaks in fall/winter',
+                            prevention: 'Annual vaccination, avoid close contact with sick individuals'
+                        },
+                        'norovirus': {
+                            name: 'Norovirus',
+                            currentRisk: 'low',
+                            info: 'Highly contagious stomach virus causing vomiting and diarrhea',
+                            prevention: 'Hand washing, avoid contaminated food/water'
+                        }
+                    },
+                    responses: {
+                        greeting: [
+                            "Hello! I'm here to help with disease and health information. What can I assist you with?",
+                            "Hi there! Ask me anything about diseases, outbreaks, or health protection.",
+                            "Welcome! I'm your AI health assistant. How can I help you stay informed?"
+                        ],
+                        trending: [
+                            "Currently trending: Seasonal influenza is increasing, RSV in children, and ongoing COVID variants. Would you like details on any specific disease?",
+                            "This week's health trends: Flu activity rising, norovirus outbreaks reported in several states, COVID stable but monitor new variants."
+                        ],
+                        risk_assessment: [
+                            "I can help assess disease risks for your area. Could you specify your location and which disease you're concerned about?",
+                            "Risk levels vary by location and disease. Tell me your region and I'll provide current risk information."
+                        ]
+                    }
+                };
+
+                this.init();
+            }
+
+            init() {
+                this.messageInput.focus();
+            }
+
+            async sendMessage(message = null) {
+                const text = message || this.messageInput.value.trim();
+                if (!text || this.isTyping) return;
+
+                // Add user message
+                this.addMessage(text, 'user');
+
+                // Clear input
+                this.messageInput.value = '';
+
+                // Show typing indicator
+                this.showTyping();
+
+                // Generate AI response
+                setTimeout(async () => {
+                    const response = await this.generateResponse(text);
+                    this.hideTyping();
+                    this.addMessage(response, 'bot');
+                }, 1000 + Math.random() * 1000);
+            }
+
+            addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message message-${sender}`;
+
+                if (sender === 'bot' && this.isStructuredResponse(text)) {
+                    messageDiv.innerHTML = text;
+                } else {
+                    messageDiv.textContent = text;
+                }
+
+                this.messages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+
+            isStructuredResponse(text) {
+                return text.includes('<div class="disease-card">') || text.includes('<br>');
+            }
+
+            showTyping() {
+                this.isTyping = true;
+                this.sendBtn.disabled = true;
+
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message message-typing';
+                typingDiv.id = 'typing-indicator';
+                typingDiv.textContent = '🤔 Dr. AI is thinking...';
+
+                this.messages.appendChild(typingDiv);
+                this.scrollToBottom();
+            }
+
+            hideTyping() {
+                this.isTyping = false;
+                this.sendBtn.disabled = false;
+
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+
+            scrollToBottom() {
+                this.messages.scrollTop = this.messages.scrollHeight;
+            }
+
+            async generateResponse(userMessage) {
+                const message = userMessage.toLowerCase();
+
+                // Pattern matching for different types of queries
+                if (this.isGreeting(message)) {
+                    return this.getRandomResponse('greeting');
+                }
+
+                if (this.isTrendingQuery(message)) {
+                    return this.getTrendingDiseases();
+                }
+
+                if (this.isRiskQuery(message)) {
+                    return this.getRiskAssessment(message);
+                }
+
+                if (this.isDiseaseQuery(message)) {
+                    return this.getDiseaseInfo(message);
+                }
+
+                if (this.isPreventionQuery(message)) {
+                    return this.getPreventionInfo(message);
+                }
+
+                if (this.isTravelQuery(message)) {
+                    return this.getTravelAdvice();
+                }
+
+                // Default response with helpful suggestions
+                return `I'd be happy to help! I can provide information about:
+
+🦠 Specific diseases (COVID, flu, etc.)
+📈 Current outbreak trends
+🎯 Risk assessments
+🛡️ Prevention strategies
+✈️ Travel health advice
+
+Try asking something like "What's the COVID risk?" or "How to prevent flu?"`;
+            }
+
+            isGreeting(message) {
+                return /^(hi|hello|hey|greetings|good\s+(morning|afternoon|evening))/.test(message);
+            }
+
+            isTrendingQuery(message) {
+                return /trending|current|latest|what.*(disease|outbreak|happening)/.test(message);
+            }
+
+            isRiskQuery(message) {
+                return /risk|danger|threat|safe|level/.test(message);
+            }
+
+            isDiseaseQuery(message) {
+                return Object.keys(this.knowledgeBase.diseases).some(disease =>
+                    message.includes(disease)
+                );
+            }
+
+            isPreventionQuery(message) {
+                return /prevent|protection|avoid|stop|vaccine|mask/.test(message);
+            }
+
+            isTravelQuery(message) {
+                return /travel|trip|vacation|flight|airport/.test(message);
+            }
+
+            getRandomResponse(category) {
+                const responses = this.knowledgeBase.responses[category];
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+
+            getTrendingDiseases() {
+                return `📊 <strong>Current Disease Trends (Week of ${new Date().toLocaleDateString()}):</strong><br><br>
+
+<div class="disease-card">
+    <div class="disease-name">Seasonal Influenza <span class="risk-indicator risk-moderate">Rising</span></div>
+    <div class="disease-info">Typical seasonal increase expected through winter months</div>
+</div>
+
+<div class="disease-card">
+    <div class="disease-name">COVID-19 <span class="risk-indicator risk-low">Stable</span></div>
+    <div class="disease-info">New variant JN.1 detected but manageable levels</div>
+</div>
+
+<div class="disease-card">
+    <div class="disease-name">RSV <span class="risk-indicator risk-moderate">Active</span></div>
+    <div class="disease-info">Respiratory Syncytial Virus affecting children nationwide</div>
+</div>
+
+<br>💡 <em>Get vaccinated and practice good hygiene to stay protected!</em>`;
+            }
+
+            getRiskAssessment(message) {
+                if (message.includes('covid')) {
+                    return `🎯 <strong>COVID-19 Risk Assessment:</strong><br><br>
+Current risk level: <span class="risk-indicator risk-low">Low to Moderate</span><br><br>
+📍 Risk factors:<br>
+• Indoor gatherings<br>
+• Unvaccinated individuals<br>
+• Immunocompromised status<br><br>
+🛡️ Protection: Stay updated on vaccines, consider masking in crowded areas.`;
+                }
+
+                return this.getRandomResponse('risk_assessment');
+            }
+
+            getDiseaseInfo(message) {
+                for (const [key, disease] of Object.entries(this.knowledgeBase.diseases)) {
+                    if (message.includes(key)) {
+                        return `🦠 <strong>${disease.name}</strong><br><br>
+📊 Current Risk: <span class="risk-indicator risk-${disease.currentRisk}">${disease.currentRisk}</span><br><br>
+ℹ️ <strong>About:</strong> ${disease.info}<br><br>
+🛡️ <strong>Prevention:</strong> ${disease.prevention}`;
+                    }
+                }
+
+                return "I have information on COVID-19, Influenza, Norovirus, and many other diseases. Which specific disease would you like to know about?";
+            }
+
+            getPreventionInfo(message) {
+                return `🛡️ <strong>Universal Disease Prevention:</strong><br><br>
+✅ <strong>Essential Practices:</strong><br>
+• Wash hands frequently (20+ seconds)<br>
+• Get recommended vaccinations<br>
+• Maintain social distance when sick<br>
+• Eat nutritious foods, exercise regularly<br>
+• Get adequate sleep (7-9 hours)<br><br>
+💡 <em>Prevention is always better than treatment!</em>`;
+            }
+
+            getTravelAdvice() {
+                return `✈️ <strong>Travel Health Recommendations:</strong><br><br>
+📋 <strong>Before Travel:</strong><br>
+• Check CDC travel advisories<br>
+• Update routine vaccinations<br>
+• Consider destination-specific vaccines<br><br>
+🎒 <strong>Pack Health Essentials:</strong><br>
+• Hand sanitizer, masks<br>
+• Personal medications<br>
+• First aid basics<br><br>
+🌍 <em>Stay informed about your destination's current health situation!</em>`;
+            }
+        }
+
+        // Initialize the chatbot
+        const diseaseAI = new DiseaseAI();
+
+        // Global functions for HTML event handlers
+        function sendMessage() {
+            diseaseAI.sendMessage();
+        }
+
+        function sendQuickMessage(message) {
+            diseaseAI.sendMessage(message);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>

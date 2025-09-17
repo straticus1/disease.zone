@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disease Risk Map Generator - Share & Embed</title>
+
+    <!-- Leaflet Map Library -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .controls {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .control-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .control-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-item label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #374151;
+        }
+
+        .control-item select,
+        .control-item input {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .map-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .map {
+            height: 500px;
+            width: 100%;
+        }
+
+        .map-legend {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            font-size: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            margin-right: 8px;
+        }
+
+        .share-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .share-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .share-option {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .share-option h4 {
+            margin-bottom: 10px;
+            color: #374151;
+        }
+
+        .code-block {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 10px;
+            overflow-x: auto;
+        }
+
+        .copy-btn {
+            position: relative;
+            font-size: 12px;
+            padding: 5px 10px;
+        }
+
+        .stats-panel {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .control-group {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .share-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🗺️ Disease Risk Map Generator</h1>
+        <p>Create, customize, and share interactive disease risk maps</p>
+    </div>
+
+    <div class="container">
+        <div class="controls">
+            <div class="control-group">
+                <div class="control-item">
+                    <label for="diseaseSelect">Disease</label>
+                    <select id="diseaseSelect">
+                        <option value="covid">COVID-19</option>
+                        <option value="influenza">Influenza</option>
+                        <option value="norovirus">Norovirus</option>
+                        <option value="rsv">RSV</option>
+                        <option value="measles">Measles</option>
+                    </select>
+                </div>
+
+                <div class="control-item">
+                    <label for="regionSelect">Region</label>
+                    <select id="regionSelect">
+                        <option value="usa">United States</option>
+                        <option value="europe">Europe</option>
+                        <option value="asia">Asia</option>
+                        <option value="global">Global</option>
+                    </select>
+                </div>
+
+                <div class="control-item">
+                    <label for="timeRange">Time Period</label>
+                    <select id="timeRange">
+                        <option value="current">Current</option>
+                        <option value="7d">Past 7 Days</option>
+                        <option value="30d">Past 30 Days</option>
+                        <option value="forecast">7-Day Forecast</option>
+                    </select>
+                </div>
+
+                <div class="control-item">
+                    <label for="mapStyle">Map Style</label>
+                    <select id="mapStyle">
+                        <option value="standard">Standard</option>
+                        <option value="satellite">Satellite</option>
+                        <option value="terrain">Terrain</option>
+                        <option value="dark">Dark Mode</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="generateMap()">
+                    🎯 Generate Map
+                </button>
+                <button class="btn btn-secondary" onclick="randomizeData()">
+                    🎲 Sample Data
+                </button>
+                <button class="btn btn-success" onclick="downloadMap()">
+                    📸 Download PNG
+                </button>
+            </div>
+        </div>
+
+        <div class="stats-panel">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalRegions">0</div>
+                    <div class="stat-label">Regions</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="highRiskCount">0</div>
+                    <div class="stat-label">High Risk</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avgRisk">0%</div>
+                    <div class="stat-label">Avg Risk</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="lastUpdated">--</div>
+                    <div class="stat-label">Updated</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="map-container">
+            <div id="riskMap" class="map"></div>
+            <div class="map-legend">
+                <h4 style="margin-bottom: 10px;">Risk Levels</h4>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #10b981;"></div>
+                    <span>Low (0-25%)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #f59e0b;"></div>
+                    <span>Moderate (26-50%)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ef4444;"></div>
+                    <span>High (51-75%)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #7c2d12;"></div>
+                    <span>Critical (76-100%)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="share-section">
+            <h3>📤 Share Your Map</h3>
+
+            <div class="share-options">
+                <div class="share-option">
+                    <h4>🔗 Direct Link</h4>
+                    <p>Share this link to let others view your map</p>
+                    <div class="code-block" id="shareLink">
+                        https://disease.zone/risk-map?disease=covid&region=usa&time=current
+                    </div>
+                    <button class="btn btn-secondary copy-btn" onclick="copyToClipboard('shareLink')">
+                        📋 Copy Link
+                    </button>
+                </div>
+
+                <div class="share-option">
+                    <h4>📱 Embed Code</h4>
+                    <p>Embed this interactive map on your website</p>
+                    <div class="code-block" id="embedCode">
+&lt;iframe src="https://disease.zone/risk-map?embed=true&disease=covid&region=usa"
+        width="100%" height="400" frameborder="0"&gt;&lt;/iframe&gt;
+                    </div>
+                    <button class="btn btn-secondary copy-btn" onclick="copyToClipboard('embedCode')">
+                        📋 Copy Code
+                    </button>
+                </div>
+
+                <div class="share-option">
+                    <h4>📊 API Endpoint</h4>
+                    <p>Get the raw data for your own applications</p>
+                    <div class="code-block" id="apiEndpoint">
+                        https://disease.zone/api/risk-data?disease=covid&region=usa&format=json
+                    </div>
+                    <button class="btn btn-secondary copy-btn" onclick="copyToClipboard('apiEndpoint')">
+                        📋 Copy API
+                    </button>
+                </div>
+
+                <div class="share-option">
+                    <h4>📧 Email Report</h4>
+                    <p>Send this map as a PDF report</p>
+                    <div style="margin-top: 10px;">
+                        <input type="email" placeholder="Enter email address" style="width: 100%; margin-bottom: 10px;">
+                        <button class="btn btn-primary">📧 Send Report</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class RiskMapGenerator {
+            constructor() {
+                this.map = null;
+                this.markers = [];
+                this.currentData = null;
+                this.init();
+            }
+
+            init() {
+                this.initMap();
+                this.generateMap(); // Load initial data
+            }
+
+            initMap() {
+                this.map = L.map('riskMap').setView([39.8283, -98.5795], 4);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(this.map);
+            }
+
+            async generateMap() {
+                const disease = document.getElementById('diseaseSelect').value;
+                const region = document.getElementById('regionSelect').value;
+                const timeRange = document.getElementById('timeRange').value;
+
+                // Clear existing markers
+                this.clearMarkers();
+
+                // Generate risk data (simulated)
+                const riskData = this.generateRiskData(disease, region, timeRange);
+                this.currentData = riskData;
+
+                // Add markers to map
+                this.addRiskMarkers(riskData);
+
+                // Update statistics
+                this.updateStats(riskData);
+
+                // Update share links
+                this.updateShareLinks(disease, region, timeRange);
+
+                console.log('Map generated:', disease, region, timeRange);
+            }
+
+            generateRiskData(disease, region, timeRange) {
+                // Simulated risk data for different regions
+                const locations = {
+                    usa: [
+                        { name: 'New York', lat: 40.7128, lng: -74.0060, population: 8400000 },
+                        { name: 'Los Angeles', lat: 34.0522, lng: -118.2437, population: 3900000 },
+                        { name: 'Chicago', lat: 41.8781, lng: -87.6298, population: 2700000 },
+                        { name: 'Houston', lat: 29.7604, lng: -95.3698, population: 2300000 },
+                        { name: 'Phoenix', lat: 33.4484, lng: -112.0740, population: 1700000 },
+                        { name: 'Philadelphia', lat: 39.9526, lng: -75.1652, population: 1600000 },
+                        { name: 'San Antonio', lat: 29.4241, lng: -98.4936, population: 1500000 },
+                        { name: 'San Diego', lat: 32.7157, lng: -117.1611, population: 1400000 },
+                        { name: 'Dallas', lat: 32.7767, lng: -96.7970, population: 1300000 },
+                        { name: 'San Jose', lat: 37.3382, lng: -121.8863, population: 1000000 }
+                    ]
+                };
+
+                const regionData = locations[region] || locations.usa;
+
+                return regionData.map(location => {
+                    // Generate random but realistic risk levels
+                    const baseRisk = Math.random() * 0.6 + 0.1; // 10-70% base risk
+                    const seasonalFactor = this.getSeasonalFactor(disease);
+                    const populationFactor = Math.log(location.population / 100000) / 10;
+
+                    const riskLevel = Math.min(0.95, baseRisk * seasonalFactor + populationFactor);
+
+                    return {
+                        ...location,
+                        riskLevel,
+                        riskCategory: this.getRiskCategory(riskLevel),
+                        cases: Math.floor(location.population * riskLevel * 0.001),
+                        growthRate: (Math.random() - 0.5) * 0.4 // -20% to +20%
+                    };
+                });
+            }
+
+            getSeasonalFactor(disease) {
+                const month = new Date().getMonth();
+                const seasonalFactors = {
+                    covid: [1.2, 1.1, 1.0, 0.9, 0.8, 0.7, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2],
+                    influenza: [1.4, 1.3, 1.2, 0.8, 0.6, 0.5, 0.5, 0.6, 0.8, 1.0, 1.2, 1.3],
+                    norovirus: [1.3, 1.2, 1.0, 0.8, 0.7, 0.6, 0.6, 0.7, 0.8, 1.0, 1.1, 1.2]
+                };
+
+                return seasonalFactors[disease]?.[month] || 1.0;
+            }
+
+            getRiskCategory(riskLevel) {
+                if (riskLevel < 0.25) return 'low';
+                if (riskLevel < 0.50) return 'moderate';
+                if (riskLevel < 0.75) return 'high';
+                return 'critical';
+            }
+
+            getRiskColor(category) {
+                const colors = {
+                    low: '#10b981',
+                    moderate: '#f59e0b',
+                    high: '#ef4444',
+                    critical: '#7c2d12'
+                };
+                return colors[category] || '#6b7280';
+            }
+
+            addRiskMarkers(riskData) {
+                riskData.forEach(location => {
+                    const color = this.getRiskColor(location.riskCategory);
+
+                    const marker = L.circleMarker([location.lat, location.lng], {
+                        radius: Math.max(8, Math.log(location.population / 100000) * 3),
+                        fillColor: color,
+                        color: '#ffffff',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    }).addTo(this.map);
+
+                    const popupContent = `
+                        <div style="min-width: 200px;">
+                            <h4 style="margin: 0 0 10px 0;">${location.name}</h4>
+                            <div style="margin-bottom: 8px;">
+                                <strong>Risk Level:</strong>
+                                <span style="color: ${color}; font-weight: bold; text-transform: uppercase;">
+                                    ${location.riskCategory}
+                                </span>
+                                (${(location.riskLevel * 100).toFixed(1)}%)
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <strong>Cases:</strong> ${location.cases.toLocaleString()}
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <strong>Population:</strong> ${location.population.toLocaleString()}
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <strong>Growth Rate:</strong>
+                                <span style="color: ${location.growthRate > 0 ? '#ef4444' : '#10b981'};">
+                                    ${location.growthRate > 0 ? '+' : ''}${(location.growthRate * 100).toFixed(1)}%
+                                </span>
+                            </div>
+                        </div>
+                    `;
+
+                    marker.bindPopup(popupContent);
+                    this.markers.push(marker);
+                });
+            }
+
+            clearMarkers() {
+                this.markers.forEach(marker => {
+                    this.map.removeLayer(marker);
+                });
+                this.markers = [];
+            }
+
+            updateStats(riskData) {
+                const totalRegions = riskData.length;
+                const highRiskCount = riskData.filter(d => d.riskCategory === 'high' || d.riskCategory === 'critical').length;
+                const avgRisk = riskData.reduce((sum, d) => sum + d.riskLevel, 0) / totalRegions;
+
+                document.getElementById('totalRegions').textContent = totalRegions;
+                document.getElementById('highRiskCount').textContent = highRiskCount;
+                document.getElementById('avgRisk').textContent = `${(avgRisk * 100).toFixed(0)}%`;
+                document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+            }
+
+            updateShareLinks(disease, region, timeRange) {
+                const baseUrl = 'https://disease.zone/risk-map';
+                const params = `disease=${disease}&region=${region}&time=${timeRange}`;
+
+                document.getElementById('shareLink').textContent = `${baseUrl}?${params}`;
+                document.getElementById('embedCode').textContent =
+                    `<iframe src="${baseUrl}?embed=true&${params}" width="100%" height="400" frameborder="0"></iframe>`;
+                document.getElementById('apiEndpoint').textContent =
+                    `https://disease.zone/api/risk-data?${params}&format=json`;
+            }
+
+            randomizeData() {
+                // Randomly select options and regenerate
+                const diseases = ['covid', 'influenza', 'norovirus', 'rsv', 'measles'];
+                const regions = ['usa', 'europe', 'asia', 'global'];
+                const times = ['current', '7d', '30d', 'forecast'];
+
+                document.getElementById('diseaseSelect').value = diseases[Math.floor(Math.random() * diseases.length)];
+                document.getElementById('regionSelect').value = regions[Math.floor(Math.random() * regions.length)];
+                document.getElementById('timeRange').value = times[Math.floor(Math.random() * times.length)];
+
+                this.generateMap();
+            }
+
+            downloadMap() {
+                // Simple implementation - in production, you'd use a proper library
+                alert('Download feature would capture the map as PNG. Implement with html2canvas or similar library.');
+            }
+        }
+
+        // Global functions for HTML event handlers
+        let mapGenerator;
+
+        function generateMap() {
+            mapGenerator.generateMap();
+        }
+
+        function randomizeData() {
+            mapGenerator.randomizeData();
+        }
+
+        function downloadMap() {
+            mapGenerator.downloadMap();
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+
+            navigator.clipboard.writeText(text).then(() => {
+                // Show feedback
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            mapGenerator = new RiskMapGenerator();
+        });
+    </script>
+</body>
+</html>
