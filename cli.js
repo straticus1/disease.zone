@@ -16,6 +16,7 @@ const BatchCommands = require('./cli/batch');
 const ConfigCommands = require('./cli/config');
 const FHIRBlockchainCommands = require('./cli/fhir-blockchain');
 const DiseaseZoneConsole = require('./cli/console');
+const ApiCommands = require('./cli/api');
 
 // CLI Configuration
 const CLI_CONFIG_PATH = path.join(require('os').homedir(), '.diseasezone');
@@ -357,6 +358,336 @@ function initializeCLI() {
         .argument('<output-file>', 'Output file path')
         .option('-f, --format <format>', 'Template format: csv, json')
         .action(BatchCommands.template);
+
+    // Comprehensive API commands
+    const api = program.command('api').description('🔌 Comprehensive API access to all platform features');
+    
+    // Initialize API commands instance
+    const apiCommands = new ApiCommands();
+    
+    // User management API commands
+    const apiUsers = api.command('users').description('👥 User management API commands');
+    
+    apiUsers.command('search')
+        .description('Search users')
+        .option('-s, --search <term>', 'Search term')
+        .option('-r, --role <role>', 'Filter by role')
+        .option('-l, --limit <number>', 'Limit results')
+        .option('-f, --file <path>', 'Save results to JSON file')
+        .action(async (options) => {
+            await apiCommands.searchUsers(options);
+        });
+
+    apiUsers.command('profile')
+        .description('Get user profile')
+        .argument('<user-id>', 'User ID or "me" for current user')
+        .option('-f, --file <path>', 'Save results to JSON file')
+        .action(async (userId, options) => {
+            await apiCommands.getUserProfile(userId, options);
+        });
+
+    apiUsers.command('update-role')
+        .description('Update user role')
+        .argument('<user-id>', 'User ID')
+        .option('-r, --role <role>', 'New role')
+        .option('-f, --file <path>', 'Load request data from JSON file')
+        .action(async (userId, options) => {
+            await apiCommands.updateUserRole(userId, options);
+        });
+
+    apiUsers.command('tag')
+        .description('Tag a user')
+        .argument('<user-id>', 'User ID')
+        .option('-t, --tag <tag>', 'Tag to add')
+        .option('-f, --file <path>', 'Load request data from JSON file')
+        .action(async (userId, options) => {
+            await apiCommands.tagUser(userId, options);
+        });
+
+    apiUsers.command('untag')
+        .description('Remove user tag')
+        .argument('<user-id>', 'User ID')
+        .option('-t, --tag <tag>', 'Tag to remove')
+        .option('-f, --file <path>', 'Load request data from JSON file')
+        .action(async (userId, options) => {
+            await apiCommands.removeUserTag(userId, options);
+        });
+
+    // Permissions API commands
+    const apiPerms = api.command('permissions').description('🔐 Permissions management API commands');
+    
+    apiPerms.command('grant')
+        .description('Grant permission to user')
+        .option('-u, --user-id <id>', 'User ID')
+        .option('-p, --permission-type <type>', 'Permission type')
+        .option('-a, --access-level <level>', 'Access level')
+        .option('-r, --resource-id <id>', 'Resource ID')
+        .option('-e, --expires-at <date>', 'Expiration date')
+        .option('-f, --file <path>', 'Load request data from JSON file')
+        .action(async (options) => {
+            await apiCommands.grantPermission(options);
+        });
+
+    apiPerms.command('revoke')
+        .description('Revoke permission')
+        .argument('<permission-id>', 'Permission ID')
+        .option('-r, --reason <reason>', 'Revocation reason')
+        .option('-f, --file <path>', 'Load request data from JSON file')
+        .action(async (permissionId, options) => {
+            await apiCommands.revokePermission(permissionId, options);
+        });
+
+    apiPerms.command('list')
+        .description('List user permissions')
+        .argument('<user-id>', 'User ID')
+        .option('-f, --file <path>', 'Save results to JSON file')
+        .action(async (userId, options) => {
+            await apiCommands.getUserPermissions(userId, options);
+        });
+
+    // Groups API commands
+    const apiGroups = api.command('groups').description('👥 Group management API commands');
+    
+    apiGroups.command('search')
+        .description('Search groups')
+        .option('-s, --search <term>', 'Search term')
+        .option('--status <status>', 'Filter by status')
+        .option('-l, --limit <number>', 'Limit results')
+        .option('-f, --file <path>', 'Save results to JSON file')
+        .action(async (options) => {
+            await apiCommands.searchGroups(options);
+        });
+
+    apiGroups.command('create')
+        .description('Create new group')
+        .option('-n, --name <name>', 'Group name')
+        .option('-d, --description <desc>', 'Group description')
+        .option('-t, --type <type>', 'Group type')
+        .option('-f, --file <path>', 'Load request data from JSON file')
+        .action(async (options) => {
+            await apiCommands.createGroup(options);
+        });
+
+    apiGroups.command('add-member')
+        .description('Add user to group')
+        .argument('<group-id>', 'Group ID')
+        .option('-u, --user-id <id>', 'User ID')
+        .option('-r, --role <role>', 'Member role')
+        .option('-f, --file <path>', 'Load request data from JSON file')
+        .action(async (groupId, options) => {
+            await apiCommands.addUserToGroup(groupId, options);
+        });
+
+    apiGroups.command('remove-member')
+        .description('Remove user from group')
+        .argument('<group-id>', 'Group ID')
+        .argument('<user-id>', 'User ID')
+        .action(async (groupId, userId, options) => {
+            await apiCommands.removeUserFromGroup(groupId, userId, options);
+        });
+
+    // Blockchain API commands
+    const apiBlockchain = api.command('blockchain').description('🔗 Blockchain data access API commands');
+    
+    apiBlockchain.command('view')
+        .description('View blockchain data')
+        .argument('<data-type>', 'Data type')
+        .argument('<data-id>', 'Data ID')
+        .option('-a, --access-level <level>', 'Access level')
+        .option('-f, --file <path>', 'Save results to JSON file')
+        .action(async (dataType, dataId, options) => {
+            await apiCommands.viewBlockchainData(dataType, dataId, options);
+        });
+
+    apiBlockchain.command('grant')
+        .description('Grant blockchain data access')
+        .option('-g, --grantee-id <id>', 'Grantee user ID')
+        .option('-t, --data-type <type>', 'Data type')
+        .option('-d, --data-id <id>', 'Data ID')
+        .option('-a, --access-level <level>', 'Access level')
+        .option('-e, --expires-at <date>', 'Expiration date')
+        .option('-f, --file <path>', 'Load request data from JSON file')
+        .action(async (options) => {
+            await apiCommands.grantBlockchainAccess(options);
+        });
+
+    apiBlockchain.command('grants')
+        .description('List blockchain grants for user')
+        .argument('<user-id>', 'User ID')
+        .option('-f, --file <path>', 'Save results to JSON file')
+        .action(async (userId, options) => {
+            await apiCommands.getBlockchainGrants(userId, options);
+        });
+
+    // Messaging API commands
+    const apiMsg = api.command('messaging').description('💬 Messaging API commands');
+    
+    apiMsg.command('send')
+        .description('Send message')
+        .option('-r, --recipient-id <id>', 'Recipient user ID')
+        .option('-c, --content <content>', 'Message content')
+        .option('-t, --type <type>', 'Message type')
+        .option('-f, --file <path>', 'Load request data from JSON file')
+        .action(async (options) => {
+            await apiCommands.sendMessage(options);
+        });
+
+    apiMsg.command('conversations')
+        .description('List conversations')
+        .option('-f, --file <path>', 'Save results to JSON file')
+        .action(async (options) => {
+            await apiCommands.getConversations(options);
+        });
+
+    apiMsg.command('messages')
+        .description('Get messages from conversation')
+        .argument('<conversation-id>', 'Conversation ID')
+        .option('-l, --limit <number>', 'Limit results')
+        .option('--offset <number>', 'Offset for pagination')
+        .option('-f, --file <path>', 'Save results to JSON file')
+        .action(async (conversationId, options) => {
+            await apiCommands.getMessages(conversationId, options);
+        });
+
+    // Audit & Compliance API commands
+    const apiAudit = api.command('audit').description('📊 Audit and compliance API commands');
+    
+    apiAudit.command('report')
+        .description('Generate audit report')
+        .option('-s, --start-date <date>', 'Start date (YYYY-MM-DD)')
+        .option('-e, --end-date <date>', 'End date (YYYY-MM-DD)')
+        .option('--framework <framework>', 'Compliance framework (HIPAA, GDPR)')
+        .option('--format <format>', 'Report format')
+        .option('-o, --output <path>', 'Save report to JSON file')
+        .option('-f, --file <path>', 'Load request data from JSON file')
+        .action(async (options) => {
+            await apiCommands.generateAuditReport(options);
+        });
+
+    apiAudit.command('logs')
+        .description('Get audit logs')
+        .option('-u, --user-id <id>', 'Filter by user ID')
+        .option('--event-type <type>', 'Filter by event type')
+        .option('-s, --start-date <date>', 'Start date')
+        .option('-e, --end-date <date>', 'End date')
+        .option('-l, --limit <number>', 'Limit results')
+        .option('-f, --file <path>', 'Save results to JSON file')
+        .action(async (options) => {
+            await apiCommands.getAuditLogs(options);
+        });
+
+    // Secondary Authentication API commands
+    const apiAuth = api.command('secondary-auth').description('🔐 Secondary authentication API commands');
+    
+    apiAuth.command('setup')
+        .description('Setup secondary authentication')
+        .option('-m, --method <method>', 'Auth method (secondary_password, totp_2fa)')
+        .option('-p, --password <password>', 'Secondary password')
+        .option('-f, --file <path>', 'Load request data from JSON file')
+        .action(async (options) => {
+            await apiCommands.setupSecondaryAuth(options);
+        });
+
+    apiAuth.command('challenge')
+        .description('Create authentication challenge')
+        .option('-t, --type <type>', 'Challenge type')
+        .option('-c, --context <json>', 'Context data (JSON string)')
+        .option('-f, --file <path>', 'Load request data from JSON file')
+        .action(async (options) => {
+            await apiCommands.createAuthChallenge(options);
+        });
+
+    // Generic API commands
+    api.command('get')
+        .description('Generic GET request')
+        .argument('<endpoint>', 'API endpoint')
+        .option('-f, --file <path>', 'Save results to JSON file')
+        .action(async (endpoint, options) => {
+            await apiCommands.apiGet(endpoint, options);
+        });
+
+    api.command('post')
+        .description('Generic POST request')
+        .argument('<endpoint>', 'API endpoint')
+        .option('-d, --data <json>', 'Request data (JSON string)')
+        .option('-f, --file <path>', 'Load request data from JSON file')
+        .action(async (endpoint, options) => {
+            await apiCommands.apiPost(endpoint, options);
+        });
+
+    api.command('put')
+        .description('Generic PUT request')
+        .argument('<endpoint>', 'API endpoint')
+        .option('-d, --data <json>', 'Request data (JSON string)')
+        .option('-f, --file <path>', 'Load request data from JSON file')
+        .action(async (endpoint, options) => {
+            await apiCommands.apiPut(endpoint, options);
+        });
+
+    api.command('delete')
+        .description('Generic DELETE request')
+        .argument('<endpoint>', 'API endpoint')
+        .option('-d, --data <json>', 'Request data (JSON string)')
+        .option('-f, --file <path>', 'Load request data from JSON file')
+        .action(async (endpoint, options) => {
+            await apiCommands.apiDelete(endpoint, options);
+        });
+
+    // JSON file template generators
+    api.command('template')
+        .description('Generate JSON template files for API requests')
+        .argument('<template-type>', 'Template type: user-update, permission-grant, group-create, etc.')
+        .argument('<output-file>', 'Output file path')
+        .action(async (templateType, outputFile) => {
+            const templates = {
+                'user-update': {
+                    role: 'medical_professional',
+                    first_name: 'John',
+                    last_name: 'Doe'
+                },
+                'permission-grant': {
+                    userId: 'user-id-here',
+                    permissionType: 'medical_reports',
+                    accessLevel: 'read',
+                    resourceId: 'resource-id-here',
+                    expiresAt: '2024-12-31T23:59:59Z'
+                },
+                'group-create': {
+                    name: 'Research Team Alpha',
+                    description: 'Medical research team for cardiac studies',
+                    type: 'research'
+                },
+                'message-send': {
+                    recipientId: 'user-id-here',
+                    content: 'Hello, this is a test message',
+                    messageType: 'direct_message'
+                },
+                'blockchain-grant': {
+                    granteeId: 'user-id-here',
+                    dataType: 'medical_reports',
+                    dataId: 'data-id-here',
+                    accessLevel: 'read',
+                    expiresAt: '2024-12-31T23:59:59Z'
+                },
+                'audit-report': {
+                    startDate: '2024-01-01',
+                    endDate: '2024-12-31',
+                    complianceFramework: 'HIPAA',
+                    format: 'detailed'
+                }
+            };
+
+            if (templates[templateType]) {
+                apiCommands.saveJsonFile(outputFile, templates[templateType]);
+                console.log(chalk.green(`✓ Template saved to ${outputFile}`));
+                console.log(chalk.gray('Edit the file and use with --file option'));
+            } else {
+                console.log(chalk.red('Unknown template type. Available templates:'));
+                Object.keys(templates).forEach(template => {
+                    console.log(chalk.yellow(`  ${template}`));
+                });
+            }
+        });
 
     // Configuration management
     const config_cmd = program.command('config').description('⚙️  CLI configuration management');

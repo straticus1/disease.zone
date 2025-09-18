@@ -38,6 +38,7 @@
     "express-rate-limit": "^8.1.0",
     "express-validator": "^7.2.1",
     "fhirpath": "^3.10.0",
+    "form-data": "^4.0.4",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
