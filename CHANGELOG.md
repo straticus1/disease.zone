@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.6.9] - 2025-09-18
+
+### 🚀 **Production Deployment: Enhanced Infrastructure Automation**
+
+#### **🏗️ COMPREHENSIVE DEPLOYMENT AUTOMATION:**
+- 🎯 **Smart Infrastructure Detection** - Auto-deploys Terraform infrastructure when needed
+- 🌐 **Full Route53 Integration** - Automatic DNS setup for both disease.zone and disease.app
+- ⚙️ **Complete Terraform Workflow** - Automated init → plan → apply sequence
+- 🔄 **Flexible Deployment Options** - Multiple deployment modes (full, infra-only, app-only)
+- 📦 **Container Orchestration** - Seamless Docker build, push, and ECS deployment
+
+#### **🌍 ENHANCED SUBDOMAIN ARCHITECTURE:**
+- 🎯 **Comprehensive Domain Support** - Full support for 8 domain/subdomain combinations:
+  - disease.zone, www.disease.zone, api.disease.zone, ledger.disease.zone
+  - disease.app, www.disease.app, api.disease.app, ledger.disease.app
+- 🔍 **Dynamic Domain Detection** - Smart routing based on requested domain
+- 🔗 **Cross-Domain Linking** - Dynamic subdomain references and email addresses
+- 📊 **Health Check Matrix** - Comprehensive health verification for all endpoints
+
+#### **🚀 DEPLOYMENT PIPELINE ENHANCEMENTS:**
+- ⏱️ **Advanced Timing Metrics** - Step-by-step deployment timing with duration tracking
+- 🎯 **Intelligent Error Handling** - Better debugging with context-aware error messages
+- 📈 **Comprehensive Status Reporting** - Detailed deployment summaries with URL listings
+- 🔧 **Flexible Command Options** - Multiple deployment modes for different scenarios
+- 🛡️ **Infrastructure Preservation** - DNS and AWS resources maintained during updates
+
+#### **📦 PRODUCTION READINESS:**
+- ✅ **ECS Task Definition v10** - Latest container revision deployed successfully
+- 🌐 **Load Balancer Integration** - SSL termination and health checks operational
+- 📊 **CloudWatch Monitoring** - Complete logging and metrics collection
+- 🔒 **Security Compliance** - All security headers and CSP policies active
+- 🚀 **Zero-Downtime Deployment** - Rolling updates with health verification
+
+---
+
 ## [1.6.8] - 2025-09-18
 
 ### 🚀 **Deployment Infrastructure Enhancements**
