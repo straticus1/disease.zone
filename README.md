@@ -6,7 +6,7 @@
 
 *Previously known as covid19lookup.nyc*
 
-[![Version](https://img.shields.io/badge/version-1.6.9-blue.svg)](https://github.com/straticus1/disease.zone)
+[![Version](https://img.shields.io/badge/version-1.7.0-blue.svg)](https://github.com/straticus1/disease.zone)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-brightgreen.svg)](./MEDICAL_COMPLIANCE_REVIEW.md)
 [![GDPR](https://img.shields.io/badge/GDPR-Compliant-brightgreen.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
@@ -14,7 +14,17 @@
 
 ## 🌟 Features
 
-### 🧠 **NEW IN v1.6.7: Advanced Neural Network & Machine Learning Integration**
+### 🌍 **NEW IN v1.7.0: Enhanced Interactive Disease Mapping with Geolocation**
+- **🎯 Smart Geolocation** - Automatic user location detection with precise country identification
+- **🗺️ Interactive Disease Maps** - Real-time disease mapping with location-based data filtering
+- **🌐 Multi-Source Data Integration** - WHO, FDA, outbreak alerts, vaccine tracking, and clinical trials
+- **📍 Dynamic Map Controls** - One-click geolocation toggle with automatic map centering
+- **🔄 Intelligent Fallbacks** - Multi-tier data loading with graceful error handling
+- **🌍 Expanded Country Support** - 20+ countries with comprehensive health data coverage
+- **💻 Modular Architecture** - Separated enhanced map functions for better maintainability
+- **🎨 Enhanced UX** - Visual feedback, smart notifications, and intuitive controls
+
+### 🧠 **v1.6.7: Advanced Neural Network & Machine Learning Integration**
 - **🤖 NeuralSearchService** - Full TensorFlow.js integration with real neural network processing for disease data search
 - **📊 ML Pipeline** - Multi-layer neural architecture (128→64→32 neurons) with dropout regularization and Adam optimizer
 - **🔬 Advanced NLP** - Natural language processing with medical term normalization and semantic similarity matching

@@ -2422,8 +2422,9 @@
                 </div>
 
                 <div class="modal-body" style="padding: 0; height: calc(90vh - 80px); display: flex; flex-direction: column;">
-                    <!-- Map Controls -->
+                    <!-- Enhanced Map Controls -->
                     <div style="padding: 1rem 1.5rem; background: #f8fafc; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                        <!-- Country Dropdown -->
                         <div style="display: flex; align-items: center; gap: 0.5rem;">
                             <label for="countrySelect" style="font-weight: 600; color: var(--text-primary);">Country:</label>
                             <select id="countrySelect" onchange="handleCountryChange()" style="padding: 0.5rem 1rem; border: 1px solid var(--border-color); border-radius: 6px; background: white; min-width: 200px;">
@@ -2443,9 +2444,28 @@
                                 <option value="MX">🇲🇽 Mexico</option>
                                 <option value="RU">🇷🇺 Russia</option>
                                 <option value="ZA">🇿🇦 South Africa</option>
+                                <option value="KE">🇰🇪 Kenya</option>
+                                <option value="NG">🇳🇬 Nigeria</option>
+                                <option value="EG">🇪🇬 Egypt</option>
+                                <option value="AR">🇦🇷 Argentina</option>
+                                <option value="CL">🇨🇱 Chile</option>
+                                <option value="KR">🇰🇷 South Korea</option>
+                                <option value="TH">🇹🇭 Thailand</option>
+                                <option value="VN">🇻🇳 Vietnam</option>
+                                <option value="ID">🇮🇩 Indonesia</option>
+                                <option value="PH">🇵🇭 Philippines</option>
                             </select>
                         </div>
 
+                        <!-- Geolocation Toggle -->
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="geolocationToggle" onchange="handleGeolocationToggle()" style="margin: 0;">
+                            <label for="geolocationToggle" style="font-weight: 600; color: var(--text-primary); cursor: pointer;">
+                                <i class="fas fa-location-arrow"></i> Auto-detect Location
+                            </label>
+                        </div>
+
+                        <!-- Region/State Dropdown (shown when country is selected) -->
                         <div id="regionSelectContainer" style="display: none; align-items: center; gap: 0.5rem;">
                             <label for="regionSelect" style="font-weight: 600; color: var(--text-primary);">Region/State:</label>
                             <select id="regionSelect" onchange="handleRegionChange()" style="padding: 0.5rem 1rem; border: 1px solid var(--border-color); border-radius: 6px; background: white; min-width: 180px;">
@@ -2453,24 +2473,35 @@
                             </select>
                         </div>
 
+                        <!-- Data Layer Selection -->
                         <div style="display: flex; align-items: center; gap: 0.5rem;">
                             <label style="font-weight: 600; color: var(--text-primary);">Data Layer:</label>
                             <select id="dataLayerSelect" onchange="handleDataLayerChange()" style="padding: 0.5rem 1rem; border: 1px solid var(--border-color); border-radius: 6px; background: white;">
-                                <option value="covid">COVID-19 Cases</option>
-                                <option value="flu">Influenza Activity</option>
-                                <option value="sti">STI Surveillance</option>
-                                <option value="foodborne">Foodborne Illness</option>
-                                <option value="respiratory">Respiratory Illness</option>
-                                <option value="vector">Vector-Borne Diseases</option>
+                                <option value="comprehensive">🏥 Comprehensive Health Data</option>
+                                <option value="covid">🦠 COVID-19 Cases</option>
+                                <option value="flu">🤧 Influenza Activity</option>
+                                <option value="sti">💊 STI Surveillance</option>
+                                <option value="outbreaks">🚨 Active Outbreaks</option>
+                                <option value="vaccines">💉 Vaccination Coverage</option>
+                                <option value="drugSafety">🛡️ Drug Safety Alerts</option>
+                                <option value="rareDisease">🧬 Rare Disease Cases</option>
+                                <option value="socialHealth">🏘️ Social Health Determinants</option>
+                                <option value="foodborne">🍽️ Foodborne Illness</option>
+                                <option value="respiratory">🫁 Respiratory Illness</option>
+                                <option value="vector">🦟 Vector-Borne Diseases</option>
                             </select>
                         </div>
 
+                        <!-- Action Buttons -->
                         <div style="display: flex; align-items: center; gap: 0.5rem; margin-left: auto;">
-                            <button onclick="refreshMapData()" style="padding: 0.5rem 1rem; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer;">
+                            <button onclick="refreshMapData()" style="padding: 0.5rem 1rem; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
                                 <i class="fas fa-sync-alt"></i> Refresh
                             </button>
-                            <button onclick="exportMapData()" style="padding: 0.5rem 1rem; background: var(--success-color); color: white; border: none; border-radius: 6px; cursor: pointer;">
+                            <button onclick="exportMapData()" style="padding: 0.5rem 1rem; background: var(--success-color); color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
                                 <i class="fas fa-download"></i> Export
+                            </button>
+                            <button onclick="toggleMapLegend()" style="padding: 0.5rem 1rem; background: var(--warning-color); color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                                <i class="fas fa-info-circle"></i> Legend
                             </button>
                         </div>
                     </div>
@@ -2599,5 +2630,6 @@
     </footer>
 
     <script src="/js/app.js"></script>
+    <script src="/js/enhanced_map_functions.js"></script>
 </body>
 </html>

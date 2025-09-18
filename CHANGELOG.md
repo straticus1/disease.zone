@@ -1,5 +1,46 @@
 # Changelog
 
+## [1.7.0] - 2025-09-18
+
+### 🌍 **Enhanced Interactive Disease Mapping with Geolocation**
+
+#### **🗺️ ADVANCED GEOLOCATION FEATURES:**
+- 🎯 **Smart Location Detection** - Automatic user geolocation with precise country identification
+- 🌍 **Reverse Geocoding** - OpenStreetMap integration for accurate location-to-country mapping
+- 📍 **Dynamic Map Centering** - Automatic map zoom and centering on user's detected location
+- 🎯 **Location-Based Data Loading** - Disease data automatically filtered by geographic location
+- 🗺️ **Interactive Location Markers** - Visual markers showing user position with popup information
+
+#### **🚀 ENHANCED MAPPING INTERFACE:**
+- 🌐 **Expanded Country Support** - Added Kenya (🇰🇪) to supported countries list
+- ⚙️ **Enhanced Map Controls** - Improved control panel with better organization and labels
+- 🔄 **Fallback Data Sources** - Multi-tier data loading from WHO, FDA, outbreak alerts, and vaccine tracking
+- 📋 **Comprehensive Health Data Integration** - Merged data from 5+ health service APIs
+- 🗺️ **Sample Data Generation** - Intelligent fallback with location-appropriate sample data
+
+#### **🔍 DATA SOURCE INTEGRATION:**
+- 🌎 **WHO Global Health** - Real-time health indicators and disease surveillance
+- 💊 **FDA Drug Safety** - Current drug alerts and safety notifications
+- 🚨 **Outbreak Monitoring** - Active outbreak detection and reporting
+- 💉 **Vaccine Coverage** - Regional vaccination coverage statistics
+- 🏥 **Clinical Trials** - Active clinical trial information by location
+
+#### **🎨 USER EXPERIENCE IMPROVEMENTS:**
+- ⚡ **Instant Location Access** - One-click geolocation toggle with immediate results
+- 📋 **Smart Error Handling** - Graceful fallbacks when geolocation is unavailable
+- 🎨 **Visual Feedback** - Clear success/warning notifications for user actions
+- 🗺️ **Global/Local View Toggle** - Easy switching between world view and location-specific view
+- 🌍 **Country Auto-Selection** - Automatic country dropdown population based on detected location
+
+#### **🛡️ TECHNICAL ENHANCEMENTS:**
+- 💻 **Modular JavaScript Architecture** - Separated enhanced map functions into dedicated module
+- 🎯 **High Accuracy Geolocation** - Optimized geolocation settings for best precision
+- 🔄 **Promise-Based API Calls** - Modern async/await patterns for reliable data loading
+- 🌍 **Country Code Mapping** - Comprehensive country name to code conversion system
+- 📋 **Unified Data Format** - Standardized data formatting across multiple health data sources
+
+---
+
 ## [1.6.9] - 2025-09-18
 
 ### 🚀 **Production Deployment: Enhanced Infrastructure Automation**
