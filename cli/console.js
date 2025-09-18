@@ -99,6 +99,8 @@ class DiseaseZoneConsole {
         // REPL-specific commands
         this.registerCommand('help', 'Show available commands', this.showHelp.bind(this));
         this.registerCommand('?', 'Show available commands', this.showHelp.bind(this));
+        this.registerCommand('commands', 'List all commands with descriptions', this.listAllCommands.bind(this));
+        this.registerCommand('command-help', 'Get help for specific command', this.getCommandHelp.bind(this));
         this.registerCommand('clear', 'Clear the console', this.clearConsole.bind(this));
         this.registerCommand('cls', 'Clear the console', this.clearConsole.bind(this));
         this.registerCommand('history', 'Show command history', this.showHistory.bind(this));
@@ -578,7 +580,240 @@ class DiseaseZoneConsole {
         console.log('  - Use Tab for command completion');
         console.log('  - Use Up/Down arrows for command history');
         console.log('  - Commands support --flags and arguments');
+        console.log('  - Type "commands" to see all available commands');
+        console.log('  - Type "command-help <command>" for specific help');
         console.log('  - Type Ctrl+C twice to force exit\n');
+    }
+
+    /**
+     * List all commands with descriptions
+     */
+    async listAllCommands() {
+        console.log(chalk.blue.bold('\n📋 All Available Commands\n'));
+        
+        const commandsByCategory = this.groupCommandsByCategory();
+        
+        Object.entries(commandsByCategory).forEach(([category, commands]) => {
+            console.log(chalk.yellow.bold(`${category.toUpperCase()}:`));
+            commands.forEach(cmd => {
+                const aliases = this.getAliasesForCommand(cmd.name);
+                const aliasText = aliases.length > 0 ? chalk.gray(` (${aliases.join(', ')})`) : '';
+                console.log(`  ${chalk.cyan(cmd.name.padEnd(20))} ${cmd.description}${aliasText}`);
+            });
+            console.log();
+        });
+
+        console.log(chalk.green('💡 Use "command-help <command>" for detailed help on any command\n'));
+    }
+
+    /**
+     * Get help for specific command
+     */
+    async getCommandHelp(args) {
+        const commandName = args[0];
+        
+        if (!commandName) {
+            console.log(chalk.red('Usage: command-help <command-name>'));
+            console.log(chalk.yellow('Example: command-help users-search'));
+            return;
+        }
+
+        // Check for alias
+        const actualCommand = this.aliases.get(commandName) || commandName;
+        const command = this.commands.get(actualCommand);
+
+        if (!command) {
+            console.log(chalk.red(`Unknown command: ${commandName}`));
+            console.log(chalk.yellow('Type "commands" to see all available commands'));
+            return;
+        }
+
+        console.log(chalk.blue.bold(`\n📖 Help for: ${command.name}\n`));
+        console.log(`Description: ${command.description}`);
+        
+        // Add specific usage examples based on command type
+        const usage = this.getCommandUsage(command.name);
+        if (usage) {
+            console.log(`\nUsage: ${chalk.cyan(usage)}`);
+        }
+
+        // Show aliases
+        const aliases = this.getAliasesForCommand(command.name);
+        if (aliases.length > 0) {
+            console.log(`Aliases: ${chalk.gray(aliases.join(', '))}`);
+        }
+
+        // Add examples for API commands
+        const examples = this.getCommandExamples(command.name);
+        if (examples.length > 0) {
+            console.log(chalk.yellow('\nExamples:'));
+            examples.forEach(example => {
+                console.log(`  ${chalk.cyan(example)}`);
+            });
+        }
+
+        console.log();
+    }
+
+    /**
+     * Group commands by category
+     */
+    groupCommandsByCategory() {
+        const categories = {
+            'Authentication': [],
+            'User Management': [],
+            'Disease Registry': [],
+            'Family Tracking': [],
+            'AI Symptom Analysis': [],
+            'API Keys': [],
+            'User Management API': [],
+            'Permissions API': [],
+            'Groups API': [],
+            'Blockchain API': [],
+            'Messaging API': [],
+            'Audit API': [],
+            'Generic API': [],
+            'Batch Operations': [],
+            'Configuration': [],
+            'Console': []
+        };
+
+        this.commands.forEach(command => {
+            const name = command.name;
+            
+            if (name.includes('login') || name.includes('register') || name.includes('logout') || name === 'whoami') {
+                categories['Authentication'].push(command);
+            } else if (name.includes('profile') || name.includes('update-profile')) {
+                categories['User Management'].push(command);
+            } else if (name.includes('disease') && !name.includes('family') && !name.includes('api')) {
+                categories['Disease Registry'].push(command);
+            } else if (name.includes('family')) {
+                categories['Family Tracking'].push(command);
+            } else if (name.includes('symptom')) {
+                categories['AI Symptom Analysis'].push(command);
+            } else if (name.includes('apikey')) {
+                categories['API Keys'].push(command);
+            } else if (name.includes('api-users') || name === 'users-search' || name === 'users-profile') {
+                categories['User Management API'].push(command);
+            } else if (name.includes('api-perms') || name.includes('perms-')) {
+                categories['Permissions API'].push(command);
+            } else if (name.includes('api-groups') || name.includes('groups-')) {
+                categories['Groups API'].push(command);
+            } else if (name.includes('api-blockchain') || name.includes('blockchain-')) {
+                categories['Blockchain API'].push(command);
+            } else if (name.includes('api-msg') || name.includes('msg-')) {
+                categories['Messaging API'].push(command);
+            } else if (name.includes('api-audit') || name.includes('audit-')) {
+                categories['Audit API'].push(command);
+            } else if (name.includes('api-') || ['get', 'post', 'put', 'del'].includes(name)) {
+                categories['Generic API'].push(command);
+            } else if (name.includes('batch')) {
+                categories['Batch Operations'].push(command);
+            } else if (name.includes('config')) {
+                categories['Configuration'].push(command);
+            } else {
+                categories['Console'].push(command);
+            }
+        });
+
+        // Remove empty categories
+        Object.keys(categories).forEach(key => {
+            if (categories[key].length === 0) {
+                delete categories[key];
+            }
+        });
+
+        return categories;
+    }
+
+    /**
+     * Get aliases for a command
+     */
+    getAliasesForCommand(commandName) {
+        const aliases = [];
+        this.aliases.forEach((command, alias) => {
+            if (command === commandName) {
+                aliases.push(alias);
+            }
+        });
+        return aliases;
+    }
+
+    /**
+     * Get usage string for command
+     */
+    getCommandUsage(commandName) {
+        const usageMap = {
+            'users-search': 'users-search [--role <role>] [--search <term>]',
+            'users-profile': 'users-profile <user-id>',
+            'api-users-tag': 'api-users-tag <user-id> --tag <tag>',
+            'api-users-untag': 'api-users-untag <user-id> --tag <tag>',
+            'perms-grant': 'perms-grant --user-id <id> --permission-type <type> --access-level <level>',
+            'perms-list': 'perms-list <user-id>',
+            'api-perms-revoke': 'api-perms-revoke <permission-id> [--reason <reason>]',
+            'groups-search': 'groups-search [--search <term>] [--status <status>]',
+            'groups-create': 'groups-create --name <name> [--description <desc>]',
+            'blockchain-view': 'blockchain-view <data-type> <data-id>',
+            'msg-send': 'msg-send --recipient-id <id> --content <message>',
+            'audit-report': 'audit-report --start-date <date> --end-date <date> --framework <framework>',
+            'get': 'get <endpoint>',
+            'post': 'post <endpoint> --data <json>',
+            'put': 'put <endpoint> --data <json>',
+            'del': 'del <endpoint>',
+            'command-help': 'command-help <command-name>'
+        };
+
+        return usageMap[commandName] || `${commandName} [options]`;
+    }
+
+    /**
+     * Get examples for command
+     */
+    getCommandExamples(commandName) {
+        const examplesMap = {
+            'users-search': [
+                'users-search --role medical_professional',
+                'users-search --search "john" --role researcher'
+            ],
+            'users-profile': [
+                'users-profile me',
+                'users-profile user-123'
+            ],
+            'api-users-tag': [
+                'api-users-tag user-123 --tag researcher',
+                'api-users-tag user-456 --tag admin'
+            ],
+            'perms-grant': [
+                'perms-grant --user-id user-123 --permission-type medical_reports --access-level read',
+                'perms-grant --user-id user-456 --permission-type prescriptions --access-level write'
+            ],
+            'groups-create': [
+                'groups-create --name "Research Team" --description "Medical research group"',
+                'groups-create --name "Cardiology" --description "Heart specialists"'
+            ],
+            'blockchain-view': [
+                'blockchain-view medical_reports report-123',
+                'blockchain-view prescriptions rx-456'
+            ],
+            'msg-send': [
+                'msg-send --recipient-id user-123 --content "Hello from console"',
+                'msg-send --recipient-id user-456 --content "Meeting at 3pm"'
+            ],
+            'audit-report': [
+                'audit-report --start-date 2024-01-01 --end-date 2024-12-31 --framework HIPAA',
+                'audit-report --start-date 2024-06-01 --end-date 2024-06-30 --framework GDPR'
+            ],
+            'get': [
+                'get /api/user/profile',
+                'get /api/admin/users/search?role=medical_professional'
+            ],
+            'post': [
+                'post /api/messaging/send --data \'{"recipientId":"user-123","content":"Hello"}\'',
+                'post /api/admin/groups/create --data \'{"name":"New Team","description":"Team desc"}\''
+            ]
+        };
+
+        return examplesMap[commandName] || [];
     }
 
     /**
