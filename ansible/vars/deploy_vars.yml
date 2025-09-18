@@ -1,6 +1,0 @@
----
-docker_image_tag: latest
-ecr_repository_url: 515966511618.dkr.ecr.us-east-1.amazonaws.com/diseasezone-prod
-ecs_cluster_name: diseasezone-cluster-prod
-ecs_service_name: diseasezone-service-prod
-aws_region: us-east-1

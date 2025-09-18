@@ -5,6 +5,11 @@
 
 set -e  # Exit on any error
 
+# Start timing
+START_TIME=$(date +%s)
+START_TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+echo "🕐 Deploy started at: $START_TIMESTAMP"
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -19,9 +24,27 @@ ECR_REPOSITORY="515966511618.dkr.ecr.us-east-1.amazonaws.com/diseasezone-prod"
 IMAGE_TAG="latest"
 DOCKER_IMAGE_NAME="disease.zone"
 
-# Function to print colored output
+# Function to print colored output with timing
+STEP_START_TIME=$(date +%s)
 print_status() {
     echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+# Function to start timing a step
+start_step() {
+    CURRENT_STEP="$1"
+    STEP_START_TIME=$(date +%s)
+    STEP_START_TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+    echo -e "${YELLOW}⏱️  Starting: $1 at $STEP_START_TIMESTAMP${NC}"
+}
+
+# Function to end timing a step
+end_step() {
+    STEP_END_TIME=$(date +%s)
+    STEP_DURATION=$((STEP_END_TIME - STEP_START_TIME))
+    STEP_END_TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+    echo -e "${GREEN}✅ Completed: $CURRENT_STEP at $STEP_END_TIMESTAMP (${STEP_DURATION}s)${NC}"
+    CURRENT_STEP=""
 }
 
 print_success() {
@@ -44,6 +67,7 @@ print_header() {
 
 # Function to check prerequisites
 check_prerequisites() {
+    start_step "Prerequisites Check"
     print_header "Checking Prerequisites"
     
     # Check if we're in the right directory
@@ -88,10 +112,12 @@ check_prerequisites() {
     fi
     
     print_success "All prerequisites met"
+    end_step "Prerequisites Check"
 }
 
 # Function to get Terraform outputs
 get_terraform_outputs() {
+    start_step "Getting Terraform Outputs"
     print_header "Getting Terraform Outputs"
     
     cd "$PROJECT_DIR/terraform"
@@ -107,10 +133,12 @@ get_terraform_outputs() {
     print_status "Load Balancer: $LOAD_BALANCER_DNS"
     
     cd "$PROJECT_DIR"
+    end_step "Getting Terraform Outputs"
 }
 
 # Function to build Docker image
 build_docker_image() {
+    start_step "Docker Image Build"
     print_header "Building Docker Image"
     
     cd "$PROJECT_DIR"
@@ -119,20 +147,24 @@ build_docker_image() {
     docker build -t "$DOCKER_IMAGE_NAME:$IMAGE_TAG" .
     
     print_success "Docker image built successfully"
+    end_step "Docker Image Build"
 }
 
 # Function to authenticate with ECR
 authenticate_ecr() {
+    start_step "ECR Authentication"
     print_header "Authenticating with ECR"
     
     print_status "Getting ECR login token..."
     aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$ECR_REPOSITORY_URL"
     
     print_success "ECR authentication successful"
+    end_step "ECR Authentication"
 }
 
 # Function to push Docker image to ECR
 push_to_ecr() {
+    start_step "Push to ECR"
     print_header "Pushing Docker Image to ECR"
     
     # Tag image for ECR
@@ -144,10 +176,12 @@ push_to_ecr() {
     docker push "$ECR_REPOSITORY_URL:$IMAGE_TAG"
     
     print_success "Docker image pushed to ECR successfully"
+    end_step "Push to ECR"
 }
 
 # Function to check if API keys are configured
 check_api_keys() {
+    start_step "API Keys Check"
     print_header "Checking API Keys Configuration"
     
     # Check if Mapbox token is set
@@ -167,15 +201,18 @@ check_api_keys() {
     else
         print_success "Google Maps API key is configured"
     fi
+    end_step "API Keys Check"
 }
 
 # Function to deploy using Ansible
 deploy_with_ansible() {
+    start_step "Ansible Deployment"
     print_header "Deploying Application with Ansible"
     
     cd "$PROJECT_DIR"
     
     # Create a temporary variables file with the current image tag
+    mkdir -p ansible/vars
     cat > ansible/vars/deploy_vars.yml << EOF
 ---
 docker_image_tag: $IMAGE_TAG
@@ -187,16 +224,23 @@ EOF
     
     # Run Ansible playbook with the deploy script
     print_status "Running Ansible deployment..."
-    ansible-playbook -i ansible/inventory.yml ansible/deploy.yml -e "@ansible/vars/deploy_vars.yml"
+    ansible-playbook -i ansible/inventory.yml ansible/deploy.yml \
+        -e "docker_image_tag=$IMAGE_TAG" \
+        -e "ecr_repository_url=$ECR_REPOSITORY_URL" \
+        -e "ecs_cluster_name=$ECS_CLUSTER_NAME" \
+        -e "ecs_service_name=$ECS_SERVICE_NAME" \
+        -e "aws_region=$AWS_REGION"
     
     # Clean up temporary file
     rm -f ansible/vars/deploy_vars.yml
     
     print_success "Ansible deployment completed"
+    end_step "Ansible Deployment"
 }
 
 # Function to wait for deployment and check health
 check_deployment_health() {
+    start_step "Deployment Health Check"
     print_header "Checking Deployment Health"
     
     print_status "Waiting for ECS service to stabilize..."
@@ -235,6 +279,7 @@ check_deployment_health() {
     else
         print_warning "Deployment may still be starting up. Check ECS console for details."
     fi
+    end_step "Deployment Health Check"
 }
 
 # Function to display final status and URLs
@@ -266,6 +311,18 @@ display_final_status() {
 
 # Function to handle script interruption
 cleanup() {
+    INTERRUPT_TIME=$(date +%s)
+    INTERRUPT_TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+    TOTAL_DURATION=$((INTERRUPT_TIME - START_TIME))
+    
+    echo -e "\n${RED}🛑 INTERRUPTED at $INTERRUPT_TIMESTAMP${NC}"
+    echo -e "${YELLOW}⏱️  Total runtime before interruption: ${TOTAL_DURATION}s${NC}"
+    
+    if [ -n "${CURRENT_STEP:-}" ]; then
+        STEP_DURATION=$((INTERRUPT_TIME - STEP_START_TIME))
+        echo -e "${YELLOW}📍 Was stuck on step: '$CURRENT_STEP' for ${STEP_DURATION}s${NC}"
+    fi
+    
     print_warning "Deployment interrupted. Cleaning up..."
     rm -f ansible/vars/deploy_vars.yml 2>/dev/null || true
     exit 1
@@ -289,6 +346,14 @@ main() {
     deploy_with_ansible
     check_deployment_health
     display_final_status
+    
+    # Final timing
+    END_TIME=$(date +%s)
+    END_TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+    TOTAL_DURATION=$((END_TIME - START_TIME))
+    
+    echo -e "\n${GREEN}🏁 DEPLOYMENT COMPLETED at $END_TIMESTAMP${NC}"
+    echo -e "${BLUE}⏱️  Total deployment time: ${TOTAL_DURATION}s ($(($TOTAL_DURATION / 60))m $(($TOTAL_DURATION % 60))s)${NC}"
 }
 
 # Handle command line arguments

@@ -1,5 +1,41 @@
 # Changelog
 
+## [1.6.8] - 2025-09-18
+
+### 🚀 **Deployment Infrastructure Enhancements**
+
+#### **⚙️ ANSIBLE DEPLOYMENT OPTIMIZATION:**
+- 🔧 **Enhanced Ansible Playbook** - Improved deployment reliability and error handling
+  - Switched from `docker_image` module to shell commands for better Docker operations
+  - Added explicit `changed_when: true` for proper task state tracking
+  - Improved ECR authentication and Docker image management
+  - Enhanced ECS service deployment configuration with explicit state management
+  - Removed deprecated `wait_timeout` parameter for cleaner service definitions
+
+#### **📊 DEPLOYMENT MONITORING & TIMING:**
+- ⏱️ **Advanced Deployment Tracking** - Comprehensive timing and progress monitoring
+  - Step-by-step timing with start/end timestamps for each deployment phase
+  - Total deployment time calculation with minutes and seconds formatting
+  - Interrupt handling with runtime tracking and current step identification
+  - Color-coded progress indicators and completion confirmations
+  - Enhanced logging with precise timing for troubleshooting and optimization
+
+#### **🛠 INFRASTRUCTURE IMPROVEMENTS:**
+- 📁 **Dynamic Configuration Management** - Removed static configuration files in favor of runtime generation
+  - Eliminated static `ansible/vars/deploy_vars.yml` file dependency
+  - Dynamic variable passing via command line arguments for better flexibility
+  - Improved variable management with runtime ECR repository URL resolution
+  - Enhanced security through reduced file-based configuration exposure
+
+#### **🔍 ENHANCED ERROR HANDLING:**
+- 🚨 **Comprehensive Error Tracking** - Better debugging and failure analysis
+  - Detailed interrupt handling with step-specific timing information
+  - Improved cleanup procedures for interrupted deployments
+  - Enhanced error messaging with context-aware troubleshooting hints
+  - Better deployment state tracking for resume capabilities
+
+---
+
 ## [1.6.7] - 2025-09-17
 
 ### 🧠 **Advanced Neural Network & Machine Learning Integration**
