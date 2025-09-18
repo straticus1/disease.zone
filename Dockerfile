@@ -1,14 +1,13 @@
-FROM node:18-alpine
+FROM node:18-slim
 
 # Install system dependencies for ML/AI libraries and FHIR endpoints
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y \
     curl \
     ca-certificates \
     python3 \
     make \
     g++ \
-    linux-headers \
-    libc6-compat
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
@@ -23,8 +22,7 @@ RUN npm ci --only=production --no-audit --no-fund
 COPY . .
 
 # Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S diseaseZone -u 1001
+RUN groupadd -r nodejs && useradd -r -g nodejs diseaseZone
 
 # Change ownership of the app directory
 RUN chown -R diseaseZone:nodejs /app

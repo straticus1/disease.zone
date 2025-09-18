@@ -1,5 +1,42 @@
 # Changelog
 
+## [3.7.0] - 2025-09-18
+
+### 🏥 **Advanced Medical File Upload & Management System**
+
+#### **🚀 COMPREHENSIVE MEDICAL FILE SUPPORT:**
+- 📁 **Multi-Format Support** - DICOM medical imaging (.dcm), HL7/FHIR health data exchange (.hl7, .json, .xml), NIfTI/MINC neuroimaging (.nii, .mnc)
+- 🔬 **Intelligent Processing** - Automated format detection, metadata extraction, and content validation for all medical file types
+- 🗂️ **Research Case Management** - Automated research case creation with file grouping and collaborative workflows
+- 📧 **Email Notifications** - Automated confirmation emails with research case linking and submission details
+
+#### **👩‍⚕️ DOCTOR DASHBOARD & COLLABORATION:**
+- 🔍 **Advanced Search Engine** - Full-text search across medical files with metadata indexing and filter support
+- 👥 **File Ownership System** - Take ownership, assign to doctors/groups, and manage collaborative access
+- 📊 **Real-time Analytics** - Dashboard with upload statistics, file type distribution, and research case tracking
+- 🎯 **Smart File Management** - Organized by file type with intuitive categorization and quick access
+
+#### **🔐 SECURITY & COMPLIANCE:**
+- 🛡️ **HIPAA-Compliant Storage** - Secure file storage with encryption at rest and access control
+- 🔍 **Audit Logging** - Complete audit trail for all file operations and access patterns
+- 🔒 **File Integrity** - SHA-256 hash generation for file verification and tamper detection
+- 🚫 **Secure Upload** - File type validation, size limits (100MB), and isolated storage directories
+
+#### **⚡ TECHNICAL IMPLEMENTATION:**
+- 🏗️ **Service Architecture** - Modular MedicalFileUploadService with comprehensive API endpoints
+- 🎨 **Frontend Integration** - Full UI with drag-drop upload, progress indicators, and dashboard views
+- 📱 **Responsive Design** - Mobile-friendly interface with professional medical color scheme
+- 🔌 **API Integration** - RESTful API with JWT authentication and comprehensive error handling
+
+#### **📋 SUPPORTED FILE OPERATIONS:**
+- ⬆️ **Multi-file Upload** - Batch upload up to 10 files with progress tracking
+- 🔍 **File Search** - Search by name, type, content, and metadata with pagination
+- ⬇️ **Secure Download** - Authenticated file downloads with access control
+- 📈 **Statistics** - File type distribution, storage usage, and activity metrics
+- 🗃️ **Case Management** - Create, view, and manage research cases with file collections
+
+---
+
 ## [1.7.3] - 2025-09-18
 
 ### 🧠 **AI-Enriched Data Platform Showcase & Enhanced Navigation**

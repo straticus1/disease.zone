@@ -214,41 +214,78 @@ class DiseaseZoneApp {
         const navLinks = document.getElementById('navLinks');
         let links = [];
 
+        // Always start with Home link for authenticated users
+        const baseLinks = [
+            { text: 'Home', view: 'guest' }
+        ];
+
         switch (this.userRole) {
             case 'medical_professional':
                 links = [
+                    ...baseLinks,
                     { text: 'Dashboard', view: 'medical' },
                     { text: 'Patients', view: 'patients' },
                     { text: 'Research', view: 'research' },
-                    { text: 'Compliance', view: 'compliance' }
+                    { text: 'Compliance', view: 'compliance' },
+                    { text: 'Surveillance', view: 'surveillance' }
                 ];
                 break;
             case 'insurance':
                 links = [
+                    ...baseLinks,
                     { text: 'Analytics', view: 'insurance' },
                     { text: 'Risk Models', view: 'risk' },
-                    { text: 'Claims', view: 'claims' }
+                    { text: 'Claims', view: 'claims' },
+                    { text: 'Surveillance', view: 'surveillance' }
                 ];
                 break;
             case 'researcher':
                 links = [
+                    ...baseLinks,
                     { text: 'Dashboard', view: 'user' },
                     { text: 'Data Access', view: 'research' },
-                    { text: 'Analytics', view: 'analytics' }
+                    { text: 'Analytics', view: 'analytics' },
+                    { text: 'Surveillance', view: 'surveillance' }
                 ];
                 break;
             default: // regular user
                 links = [
+                    ...baseLinks,
                     { text: 'Dashboard', view: 'user' },
                     { text: 'Health Data', view: 'health' },
                     { text: 'Surveillance', view: 'surveillance' }
                 ];
         }
 
+        // Add common links that all authenticated users should see
+        const commonLinks = [
+            { text: 'Research', view: 'research' },
+            { text: '<i class="fas fa-search"></i> Search', view: 'metasearch', class: 'search-link' },
+            { text: 'Resources', view: 'resources' },
+            { text: 'Ledger <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i>', href: '//ledger.disease.zone', external: true },
+            { text: 'Health News', view: 'news', class: 'news-link' },
+            { text: 'API Portal <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i>', href: '//api.disease.zone', external: true, class: 'api-link' }
+        ];
+
+        // Merge role-specific and common links
+        links = [...links, ...commonLinks];
+
         // Update navigation
-        navLinks.innerHTML = links.map(link =>
-            `<li><a href="#" onclick="showView('${link.view}')" class="nav-link">${link.text}</a></li>`
-        ).join('');
+        navLinks.innerHTML = links.map(link => {
+            if (link.external) {
+                const linkClass = link.class ? ` class="nav-link ${link.class}"` : ' class="nav-link"';
+                const linkStyle = link.class === 'search-link' ? ' style="color: var(--success-color);"' :
+                                 link.class === 'news-link' ? ' style="color: var(--info-color);"' :
+                                 link.class === 'api-link' ? ' style="color: var(--warning-color);"' : '';
+                return `<li><a href="${link.href}" target="_blank"${linkClass}${linkStyle}>${link.text}</a></li>`;
+            } else {
+                const linkClass = link.class ? ` class="nav-link ${link.class}"` : ' class="nav-link"';
+                const linkStyle = link.class === 'search-link' ? ' style="color: var(--success-color);"' :
+                                 link.class === 'news-link' ? ' style="color: var(--info-color);"' :
+                                 link.class === 'api-link' ? ' style="color: var(--warning-color);"' : '';
+                return `<li><a href="#" onclick="showView('${link.view}')"${linkClass}${linkStyle}>${link.text}</a></li>`;
+            }
+        }).join('');
     }
 
     showView(viewName) {

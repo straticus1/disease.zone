@@ -6,7 +6,7 @@
 
 *Previously known as covid19lookup.nyc*
 
-[![Version](https://img.shields.io/badge/version-1.7.3-blue.svg)](https://github.com/straticus1/disease.zone)
+[![Version](https://img.shields.io/badge/version-3.7.0-blue.svg)](https://github.com/straticus1/disease.zone)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-brightgreen.svg)](./MEDICAL_COMPLIANCE_REVIEW.md)
 [![GDPR](https://img.shields.io/badge/GDPR-Compliant-brightgreen.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
@@ -14,7 +14,17 @@
 
 ## 🌟 Features
 
-### 🧠 **NEW IN v1.7.3: AI-Enriched Data Platform Showcase & Enhanced Navigation**
+### 🏥 **NEW IN v3.7.0: Advanced Medical File Upload & Management System**
+- **📁 Multi-Format Medical File Support** - DICOM medical imaging, HL7/FHIR health data exchange, NIfTI/MINC neuroimaging
+- **🔬 Automated File Processing** - Intelligent format detection, metadata extraction, and content validation
+- **🗂️ Research Case Management** - Automated research case creation with file grouping and email notifications
+- **👩‍⚕️ Doctor Dashboard** - File search, ownership management, assignment to groups, and collaborative tools
+- **🔍 Advanced Search Engine** - Full-text search across medical files with filter support and metadata indexing
+- **📊 Real-time Analytics** - Upload statistics, file type distribution, and research case tracking
+- **🔐 HIPAA-Compliant Storage** - Secure file storage with audit logging and access control
+- **📧 Automated Notifications** - Email confirmations for uploads with research case linking
+
+### 🧠 **v1.7.3: AI-Enriched Data Platform Showcase & Enhanced Navigation**
 - **🚀 Comprehensive Platform Showcase** - Added dedicated section highlighting AI-enriched data capabilities
 - **📊 Data Source Integration** - Featured 50+ authoritative sources including WHO, CDC, ECDC, NIH
 - **🏛️ Government Systems Integration** - Direct API connections to CDC NNDSS, WHO GOARN, ECDC TESSy
@@ -389,6 +399,27 @@ curl -X POST http://localhost:3000/api/auth/login \
 # Get diseases (with JWT token)
 curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   http://localhost:3000/api/diseases
+
+# Upload medical files
+curl -X POST http://localhost:3000/api/medical-files/upload \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -F "medicalFiles=@path/to/scan.dcm" \
+  -F "medicalFiles=@path/to/report.pdf" \
+  -F "createCase=true" \
+  -F "caseTitle=Patient Imaging Study" \
+  -F "caseDescription=Chest CT scan and radiology report"
+
+# Search medical files
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  "http://localhost:3000/api/medical-files/search?q=chest&fileType=dicom"
+
+# Get file statistics
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  http://localhost:3000/api/medical-files/stats
+
+# Get research cases
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  http://localhost:3000/api/medical-files/cases
 ```
 
 ## 🏗️ Architecture

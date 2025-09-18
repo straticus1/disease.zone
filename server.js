@@ -145,6 +145,11 @@ async function initializeServices() {
     const FHIRService = require('./services/fhirService');
     const fhirService = new FHIRService();
 
+    // Initialize Medical File Upload Service
+    const MedicalFileUploadService = require('./services/medicalFileUploadService');
+    const medicalFileUploadService = new MedicalFileUploadService();
+    await medicalFileUploadService.initializeDatabase();
+
     // Initialize email and password reset services
     const emailService = new EmailService(config);
     const passwordResetService = new PasswordResetService(databaseService, emailService, config.security?.passwordReset);
@@ -1192,6 +1197,7 @@ app.get('/api/health', (req, res) => {
 const stiRoutes = require('./routes/stiRoutes');
 const globalHealthRoutes = require('./routes/globalHealthRoutes');
 const newsRoutes = require('./routes/newsRoutes');
+const medicalFileRoutes = require('./routes/medicalFileRoutes');
 // Temporarily comment out FHIR blockchain routes due to initialization issues
 // const fhirBlockchainRoutes = require('./routes/fhirBlockchainRoutes');
 
@@ -1199,6 +1205,7 @@ const newsRoutes = require('./routes/newsRoutes');
 app.use('/sti', stiRoutes);
 app.use('/global', globalHealthRoutes);
 app.use('/api/news', newsRoutes);
+app.use('/api/medical-files', medicalFileRoutes);
 // app.use('/api/fhir/blockchain', fhirBlockchainRoutes);
 
 // Authentication endpoints
