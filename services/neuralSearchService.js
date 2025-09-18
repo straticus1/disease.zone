@@ -9,7 +9,7 @@ const { Matrix } = require('ml-matrix');
 const KMeans = require('ml-kmeans');
 const { cosine } = require('ml-distance');
 const compromise = require('compromise');
-const stemmer = require('stemmer');
+// Stemmer will be loaded dynamically in the constructor
 const fs = require('fs').promises;
 const path = require('path');
 
@@ -18,6 +18,7 @@ class NeuralSearchService {
         this.isInitialized = false;
         this.model = null;
         this.tokenizer = null;
+        this.stemmer = null;
         this.vocabulary = new Map();
         this.documentEmbeddings = new Map();
         this.queryEmbeddings = new Map();
@@ -60,8 +61,25 @@ class NeuralSearchService {
         try {
             console.log('🧠 Initializing Neural Search Service...');
 
+            // Load stemmer dynamically as ES module
+            try {
+                const stemmerModule = await import('stemmer');
+                this.stemmer = stemmerModule.default;
+                if (typeof this.stemmer !== 'function') {
+                    throw new Error('Stemmer not loaded correctly');
+                }
+                console.log('✅ Stemmer loaded successfully');
+            } catch (stemmerError) {
+                console.warn('⚠️ Stemmer loading failed, using fallback:', stemmerError.message);
+                // Fallback stemmer implementation
+                this.stemmer = (word) => word.toLowerCase().replace(/ing$|ed$|s$/, '');
+            }
+
             // Create models directory if it doesn't exist
             await this.ensureModelDirectory();
+
+            // Initialize tokenizer first
+            this.initializeTokenizer();
 
             // Try to load existing model and vocabulary
             const modelExists = await this.loadExistingModel();
@@ -70,9 +88,6 @@ class NeuralSearchService {
                 console.log('🏗️ No existing model found, creating new neural network...');
                 await this.createAndTrainModel();
             }
-
-            // Initialize tokenizer
-            this.initializeTokenizer();
 
             this.isInitialized = true;
             console.log('✅ Neural Search Service initialized successfully');
@@ -298,7 +313,7 @@ class NeuralSearchService {
                 // Apply stemming and filtering
                 return words
                     .map(word => word.toLowerCase())
-                    .map(word => stemmer(word))
+                    .map(word => this.stemmer(word))
                     .filter(word => word.length > 2)
                     .filter(word => !natural.stopwords.includes(word));
             }
