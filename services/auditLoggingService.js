@@ -595,6 +595,28 @@ class AuditLoggingService {
         console.log('🗑️  Deleting expired audit logs before:', cutoffDate);
         return 0;
     }
+
+    /**
+     * Simple operation logging method for general use
+     * @param {string} userId - User performing the operation
+     * @param {string} operation - Operation being performed
+     * @param {object} details - Additional details about the operation
+     * @returns {string} - Audit log ID
+     */
+    async logOperation(userId, operation, details = {}) {
+        return await this.logAuditEvent({
+            eventType: operation,
+            userId: userId,
+            resourceType: details.resourceType || 'system',
+            resourceId: details.resourceId || null,
+            action: operation,
+            outcome: details.outcome || 'SUCCESS',
+            details: details,
+            severity: details.severity || this.SEVERITY_LEVELS.MEDIUM,
+            phiInvolved: details.phiInvolved || false,
+            complianceFrameworks: details.complianceFrameworks || [this.COMPLIANCE_FRAMEWORKS.HIPAA]
+        });
+    }
 }
 
 module.exports = AuditLoggingService;
