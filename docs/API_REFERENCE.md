@@ -22,6 +22,12 @@ Authorization: Bearer YOUR_API_KEY
 Authorization: Bearer JWT_TOKEN
 ```
 
+### Admin Authentication
+```http
+Authorization: Bearer ADMIN_JWT_TOKEN
+X-Admin-Role: administrator
+```
+
 ## Core Endpoints
 
 ### Health Check
@@ -33,6 +39,191 @@ Returns the health status of the API service.
 {
   "status": "ok",
   "message": "Server is running"
+}
+```
+
+## Admin Control Panel APIs
+
+### Admin Dashboard Statistics
+
+**GET** `/admin/stats/overview`
+
+Retrieves comprehensive system statistics for the admin dashboard.
+
+**Authentication:** Admin JWT required
+
+**Response:**
+```json
+{
+  "success": true,
+  "timestamp": "2025-09-18T12:00:00Z",
+  "stats": {
+    "users": {
+      "total": 15420,
+      "active": 8934,
+      "newToday": 125,
+      "growth": "+12.3%"
+    },
+    "sessions": {
+      "active": 1247,
+      "peak24h": 3456,
+      "avgDuration": "18.5 minutes"
+    },
+    "security": {
+      "events": 23,
+      "threats": 2,
+      "blocked": 145
+    },
+    "system": {
+      "uptime": "99.98%",
+      "responseTime": "127ms",
+      "errorRate": "0.02%"
+    }
+  }
+}
+```
+
+### User Management
+
+**GET** `/admin/users`
+
+Retrieve paginated list of all users with detailed information.
+
+**Parameters:**
+- `page` (number): Page number (default: 1)
+- `limit` (number): Results per page (default: 50)
+- `search` (string): Search users by name or email
+- `role` (string): Filter by user role
+- `status` (string): Filter by user status (active, inactive, suspended)
+
+**POST** `/admin/users`
+
+Create a new user account with administrative privileges.
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "name": "John Doe",
+  "role": "user",
+  "permissions": ["read", "write"],
+  "sendWelcomeEmail": true
+}
+```
+
+**PUT** `/admin/users/:userId`
+
+Update user information and permissions.
+
+**DELETE** `/admin/users/:userId`
+
+Deactivate or delete a user account with audit logging.
+
+### Security Management
+
+**GET** `/admin/security/events`
+
+Retrieve recent security events and alerts.
+
+**Parameters:**
+- `severity` (string): Filter by severity level (low, medium, high, critical)
+- `type` (string): Event type (login, auth_failure, suspicious_activity)
+- `from` (date): Start date for event range
+- `to` (date): End date for event range
+
+**Response:**
+```json
+{
+  "success": true,
+  "events": [
+    {
+      "id": "sec_001",
+      "type": "auth_failure",
+      "severity": "medium",
+      "timestamp": "2025-09-18T11:45:00Z",
+      "details": {
+        "ip": "192.168.1.100",
+        "userAgent": "Mozilla/5.0...",
+        "attempts": 5,
+        "blocked": true
+      }
+    }
+  ],
+  "summary": {
+    "total": 23,
+    "critical": 0,
+    "high": 2,
+    "medium": 8,
+    "low": 13
+  }
+}
+```
+
+### System Monitoring
+
+**GET** `/admin/system/health`
+
+Comprehensive system health check with detailed metrics.
+
+**Response:**
+```json
+{
+  "status": "healthy",
+  "uptime": "15d 4h 23m",
+  "services": {
+    "database": {
+      "status": "healthy",
+      "responseTime": "12ms",
+      "connections": 45
+    },
+    "cache": {
+      "status": "healthy",
+      "hitRate": "94.2%",
+      "memory": "2.1GB/8GB"
+    },
+    "api": {
+      "status": "healthy",
+      "requestsPerMinute": 1247,
+      "errorRate": "0.02%"
+    }
+  },
+  "performance": {
+    "cpu": "23.4%",
+    "memory": "67.8%",
+    "disk": "34.2%",
+    "network": "125 Mbps"
+  }
+}
+```
+
+### Configuration Management
+
+**GET** `/admin/config`
+
+Retrieve system configuration settings.
+
+**PUT** `/admin/config`
+
+Update system configuration with validation and audit logging.
+
+**Request Body:**
+```json
+{
+  "features": {
+    "geolocation": true,
+    "adminPanel": true,
+    "advancedMapping": true
+  },
+  "security": {
+    "sessionTimeout": 3600,
+    "maxLoginAttempts": 5,
+    "passwordMinLength": 8
+  },
+  "performance": {
+    "cacheTimeout": 300,
+    "rateLimit": 1000,
+    "maxRequestSize": "10MB"
+  }
 }
 ```
 

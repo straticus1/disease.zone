@@ -6,7 +6,7 @@
 
 *Previously known as covid19lookup.nyc*
 
-[![Version](https://img.shields.io/badge/version-1.7.0-blue.svg)](https://github.com/straticus1/disease.zone)
+[![Version](https://img.shields.io/badge/version-1.7.1-blue.svg)](https://github.com/straticus1/disease.zone)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-brightgreen.svg)](./MEDICAL_COMPLIANCE_REVIEW.md)
 [![GDPR](https://img.shields.io/badge/GDPR-Compliant-brightgreen.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
@@ -14,7 +14,17 @@
 
 ## 🌟 Features
 
-### 🌍 **NEW IN v1.7.0: Enhanced Interactive Disease Mapping with Geolocation**
+### 👨‍💼 **NEW IN v1.7.1: Comprehensive Admin Control Panel & System Management**
+- **🎯 Complete Admin Interface** - Modern administrative control panel with real-time system statistics
+- **👥 User Management System** - Full user administration with role-based access controls
+- **🛡️ Advanced Security Controls** - Security event monitoring and threat detection systems
+- **📊 Operational Intelligence** - Performance metrics, analytics dashboard, and health indicators
+- **🎨 Professional Admin UI** - Modern dashboard design with gradient icons and responsive interface
+- **🔧 System Administration** - Configuration management, automated maintenance, and backup controls
+- **📝 Comprehensive Logging** - Audit trails and detailed system activity monitoring
+- **📈 Visual Analytics** - Charts, graphs, and real-time data visualization
+
+### 🌍 **v1.7.0: Enhanced Interactive Disease Mapping with Geolocation**
 - **🎯 Smart Geolocation** - Automatic user location detection with precise country identification
 - **🗺️ Interactive Disease Maps** - Real-time disease mapping with location-based data filtering
 - **🌐 Multi-Source Data Integration** - WHO, FDA, outbreak alerts, vaccine tracking, and clinical trials

@@ -2402,6 +2402,207 @@
             </div>
         </div>
 
+        <!-- Admin Panel View -->
+        <div class="view" id="adminView">
+            <div class="container dashboard">
+                <div class="dashboard-header">
+                    <h1 style="color: var(--primary-color); margin-bottom: 0.5rem;">
+                        <i class="fas fa-cogs"></i> Admin Control Panel
+                    </h1>
+                    <p style="color: var(--text-secondary); margin: 0;">System administration and user management</p>
+                </div>
+
+                <!-- Admin Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalUsers">0</div>
+                            <div class="stat-label">Total Users</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalAdmins">0</div>
+                            <div class="stat-label">Admin Users</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                            <i class="fas fa-users-cog"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalGroups">0</div>
+                            <div class="stat-label">User Groups</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="dataPermissions">0</div>
+                            <div class="stat-label">Data Permissions</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Search and Management -->
+                <div class="card" style="margin-bottom: 2rem;">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-search"></i> User Search & Management
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Search Bar -->
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: end;">
+                            <div style="flex: 1;">
+                                <label for="userSearch" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Search Users</label>
+                                <input type="text" id="userSearch" placeholder="Search by name, email, role..." 
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px;"
+                                       onkeypress="if(event.key==='Enter') searchUsers()">
+                            </div>
+                            <div>
+                                <label for="roleFilter" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Filter by Role</label>
+                                <select id="roleFilter" style="padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px;">
+                                    <option value="">All Roles</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="medical_professional">Medical Professional</option>
+                                    <option value="researcher">Researcher</option>
+                                    <option value="insurance">Insurance</option>
+                                    <option value="user">Regular User</option>
+                                </select>
+                            </div>
+                            <button onclick="searchUsers()" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+
+                        <!-- User Results -->
+                        <div id="userSearchResults">
+                            <!-- Results will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions Grid -->
+                <div class="grid grid-2" style="gap: 2rem; margin-bottom: 2rem;">
+                    <!-- User Groups Management -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-layer-group"></i> User Groups
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                                <button onclick="openModal('createGroupModal')" class="btn btn-success">
+                                    <i class="fas fa-plus"></i> Create Group
+                                </button>
+                                <button onclick="showView('groupsearch')" class="btn btn-info">
+                                    <i class="fas fa-search"></i> Search Groups
+                                </button>
+                            </div>
+                            <div id="recentGroups">
+                                <!-- Recent groups will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Permissions -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-shield-alt"></i> Data Permissions
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                                <button onclick="openModal('managePermissionsModal')" class="btn btn-warning">
+                                    <i class="fas fa-cog"></i> Manage Permissions
+                                </button>
+                                <button onclick="viewPermissionMatrix()" class="btn btn-secondary">
+                                    <i class="fas fa-table"></i> Permission Matrix
+                                </button>
+                            </div>
+                            <div id="permissionsSummary">
+                                <!-- Permissions summary will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Activity -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-line"></i> Recent System Activity
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="systemActivity">
+                            <!-- System activity will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Group Search View -->
+        <div class="view" id="groupsearchView">
+            <div class="container dashboard">
+                <div class="dashboard-header">
+                    <h1 style="color: var(--primary-color); margin-bottom: 0.5rem;">
+                        <i class="fas fa-search"></i> Search User Groups
+                    </h1>
+                    <p style="color: var(--text-secondary); margin: 0;">Find and manage user groups</p>
+                </div>
+
+                <!-- Back Button -->
+                <div style="margin-bottom: 1.5rem;">
+                    <button onclick="showView('admin')" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Admin Panel
+                    </button>
+                </div>
+
+                <!-- Group Search -->
+                <div class="card" style="margin-bottom: 2rem;">
+                    <div class="card-body">
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: end;">
+                            <div style="flex: 1;">
+                                <label for="groupSearch" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Search Groups</label>
+                                <input type="text" id="groupSearch" placeholder="Search by group name, description..." 
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px;"
+                                       onkeypress="if(event.key==='Enter') searchGroups()">
+                            </div>
+                            <div>
+                                <label for="groupStatusFilter" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Status</label>
+                                <select id="groupStatusFilter" style="padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px;">
+                                    <option value="">All Groups</option>
+                                    <option value="active">Active</option>
+                                    <option value="hidden">Hidden</option>
+                                </select>
+                            </div>
+                            <button onclick="searchGroups()" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+
+                        <!-- Group Results -->
+                        <div id="groupSearchResults">
+                            <!-- Results will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- Modals will be added here -->
