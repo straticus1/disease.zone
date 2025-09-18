@@ -85,6 +85,14 @@ async function initializeServices() {
     const musculoskeletalService = new MusculoskeletalDiseaseService();
     const countryHealthService = new CountryHealthService();
     const neuralSearchService = new NeuralSearchService();
+    
+    // Initialize enhanced services
+    const ClinicalTrialsService = require('./services/clinicalTrialsService');
+    const clinicalTrialsService = new ClinicalTrialsService();
+    
+    const EnhancedCDCService = require('./services/enhancedCDCService');
+    const enhancedCDCService = new EnhancedCDCService();
+    
     const modelTrainingScheduler = new ModelTrainingScheduler(neuralSearchService, databaseService);
 
     // Initialize compliance and security services
@@ -150,6 +158,8 @@ async function initializeServices() {
     app.locals.metaSearchService = metaSearchService;
     app.locals.redirectService = redirectService;
     app.locals.neuralSearchService = neuralSearchService;
+    app.locals.clinicalTrialsService = clinicalTrialsService;
+    app.locals.enhancedCDCService = enhancedCDCService;
     app.locals.modelTrainingScheduler = modelTrainingScheduler;
     app.locals.config = config;
 
@@ -4817,6 +4827,46 @@ function generateSampleDiseaseData(disease, state = null) {
     };
   });
 }
+
+// Clinical Trials API Routes
+app.get('/api/clinical-trials/:disease', async (req, res) => {
+  try {
+    const { disease } = req.params;
+    const { status, phase, limit } = req.query;
+    
+    const trials = await app.locals.clinicalTrialsService.searchTrialsByDisease(disease, {
+      status,
+      phase,
+      limit: parseInt(limit) || 20
+    });
+    
+    res.json(trials);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/clinical-trials/:disease', async (req, res) => {
+  try {
+    const { disease } = req.params;
+    const trials = await app.locals.clinicalTrialsService.searchTrialsByDisease(disease);
+    const html = app.locals.clinicalTrialsService.generateTrialsPage(disease, trials);
+    res.send(html);
+  } catch (error) {
+    res.status(500).send('Error loading clinical trials');
+  }
+});
+
+// Enhanced CDC Data API
+app.get('/api/enhanced-cdc/:disease', async (req, res) => {
+  try {
+    const { disease } = req.params;
+    const data = await app.locals.enhancedCDCService.getAggregatedDiseaseData(disease, req.query);
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // 404 handler - only for non-static routes that don't exist
 app.get('*', (req, res) => {
