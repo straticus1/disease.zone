@@ -1219,6 +1219,7 @@ const globalHealthRoutes = require('./routes/globalHealthRoutes');
 const newsRoutes = require('./routes/newsRoutes');
 const medicalFileRoutes = require('./routes/medicalFileRoutes');
 const licenseValidationRoutes = require('./routes/licenseValidationRoutes');
+const epicEHRRoutes = require('./routes/epicEHRRoutes');
 // Temporarily comment out FHIR blockchain routes due to initialization issues
 // const fhirBlockchainRoutes = require('./routes/fhirBlockchainRoutes');
 
@@ -1228,6 +1229,7 @@ app.use('/global', globalHealthRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/medical-files', medicalFileRoutes);
 app.use('/api/license-validation', licenseValidationRoutes);
+app.use('/api/epic', epicEHRRoutes);
 // app.use('/api/fhir/blockchain', fhirBlockchainRoutes);
 
 // Authentication endpoints
