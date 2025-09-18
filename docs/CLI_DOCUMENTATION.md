@@ -2,7 +2,15 @@
 
 ## Overview
 
-The diseaseZone CLI is a comprehensive command-line interface for managing family disease tracking, user accounts, and medical data. It provides full access to all platform features plus experimental batch operations for power users.
+The diseaseZone CLI is a comprehensive command-line interface for managing family disease tracking, user accounts, and medical data. Enhanced with modern UI components including professional table formatting, interactive prompts, and loading indicators for an optimal command-line experience.
+
+## ✨ New in v1.7.2
+
+- **🎨 Professional Table Formatting** - Beautiful data tables with borders, colors, and alignment using `cli-table3`
+- **💬 Interactive User Prompts** - Sophisticated command-line interactions with `inquirer` for guided workflows
+- **🔄 Loading Indicators** - Elegant spinners and progress feedback with `ora` for better user experience
+- **🔌 Platform Synchronization** - CLI fully synchronized with web platform features and capabilities
+- **📊 Enhanced Data Presentation** - Improved visual formatting across all commands and outputs
 
 ## Installation
 

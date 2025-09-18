@@ -6,7 +6,7 @@
 
 *Previously known as covid19lookup.nyc*
 
-[![Version](https://img.shields.io/badge/version-1.7.1-blue.svg)](https://github.com/straticus1/disease.zone)
+[![Version](https://img.shields.io/badge/version-1.7.2-blue.svg)](https://github.com/straticus1/disease.zone)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-brightgreen.svg)](./MEDICAL_COMPLIANCE_REVIEW.md)
 [![GDPR](https://img.shields.io/badge/GDPR-Compliant-brightgreen.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
@@ -14,7 +14,17 @@
 
 ## 🌟 Features
 
-### 👨‍💼 **NEW IN v1.7.1: Comprehensive Admin Control Panel & System Management**
+### 💻 **NEW IN v1.7.2: Enhanced CLI Platform Synchronization & User Experience**
+- **🎨 Advanced Table Formatting** - Professional data display with `cli-table3` integration
+- **💬 Interactive User Prompts** - Sophisticated command-line interactions with `inquirer`
+- **🔄 Loading Indicators** - Elegant spinners and progress feedback with `ora`
+- **🔌 Platform Synchronization** - CLI fully synchronized with web platform features
+- **📋 Professional Data Presentation** - Enhanced formatting for disease data and family records
+- **⏳ Visual Progress Feedback** - Real-time operation status and loading indicators
+- **🎯 Enhanced CLI Architecture** - Modern command-line interface with improved usability
+- **🚀 Interactive Workflows** - Guided user interactions for complex operations
+
+### 👨‍💼 **v1.7.1: Comprehensive Admin Control Panel & System Management**
 - **🎯 Complete Admin Interface** - Modern administrative control panel with real-time system statistics
 - **👥 User Management System** - Full user administration with role-based access controls
 - **🛡️ Advanced Security Controls** - Security event monitoring and threat detection systems
