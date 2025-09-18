@@ -6,6 +6,18 @@ const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const fs = require('fs');
 
+// Security Release 3: Configuration validation on startup
+const ConfigurationValidationService = require('./services/configurationValidationService');
+try {
+    console.log('🔍 Security Release 3: Validating configuration...');
+    ConfigurationValidationService.validateOnStartup();
+} catch (error) {
+    console.error('🚨 Configuration validation failed:', error.message);
+    if (process.env.NODE_ENV === 'production') {
+        process.exit(1);
+    }
+}
+
 // Load configuration
 let config = {};
 try {
