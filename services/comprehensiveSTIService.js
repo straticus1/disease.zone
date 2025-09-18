@@ -27,12 +27,24 @@ class ComprehensiveSTIService {
 
     this.currentRateLimit = this.rateLimits[this.accessLevel];
 
-    // Cache configuration
+    // Smart Cache configuration with invalidation
     this.cache = new Map();
+    this.cacheMetadata = new Map(); // Store ETags, Last-Modified, etc.
     this.cacheExpiry = {
-      realtime: 1000 * 60 * 15, // 15 minutes
-      daily: 1000 * 60 * 60 * 24, // 24 hours
-      weekly: 1000 * 60 * 60 * 24 * 7 // 7 days
+      critical: 1000 * 60 * 5,      // 5 minutes (outbreaks, critical updates)
+      realtime: 1000 * 60 * 10,     // 10 minutes (active surveillance)
+      hourly: 1000 * 60 * 60,       // 1 hour (general disease data)
+      daily: 1000 * 60 * 60 * 6,    // 6 hours (historical trends) - reduced from 24h
+      weekly: 1000 * 60 * 60 * 24 * 2 // 2 days (static data) - reduced from 7d
+    };
+
+    // Smart cache tiers based on disease criticality
+    this.cacheTiers = {
+      critical: ['covid', 'influenza', 'ebola', 'sars', 'mers'],
+      realtime: ['hiv', 'aids', 'tuberculosis', 'hepatitis'],
+      hourly: ['chlamydia', 'gonorrhea', 'syphilis', 'herpes'],
+      daily: ['hpv', 'hsv1', 'hsv2'],
+      weekly: ['historical', 'demographics']
     };
 
     // Disease configuration - disease.sh prioritized as default
@@ -469,19 +481,45 @@ class ComprehensiveSTIService {
         url += '/all';
       }
 
+      // Smart caching with conditional requests
+      const cacheKey = `${disease}_${options.region || 'all'}`;
+      const cachedMeta = this.cacheMetadata.get(cacheKey);
+      const headers = {
+        'User-Agent': 'Disease Tracking Application (disease.zone)',
+        'Accept': 'application/json'
+      };
+
+      // Add conditional headers if we have cached metadata
+      if (cachedMeta) {
+        if (cachedMeta.etag) headers['If-None-Match'] = cachedMeta.etag;
+        if (cachedMeta.lastModified) headers['If-Modified-Since'] = cachedMeta.lastModified;
+      }
+
       const response = await this.fetch(url, {
         timeout: 10000,
-        headers: {
-          'User-Agent': 'Disease Tracking Application (disease.zone)',
-          'Accept': 'application/json'
-        }
+        headers
       });
 
       if (!response.ok) {
+        if (response.status === 304) {
+          // Not modified - return cached data
+          const cached = this.cache.get(cacheKey);
+          if (cached) {
+            console.log(`📋 Cache hit (304): ${cacheKey}`);
+            return cached;
+          }
+        }
         if (response.status === 404) {
           return null; // Endpoint doesn't exist
         }
         throw new Error(`Disease API error: ${response.status}`);
+      }
+
+      // Store response metadata for future conditional requests
+      const etag = response.headers.get('etag');
+      const lastModified = response.headers.get('last-modified');
+      if (etag || lastModified) {
+        this.cacheMetadata.set(cacheKey, { etag, lastModified, updated: Date.now() });
       }
 
       const data = await response.json();
@@ -699,6 +737,85 @@ class ComprehensiveSTIService {
     ];
 
     return this.accessLevel === 'premium' ? detailedRegions : baseRegions;
+  }
+
+  /**
+   * Determine appropriate cache tier for a disease
+   */
+  getCacheTier(disease) {
+    for (const [tier, diseases] of Object.entries(this.cacheTiers)) {
+      if (diseases.includes(disease.toLowerCase())) {
+        return tier;
+      }
+    }
+    return 'hourly'; // Default tier
+  }
+
+  /**
+   * Check if cached data should be refreshed based on smart invalidation
+   */
+  shouldRefreshCache(cacheKey, disease) {
+    const cached = this.cache.get(cacheKey);
+    if (!cached) return true;
+
+    const tier = this.getCacheTier(disease);
+    const maxAge = this.cacheExpiry[tier];
+    const age = Date.now() - cached.timestamp;
+
+    // Always refresh if expired
+    if (age > maxAge) return true;
+
+    // For critical diseases, also check if we have fresh metadata
+    if (tier === 'critical') {
+      const meta = this.cacheMetadata.get(cacheKey);
+      if (!meta || (Date.now() - meta.updated) > this.cacheExpiry.critical) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Intelligent cache invalidation - refreshes only changed data
+   */
+  async refreshCacheSelectively(diseases = []) {
+    const refreshPromises = [];
+    
+    for (const disease of diseases) {
+      const cacheKey = `${disease}_all`;
+      if (this.shouldRefreshCache(cacheKey, disease)) {
+        console.log(`🔄 Selective refresh: ${disease}`);
+        refreshPromises.push(
+          this.fetchDiseaseData(disease, { region: 'all', forceRefresh: true })
+        );
+      }
+    }
+
+    if (refreshPromises.length > 0) {
+      await Promise.allSettled(refreshPromises);
+      console.log(`✅ Selective refresh completed for ${refreshPromises.length} diseases`);
+    }
+  }
+
+  /**
+   * Get cache status for monitoring
+   */
+  getCacheStatus() {
+    const cacheStats = {
+      totalEntries: this.cache.size,
+      metadataEntries: this.cacheMetadata.size,
+      tiers: {}
+    };
+
+    // Count entries by tier
+    for (const [key] of this.cache) {
+      const disease = key.split('_')[0];
+      const tier = this.getCacheTier(disease);
+      cacheStats.tiers[tier] = (cacheStats.tiers[tier] || 0) + 1;
+    }
+
+    return cacheStats;
   }
 }
 

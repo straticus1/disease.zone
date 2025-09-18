@@ -8,9 +8,10 @@ const fs = require('fs').promises;
 const path = require('path');
 
 class ModelTrainingScheduler {
-    constructor(neuralSearchService, databaseService) {
+    constructor(neuralSearchService, databaseService, comprehensiveSTIService = null) {
         this.neuralSearchService = neuralSearchService;
         this.databaseService = databaseService;
+        this.comprehensiveSTIService = comprehensiveSTIService;
         this.isTraining = false;
         this.trainingHistory = [];
         this.logPath = path.join(__dirname, '../logs/training.log');
@@ -59,10 +60,19 @@ class ModelTrainingScheduler {
             timezone: 'America/New_York'
         });
 
+        // Schedule smart cache refresh every 15 minutes for critical diseases
+        cron.schedule('*/15 * * * *', async () => {
+            await this.performSmartCacheRefresh();
+        }, {
+            name: 'smart-cache-refresh',
+            timezone: 'America/New_York'
+        });
+
         console.log('✅ Model training scheduler started with following schedule:');
         console.log('  - Daily training: 2:00 AM EST');
         console.log('  - Weekly training: Sunday 3:00 AM EST');
         console.log('  - Hourly updates: 9 AM - 5 PM EST (weekdays)');
+        console.log('  - Smart cache refresh: Every 15 minutes');
     }
 
     /**
@@ -353,6 +363,29 @@ class ModelTrainingScheduler {
                 break;
             default:
                 await this.performDailyTraining();
+        }
+    }
+
+    /**
+     * Perform smart cache refresh for critical diseases
+     */
+    async performSmartCacheRefresh() {
+        if (!this.comprehensiveSTIService) {
+            return; // Skip if service not available
+        }
+
+        try {
+            // Refresh critical diseases
+            const criticalDiseases = ['covid', 'influenza', 'hiv', 'aids'];
+            await this.comprehensiveSTIService.refreshCacheSelectively(criticalDiseases);
+            
+            // Log cache status
+            const cacheStatus = this.comprehensiveSTIService.getCacheStatus();
+            if (cacheStatus.totalEntries > 0) {
+                await this.log(`📊 Cache status: ${cacheStatus.totalEntries} entries across ${Object.keys(cacheStatus.tiers).length} tiers`);
+            }
+        } catch (error) {
+            console.error('Smart cache refresh error:', error);
         }
     }
 
