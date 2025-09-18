@@ -32,6 +32,7 @@
     "bcryptjs": "^3.0.2",
     "bull": "^4.16.5",
     "chalk": "^4.1.2",
+    "cheerio": "^1.1.2",
     "clamscan": "^2.4.0",
     "cli-table3": "^0.6.5",
     "commander": "^11.1.0",
