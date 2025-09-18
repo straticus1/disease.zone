@@ -23,6 +23,7 @@ const SymptomAnalysisCommands = require('./commands/symptom-analysis');
 const ApiKeyCommands = require('./apikeys');
 const BatchCommands = require('./batch');
 const ConfigCommands = require('./config');
+const ApiCommands = require('./api');
 
 class DiseaseZoneConsole {
     constructor(config) {
@@ -92,6 +93,9 @@ class DiseaseZoneConsole {
         this.registerCommand('config-set', 'Set configuration value', ConfigCommands.set);
         this.registerCommand('config-reset', 'Reset configuration', ConfigCommands.reset);
 
+        // Comprehensive API commands
+        this.setupApiCommands();
+
         // REPL-specific commands
         this.registerCommand('help', 'Show available commands', this.showHelp.bind(this));
         this.registerCommand('?', 'Show available commands', this.showHelp.bind(this));
@@ -111,6 +115,116 @@ class DiseaseZoneConsole {
         this.addAlias('fam', 'family-list');
         this.addAlias('sym', 'symptom-start');
         this.addAlias('keys', 'apikeys');
+    }
+
+    /**
+     * Setup comprehensive API commands for console mode
+     */
+    setupApiCommands() {
+        // Initialize API commands instance
+        this.apiCommands = new ApiCommands();
+
+        // User management API commands
+        this.registerCommand('api-users-search', 'Search users via API', this.createApiCommand('searchUsers'));
+        this.registerCommand('api-users-profile', 'Get user profile via API', this.createApiCommand('getUserProfile'));
+        this.registerCommand('api-users-update-role', 'Update user role via API', this.createApiCommand('updateUserRole'));
+        this.registerCommand('api-users-tag', 'Tag user via API', this.createApiCommand('tagUser'));
+        this.registerCommand('api-users-untag', 'Remove user tag via API', this.createApiCommand('removeUserTag'));
+
+        // Permissions API commands
+        this.registerCommand('api-perms-grant', 'Grant permission via API', this.createApiCommand('grantPermission'));
+        this.registerCommand('api-perms-revoke', 'Revoke permission via API', this.createApiCommand('revokePermission'));
+        this.registerCommand('api-perms-list', 'List user permissions via API', this.createApiCommand('getUserPermissions'));
+
+        // Groups API commands
+        this.registerCommand('api-groups-search', 'Search groups via API', this.createApiCommand('searchGroups'));
+        this.registerCommand('api-groups-create', 'Create group via API', this.createApiCommand('createGroup'));
+        this.registerCommand('api-groups-add-member', 'Add user to group via API', this.createApiCommand('addUserToGroup'));
+        this.registerCommand('api-groups-remove-member', 'Remove user from group via API', this.createApiCommand('removeUserFromGroup'));
+
+        // Blockchain API commands
+        this.registerCommand('api-blockchain-view', 'View blockchain data via API', this.createApiCommand('viewBlockchainData'));
+        this.registerCommand('api-blockchain-grant', 'Grant blockchain access via API', this.createApiCommand('grantBlockchainAccess'));
+        this.registerCommand('api-blockchain-grants', 'List blockchain grants via API', this.createApiCommand('getBlockchainGrants'));
+
+        // Messaging API commands
+        this.registerCommand('api-msg-send', 'Send message via API', this.createApiCommand('sendMessage'));
+        this.registerCommand('api-msg-conversations', 'List conversations via API', this.createApiCommand('getConversations'));
+        this.registerCommand('api-msg-messages', 'Get messages via API', this.createApiCommand('getMessages'));
+
+        // Audit API commands
+        this.registerCommand('api-audit-report', 'Generate audit report via API', this.createApiCommand('generateAuditReport'));
+        this.registerCommand('api-audit-logs', 'Get audit logs via API', this.createApiCommand('getAuditLogs'));
+
+        // Secondary Auth API commands
+        this.registerCommand('api-auth-setup', 'Setup secondary auth via API', this.createApiCommand('setupSecondaryAuth'));
+        this.registerCommand('api-auth-challenge', 'Create auth challenge via API', this.createApiCommand('createAuthChallenge'));
+
+        // Generic API commands
+        this.registerCommand('api-get', 'Generic GET request', this.createApiCommand('apiGet'));
+        this.registerCommand('api-post', 'Generic POST request', this.createApiCommand('apiPost'));
+        this.registerCommand('api-put', 'Generic PUT request', this.createApiCommand('apiPut'));
+        this.registerCommand('api-delete', 'Generic DELETE request', this.createApiCommand('apiDelete'));
+
+        // Add convenient aliases for API commands
+        this.addAlias('users-search', 'api-users-search');
+        this.addAlias('users-profile', 'api-users-profile');
+        this.addAlias('perms-grant', 'api-perms-grant');
+        this.addAlias('perms-list', 'api-perms-list');
+        this.addAlias('groups-search', 'api-groups-search');
+        this.addAlias('groups-create', 'api-groups-create');
+        this.addAlias('blockchain-view', 'api-blockchain-view');
+        this.addAlias('msg-send', 'api-msg-send');
+        this.addAlias('msg-list', 'api-msg-conversations');
+        this.addAlias('audit-report', 'api-audit-report');
+        this.addAlias('get', 'api-get');
+        this.addAlias('post', 'api-post');
+        this.addAlias('put', 'api-put');
+        this.addAlias('del', 'api-delete');
+    }
+
+    /**
+     * Create API command wrapper for console mode
+     */
+    createApiCommand(method) {
+        return async (args, options) => {
+            try {
+                // Convert console args to API command format
+                const apiOptions = this.convertConsoleOptionsToApi(args, options);
+                
+                // Execute API command
+                if (method.includes('User') && args.length > 0) {
+                    await this.apiCommands[method](args[0], apiOptions);
+                } else if (method.includes('Group') && args.length > 0) {
+                    await this.apiCommands[method](args[0], apiOptions);
+                } else if (method.includes('blockchain') && args.length >= 2) {
+                    await this.apiCommands[method](args[0], args[1], apiOptions);
+                } else if (method.includes('Message') && args.length > 0) {
+                    await this.apiCommands[method](args[0], apiOptions);
+                } else if (method.startsWith('api')) {
+                    // Generic API methods
+                    await this.apiCommands[method](args[0], apiOptions);
+                } else {
+                    await this.apiCommands[method](apiOptions);
+                }
+            } catch (error) {
+                console.log(chalk.red(`Error: ${error.message}`));
+            }
+        };
+    }
+
+    /**
+     * Convert console options to API format
+     */
+    convertConsoleOptionsToApi(args, options) {
+        const apiOptions = { ...options };
+        
+        // Convert common options
+        if (options.output) {
+            apiOptions.file = options.output;
+        }
+        
+        return apiOptions;
     }
 
     /**
@@ -415,6 +529,43 @@ class DiseaseZoneConsole {
         console.log('  config-show        Show configuration');
         console.log('  config-set         Set configuration value');
         console.log('  config-reset       Reset configuration\n');
+
+        console.log(chalk.yellow.bold('USER MANAGEMENT API:'));
+        console.log('  users-search       Search users via API');
+        console.log('  users-profile      Get user profile via API');
+        console.log('  api-users-tag      Tag user via API');
+        console.log('  api-users-untag    Remove user tag via API\n');
+
+        console.log(chalk.yellow.bold('PERMISSIONS API:'));
+        console.log('  perms-grant        Grant permission via API');
+        console.log('  perms-list         List user permissions via API');
+        console.log('  api-perms-revoke   Revoke permission via API\n');
+
+        console.log(chalk.yellow.bold('GROUPS API:'));
+        console.log('  groups-search      Search groups via API');
+        console.log('  groups-create      Create group via API');
+        console.log('  api-groups-add-member    Add user to group via API');
+        console.log('  api-groups-remove-member Remove user from group via API\n');
+
+        console.log(chalk.yellow.bold('BLOCKCHAIN API:'));
+        console.log('  blockchain-view    View blockchain data via API');
+        console.log('  api-blockchain-grant     Grant blockchain access via API');
+        console.log('  api-blockchain-grants    List blockchain grants via API\n');
+
+        console.log(chalk.yellow.bold('MESSAGING API:'));
+        console.log('  msg-send           Send message via API');
+        console.log('  msg-list           List conversations via API');
+        console.log('  api-msg-messages   Get messages via API\n');
+
+        console.log(chalk.yellow.bold('AUDIT & COMPLIANCE API:'));
+        console.log('  audit-report       Generate audit report via API');
+        console.log('  api-audit-logs     Get audit logs via API\n');
+
+        console.log(chalk.yellow.bold('GENERIC API:'));
+        console.log('  get                Generic GET request');
+        console.log('  post               Generic POST request');
+        console.log('  put                Generic PUT request');
+        console.log('  del                Generic DELETE request\n');
 
         console.log(chalk.yellow.bold('CONSOLE:'));
         console.log('  help (h, ?)        Show this help');
