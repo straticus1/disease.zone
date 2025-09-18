@@ -14,7 +14,11 @@
     "login-validate-prod": "./scripts/login-validate-prod.sh",
     "reset-passwords": "echo 'Use: npm run login-validate (choose option 3)'",
     "analyze-mock-data": "node scripts/fix-mock-data.js analyze",
-    "fix-mock-data": "node scripts/fix-mock-data.js fix"
+    "fix-mock-data": "node scripts/fix-mock-data.js fix",
+    "security:generate-secrets": "node scripts/generate-secure-secrets.js",
+    "security:generate-secrets-file": "node scripts/generate-secure-secrets.js --env-file",
+    "security:validate-secret": "node scripts/generate-secure-secrets.js --validate",
+    "security:validate-config": "node -e 'const ConfigValidator = require(\"./services/configurationValidationService\"); ConfigValidator.validateOnStartup()'"
   },
   "bin": {
     "diseasezone": "./cli.js"

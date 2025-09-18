@@ -66,6 +66,9 @@ const SecurityValidator = require('./middleware/security');
 const WalletManagementService = require('./services/walletManagementService');
 const ErrorHandler = require('./middleware/errorHandler');
 
+// Security Release 4: Advanced Security Monitoring
+const SecurityMonitoringService = require('./services/securityMonitoringService');
+
 // Middleware
 const AuthMiddleware = require('./middleware/auth');
 
@@ -75,10 +78,13 @@ const ResponseHandler = require('./utils/responseHandler');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Initialize enhanced security and blockchain services
+// Security Release 4: Initialize enhanced security and blockchain services
 const securityValidator = new SecurityValidator();
 const walletService = new WalletManagementService();
 const errorHandler = new ErrorHandler(securityValidator);
+const securityMonitor = new SecurityMonitoringService();
+
+console.log('🔒 Security Release 4: Advanced security monitoring initialized');
 
 // Initialize services
 async function initializeServices() {
@@ -195,6 +201,7 @@ async function initializeServices() {
     app.locals.fhirService = fhirService;
     app.locals.securityValidator = securityValidator;
     app.locals.walletService = walletService;
+    app.locals.securityMonitor = securityMonitor;
     app.locals.emailService = emailService;
     app.locals.passwordResetService = passwordResetService;
     app.locals.metaSearchService = metaSearchService;
@@ -228,11 +235,12 @@ async function initializeServices() {
   }
 }
 
-// Enhanced Security middleware
+// Security Release 4: Enhanced Security middleware with monitoring
 app.use(securityValidator.enhancedCSP()); // Fixed CSP to allow inline event handlers
 app.use(securityValidator.configureCORS());
 app.use(securityValidator.ipSecurity());
 app.use(securityValidator.sanitizeRequest());
+app.use(securityMonitor.createSecurityMiddleware()); // Security event monitoring
 
 // Basic middleware - CORS now handled by SecurityValidator
 app.use(express.json({ limit: '10mb' }));
@@ -5365,6 +5373,10 @@ app.get('/api/vaccine-tracking/adverse-events/:vaccine', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// Security Release 4: Security monitoring routes
+const securityRoutes = require('./routes/securityRoutes');
+app.use('/api/security', securityRoutes);
 
 // Service Status Endpoints
 app.get('/api/service-status', async (req, res) => {
