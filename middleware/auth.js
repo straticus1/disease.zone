@@ -6,10 +6,22 @@ const rateLimit = require('express-rate-limit');
 class AuthMiddleware {
   constructor(databaseService) {
     this.db = databaseService;
-    this.jwtSecret = process.env.JWT_SECRET || 'diseaseZone_dev_secret_change_in_production';
+    
+    // Security Release 1: Enforce JWT secret requirement
+    if (!process.env.JWT_SECRET) {
+      console.error('CRITICAL: JWT_SECRET environment variable is required for security');
+      throw new Error('JWT_SECRET environment variable is required. Please configure a secure secret.');
+    }
+    
+    // Validate JWT secret strength
+    if (process.env.JWT_SECRET.length < 32) {
+      console.warn('WARNING: JWT_SECRET should be at least 32 characters for optimal security');
+    }
+    
+    this.jwtSecret = process.env.JWT_SECRET;
   }
 
-  // Rate limiting for authentication endpoints
+  // Security Release 1: Enhanced rate limiting for authentication endpoints
   getAuthRateLimit() {
     return rateLimit({
       windowMs: 15 * 60 * 1000, // 15 minutes
@@ -20,6 +32,31 @@ class AuthMiddleware {
       },
       standardHeaders: true,
       legacyHeaders: false,
+      keyGenerator: (req) => {
+        // More granular rate limiting by IP + user agent for better security
+        const userAgent = req.get('User-Agent') ? req.get('User-Agent').substring(0, 50) : 'unknown';
+        return `${req.ip}:${userAgent}`;
+      },
+      onLimitReached: (req, res, options) => {
+        // Log security event when rate limit is reached
+        console.warn(`Authentication rate limit exceeded for IP: ${req.ip}, User-Agent: ${req.get('User-Agent')}`);
+      }
+    });
+  }
+
+  // Security Release 1: Stricter rate limiting for failed authentication attempts
+  getFailedAuthRateLimit() {
+    return rateLimit({
+      windowMs: 60 * 60 * 1000, // 1 hour
+      max: 10, // 10 failed attempts per hour
+      message: {
+        error: 'Too many failed authentication attempts',
+        retryAfter: '1 hour'
+      },
+      standardHeaders: true,
+      legacyHeaders: false,
+      skipSuccessfulRequests: true, // Only count failed requests
+      keyGenerator: (req) => `failed_auth:${req.ip}`
     });
   }
 
@@ -141,7 +178,14 @@ class AuthMiddleware {
       }
 
       if (token) {
-        const decoded = jwt.verify(token, this.jwtSecret);
+        // Security Release 1: Enhanced JWT verification with audience and issuer validation
+        const verifyOptions = {
+          issuer: 'disease.zone',
+          audience: 'disease.zone-users',
+          algorithms: ['HS256']
+        };
+        
+        const decoded = jwt.verify(token, this.jwtSecret, verifyOptions);
         const user = await this.db.getUserById(decoded.userId);
 
         if (!user) {
@@ -191,7 +235,14 @@ class AuthMiddleware {
 
         if (token) {
           try {
-            const decoded = jwt.verify(token, this.jwtSecret);
+            // Security Release 1: Consistent JWT verification with enhanced options
+            const verifyOptions = {
+              issuer: 'disease.zone',
+              audience: 'disease.zone-users',
+              algorithms: ['HS256']
+            };
+            
+            const decoded = jwt.verify(token, this.jwtSecret, verifyOptions);
             const user = await this.db.getUserById(decoded.userId);
             if (user) {
               req.user = user;
@@ -259,8 +310,50 @@ class AuthMiddleware {
     return await bcrypt.compare(password, hash);
   }
 
+  // Security Release 1: Enhanced JWT token generation with security improvements
   generateToken(userId, expiresIn = '7d') {
-    return jwt.sign({ userId }, this.jwtSecret, { expiresIn });
+    const payload = {
+      userId,
+      iat: Math.floor(Date.now() / 1000), // Issued at timestamp
+      jti: uuidv4() // Unique JWT ID for tracking
+    };
+    
+    const options = {
+      expiresIn,
+      issuer: 'disease.zone',
+      audience: 'disease.zone-users',
+      algorithm: 'HS256'
+    };
+    
+    return jwt.sign(payload, this.jwtSecret, options);
+  }
+
+  // Security Release 1: Validate security configuration
+  validateSecurityConfig() {
+    const issues = [];
+    
+    // Check JWT secret configuration
+    if (!process.env.JWT_SECRET) {
+      issues.push('JWT_SECRET environment variable is not set');
+    } else if (process.env.JWT_SECRET.length < 32) {
+      issues.push('JWT_SECRET should be at least 32 characters long');
+    }
+    
+    // Check session secret
+    if (!process.env.SESSION_SECRET) {
+      issues.push('SESSION_SECRET environment variable is not set');
+    }
+    
+    // Check bcrypt configuration
+    const bcryptRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
+    if (bcryptRounds < 10) {
+      issues.push('BCRYPT_ROUNDS should be at least 10 for adequate security');
+    }
+    
+    return {
+      isValid: issues.length === 0,
+      issues
+    };
   }
 
   async generateApiKey(userId, name, permissions, rateLimit = 1000, expiresInDays = null) {
