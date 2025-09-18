@@ -39,6 +39,9 @@ const API_TIERS = {
     }
 };
 
+// Security Release 2: Enhanced input validation
+const validator = require('validator');
+
 // Generate API key
 router.post('/signup', async (req, res) => {
     try {
@@ -49,22 +52,45 @@ router.post('/signup', async (req, res) => {
             tier = 'free'
         } = req.body;
 
+        // Enhanced input validation
         if (!email) {
             return res.status(400).json({
                 success: false,
                 error: 'Email is required'
             });
         }
+        
+        // Validate email format
+        if (!validator.isEmail(email)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Valid email address is required'
+            });
+        }
+        
+        // Sanitize and validate inputs
+        const sanitizedEmail = validator.normalizeEmail(email.toLowerCase().trim());
+        const sanitizedOrgName = organizationName ? validator.escape(organizationName.trim()) : null;
+        const sanitizedUseCase = useCase ? validator.escape(useCase.trim()) : null;
+        
+        // Validate tier
+        if (!API_TIERS[tier]) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid tier specified'
+            });
+        }
 
         const apiKey = crypto.randomBytes(32).toString('hex');
         const keyId = crypto.randomUUID();
 
+        // Use sanitized inputs for security
         const apiKeyData = {
             keyId,
             apiKey,
-            email,
-            organizationName,
-            useCase,
+            email: sanitizedEmail,
+            organizationName: sanitizedOrgName,
+            useCase: sanitizedUseCase,
             tier,
             isActive: true,
             createdAt: new Date(),
@@ -84,6 +110,7 @@ router.post('/signup', async (req, res) => {
             conversionTriggers: []
         });
 
+        // Security Release 2: Use placeholder examples to prevent key exposure in logs
         res.json({
             success: true,
             message: 'API key generated successfully',
@@ -97,8 +124,9 @@ router.post('/signup', async (req, res) => {
             },
             documentation: 'https://disease.zone/api/docs',
             examples: {
-                basic_request: `curl -H "X-API-Key: ${apiKey}" https://disease.zone/api/v1/outbreak-alerts`,
-                javascript: `fetch('https://disease.zone/api/v1/risk-assessment?region=usa', { headers: { 'X-API-Key': '${apiKey}' } })`
+                basic_request: `curl -H "X-API-Key: YOUR_API_KEY" https://disease.zone/api/v1/outbreak-alerts`,
+                javascript: `fetch('https://disease.zone/api/v1/risk-assessment?region=usa', { headers: { 'X-API-Key': 'YOUR_API_KEY' } })`,
+                note: 'Replace YOUR_API_KEY with the apiKey provided above'
             }
         });
 
@@ -110,20 +138,33 @@ router.post('/signup', async (req, res) => {
     }
 });
 
-// Middleware to validate API key and track usage
+// Security Release 2: Enhanced API key validation middleware with security improvements
 const validateApiKey = (req, res, next) => {
     const apiKey = req.headers['x-api-key'];
 
     if (!apiKey) {
+        // Log missing API key attempt
+        console.warn(`API access attempt without key from IP: ${req.ip}`);
         return res.status(401).json({
             success: false,
             error: 'API key required',
             hint: 'Include X-API-Key header with your request'
         });
     }
+    
+    // Basic format validation
+    if (typeof apiKey !== 'string' || apiKey.length < 32 || apiKey.length > 128) {
+        console.warn(`Invalid API key format from IP: ${req.ip}`);
+        return res.status(401).json({
+            success: false,
+            error: 'Invalid API key format'
+        });
+    }
 
     const keyData = apiKeys.get(apiKey);
     if (!keyData || !keyData.isActive) {
+        // Log invalid key attempt
+        console.warn(`Invalid API key attempt from IP: ${req.ip}, Key: ${apiKey.substring(0, 8)}...`);
         return res.status(401).json({
             success: false,
             error: 'Invalid or inactive API key'

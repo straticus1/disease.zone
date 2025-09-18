@@ -253,23 +253,42 @@ class MFAService {
 
     // Private helper methods
 
+    // Security Release 2: Enhanced encryption with authenticated encryption (GCM mode)
     encryptSecret(secret) {
-        const key = crypto.scryptSync(process.env.MFA_SECRET || 'diseaseZoneMFA2023!', 'salt', 32);
+        if (!process.env.MFA_SECRET) {
+            throw new Error('MFA_SECRET environment variable is required for encryption');
+        }
+        
+        const key = crypto.scryptSync(process.env.MFA_SECRET, 'salt', 32);
         const iv = crypto.randomBytes(16);
-        const cipher = crypto.createCipher('aes-256-cbc', key);
-
+        const cipher = crypto.createCipherGCM('aes-256-gcm', key);
+        
+        cipher.setIV(iv);
         let encrypted = cipher.update(secret, 'utf8', 'hex');
         encrypted += cipher.final('hex');
+        
+        const authTag = cipher.getAuthTag();
 
         return {
             encrypted,
-            iv: iv.toString('hex')
+            iv: iv.toString('hex'),
+            authTag: authTag.toString('hex')
         };
     }
 
+    // Security Release 2: Enhanced decryption with authentication verification
     decryptSecret(encryptedData) {
-        const key = crypto.scryptSync(process.env.MFA_SECRET || 'diseaseZoneMFA2023!', 'salt', 32);
-        const decipher = crypto.createDecipher('aes-256-cbc', key);
+        if (!process.env.MFA_SECRET) {
+            throw new Error('MFA_SECRET environment variable is required for decryption');
+        }
+        
+        const key = crypto.scryptSync(process.env.MFA_SECRET, 'salt', 32);
+        const iv = Buffer.from(encryptedData.iv, 'hex');
+        const authTag = Buffer.from(encryptedData.authTag, 'hex');
+        
+        const decipher = crypto.createDecipherGCM('aes-256-gcm', key);
+        decipher.setIV(iv);
+        decipher.setAuthTag(authTag);
 
         let decrypted = decipher.update(encryptedData.encrypted, 'hex', 'utf8');
         decrypted += decipher.final('utf8');
@@ -307,21 +326,43 @@ class MFAService {
         return phone.slice(0, -4).replace(/\d/g, '*') + phone.slice(-4);
     }
 
+    // Security Release 2: Enhanced session encryption with authenticated encryption
     encryptSessionData(data) {
-        const key = crypto.scryptSync(process.env.SESSION_SECRET || 'sessionSecret', 'salt', 32);
+        if (!process.env.SESSION_SECRET) {
+            throw new Error('SESSION_SECRET environment variable is required for session encryption');
+        }
+        
+        const key = crypto.scryptSync(process.env.SESSION_SECRET, 'salt', 32);
         const iv = crypto.randomBytes(16);
-        const cipher = crypto.createCipher('aes-256-cbc', key);
-
+        const cipher = crypto.createCipherGCM('aes-256-gcm', key);
+        
+        cipher.setIV(iv);
         let encrypted = cipher.update(JSON.stringify(data), 'utf8', 'hex');
         encrypted += cipher.final('hex');
+        
+        const authTag = cipher.getAuthTag();
 
-        return Buffer.from(JSON.stringify({ encrypted, iv: iv.toString('hex') })).toString('base64');
+        return Buffer.from(JSON.stringify({ 
+            encrypted, 
+            iv: iv.toString('hex'),
+            authTag: authTag.toString('hex')
+        })).toString('base64');
     }
 
+    // Security Release 2: Enhanced session decryption with authentication verification
     decryptSessionData(token) {
-        const { encrypted, iv } = JSON.parse(Buffer.from(token, 'base64').toString('utf8'));
-        const key = crypto.scryptSync(process.env.SESSION_SECRET || 'sessionSecret', 'salt', 32);
-        const decipher = crypto.createDecipher('aes-256-cbc', key);
+        if (!process.env.SESSION_SECRET) {
+            throw new Error('SESSION_SECRET environment variable is required for session decryption');
+        }
+        
+        const { encrypted, iv, authTag } = JSON.parse(Buffer.from(token, 'base64').toString('utf8'));
+        const key = crypto.scryptSync(process.env.SESSION_SECRET, 'salt', 32);
+        const ivBuffer = Buffer.from(iv, 'hex');
+        const authTagBuffer = Buffer.from(authTag, 'hex');
+        
+        const decipher = crypto.createDecipherGCM('aes-256-gcm', key);
+        decipher.setIV(ivBuffer);
+        decipher.setAuthTag(authTagBuffer);
 
         let decrypted = decipher.update(encrypted, 'hex', 'utf8');
         decrypted += decipher.final('utf8');
