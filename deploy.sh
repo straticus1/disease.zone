@@ -99,9 +99,9 @@ check_prerequisites() {
         exit 1
     fi
     
-    # Check if Terraform outputs are available
-    if [ ! -f "$PROJECT_DIR/terraform/terraform.tfstate" ]; then
-        print_error "Terraform state not found. Please run terraform apply first."
+    # Check if Terraform is installed
+    if ! command -v terraform &> /dev/null; then
+        print_error "Terraform is not installed. Install from: https://terraform.io/downloads"
         exit 1
     fi
     
@@ -113,6 +113,46 @@ check_prerequisites() {
     
     print_success "All prerequisites met"
     end_step "Prerequisites Check"
+}
+
+# Function to deploy infrastructure if needed
+deploy_infrastructure() {
+    start_step "Infrastructure Deployment Check"
+    print_header "Checking Infrastructure Status"
+    
+    cd "$PROJECT_DIR/terraform"
+    
+    # Check if terraform.tfstate exists
+    if [ ! -f "terraform.tfstate" ]; then
+        print_warning "No Terraform state found. Deploying infrastructure..."
+        
+        # Check if terraform.tfvars exists
+        if [ ! -f "terraform.tfvars" ]; then
+            print_status "Creating terraform.tfvars from example..."
+            cp "terraform.tfvars.example" "terraform.tfvars"
+            print_warning "Please edit terraform/terraform.tfvars with your configuration"
+            print_status "Required variables: domain_name, environment, project_name, alert_email"
+            echo
+            read -p "Press Enter when terraform.tfvars is configured..."
+        fi
+        
+        # Initialize and apply Terraform
+        print_status "Initializing Terraform..."
+        terraform init
+        
+        print_status "Planning infrastructure deployment..."
+        terraform plan -out=tfplan
+        
+        print_status "Applying infrastructure deployment..."
+        terraform apply tfplan
+        
+        print_success "Infrastructure deployment completed"
+    else
+        print_success "Infrastructure already exists"
+    fi
+    
+    cd "$PROJECT_DIR"
+    end_step "Infrastructure Deployment Check"
 }
 
 # Function to get Terraform outputs
@@ -339,6 +379,7 @@ main() {
     
     # Run deployment steps
     check_prerequisites
+    deploy_infrastructure
     get_terraform_outputs
     build_docker_image
     authenticate_ecr
@@ -361,6 +402,22 @@ main() {
 case "${1:-deploy}" in
     deploy)
         main
+        ;;
+    infra-only)
+        check_prerequisites
+        deploy_infrastructure
+        get_terraform_outputs
+        print_success "Infrastructure deployment completed"
+        ;;
+    app-only)
+        check_prerequisites
+        get_terraform_outputs
+        build_docker_image
+        authenticate_ecr
+        push_to_ecr
+        deploy_with_ansible
+        check_deployment_health
+        print_success "Application deployment completed"
         ;;
     build-only)
         check_prerequisites
@@ -385,11 +442,21 @@ case "${1:-deploy}" in
         echo "Usage: $0 [command]"
         echo ""
         echo "Commands:"
-        echo "  deploy     Full deployment (default)"
-        echo "  build-only Build Docker image only"
-        echo "  push-only  Push existing image to ECR"
-        echo "  status     Check deployment status"
-        echo "  help       Show this help message"
+        echo "  deploy       Full deployment - infrastructure + application (default)"
+        echo "  infra-only   Deploy infrastructure only (Terraform)"
+        echo "  app-only     Deploy application only (assumes infrastructure exists)"
+        echo "  build-only   Build Docker image only"
+        echo "  push-only    Push existing image to ECR"
+        echo "  status       Check deployment status"
+        echo "  help         Show this help message"
+        echo ""
+        echo "Infrastructure includes:"
+        echo "  - Route53 DNS configuration"
+        echo "  - Application Load Balancer"
+        echo "  - ECS Cluster and Service"
+        echo "  - ECR Repository"
+        echo "  - CloudWatch monitoring"
+        echo "  - SSL certificates"
         echo ""
         exit 0
         ;;
