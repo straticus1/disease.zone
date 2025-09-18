@@ -211,17 +211,6 @@ deploy_with_ansible() {
     
     cd "$PROJECT_DIR"
     
-    # Create a temporary variables file with the current image tag
-    mkdir -p ansible/vars
-    cat > ansible/vars/deploy_vars.yml << EOF
----
-docker_image_tag: $IMAGE_TAG
-ecr_repository_url: $ECR_REPOSITORY_URL
-ecs_cluster_name: $ECS_CLUSTER_NAME
-ecs_service_name: $ECS_SERVICE_NAME
-aws_region: $AWS_REGION
-EOF
-    
     # Run Ansible playbook with the deploy script
     print_status "Running Ansible deployment..."
     ansible-playbook -i ansible/inventory.yml ansible/deploy.yml \
@@ -229,10 +218,11 @@ EOF
         -e "ecr_repository_url=$ECR_REPOSITORY_URL" \
         -e "ecs_cluster_name=$ECS_CLUSTER_NAME" \
         -e "ecs_service_name=$ECS_SERVICE_NAME" \
-        -e "aws_region=$AWS_REGION"
-    
-    # Clean up temporary file
-    rm -f ansible/vars/deploy_vars.yml
+        -e "aws_region=$AWS_REGION" \
+        -e "docker_build_path=$PROJECT_DIR" \
+        -e "project_name=$DOCKER_IMAGE_NAME" \
+        -e "domain_name=disease.zone" \
+        -e "secondary_domain=disease.app"
     
     print_success "Ansible deployment completed"
     end_step "Ansible Deployment"
@@ -290,8 +280,19 @@ display_final_status() {
     
     echo -e "${BLUE}📊 Application URLs:${NC}"
     echo -e "   • Load Balancer: http://$LOAD_BALANCER_DNS"
-    echo -e "   • Domain (after DNS propagation): https://disease.zone"
     echo -e "   • Health Check: http://$LOAD_BALANCER_DNS/api/health"
+    echo -e ""
+    echo -e "${GREEN}🌍 Primary Domain (disease.zone):${NC}"
+    echo -e "   • Root: https://disease.zone"
+    echo -e "   • WWW: https://www.disease.zone"
+    echo -e "   • API: https://api.disease.zone"
+    echo -e "   • Ledger: https://ledger.disease.zone"
+    echo -e ""
+    echo -e "${GREEN}🌎 Secondary Domain (disease.app):${NC}"
+    echo -e "   • Root: https://disease.app"
+    echo -e "   • WWW: https://www.disease.app"
+    echo -e "   • API: https://api.disease.app"
+    echo -e "   • Ledger: https://ledger.disease.app"
     
     echo -e "\n${BLUE}📈 Monitoring & Management:${NC}"
     echo -e "   • CloudWatch Dashboard: https://us-east-1.console.aws.amazon.com/cloudwatch/home?region=us-east-1#dashboards:name=diseasezone-prod"
@@ -306,7 +307,8 @@ display_final_status() {
     echo -e "   • Test application functionality"
     echo -e "   • Set up custom domain after DNS propagation"
     
-    echo -e "\n${GREEN}✅ Your disease.zone application is now live!${NC}\n"
+    echo -e "\n${GREEN}✅ Your applications are now live on both domains!${NC}"
+    echo -e "${GREEN}   🌐 disease.zone & disease.app are ready to serve users${NC}\n"
 }
 
 # Function to handle script interruption
@@ -324,7 +326,6 @@ cleanup() {
     fi
     
     print_warning "Deployment interrupted. Cleaning up..."
-    rm -f ansible/vars/deploy_vars.yml 2>/dev/null || true
     exit 1
 }
 

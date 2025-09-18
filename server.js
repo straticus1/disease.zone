@@ -509,10 +509,10 @@ function serveApiHomepage(req, res) {
     <div class="container">
         <nav class="top-nav">
             <ul class="nav-links">
-                <li><a href="https://www.disease.zone/" class="main-app-link">🏠 Main Application</a></li>
+                <li><a href="https://www.${host.includes('disease.app') ? 'disease.app' : 'disease.zone'}/" class="main-app-link">🏠 Main Application</a></li>
                 <li><a href="#api-docs">📚 API Documentation</a></li>
                 <li><a href="#quick-links">🔗 Quick Links</a></li>
-                <li><a href="mailto:api@disease.zone">💬 API Support</a></li>
+                <li><a href="mailto:api@${host.includes('disease.app') ? 'disease.app' : 'disease.zone'}">💬 API Support</a></li>
             </ul>
         </nav>
         
@@ -980,11 +980,11 @@ function serveLedgerHomepage(req, res) {
     <div class="container">
         <nav class="top-nav">
             <ul class="nav-links">
-                <li><a href="https://www.disease.zone/" class="main-app-link">🏠 Main Application</a></li>
-                <li><a href="https://api.disease.zone/">🔌 API Portal</a></li>
+                <li><a href="https://www.${host.includes('disease.app') ? 'disease.app' : 'disease.zone'}/" class="main-app-link">🏠 Main Application</a></li>
+                <li><a href="https://api.${host.includes('disease.app') ? 'disease.app' : 'disease.zone'}/">🔌 API Portal</a></li>
                 <li><a href="#wallet">💰 Wallet</a></li>
                 <li><a href="#network">🌐 Network Status</a></li>
-                <li><a href="mailto:ledger@disease.zone">💬 Ledger Support</a></li>
+                <li><a href="mailto:ledger@${host.includes('disease.app') ? 'disease.app' : 'disease.zone'}">💬 Ledger Support</a></li>
             </ul>
         </nav>
         
