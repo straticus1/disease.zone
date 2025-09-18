@@ -4,6 +4,31 @@
   gather_facts: false
 
   tasks:
+    - name: Run security setup for deployment
+      block:
+        - name: Make security script executable
+          file:
+            path: "{{ docker_build_path }}/scripts/security-crisis-recovery.sh"
+            mode: '0755'
+
+        - name: Run automated security setup
+          shell: |
+            cd {{ docker_build_path }}
+            export JWT_SECRET="{{ jwt_secret | default(lookup('password', '/dev/null chars=ascii_letters,digits length=64')) }}"
+            export ENCRYPTION_KEY="{{ encryption_key | default(lookup('password', '/dev/null chars=ascii_letters,digits length=64')) }}"
+            export AUDIT_ENCRYPTION_KEY="{{ audit_encryption_key | default(lookup('password', '/dev/null chars=ascii_letters,digits length=64')) }}"
+            export RATE_LIMIT_ENABLED="true"
+            export SESSION_TIMEOUT="3600"
+            export SECURITY_AUDIT_ENABLED="true"
+            ./scripts/security-crisis-recovery.sh --setup --non-interactive --deployment
+          register: security_setup
+          changed_when: true
+
+        - name: Display security setup results
+          debug:
+            msg: "Security setup completed: {{ security_setup.stdout_lines[-5:] | default(['Setup completed']) }}"
+          when: security_setup is defined
+
     - name: Build and push updated Docker image
       block:
         - name: Build Docker image

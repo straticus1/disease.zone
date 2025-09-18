@@ -219,6 +219,53 @@ push_to_ecr() {
     end_step "Push to ECR"
 }
 
+# Function to run security setup
+security_setup() {
+    start_step "Security Setup"
+    print_header "Configuring Security Stack"
+    
+    print_status "Running security configuration setup..."
+    
+    # Check if security script exists
+    if [ ! -f "$PROJECT_DIR/scripts/security-crisis-recovery.sh" ]; then
+        print_error "Security crisis recovery script not found"
+        exit 1
+    fi
+    
+    # Make security script executable
+    chmod +x "$PROJECT_DIR/scripts/security-crisis-recovery.sh"
+    
+    # Run automated security setup for deployment
+    cd "$PROJECT_DIR"
+    
+    # Generate secure secrets if they don't exist
+    if [ ! -f ".env" ] || ! grep -q "JWT_SECRET=" .env || grep -q "your-jwt-secret" .env; then
+        print_status "Generating secure JWT secret..."
+        JWT_SECRET=$(openssl rand -hex 32)
+        
+        print_status "Generating encryption keys..."
+        ENCRYPTION_KEY=$(openssl rand -hex 32)
+        AUDIT_ENCRYPTION_KEY=$(openssl rand -hex 32)
+        
+        # Run security setup with generated secrets
+        JWT_SECRET="$JWT_SECRET" \
+        ENCRYPTION_KEY="$ENCRYPTION_KEY" \
+        AUDIT_ENCRYPTION_KEY="$AUDIT_ENCRYPTION_KEY" \
+        RATE_LIMIT_ENABLED="true" \
+        SESSION_TIMEOUT="3600" \
+        SECURITY_AUDIT_ENABLED="true" \
+        ./scripts/security-crisis-recovery.sh --setup --non-interactive --deployment
+        
+        print_success "Security stack configured with generated secrets"
+    else
+        print_status "Validating existing security configuration..."
+        ./scripts/security-crisis-recovery.sh --validate --quiet
+        print_success "Security configuration validated"
+    fi
+    
+    end_step "Security Setup"
+}
+
 # Function to check if API keys are configured
 check_api_keys() {
     start_step "API Keys Check"
@@ -345,6 +392,7 @@ display_final_status() {
     fi
     echo -e "   • Monitor application logs in CloudWatch"
     echo -e "   • Test application functionality"
+    echo -e "   • Verify security endpoints: https://disease.zone/security/status"
     echo -e "   • Set up custom domain after DNS propagation"
     
     echo -e "\n${GREEN}✅ Your applications are now live on both domains!${NC}"
@@ -381,6 +429,7 @@ main() {
     check_prerequisites
     deploy_infrastructure
     get_terraform_outputs
+    security_setup
     build_docker_image
     authenticate_ecr
     push_to_ecr
@@ -412,6 +461,7 @@ case "${1:-deploy}" in
     app-only)
         check_prerequisites
         get_terraform_outputs
+        security_setup
         build_docker_image
         authenticate_ecr
         push_to_ecr

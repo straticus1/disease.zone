@@ -15,6 +15,42 @@
 
 set -e  # Exit on any error
 
+# Automation flags for deployment integration
+NON_INTERACTIVE=false
+DEPLOYMENT_MODE=false
+QUIET_MODE=false
+VALIDATE_ONLY=false
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --non-interactive)
+      NON_INTERACTIVE=true
+      shift
+      ;;
+    --deployment)
+      DEPLOYMENT_MODE=true
+      NON_INTERACTIVE=true
+      shift
+      ;;
+    --setup)
+      SETUP_MODE=true
+      shift
+      ;;
+    --validate)
+      VALIDATE_ONLY=true
+      shift
+      ;;
+    --quiet)
+      QUIET_MODE=true
+      shift
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -612,6 +648,175 @@ main() {
                 exit 1
                 ;;
         esac
+        return
+    fi
+    
+    # Interactive mode
+    while true; do
+        choice=$(show_menu)
+        
+        case $choice in
+            1)
+                run_bootstrap
+                ;;
+            2)
+                run_crisis_recovery
+                ;;
+            3)
+                generate_secure_secrets
+                print_success "Secrets generated. Remember to copy them to your .env file!"
+                ;;
+            4)
+                validate_configuration
+                ;;
+            5)
+                show_rollback_options
+                ;;
+            6)
+                assess_security_status
+                ;;
+            7)
+                show_documentation
+                ;;
+            8)
+                print_info "Goodbye! 👋"
+                exit 0
+                ;;
+            *)
+                print_error "Invalid option. Please select 1-8."
+                ;;
+        esac
+        
+        echo ""
+        if ! ask_yes_no "Would you like to perform another operation?" "n"; then
+            break
+        fi
+    done
+    
+    print_info "Script completed. Have a great day! 🌟"
+}
+
+# =============================================================================
+# AUTOMATED DEPLOYMENT FUNCTIONS
+# =============================================================================
+
+run_automated_setup() {
+    if [[ "$QUIET_MODE" != "true" ]]; then
+        print_banner
+        print_section "Automated Security Setup for Deployment"
+    fi
+    
+    # System checks
+    perform_system_checks
+    
+    # Create backup if existing config
+    if [[ -f "$ENV_FILE" ]]; then
+        create_backup "$ENV_FILE" "env"
+    fi
+    
+    # Generate secure environment file
+    create_secure_env_file
+    
+    # Validate the setup
+    validate_configuration
+    
+    if [[ "$QUIET_MODE" != "true" ]]; then
+        print_success "Automated security setup completed successfully"
+    fi
+}
+
+run_validation_only() {
+    if [[ "$QUIET_MODE" != "true" ]]; then
+        print_section "Security Configuration Validation"
+    fi
+    
+    validate_configuration
+    
+    if [[ "$QUIET_MODE" != "true" ]]; then
+        print_success "Security configuration validation completed"
+    fi
+}
+
+create_secure_env_file() {
+    print_info "Creating secure environment configuration..."
+    
+    # Use environment variables if provided, otherwise generate
+    local jwt_secret="${JWT_SECRET:-$(openssl rand -hex 32)}"
+    local encryption_key="${ENCRYPTION_KEY:-$(openssl rand -hex 32)}"
+    local audit_encryption_key="${AUDIT_ENCRYPTION_KEY:-$(openssl rand -hex 32)}"
+    local session_secret="$(openssl rand -hex 32)"
+    
+    # Create base .env if it doesn't exist
+    if [[ ! -f "$ENV_FILE" ]]; then
+        cat > "$ENV_FILE" << EOF
+# Disease Zone Environment Configuration
+# Generated on $(date)
+
+# Server Configuration
+NODE_ENV=production
+PORT=3000
+
+# Database
+DATABASE_PATH=./database/disease_zone.db
+
+EOF
+    fi
+    
+    # Update or add security configuration
+    update_env_var "JWT_SECRET" "$jwt_secret"
+    update_env_var "ENCRYPTION_KEY" "$encryption_key" 
+    update_env_var "AUDIT_ENCRYPTION_KEY" "$audit_encryption_key"
+    update_env_var "SESSION_SECRET" "$session_secret"
+    update_env_var "RATE_LIMIT_ENABLED" "${RATE_LIMIT_ENABLED:-true}"
+    update_env_var "SESSION_TIMEOUT" "${SESSION_TIMEOUT:-3600}"
+    update_env_var "SECURITY_AUDIT_ENABLED" "${SECURITY_AUDIT_ENABLED:-true}"
+    update_env_var "BCRYPT_SALT_ROUNDS" "${BCRYPT_SALT_ROUNDS:-12}"
+    
+    print_success "Secure environment configuration created"
+}
+
+update_env_var() {
+    local var_name="$1"
+    local var_value="$2"
+    
+    if grep -q "^${var_name}=" "$ENV_FILE"; then
+        # Update existing variable
+        sed -i.bak "s/^${var_name}=.*/${var_name}=${var_value}/" "$ENV_FILE"
+        rm -f "${ENV_FILE}.bak"
+    else
+        # Add new variable
+        echo "${var_name}=${var_value}" >> "$ENV_FILE"
+    fi
+}
+
+# Main entry point with automation support
+main() {
+    # Handle automation modes
+    if [[ "$VALIDATE_ONLY" == "true" ]]; then
+        run_validation_only
+        return
+    fi
+    
+    if [[ "$DEPLOYMENT_MODE" == "true" || "$SETUP_MODE" == "true" ]]; then
+        run_automated_setup
+        return
+    fi
+    
+    # Non-automated modes (interactive)
+    if [[ "$NON_INTERACTIVE" == "true" ]]; then
+        print_error "Non-interactive mode requires --setup, --validate, or --deployment flag"
+        exit 1
+    fi
+    
+    # Show banner and run interactive mode
+    print_banner
+    
+    # Quick assessment for interactive users
+    assess_security_status
+    
+    echo ""
+    if ask_yes_no "Would you like to run an automated bootstrap setup?" "y"; then
+        run_bootstrap
         return
     fi
     
