@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaccine & Immunization Tracking - diseaseZone</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0dcaf0 0%, #0aa1c2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            color: white;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5em;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .vaccine-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .dashboard-card h3 {
+            margin: 0 0 15px 0;
+            color: #0dcaf0;
+            font-size: 1.2em;
+        }
+
+        .big-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #0aa1c2;
+            margin: 10px 0;
+        }
+
+        .search-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .search-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            background: #e9ecef;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #0dcaf0 0%, #0aa1c2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #0dcaf0 0%, #0aa1c2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .vaccine-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border-left: 5px solid #0dcaf0;
+        }
+
+        .vaccine-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .vaccine-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .efficacy-badge {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .vaccine-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .detail-item {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            font-size: 0.8em;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-weight: bold;
+            color: #0dcaf0;
+        }
+
+        .coverage-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .coverage-fill {
+            background: linear-gradient(135deg, #0dcaf0 0%, #0aa1c2 100%);
+            height: 100%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .nav-back {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: background 0.3s;
+        }
+
+        .nav-back:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .recommendation-card {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffffff 100%);
+            border-left: 5px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .priority-high { border-left-color: #dc3545; background: linear-gradient(135deg, #f8d7da 0%, #ffffff 100%); }
+        .priority-medium { border-left-color: #fd7e14; background: linear-gradient(135deg, #ffeaa7 0%, #ffffff 100%); }
+        .priority-low { border-left-color: #28a745; background: linear-gradient(135deg, #d4edda 0%, #ffffff 100%); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="nav-back">← Back to Main Portal</a>
+        
+        <div class="header">
+            <h1>💉 Vaccine & Immunization Tracking</h1>
+            <p>Comprehensive vaccination monitoring with CDC ACIP, WHO data, and VAERS integration</p>
+        </div>
+
+        <div class="vaccine-dashboard">
+            <div class="dashboard-card">
+                <h3>🌍 Global COVID-19 Coverage</h3>
+                <div class="big-number">63.2%</div>
+                <p>Fully Vaccinated Globally</p>
+            </div>
+            <div class="dashboard-card">
+                <h3>🇺🇸 US COVID-19 Coverage</h3>
+                <div class="big-number">69.6%</div>
+                <p>Fully Vaccinated in US</p>
+            </div>
+            <div class="dashboard-card">
+                <h3>🧒 Childhood Vaccines</h3>
+                <div class="big-number">94%</div>
+                <p>Average Coverage (MMR, DTaP)</p>
+            </div>
+            <div class="dashboard-card">
+                <h3>🦠 Influenza 2023-24</h3>
+                <div class="big-number">44.8%</div>
+                <p>US Adult Coverage</p>
+            </div>
+        </div>
+
+        <div class="search-section">
+            <div class="search-tabs">
+                <button class="tab-button active" onclick="switchTab('vaccine-info')">Vaccine Information</button>
+                <button class="tab-button" onclick="switchTab('coverage-data')">Coverage Data</button>
+                <button class="tab-button" onclick="switchTab('effectiveness')">Effectiveness</button>
+                <button class="tab-button" onclick="switchTab('recommendations')">Personal Recommendations</button>
+            </div>
+
+            <!-- Vaccine Information Tab -->
+            <div class="tab-content active" id="vaccine-info">
+                <h3>Search Vaccine Information</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="diseaseInput">Disease/Condition</label>
+                        <input type="text" id="diseaseInput" placeholder="e.g., COVID-19, Influenza, Measles">
+                    </div>
+                    <div class="form-group">
+                        <label for="countrySelect">Country</label>
+                        <select id="countrySelect">
+                            <option value="US">United States</option>
+                            <option value="global">Global (WHO)</option>
+                        </select>
+                    </div>
+                    <button class="search-btn" onclick="searchVaccineInfo()">Search Vaccines</button>
+                </div>
+            </div>
+
+            <!-- Coverage Data Tab -->
+            <div class="tab-content" id="coverage-data">
+                <h3>Vaccination Coverage Statistics</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="regionInput">Region</label>
+                        <input type="text" id="regionInput" placeholder="e.g., US, Europe, Global">
+                    </div>
+                    <div class="form-group">
+                        <label for="vaccineInput">Vaccine</label>
+                        <input type="text" id="vaccineInput" placeholder="e.g., COVID-19, Influenza">
+                    </div>
+                    <button class="search-btn" onclick="searchCoverage()">Get Coverage Data</button>
+                </div>
+            </div>
+
+            <!-- Effectiveness Tab -->
+            <div class="tab-content" id="effectiveness">
+                <h3>Vaccine Effectiveness Monitoring</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="effectivenessVaccine">Vaccine</label>
+                        <input type="text" id="effectivenessVaccine" placeholder="e.g., COVID-19, Influenza">
+                    </div>
+                    <div class="form-group">
+                        <label for="timeframeSelect">Timeframe</label>
+                        <select id="timeframeSelect">
+                            <option value="1 year">Last Year</option>
+                            <option value="2 years">Last 2 Years</option>
+                            <option value="5 years">Last 5 Years</option>
+                        </select>
+                    </div>
+                    <button class="search-btn" onclick="searchEffectiveness()">Monitor Effectiveness</button>
+                </div>
+            </div>
+
+            <!-- Personal Recommendations Tab -->
+            <div class="tab-content" id="recommendations">
+                <h3>Get Personalized Vaccination Recommendations</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="ageInput">Age</label>
+                        <input type="number" id="ageInput" placeholder="Enter age" min="0" max="120">
+                    </div>
+                    <div class="form-group">
+                        <label for="sexSelect">Sex</label>
+                        <select id="sexSelect">
+                            <option value="">Select</option>
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="conditionsInput">Medical Conditions</label>
+                        <input type="text" id="conditionsInput" placeholder="e.g., diabetes, immunocompromised">
+                    </div>
+                    <button class="search-btn" onclick="getRecommendations()">Get Recommendations</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultsContainer">
+            <div class="loading" style="display: none;">Loading vaccine data...</div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab and mark button as active
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        async function searchVaccineInfo() {
+            const disease = document.getElementById('diseaseInput').value.trim();
+            const country = document.getElementById('countrySelect').value;
+            
+            if (!disease) {
+                alert('Please enter a disease or condition');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch(`/api/vaccine-tracking/info/${encodeURIComponent(disease)}?country=${country}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+
+                if (data.availableVaccines && data.availableVaccines.length > 0) {
+                    const vaccinesHTML = data.availableVaccines.map(vaccine => `
+                        <div class="vaccine-card">
+                            <div class="vaccine-header">
+                                <div class="vaccine-title">${vaccine.name}</div>
+                                <div class="efficacy-badge">${(vaccine.efficacy * 100).toFixed(1)}% Effective</div>
+                            </div>
+                            
+                            <div class="vaccine-details">
+                                <div class="detail-item">
+                                    <div class="detail-label">Manufacturer</div>
+                                    <div class="detail-value">${vaccine.manufacturer}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Type</div>
+                                    <div class="detail-value">${vaccine.type}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Doses</div>
+                                    <div class="detail-value">${vaccine.doses}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Interval</div>
+                                    <div class="detail-value">${vaccine.interval}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Age Group</div>
+                                    <div class="detail-value">${vaccine.ageGroup}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Storage</div>
+                                    <div class="detail-value">${vaccine.storage}</div>
+                                </div>
+                            </div>
+
+                            ${vaccine.fdaApproval ? `
+                                <div style="background: #d1ecf1; padding: 10px; border-radius: 8px; margin: 10px 0;">
+                                    <strong>FDA Approved:</strong> ${vaccine.fdaApproval}
+                                </div>
+                            ` : ''}
+
+                            ${vaccine.variants ? `
+                                <div style="margin: 10px 0;">
+                                    <strong>Effective Against Variants:</strong> ${vaccine.variants.join(', ')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('');
+
+                    showResults(`
+                        <h3>Vaccines for ${data.disease}</h3>
+                        <p><strong>Total Available:</strong> ${data.totalVaccines} vaccine(s)</p>
+                        ${vaccinesHTML}
+                        
+                        ${data.recommendedSchedule ? `
+                            <div style="background: white; border-radius: 15px; padding: 20px; margin-top: 20px; border-left: 5px solid #28a745;">
+                                <h4>Recommended Schedule (${data.recommendedSchedule.country})</h4>
+                                <div style="display: grid; gap: 10px;">
+                                    ${data.recommendedSchedule.schedule.map(item => `
+                                        <div style="background: #f8f9fa; padding: 10px; border-radius: 8px;">
+                                            <strong>${item.vaccine}</strong> - ${item.age}
+                                            ${item.doses ? ` (${item.doses} dose${item.doses > 1 ? 's' : ''})` : ''}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    `);
+                } else {
+                    showResults(`
+                        <div style="text-align: center; padding: 40px; background: white; border-radius: 15px;">
+                            <h4>No vaccine information found for "${disease}"</h4>
+                            <p>Try searching for common diseases like COVID-19, Influenza, or Measles</p>
+                        </div>
+                    `);
+                }
+            } catch (error) {
+                showError(`Error searching vaccine information: ${error.message}`);
+            }
+        }
+
+        async function searchCoverage() {
+            const region = document.getElementById('regionInput').value.trim();
+            const vaccine = document.getElementById('vaccineInput').value.trim();
+            
+            if (!region || !vaccine) {
+                alert('Please enter both region and vaccine');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch(`/api/vaccine-tracking/coverage/${encodeURIComponent(region)}/${encodeURIComponent(vaccine)}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+
+                const coverage = data.coverage;
+                const targetCoverage = data.targetCoverage;
+
+                showResults(`
+                    <div style="background: white; border-radius: 15px; padding: 20px;">
+                        <h3>Vaccination Coverage: ${data.vaccine} in ${data.region}</h3>
+                        
+                        ${coverage ? `
+                            <div style="margin: 20px 0;">
+                                ${coverage.fullyVaccinated ? `
+                                    <div style="margin: 15px 0;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                            <strong>Fully Vaccinated</strong>
+                                            <span>${(coverage.fullyVaccinated * 100).toFixed(1)}%</span>
+                                        </div>
+                                        <div class="coverage-bar">
+                                            <div class="coverage-fill" style="width: ${coverage.fullyVaccinated * 100}%">
+                                                ${(coverage.fullyVaccinated * 100).toFixed(1)}%
+                                            </div>
+                                        </div>
+                                    </div>
+                                ` : ''}
+
+                                ${coverage.oneDose ? `
+                                    <div style="margin: 15px 0;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                            <strong>At Least One Dose</strong>
+                                            <span>${(coverage.oneDose * 100).toFixed(1)}%</span>
+                                        </div>
+                                        <div class="coverage-bar">
+                                            <div class="coverage-fill" style="width: ${coverage.oneDose * 100}%">
+                                                ${(coverage.oneDose * 100).toFixed(1)}%
+                                            </div>
+                                        </div>
+                                    </div>
+                                ` : ''}
+
+                                ${coverage.boosted ? `
+                                    <div style="margin: 15px 0;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                            <strong>Boosted</strong>
+                                            <span>${(coverage.boosted * 100).toFixed(1)}%</span>
+                                        </div>
+                                        <div class="coverage-bar">
+                                            <div class="coverage-fill" style="width: ${coverage.boosted * 100}%">
+                                                ${(coverage.boosted * 100).toFixed(1)}%
+                                            </div>
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+
+                            ${targetCoverage ? `
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                                    <strong>Target Coverage for Herd Immunity:</strong> ${(targetCoverage * 100).toFixed(0)}%
+                                    <br>
+                                    <small>Gap to Target: ${((targetCoverage - (coverage.fullyVaccinated || 0)) * 100).toFixed(1)} percentage points</small>
+                                </div>
+                            ` : ''}
+
+                            ${data.demographics ? `
+                                <div style="margin: 20px 0;">
+                                    <h4>Coverage by Demographics</h4>
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                                        ${Object.entries(data.demographics.ageGroups || {}).map(([age, rate]) => `
+                                            <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; text-align: center;">
+                                                <div style="font-weight: bold;">${age}</div>
+                                                <div style="color: #0dcaf0; font-size: 1.2em;">${(rate * 100).toFixed(1)}%</div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        ` : 'No coverage data available'}
+                    </div>
+                `);
+            } catch (error) {
+                showError(`Error searching coverage data: ${error.message}`);
+            }
+        }
+
+        async function searchEffectiveness() {
+            const vaccine = document.getElementById('effectivenessVaccine').value.trim();
+            const timeframe = document.getElementById('timeframeSelect').value;
+            
+            if (!vaccine) {
+                alert('Please enter a vaccine name');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch(`/api/vaccine-tracking/effectiveness/${encodeURIComponent(vaccine)}?timeframe=${encodeURIComponent(timeframe)}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+
+                showResults(`
+                    <div style="background: white; border-radius: 15px; padding: 20px;">
+                        <h3>Vaccine Effectiveness: ${data.vaccine}</h3>
+                        <p><strong>Timeframe:</strong> ${data.timeframe}</p>
+                        
+                        ${data.currentEffectiveness ? `
+                            <div style="text-align: center; margin: 20px 0;">
+                                <div style="font-size: 2em; font-weight: bold; color: #0dcaf0;">
+                                    ${(data.currentEffectiveness * 100).toFixed(1)}%
+                                </div>
+                                <div>Current Effectiveness</div>
+                            </div>
+                        ` : ''}
+
+                        ${data.effectivenessHistory ? `
+                            <div style="margin: 20px 0;">
+                                <h4>Historical Effectiveness</h4>
+                                <div style="display: grid; gap: 10px;">
+                                    ${Object.entries(data.effectivenessHistory).map(([year, effectiveness]) => {
+                                        const rate = typeof effectiveness === 'object' ? 
+                                            Object.values(effectiveness).reduce((a, b) => a + b, 0) / Object.values(effectiveness).length :
+                                            effectiveness;
+                                        return `
+                                            <div style="display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 10px; border-radius: 8px;">
+                                                <strong>${year}</strong>
+                                                <span style="color: #0dcaf0; font-weight: bold;">${(rate * 100).toFixed(1)}%</span>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        ${data.trends ? `
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                                <h4>Effectiveness Trend</h4>
+                                <p><strong>Direction:</strong> ${data.trends.trend}</p>
+                                <p><strong>Change:</strong> ${data.trends.changePercent}% over ${data.trends.period}</p>
+                            </div>
+                        ` : ''}
+
+                        ${data.factors ? `
+                            <div style="margin: 15px 0;">
+                                <h4>Factors Affecting Effectiveness</h4>
+                                <ul>
+                                    ${data.factors.map(factor => `<li>${factor}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                `);
+            } catch (error) {
+                showError(`Error searching effectiveness data: ${error.message}`);
+            }
+        }
+
+        async function getRecommendations() {
+            const age = document.getElementById('ageInput').value;
+            const sex = document.getElementById('sexSelect').value;
+            const conditions = document.getElementById('conditionsInput').value.trim();
+            
+            if (!age) {
+                alert('Please enter your age');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const patientProfile = {
+                    age: parseInt(age),
+                    sex: sex,
+                    medicalConditions: conditions ? conditions.split(',').map(c => c.trim()) : [],
+                    location: 'US'
+                };
+
+                const response = await fetch('/api/vaccine-tracking/recommendations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ patientProfile })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+
+                if (data.recommendations && data.recommendations.length > 0) {
+                    const recommendationsHTML = data.recommendations
+                        .sort((a, b) => a.priorityScore - b.priorityScore)
+                        .map(rec => `
+                            <div class="recommendation-card priority-${rec.priority}">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <strong>${rec.vaccine}</strong>
+                                    <span style="background: ${rec.priority === 'high' ? '#dc3545' : rec.priority === 'medium' ? '#fd7e14' : '#28a745'}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; text-transform: uppercase;">
+                                        ${rec.priority}
+                                    </span>
+                                </div>
+                                <p><strong>Timing:</strong> ${rec.timing}</p>
+                                <p><strong>Reason:</strong> ${rec.reason}</p>
+                            </div>
+                        `).join('');
+
+                    showResults(`
+                        <div style="background: white; border-radius: 15px; padding: 20px;">
+                            <h3>Personalized Vaccine Recommendations</h3>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                                <strong>Profile:</strong> ${age} year old ${sex ? (sex === 'M' ? 'male' : 'female') : 'person'}
+                                ${conditions ? `<br><strong>Conditions:</strong> ${conditions}` : ''}
+                            </div>
+                            
+                            <h4>Recommendations (${data.totalRecommendations})</h4>
+                            ${recommendationsHTML}
+                            
+                            <div style="background: #d1ecf1; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                                <strong>Next Review:</strong> ${data.nextReview}
+                                <br><small><em>Vaccine recommendations should be discussed with your healthcare provider.</em></small>
+                            </div>
+                        </div>
+                    `);
+                } else {
+                    showResults(`
+                        <div style="text-align: center; padding: 40px; background: white; border-radius: 15px;">
+                            <h4>No specific recommendations at this time</h4>
+                            <p>Your vaccination schedule appears to be up to date based on current guidelines.</p>
+                        </div>
+                    `);
+                }
+            } catch (error) {
+                showError(`Error getting recommendations: ${error.message}`);
+            }
+        }
+
+        function showLoading() {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = '<div class="loading">Loading vaccine data...</div>';
+        }
+
+        function showError(message) {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = `<div class="error">Error: ${message}</div>`;
+        }
+
+        function showResults(html) {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = html;
+        }
+
+        // Enable search on Enter key for text inputs
+        document.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const activeTab = document.querySelector('.tab-content.active').id;
+                    switch(activeTab) {
+                        case 'vaccine-info': searchVaccineInfo(); break;
+                        case 'coverage-data': searchCoverage(); break;
+                        case 'effectiveness': searchEffectiveness(); break;
+                        case 'recommendations': getRecommendations(); break;
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

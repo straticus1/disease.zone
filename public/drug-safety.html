@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FDA Drug Safety & Adverse Events - diseaseZone</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            color: white;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5em;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .search-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .form-group input, .form-group select {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #dc3545;
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .results-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .service-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .service-card {
+            background: rgba(255,255,255,0.9);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .service-card h3 {
+            color: #dc3545;
+            margin: 0 0 15px 0;
+            font-size: 1.4em;
+        }
+
+        .service-card p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .service-card .features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .service-card .features li {
+            padding: 5px 0;
+            color: #555;
+        }
+
+        .service-card .features li:before {
+            content: "✓ ";
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .nav-back {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: background 0.3s;
+        }
+
+        .nav-back:hover {
+            background: rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="nav-back">← Back to Main Portal</a>
+        
+        <div class="header">
+            <h1>🛡️ FDA Drug Safety & Adverse Events</h1>
+            <p>Real-time drug safety monitoring with openFDA integration</p>
+        </div>
+
+        <div class="search-container">
+            <h3>Drug Safety Search</h3>
+            <div class="search-form">
+                <div class="form-group">
+                    <label for="drugName">Drug Name</label>
+                    <input type="text" id="drugName" placeholder="Enter drug name (e.g., Aspirin, Lipitor)">
+                </div>
+                <button class="search-btn" onclick="searchDrugSafety()">Search Safety Data</button>
+            </div>
+        </div>
+
+        <div class="service-cards">
+            <div class="service-card">
+                <h3>🚨 Adverse Events (FAERS)</h3>
+                <p>FDA Adverse Event Reporting System integration for real-time safety monitoring.</p>
+                <ul class="features">
+                    <li>Comprehensive adverse event database</li>
+                    <li>Seriousness classification</li>
+                    <li>Patient demographics analysis</li>
+                    <li>Drug interaction monitoring</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <h3>📢 Drug Recalls & Alerts</h3>
+                <p>Real-time drug recall information and enforcement actions from FDA databases.</p>
+                <ul class="features">
+                    <li>Class I, II, III recall classifications</li>
+                    <li>Active recall monitoring</li>
+                    <li>Manufacturer tracking</li>
+                    <li>Distribution pattern analysis</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <h3>📊 Risk Score Analysis</h3>
+                <p>Comprehensive risk assessment combining adverse events and recall data.</p>
+                <ul class="features">
+                    <li>Automated risk scoring (0-100)</li>
+                    <li>Safety recommendations</li>
+                    <li>Clinical decision support</li>
+                    <li>Comparative risk analysis</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <h3>🏥 Medical Device Safety</h3>
+                <p>FDA medical device recall and safety information monitoring.</p>
+                <ul class="features">
+                    <li>Device recall tracking</li>
+                    <li>Safety communications</li>
+                    <li>Classification analysis</li>
+                    <li>Manufacturer notifications</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="results-container" id="results" style="display: none;">
+            <h3>Safety Analysis Results</h3>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        async function searchDrugSafety() {
+            const drugName = document.getElementById('drugName').value.trim();
+            
+            if (!drugName) {
+                alert('Please enter a drug name');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('results');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            resultsDiv.style.display = 'block';
+            resultsContent.innerHTML = '<div class="loading">Searching FDA safety databases...</div>';
+
+            try {
+                // Search for drug safety summary
+                const response = await fetch(`/api/fda-drug-safety/summary/${encodeURIComponent(drugName)}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    resultsContent.innerHTML = `<div class="error">Error: ${data.error}</div>`;
+                    return;
+                }
+
+                // Display results
+                resultsContent.innerHTML = `
+                    <div style="background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                        <h4>Safety Summary for ${data.drugName}</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                                <strong>Risk Score</strong><br>
+                                <span style="font-size: 1.5em; color: ${data.riskScore >= 70 ? '#dc3545' : data.riskScore >= 40 ? '#ffc107' : '#28a745'}">
+                                    ${data.riskScore}/100
+                                </span>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                                <strong>Adverse Events</strong><br>
+                                <span style="font-size: 1.2em;">${data.summary?.totalAdverseEvents || 0}</span>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                                <strong>Recalls</strong><br>
+                                <span style="font-size: 1.2em;">${data.summary?.totalRecalls || 0}</span>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                                <strong>Serious Events</strong><br>
+                                <span style="font-size: 1.2em;">${data.summary?.seriousEvents || 0}</span>
+                            </div>
+                        </div>
+                        
+                        ${data.recommendations ? `
+                            <h5>Safety Recommendations</h5>
+                            <ul>
+                                ${data.recommendations.map(rec => `
+                                    <li style="margin: 8px 0; padding: 8px; background: ${rec.level === 'critical' ? '#f8d7da' : rec.level === 'warning' ? '#fff3cd' : '#d1ecf1'}; border-radius: 4px;">
+                                        <strong>${rec.level.toUpperCase()}:</strong> ${rec.message}
+                                        <br><small><em>Action: ${rec.action}</em></small>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        ` : ''}
+                        
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button onclick="searchAdverseEvents('${drugName}')" style="margin: 5px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                View Adverse Events
+                            </button>
+                            <button onclick="searchRecalls('${drugName}')" style="margin: 5px; padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                View Recalls
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                resultsContent.innerHTML = `<div class="error">Error searching drug safety data: ${error.message}</div>`;
+            }
+        }
+
+        async function searchAdverseEvents(drugName) {
+            const resultsContent = document.getElementById('resultsContent');
+            resultsContent.innerHTML = '<div class="loading">Loading adverse events...</div>';
+
+            try {
+                const response = await fetch(`/api/fda-drug-safety/adverse-events/${encodeURIComponent(drugName)}?limit=10`);
+                const data = await response.json();
+
+                if (data.adverseEvents && data.adverseEvents.length > 0) {
+                    resultsContent.innerHTML = `
+                        <div style="background: white; border-radius: 10px; padding: 20px;">
+                            <h4>Adverse Events for ${data.drugName}</h4>
+                            <p><strong>Total Found:</strong> ${data.totalFound}</p>
+                            <div style="max-height: 400px; overflow-y: auto;">
+                                ${data.adverseEvents.map(event => `
+                                    <div style="border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 8px; background: ${event.serious ? '#fff5f5' : '#f8f9fa'};">
+                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 10px;">
+                                            <div><strong>Report ID:</strong> ${event.id}</div>
+                                            <div><strong>Serious:</strong> ${event.serious ? 'Yes' : 'No'}</div>
+                                            <div><strong>Reporter:</strong> ${event.reporterType || 'Unknown'}</div>
+                                            <div><strong>Date:</strong> ${event.receiveDate}</div>
+                                        </div>
+                                        ${event.reactions && event.reactions.length > 0 ? `
+                                            <div><strong>Reactions:</strong></div>
+                                            <ul style="margin: 5px 0 0 20px;">
+                                                ${event.reactions.map(reaction => `<li>${reaction.term} (Outcome: ${reaction.outcome || 'Unknown'})</li>`).join('')}
+                                            </ul>
+                                        ` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultsContent.innerHTML = `<div style="background: white; border-radius: 10px; padding: 20px;">
+                        <h4>No adverse events found for ${drugName}</h4>
+                    </div>`;
+                }
+            } catch (error) {
+                resultsContent.innerHTML = `<div class="error">Error loading adverse events: ${error.message}</div>`;
+            }
+        }
+
+        async function searchRecalls(drugName) {
+            const resultsContent = document.getElementById('resultsContent');
+            resultsContent.innerHTML = '<div class="loading">Loading recalls...</div>';
+
+            try {
+                const response = await fetch(`/api/fda-drug-safety/recalls/${encodeURIComponent(drugName)}?limit=10`);
+                const data = await response.json();
+
+                if (data.recalls && data.recalls.length > 0) {
+                    resultsContent.innerHTML = `
+                        <div style="background: white; border-radius: 10px; padding: 20px;">
+                            <h4>Recalls for ${data.drugName}</h4>
+                            <p><strong>Total Found:</strong> ${data.totalFound}</p>
+                            <div style="max-height: 400px; overflow-y: auto;">
+                                ${data.recalls.map(recall => `
+                                    <div style="border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 8px; background: ${recall.classification === 'Class I' ? '#fff5f5' : '#f8f9fa'};">
+                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 10px;">
+                                            <div><strong>Recall #:</strong> ${recall.id}</div>
+                                            <div><strong>Classification:</strong> ${recall.classification}</div>
+                                            <div><strong>Status:</strong> ${recall.status}</div>
+                                            <div><strong>Date:</strong> ${recall.recallDate}</div>
+                                        </div>
+                                        <div><strong>Product:</strong> ${recall.product}</div>
+                                        <div><strong>Reason:</strong> ${recall.reason}</div>
+                                        <div><strong>Firm:</strong> ${recall.firmName}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultsContent.innerHTML = `<div style="background: white; border-radius: 10px; padding: 20px;">
+                        <h4>No recalls found for ${drugName}</h4>
+                    </div>`;
+                }
+            } catch (error) {
+                resultsContent.innerHTML = `<div class="error">Error loading recalls: ${error.message}</div>`;
+            }
+        }
+
+        // Enable search on Enter key
+        document.getElementById('drugName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchDrugSafety();
+            }
+        });
+    </script>
+</body>
+</html>

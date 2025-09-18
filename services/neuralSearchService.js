@@ -29,15 +29,65 @@ class NeuralSearchService {
         this.vocabPath = path.join(__dirname, '../models/vocabulary.json');
         this.embeddingsPath = path.join(__dirname, '../models/embeddings.json');
 
-        // Disease-specific vocabulary
+        // Comprehensive health service vocabulary
         this.diseaseTerms = new Set([
+            // Basic disease terms
             'disease', 'illness', 'condition', 'syndrome', 'disorder', 'infection',
             'virus', 'bacteria', 'pathogen', 'epidemic', 'pandemic', 'outbreak',
             'symptoms', 'treatment', 'diagnosis', 'prevention', 'vaccine',
             'covid', 'coronavirus', 'influenza', 'herpes', 'hiv', 'aids',
             'tuberculosis', 'malaria', 'dengue', 'zika', 'ebola', 'sars',
             'diabetes', 'cancer', 'heart', 'stroke', 'hypertension',
-            'surveillance', 'monitoring', 'tracking', 'reporting', 'data'
+            'surveillance', 'monitoring', 'tracking', 'reporting', 'data',
+            
+            // FDA Drug Safety terms
+            'fda', 'drug', 'medication', 'adverse', 'events', 'faers', 'recall',
+            'safety', 'pharmaceutical', 'side', 'effects', 'contraindications',
+            'warnings', 'dosage', 'prescription', 'interactions', 'toxicity',
+            
+            // WHO Global Health terms
+            'who', 'global', 'health', 'observatory', 'gho', 'indicators',
+            'mortality', 'morbidity', 'life', 'expectancy', 'burden', 'countries',
+            'international', 'statistics', 'demographics', 'population',
+            
+            // NIH Rare Disease terms
+            'nih', 'rare', 'genetic', 'gard', 'orphan', 'hereditary',
+            'congenital', 'chromosomal', 'mutation', 'inheritance', 'family',
+            'research', 'clinical', 'trials', 'biomarkers', 'genomics',
+            
+            // Drug Pricing terms
+            'pricing', 'cost', 'pharmacy', 'insurance', 'copay', 'generic',
+            'brand', 'medicare', 'medicaid', 'affordable', 'comparison',
+            'goodrx', 'savings', 'discount', 'formulary', 'tier',
+            
+            // Outbreak Alert terms
+            'alert', 'emergency', 'public', 'health', 'promed', 'cdc',
+            'severity', 'response', 'containment', 'quarantine', 'isolation',
+            'contact', 'tracing', 'hotspot', 'cluster', 'transmission',
+            
+            // Social Determinants terms
+            'social', 'determinants', 'sdoh', 'housing', 'education', 'income',
+            'poverty', 'access', 'equity', 'disparities', 'census', 'demographics',
+            'environment', 'community', 'neighborhood', 'zip', 'code',
+            
+            // Medical Imaging terms
+            'imaging', 'radiology', 'xray', 'mri', 'ct', 'scan', 'ai',
+            'artificial', 'intelligence', 'diagnostic', 'retinal', 'chest',
+            'pneumonia', 'analysis', 'deep', 'learning', 'computer', 'vision',
+            
+            // Vaccine terms
+            'vaccination', 'immunization', 'schedule', 'coverage', 'efficacy',
+            'effectiveness', 'booster', 'dose', 'acip', 'vaers', 'adverse',
+            'herd', 'immunity', 'breakthrough', 'variant', 'mrna', 'vector',
+            
+            // Clinical Trials terms
+            'clinical', 'trial', 'research', 'study', 'phase', 'recruitment',
+            'enrollment', 'protocol', 'placebo', 'randomized', 'controlled',
+            'investigational', 'sponsor', 'endpoint', 'criteria', 'nct',
+            
+            // Enhanced CDC terms
+            'wonder', 'atlas', 'nchs', 'mmwr', 'behavioral', 'risk', 'factor',
+            'environmental', 'tracking', 'syndromic', 'notifiable', 'reportable'
         ]);
 
         // Initialize TF.js backend

@@ -93,6 +93,31 @@ async function initializeServices() {
     const EnhancedCDCService = require('./services/enhancedCDCService');
     const enhancedCDCService = new EnhancedCDCService();
     
+    // Initialize new comprehensive health services
+    const FDADrugSafetyService = require('./services/fdaDrugSafetyService');
+    const fdaDrugSafetyService = new FDADrugSafetyService();
+    
+    const WHOGlobalHealthService = require('./services/whoGlobalHealthService');
+    const whoGlobalHealthService = new WHOGlobalHealthService();
+    
+    const NIHRareDiseaseService = require('./services/nihRareDiseaseService');
+    const nihRareDiseaseService = new NIHRareDiseaseService();
+    
+    const DrugPricingService = require('./services/drugPricingService');
+    const drugPricingService = new DrugPricingService();
+    
+    const OutbreakAlertsService = require('./services/outbreakAlertsService');
+    const outbreakAlertsService = new OutbreakAlertsService();
+    
+    const SocialDeterminantsService = require('./services/socialDeterminantsService');
+    const socialDeterminantsService = new SocialDeterminantsService();
+    
+    const MedicalImagingService = require('./services/medicalImagingService');
+    const medicalImagingService = new MedicalImagingService();
+    
+    const VaccineTrackingService = require('./services/vaccineTrackingService');
+    const vaccineTrackingService = new VaccineTrackingService();
+    
     const modelTrainingScheduler = new ModelTrainingScheduler(neuralSearchService, databaseService);
 
     // Initialize compliance and security services
@@ -160,6 +185,14 @@ async function initializeServices() {
     app.locals.neuralSearchService = neuralSearchService;
     app.locals.clinicalTrialsService = clinicalTrialsService;
     app.locals.enhancedCDCService = enhancedCDCService;
+    app.locals.fdaDrugSafetyService = fdaDrugSafetyService;
+    app.locals.whoGlobalHealthService = whoGlobalHealthService;
+    app.locals.nihRareDiseaseService = nihRareDiseaseService;
+    app.locals.drugPricingService = drugPricingService;
+    app.locals.outbreakAlertsService = outbreakAlertsService;
+    app.locals.socialDeterminantsService = socialDeterminantsService;
+    app.locals.medicalImagingService = medicalImagingService;
+    app.locals.vaccineTrackingService = vaccineTrackingService;
     app.locals.modelTrainingScheduler = modelTrainingScheduler;
     app.locals.config = config;
 
@@ -4863,6 +4896,475 @@ app.get('/api/enhanced-cdc/:disease', async (req, res) => {
     const { disease } = req.params;
     const data = await app.locals.enhancedCDCService.getAggregatedDiseaseData(disease, req.query);
     res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// =============================================================================
+// NEW COMPREHENSIVE HEALTH SERVICES API ENDPOINTS
+// =============================================================================
+
+// FDA Drug Safety API Routes
+app.get('/api/fda-drug-safety/adverse-events/:drug', async (req, res) => {
+  try {
+    const { drug } = req.params;
+    const { limit, skip, dateRange, seriousness } = req.query;
+    const data = await app.locals.fdaDrugSafetyService.searchAdverseEvents(drug, {
+      limit: parseInt(limit) || 100,
+      skip: parseInt(skip) || 0,
+      dateRange: dateRange ? JSON.parse(dateRange) : null,
+      seriousness
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/fda-drug-safety/recalls/:drug', async (req, res) => {
+  try {
+    const { drug } = req.params;
+    const { limit, classification, status } = req.query;
+    const data = await app.locals.fdaDrugSafetyService.searchDrugRecalls(drug, {
+      limit: parseInt(limit) || 50,
+      classification,
+      status
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/fda-drug-safety/summary/:drug', async (req, res) => {
+  try {
+    const { drug } = req.params;
+    const data = await app.locals.fdaDrugSafetyService.getDrugSafetySummary(drug);
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/fda-drug-safety/device-recalls/:device', async (req, res) => {
+  try {
+    const { device } = req.params;
+    const { limit, classification } = req.query;
+    const data = await app.locals.fdaDrugSafetyService.searchDeviceRecalls(device, {
+      limit: parseInt(limit) || 50,
+      classification
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// WHO Global Health Observatory API Routes
+app.get('/api/who-global-health/indicators', async (req, res) => {
+  try {
+    const data = await app.locals.whoGlobalHealthService.getAllIndicators();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/who-global-health/indicator/:indicator', async (req, res) => {
+  try {
+    const { indicator } = req.params;
+    const { country, year } = req.query;
+    const data = await app.locals.whoGlobalHealthService.getIndicatorData(indicator, {
+      country,
+      year: year ? parseInt(year) : undefined
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/who-global-health/country/:country', async (req, res) => {
+  try {
+    const { country } = req.params;
+    const { indicators } = req.query;
+    const data = await app.locals.whoGlobalHealthService.getCountryHealthProfile(country, {
+      indicators: indicators ? indicators.split(',') : undefined
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/who-global-health/disease-burden/:disease', async (req, res) => {
+  try {
+    const { disease } = req.params;
+    const { countries } = req.query;
+    const data = await app.locals.whoGlobalHealthService.getDiseaseBurdenData(disease, {
+      countries: countries ? countries.split(',') : undefined
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// NIH Rare Disease API Routes
+app.get('/api/nih-rare-diseases/search/:disease', async (req, res) => {
+  try {
+    const { disease } = req.params;
+    const { category, limit } = req.query;
+    const data = await app.locals.nihRareDiseaseService.searchRareDiseases(disease, {
+      category,
+      limit: parseInt(limit) || 20
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/nih-rare-diseases/details/:gardId', async (req, res) => {
+  try {
+    const { gardId } = req.params;
+    const data = await app.locals.nihRareDiseaseService.getDiseaseDetails(gardId);
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/nih-rare-diseases/categories', async (req, res) => {
+  try {
+    const data = await app.locals.nihRareDiseaseService.getDiseaseCategories();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/nih-rare-diseases/genetics/:disease', async (req, res) => {
+  try {
+    const { disease } = req.params;
+    const data = await app.locals.nihRareDiseaseService.getGeneticInformation(disease);
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Drug Pricing API Routes
+app.get('/api/drug-pricing/:drug', async (req, res) => {
+  try {
+    const { drug } = req.params;
+    const { strength, quantity, insurance, zipCode } = req.query;
+    const data = await app.locals.drugPricingService.getDrugPricing(drug, {
+      strength,
+      quantity: quantity ? parseInt(quantity) : undefined,
+      insurance,
+      zipCode
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/drug-pricing/alternatives/:drug', async (req, res) => {
+  try {
+    const { drug } = req.params;
+    const { includeBrands, includeGenerics } = req.query;
+    const data = await app.locals.drugPricingService.findAlternatives(drug, {
+      includeBrands: includeBrands === 'true',
+      includeGenerics: includeGenerics !== 'false'
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/drug-pricing/pharmacies/:drug', async (req, res) => {
+  try {
+    const { drug } = req.params;
+    const { zipCode, radius } = req.query;
+    const data = await app.locals.drugPricingService.comparePharmacyPrices(drug, {
+      zipCode,
+      radius: radius ? parseInt(radius) : undefined
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Outbreak Alerts API Routes
+app.get('/api/outbreak-alerts/active', async (req, res) => {
+  try {
+    const { disease, region, severity, limit } = req.query;
+    const data = await app.locals.outbreakAlertsService.getActiveOutbreaks({
+      disease,
+      region,
+      severity: severity ? parseInt(severity) : undefined,
+      limit: parseInt(limit) || 50
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/outbreak-alerts/details/:outbreakId', async (req, res) => {
+  try {
+    const { outbreakId } = req.params;
+    const data = await app.locals.outbreakAlertsService.getOutbreakDetails(outbreakId);
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/outbreak-alerts/search/:query', async (req, res) => {
+  try {
+    const { query } = req.params;
+    const { limit } = req.query;
+    const data = await app.locals.outbreakAlertsService.searchOutbreaks(query, {
+      limit: parseInt(limit) || 20
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/outbreak-alerts/disease-history/:disease', async (req, res) => {
+  try {
+    const { disease } = req.params;
+    const { years, includeProjections } = req.query;
+    const data = await app.locals.outbreakAlertsService.getDiseaseOutbreakHistory(disease, {
+      years: years ? parseInt(years) : undefined,
+      includeProjections: includeProjections === 'true'
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/outbreak-alerts/generate-alerts', async (req, res) => {
+  try {
+    const { severityThreshold, regionsOfInterest } = req.query;
+    const data = await app.locals.outbreakAlertsService.generateAlerts({
+      severityThreshold: severityThreshold ? parseInt(severityThreshold) : undefined,
+      regionsOfInterest: regionsOfInterest ? regionsOfInterest.split(',') : undefined
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Social Determinants of Health API Routes
+app.get('/api/social-determinants/analysis/:location', async (req, res) => {
+  try {
+    const { location } = req.params;
+    const { includeComparisons, includePredictions, detailLevel } = req.query;
+    const data = await app.locals.socialDeterminantsService.getSDOHAnalysis(location, {
+      includeComparisons: includeComparisons === 'true',
+      includePredictions: includePredictions === 'true',
+      detailLevel: detailLevel || 'standard'
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/social-determinants/search', async (req, res) => {
+  try {
+    const { criteria, limit } = req.query;
+    const data = await app.locals.socialDeterminantsService.searchLocationsBySDOH(
+      criteria ? JSON.parse(criteria) : {},
+      { limit: parseInt(limit) || 20 }
+    );
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Medical Imaging & AI Diagnostics API Routes
+app.post('/api/medical-imaging/analyze', async (req, res) => {
+  try {
+    const { imageData, imageType, includeConfidenceScores, includeBoundingBoxes } = req.body;
+    const data = await app.locals.medicalImagingService.analyzeImage(imageData, {
+      imageType,
+      includeConfidenceScores: includeConfidenceScores !== false,
+      includeBoundingBoxes: includeBoundingBoxes === true
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/medical-imaging/batch-analyze', async (req, res) => {
+  try {
+    const { images, imageType, maxConcurrent } = req.body;
+    const data = await app.locals.medicalImagingService.analyzeBatch(images, {
+      imageType,
+      maxConcurrent: parseInt(maxConcurrent) || 3
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/medical-imaging/diagnostic-suggestions', async (req, res) => {
+  try {
+    const { analysisResult, patientContext } = req.body;
+    const data = await app.locals.medicalImagingService.getDiagnosticSuggestions(
+      analysisResult,
+      patientContext
+    );
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/medical-imaging/similar-cases', async (req, res) => {
+  try {
+    const { analysisResult, limit, includeMetadata } = req.body;
+    const data = await app.locals.medicalImagingService.findSimilarCases(analysisResult, {
+      limit: parseInt(limit) || 10,
+      includeMetadata: includeMetadata !== false
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/medical-imaging/models', async (req, res) => {
+  try {
+    const data = app.locals.medicalImagingService.getAvailableModels();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/medical-imaging/model-performance/:modelType', async (req, res) => {
+  try {
+    const { modelType } = req.params;
+    const data = await app.locals.medicalImagingService.getModelPerformance(modelType);
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Vaccine & Immunization Tracking API Routes
+app.get('/api/vaccine-tracking/info/:disease', async (req, res) => {
+  try {
+    const { disease } = req.params;
+    const { includeEfficacy, includeSchedule, includeAdverseEvents, country } = req.query;
+    const data = await app.locals.vaccineTrackingService.getVaccineInfo(disease, {
+      includeEfficacy: includeEfficacy !== 'false',
+      includeSchedule: includeSchedule !== 'false',
+      includeAdverseEvents: includeAdverseEvents === 'true',
+      country: country || 'US'
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/vaccine-tracking/coverage/:region/:vaccine', async (req, res) => {
+  try {
+    const { region, vaccine } = req.params;
+    const { timeframe, ageGroups, includeProjections } = req.query;
+    const data = await app.locals.vaccineTrackingService.getVaccinationCoverage(region, vaccine, {
+      timeframe,
+      ageGroups,
+      includeProjections: includeProjections === 'true'
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/vaccine-tracking/recommendations', async (req, res) => {
+  try {
+    const { patientProfile, includeTravel, includeOccupational, includeCatchUp } = req.body;
+    const data = await app.locals.vaccineTrackingService.getVaccinationRecommendations(
+      patientProfile,
+      {
+        includeTravel: includeTravel === true,
+        includeOccupational: includeOccupational === true,
+        includeCatchUp: includeCatchUp !== false
+      }
+    );
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/vaccine-tracking/effectiveness/:vaccine', async (req, res) => {
+  try {
+    const { vaccine } = req.params;
+    const { timeframe, variants, population } = req.query;
+    const data = await app.locals.vaccineTrackingService.monitorVaccineEffectiveness(vaccine, {
+      timeframe,
+      variants: variants ? variants.split(',') : undefined,
+      population
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/vaccine-tracking/adverse-events/:vaccine', async (req, res) => {
+  try {
+    const { vaccine } = req.params;
+    const { severity, timeframe, demographics } = req.query;
+    const data = await app.locals.vaccineTrackingService.trackAdverseEvents(vaccine, {
+      severity,
+      timeframe,
+      demographics
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Service Status Endpoints
+app.get('/api/service-status', async (req, res) => {
+  try {
+    const services = {
+      fdaDrugSafety: app.locals.fdaDrugSafetyService.getStatus(),
+      whoGlobalHealth: app.locals.whoGlobalHealthService.getStatus(),
+      nihRareDisease: app.locals.nihRareDiseaseService.getStatus(),
+      drugPricing: app.locals.drugPricingService.getStatus(),
+      outbreakAlerts: app.locals.outbreakAlertsService.getStatus(),
+      socialDeterminants: app.locals.socialDeterminantsService.getStatus(),
+      medicalImaging: app.locals.medicalImagingService.getStatus(),
+      vaccineTracking: app.locals.vaccineTrackingService.getStatus()
+    };
+    res.json({
+      timestamp: new Date().toISOString(),
+      services,
+      totalServices: Object.keys(services).length
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
