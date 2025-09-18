@@ -1,6 +1,6 @@
 {
   "name": "disease.zone",
-  "version": "3.7.0",
+  "version": "3.8.0",
   "description": "diseaseZone - A comprehensive disease tracking and visualization platform with mapping integration (previously covid19lookup.nyc)",
   "main": "server.js",
   "scripts": {
@@ -23,10 +23,12 @@
     "@tensorflow/tfjs-node": "^4.22.0",
     "archiver": "^7.0.1",
     "aws-sdk": "^2.1692.0",
-    "axios": "^1.6.0",
+    "axios": "^1.12.2",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
+    "bull": "^4.16.5",
     "chalk": "^4.1.2",
+    "clamscan": "^2.4.0",
     "cli-table3": "^0.6.5",
     "commander": "^11.1.0",
     "compromise": "^14.14.4",
@@ -60,6 +62,7 @@
     "nodemailer": "^7.0.6",
     "ora": "^5.4.1",
     "pdf-parse": "^1.1.1",
+    "redis": "^5.8.2",
     "rss-parser": "^3.13.0",
     "sharp": "^0.34.4",
     "sqlite3": "^5.1.7",
@@ -67,8 +70,9 @@
     "stemmer": "^2.0.1",
     "uuid": "^9.0.1",
     "validator": "^13.15.15",
+    "virustotal-api": "^1.1.7",
     "web3": "^4.2.0",
-    "ws": "^8.14.2"
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",

@@ -1,5 +1,56 @@
 # Changelog
 
+## [3.8.0] - 2025-09-18
+
+### 🛡️ **Advanced Medical File Security Scanning Daemon**
+
+#### **🚀 MULTI-ENGINE SECURITY SCANNING:**
+- **🦠 ClamAV Integration** - Real-time antivirus scanning with updated virus signatures and malware detection
+- **🎯 YARA Rule Engine** - Custom medical file security rules for DICOM, HL7/FHIR, and general medical threats
+- **🌐 VirusTotal API** - Multi-engine scanning (70+ engines) for Gold tier subscribers with risk scoring
+- **🔍 Advanced Analysis** - Entropy analysis, embedded executable detection, and behavioral pattern analysis
+- **✅ Basic Validation** - File integrity, hash verification, and format validation for all tiers
+
+#### **🏆 TIERED SECURITY SYSTEM:**
+- **🆓 Free Tier** - Basic validation + ClamAV (10MB files, 50/day)
+- **💎 Premium Tier** - Free features + Basic YARA rules (50MB files, 200/day)  
+- **🥇 Gold Tier** - Premium features + VirusTotal + Advanced analysis (100MB files, 1000/day)
+- **🏢 Enterprise Tier** - Gold features + Custom rules (500MB files, 10000/day)
+- **💰 Revenue Model** - Premium scanning features monetize higher subscription tiers
+
+#### **⚡ REAL-TIME PROCESSING ARCHITECTURE:**
+- **🔄 Queue Management** - Redis/Bull queue system with priority-based processing and retry logic
+- **📡 WebSocket Communications** - Real-time scan progress and result notifications
+- **🏗️ Modular Design** - Independent daemon service with CLI management tools
+- **📊 Performance Monitoring** - Comprehensive metrics, queue status, and throughput tracking
+
+#### **🎯 MEDICAL-SPECIFIC SECURITY:**
+- **🏥 DICOM Security Rules** - PE executable detection, script injection, steganography markers
+- **💊 HL7/FHIR Protection** - Message anomaly detection, suspicious content analysis
+- **🧠 Neuroimaging Safety** - NIfTI/MINC format validation and embedded threat detection
+- **🔒 Privacy Compliance** - HIPAA-compliant scanning with PHI protection and audit trails
+
+#### **📊 SECURITY DASHBOARD & MONITORING:**
+- **🎛️ Real-time Dashboard** - Live statistics for clean, suspicious, and infected files
+- **📈 Scanning Analytics** - Queue status, average scan times, and engine performance
+- **🔍 Scan Result Viewer** - Detailed scan reports with findings and recommendations
+- **🚨 Alert System** - Real-time notifications for threats and suspicious files
+
+#### **🔄 AUTOMATED QUARANTINE SYSTEM:**
+- **🏥 Secure Isolation** - Infected files automatically quarantined with restricted access
+- **📝 Audit Trails** - Complete logging of all scan operations for compliance
+- **🔧 Admin Controls** - Quarantine management and review capabilities
+- **🗑️ Cleanup Automation** - Automatic purging of old quarantined files
+
+#### **🛠️ TECHNICAL IMPLEMENTATION:**
+- **🏗️ Standalone Daemon** - Independent scanning service (`scanDaemon.js`) with CLI management
+- **📋 Custom YARA Rules** - 15+ medical-specific security rules in `/security/yara-rules/`
+- **🔌 API Integration** - 4 new scanning endpoints with authentication and tier validation
+- **🌐 WebSocket Server** - Real-time communication on port 8081 with automatic reconnection
+- **💾 Database Schema** - New tables for scan results, queue status, and audit logging
+
+---
+
 ## [3.7.0] - 2025-09-18
 
 ### 🏥 **Advanced Medical File Upload & Management System**

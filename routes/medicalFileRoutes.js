@@ -256,15 +256,94 @@ router.get('/stats', async (req, res) => {
     const totalFiles = await db.get('SELECT COUNT(*) as total FROM uploaded_files');
     const totalSize = await db.get('SELECT SUM(file_size) as total FROM uploaded_files');
 
+    // Include scanning statistics
+    const scanStats = await fileUploadService.getScanStats();
+
     ResponseHandler.success(res, {
       totalFiles: totalFiles.total,
       totalSize: totalSize.total,
-      byType: stats
+      byType: stats,
+      scanning: scanStats
     });
 
   } catch (error) {
     console.error('Get stats error:', error);
     ResponseHandler.error(res, 'Failed to retrieve statistics', 500);
+  }
+});
+
+/**
+ * Get scan results for a file
+ * GET /api/medical-files/:fileId/scans
+ */
+router.get('/:fileId/scans', async (req, res) => {
+  try {
+    const { fileId } = req.params;
+    const scanResults = await fileUploadService.getScanResults(fileId);
+    
+    ResponseHandler.success(res, {
+      fileId,
+      scans: scanResults
+    });
+
+  } catch (error) {
+    console.error('Get scan results error:', error);
+    ResponseHandler.error(res, 'Failed to retrieve scan results', 500);
+  }
+});
+
+/**
+ * Get scan queue status
+ * GET /api/medical-files/scan-queue
+ */
+router.get('/scan-queue', async (req, res) => {
+  try {
+    const queueStatus = await fileUploadService.scanDaemon.getQueueStatus();
+    
+    ResponseHandler.success(res, queueStatus);
+
+  } catch (error) {
+    console.error('Get scan queue error:', error);
+    ResponseHandler.error(res, 'Failed to retrieve scan queue status', 500);
+  }
+});
+
+/**
+ * Rescan a file (Premium/Gold only)
+ * POST /api/medical-files/:fileId/rescan
+ */
+router.post('/:fileId/rescan', async (req, res) => {
+  try {
+    const { fileId } = req.params;
+    const db = await fileUploadService.databaseService.getDatabase();
+    
+    const file = await db.get('SELECT * FROM uploaded_files WHERE id = ?', [fileId]);
+    
+    if (!file) {
+      return ResponseHandler.error(res, 'File not found', 404);
+    }
+
+    // Check user permissions for rescanning
+    const userTier = await fileUploadService.getUserTier(req.user.id);
+    if (userTier === 'free') {
+      return ResponseHandler.error(res, 'Rescan feature requires Premium or Gold subscription', 403);
+    }
+
+    // Submit for rescanning
+    const scanResult = await fileUploadService.submitForScanning(
+      JSON.parse(file.metadata), 
+      { uploadedBy: req.user.id, userTier }
+    );
+    
+    ResponseHandler.success(res, {
+      message: 'File submitted for rescanning',
+      scanJobId: scanResult.jobId,
+      estimatedTime: scanResult.estimatedTime
+    });
+
+  } catch (error) {
+    console.error('Rescan file error:', error);
+    ResponseHandler.error(res, 'Failed to rescan file', 500);
   }
 });
 

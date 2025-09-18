@@ -6,7 +6,7 @@
 
 *Previously known as covid19lookup.nyc*
 
-[![Version](https://img.shields.io/badge/version-3.7.0-blue.svg)](https://github.com/straticus1/disease.zone)
+[![Version](https://img.shields.io/badge/version-3.8.0-blue.svg)](https://github.com/straticus1/disease.zone)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-brightgreen.svg)](./MEDICAL_COMPLIANCE_REVIEW.md)
 [![GDPR](https://img.shields.io/badge/GDPR-Compliant-brightgreen.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
@@ -14,7 +14,17 @@
 
 ## 🌟 Features
 
-### 🏥 **NEW IN v3.7.0: Advanced Medical File Upload & Management System**
+### 🛡️ **NEW IN v3.8.0: Advanced Medical File Security Scanning Daemon**
+- **🔍 Multi-Engine Scanning** - ClamAV antivirus, YARA rule-based detection, VirusTotal API integration
+- **🏆 Tiered Security System** - Free, Premium, Gold, Enterprise tiers with different scanning capabilities
+- **⚡ Real-time Processing** - Queue-based scanning with Redis/Bull and WebSocket notifications
+- **🎯 Medical-Specific Rules** - Custom YARA rules for DICOM, HL7/FHIR, and medical file threats
+- **📊 Security Dashboard** - Real-time monitoring of scan results, queue status, and threat statistics
+- **🔄 Automated Quarantine** - Infected files automatically quarantined with audit trails
+- **💰 Revenue Model** - Premium features (VirusTotal, advanced analysis) for paid subscribers
+- **🏥 HIPAA Compliance** - Complete audit logging and privacy-compliant scanning workflows
+
+### 🏥 **v3.7.0: Advanced Medical File Upload & Management System**
 - **📁 Multi-Format Medical File Support** - DICOM medical imaging, HL7/FHIR health data exchange, NIfTI/MINC neuroimaging
 - **🔬 Automated File Processing** - Intelligent format detection, metadata extraction, and content validation
 - **🗂️ Research Case Management** - Automated research case creation with file grouping and email notifications

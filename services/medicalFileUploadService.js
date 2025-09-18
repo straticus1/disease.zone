@@ -25,6 +25,7 @@ const EmailService = require('./emailService');
 const DatabaseService = require('./databaseService');
 const AuditLoggingService = require('./auditLoggingService');
 const HIPAAService = require('./hipaaService');
+const MedicalFileScanDaemon = require('./medicalFileScanDaemon');
 
 class MedicalFileUploadService {
   constructor() {
@@ -65,6 +66,7 @@ class MedicalFileUploadService {
     this.databaseService = new DatabaseService();
     this.auditService = new AuditLoggingService();
     this.hipaaService = new HIPAAService();
+    this.scanDaemon = new MedicalFileScanDaemon();
 
     this.initializeDirectories();
     this.setupMulter();
@@ -229,6 +231,9 @@ class MedicalFileUploadService {
 
       // Store file information in database
       await this.storeFileMetadata(fileInfo);
+
+      // Submit file for security scanning
+      await this.submitForScanning(fileInfo, metadata);
 
       // Log the upload for audit purposes
       await this.auditService.logFileUpload(fileInfo);
@@ -518,6 +523,83 @@ class MedicalFileUploadService {
     } catch (error) {
       console.error('Error taking file ownership:', error);
       throw error;
+    }
+  }
+
+  async submitForScanning(fileInfo, metadata) {
+    try {
+      // Initialize scan daemon if not already done
+      if (!this.scanDaemon.isInitialized) {
+        await this.scanDaemon.initialize();
+      }
+
+      // Determine user tier from metadata
+      const userTier = metadata.userTier || this.getUserTier(metadata.uploadedBy);
+
+      // Submit file for scanning
+      const scanResult = await this.scanDaemon.submitFile({
+        fileId: fileInfo.id,
+        filePath: fileInfo.path,
+        fileName: fileInfo.originalName,
+        fileSize: fileInfo.size,
+        fileHash: fileInfo.hash,
+        userTier: userTier,
+        userId: metadata.uploadedBy,
+        metadata: {
+          fileType: fileInfo.fileType,
+          originalMetadata: fileInfo.metadata
+        }
+      });
+
+      console.log(`📋 File ${fileInfo.originalName} submitted for scanning: ${scanResult.jobId}`);
+      return scanResult;
+
+    } catch (error) {
+      console.warn('⚠️ Failed to submit file for scanning:', error.message);
+      // Don't fail the upload if scanning fails
+      return { status: 'scan_failed', error: error.message };
+    }
+  }
+
+  async getUserTier(userId) {
+    try {
+      const db = await this.databaseService.getDatabase();
+      const user = await db.get('SELECT subscription_tier FROM users WHERE id = ?', [userId]);
+      return user?.subscription_tier || 'free';
+    } catch (error) {
+      console.warn('Could not determine user tier:', error.message);
+      return 'free';
+    }
+  }
+
+  async getScanResults(fileId) {
+    try {
+      if (!this.scanDaemon.isInitialized) {
+        await this.scanDaemon.initialize();
+      }
+      return await this.scanDaemon.getFileScans(fileId);
+    } catch (error) {
+      console.error('Error getting scan results:', error);
+      return [];
+    }
+  }
+
+  async getScanStats() {
+    try {
+      if (!this.scanDaemon.isInitialized) {
+        await this.scanDaemon.initialize();
+      }
+      return this.scanDaemon.scanStats;
+    } catch (error) {
+      console.error('Error getting scan stats:', error);
+      return {
+        totalScans: 0,
+        cleanFiles: 0,
+        infectedFiles: 0,
+        suspiciousFiles: 0,
+        errors: 0,
+        averageScanTime: 0
+      };
     }
   }
 
