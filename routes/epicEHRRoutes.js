@@ -6,17 +6,20 @@ const rateLimit = require('express-rate-limit');
 // Initialize Epic EHR integration service
 const epicService = new EpicEHRIntegrationService();
 
-// Rate limiting for Epic API calls (Epic has strict rate limits)
+// Rate limiting for Epic API calls (Epic has strict rate limits: 1 request per second max)
 const epicRateLimit = rateLimit({
-    windowMs: 1 * 60 * 1000, // 1 minute
-    max: 60, // 60 requests per minute (Epic recommendation)
+    windowMs: 1 * 1000, // 1 second window
+    max: 1, // Maximum 1 request per second to comply with Epic's strict limits
     message: {
         error: 'Epic API rate limit exceeded',
-        retryAfter: '60 seconds',
-        recommendation: 'Epic has strict rate limits. Please space out requests.'
+        retryAfter: '1 second',
+        recommendation: 'Epic enforces strict rate limits of 1 request per second. Please wait before making another request.',
+        epicGuidance: 'Epic FHIR API Rate Limit: 1 request/second per client application'
     },
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
+    skipSuccessfulRequests: false, // Count all requests, even successful ones
+    skipFailedRequests: false // Count failed requests too
 });
 
 /**
@@ -387,6 +390,39 @@ router.get('/analytics/:organizationId', async (req, res) => {
         console.error('Epic analytics error:', error);
         res.status(500).json({
             error: 'Failed to retrieve Epic analytics',
+            message: error.message
+        });
+    }
+});
+
+/**
+ * GET /api/epic/rate-limit-status
+ * Get Epic API rate limiting status
+ */
+router.get('/rate-limit-status', async (req, res) => {
+    try {
+        const rateLimitStatus = epicService.getRateLimitStatus();
+        
+        res.json({
+            success: true,
+            rateLimitStatus,
+            recommendations: [
+                rateLimitStatus.queueLength > 5 ? 'Queue is getting long - consider spacing out requests' : null,
+                !rateLimitStatus.rateLimitCompliant ? 'Rate limit active - next request will be delayed' : null,
+                'Epic enforces strict 1 req/sec limit - patience ensures compliance'
+            ].filter(Boolean),
+            epicGuidance: {
+                maxRate: '1 request per second',
+                enforcement: 'Strict - 429 errors for violations',
+                scope: 'Per client application across all endpoints',
+                monitoring: 'Queue length and timing metrics available'
+            }
+        });
+
+    } catch (error) {
+        console.error('Rate limit status error:', error);
+        res.status(500).json({
+            error: 'Failed to retrieve rate limit status',
             message: error.message
         });
     }

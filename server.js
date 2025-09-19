@@ -1232,6 +1232,14 @@ app.use('/api/license-validation', licenseValidationRoutes);
 app.use('/api/epic', epicEHRRoutes);
 // app.use('/api/fhir/blockchain', fhirBlockchainRoutes);
 
+// Demo routes for testing
+const demoRoutes = require('./routes/demoRoutes');
+app.use('/api/demo', demoRoutes);
+
+// Health Assessment and Prediction routes
+const healthAssessmentRoutes = require('./routes/healthAssessmentRoutes');
+app.use('/api/health-assessment', healthAssessmentRoutes);
+
 // Authentication endpoints
 app.post('/api/auth/register',
   (req, res, next) => {

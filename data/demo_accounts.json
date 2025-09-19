@@ -1,0 +1,115 @@
+[
+  {
+    "id": "70899a1f-669f-40af-8a99-fbbde4fafc84",
+    "email": "researcher@disease.zone",
+    "password": "demo123",
+    "name": "Dr. Sarah Research",
+    "userType": "researcher",
+    "institution": "Global Health Research Institute",
+    "specialization": "Epidemiology",
+    "permissions": [
+      "view_surveillance_data",
+      "export_data",
+      "access_api",
+      "create_reports"
+    ],
+    "createdAt": "2025-09-18T23:15:35.454Z",
+    "lastLogin": null,
+    "profile": {
+      "title": "Senior Epidemiologist",
+      "department": "Infectious Disease Research",
+      "phone": "+1-555-0123",
+      "researchAreas": [
+        "Respiratory diseases",
+        "Outbreak modeling",
+        "Public health surveillance"
+      ]
+    }
+  },
+  {
+    "id": "ec71d12f-81a8-4686-8e22-6010092bb915",
+    "email": "admin@disease.zone",
+    "password": "admin123",
+    "name": "Admin User",
+    "userType": "admin",
+    "institution": "Disease.Zone Platform",
+    "specialization": "System Administration",
+    "permissions": [
+      "full_access",
+      "user_management",
+      "system_config",
+      "data_management",
+      "audit_logs",
+      "integration_management"
+    ],
+    "createdAt": "2025-09-18T23:15:35.454Z",
+    "lastLogin": null,
+    "profile": {
+      "title": "Platform Administrator",
+      "department": "Technical Operations",
+      "phone": "+1-555-0100",
+      "responsibilities": [
+        "System monitoring",
+        "User support",
+        "Data integrity",
+        "Security oversight"
+      ]
+    }
+  },
+  {
+    "id": "3cfc87a7-0f29-494f-8be1-be5978c1b49b",
+    "email": "insurance@disease.zone",
+    "password": "insurance123",
+    "name": "Insurance Analytics Team",
+    "userType": "insurance",
+    "institution": "HealthGuard Insurance",
+    "specialization": "Risk Assessment",
+    "permissions": [
+      "view_aggregated_data",
+      "risk_analytics",
+      "claims_analysis",
+      "population_health_insights"
+    ],
+    "createdAt": "2025-09-18T23:15:35.454Z",
+    "lastLogin": null,
+    "profile": {
+      "title": "Senior Actuarial Analyst",
+      "department": "Population Health Analytics",
+      "phone": "+1-555-0156",
+      "focusAreas": [
+        "Risk modeling",
+        "Claims prediction",
+        "Population health trends",
+        "Cost analysis"
+      ]
+    }
+  },
+  {
+    "id": "9779fba9-92c2-4e69-8d0b-58109b41b24b",
+    "email": "provider@disease.zone",
+    "password": "provider123",
+    "name": "Dr. Michael Provider",
+    "userType": "provider",
+    "institution": "Metro General Hospital",
+    "specialization": "Internal Medicine",
+    "permissions": [
+      "patient_data_access",
+      "clinical_alerts",
+      "reporting_tools",
+      "ehr_integration"
+    ],
+    "createdAt": "2025-09-18T23:15:35.454Z",
+    "lastLogin": null,
+    "profile": {
+      "title": "Chief Medical Officer",
+      "department": "Internal Medicine",
+      "phone": "+1-555-0178",
+      "npi": "1234567890",
+      "specialties": [
+        "Internal Medicine",
+        "Infectious Diseases",
+        "Hospital Medicine"
+      ]
+    }
+  }
+]

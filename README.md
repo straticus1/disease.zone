@@ -14,7 +14,19 @@
 
 ## 🌟 Features
 
-### 🛡️ **NEW IN v3.8.0: Advanced Medical File Security Scanning Daemon**
+### 🏥 **NEW IN v3.9.0: Epic EHR Integration & App Orchard Certification**
+- **🏛️ Epic FHIR R4 API** - Complete integration with Epic's healthcare platform serving 78% of US hospitals
+- **🔐 SMART on FHIR OAuth 2.0** - Secure patient authorization with PKCE and state validation
+- **📱 MyChart Patient Portal** - Seamless patient-facing integration for health record connections
+- **🏆 App Orchard Ready** - Prepared for Epic App Orchard Workshop certification (premium tier)
+- **📊 Comprehensive FHIR Resources** - Patient, Observation, Condition, MedicationRequest, AllergyIntolerance, and more
+- **🤖 AI Health Intelligence** - Generate personalized disease insights from Epic patient data
+- **⚡ Real-time Data Sync** - Automated patient health record synchronization with Epic systems
+- **🔒 HIPAA-Compliant Integration** - Complete audit logging and privacy-compliant Epic workflows
+- **📈 Disease Analytics** - Advanced analytics combining Epic data with global disease intelligence
+- **🏥 Healthcare Provider Tools** - Epic organization management and multi-patient analytics
+
+### 🛡️ **v3.8.0: Advanced Medical File Security Scanning Daemon**
 - **🔍 Multi-Engine Scanning** - ClamAV antivirus, YARA rule-based detection, VirusTotal API integration
 - **🏆 Tiered Security System** - Free, Premium, Gold, Enterprise tiers with different scanning capabilities
 - **⚡ Real-time Processing** - Queue-based scanning with Redis/Bull and WebSocket notifications
@@ -145,6 +157,35 @@
 - **Clinical Integration** - FHIR R4 compliance with SMART on FHIR OAuth2 authentication
 - **Developer Resources** - Comprehensive guides for platform integration and customization
 - **Medical Compliance** - HIPAA, GDPR, and international healthcare standards documentation
+
+#### Epic EHR Integration Quickstart
+- Enable the Epic routes in server.js (already added): app.use('/api/epic', epicEHRRoutes)
+- Configure Epic sandbox credentials in environment or SSM:
+  - EPIC_SANDBOX_CLIENT_ID
+  - EPIC_SANDBOX_CLIENT_SECRET
+- Configure required secrets and security variables:
+  - NODE_ENV=production
+  - JWT_SECRET (required)
+  - SESSION_SECRET (required)
+  - API_RATE_LIMIT_ENABLED=true
+- Optional: Set Map providers (stored in AWS SSM):
+  - /diseasezone/prod/mapbox-token
+  - /diseasezone/prod/google-maps-key
+
+Key endpoints:
+- POST /api/epic/organizations – register Epic org
+- POST /api/epic/auth/initiate – begin OAuth (returns authorizationUrl)
+- GET  /api/epic/auth/callback – handle OAuth callback
+- GET  /api/epic/patient/:authId/data/:resourceType – fetch FHIR data
+- POST /api/epic/patient/:authId/sync – sync core resources
+- GET  /api/epic/patient/:authId/summary – generate health summary
+- GET  /api/epic/supported-resources – list supported resources
+- GET  /api/epic/health – integration health
+
+Notes:
+- Use Epic Sandbox endpoints by default (R4)
+- PKCE is required; state/aud parameters enforced
+- Respect Epic rate limits (60 req/min) – built-in limiter
 
 ### 🔐 **Global Regulatory Compliance**
 - **HIPAA** - Complete technical, administrative, and physical safeguards

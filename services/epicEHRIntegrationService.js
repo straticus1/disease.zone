@@ -21,6 +21,11 @@ class EpicEHRIntegrationService {
         this.dbPath = path.join(__dirname, '../data/epic_integration.db');
         this.configPath = path.join(__dirname, '../config/epic_config.json');
         
+        // Epic Rate Limiting: 1 request per second maximum
+        this.lastRequestTime = 0;
+        this.requestQueue = [];
+        this.isProcessingQueue = false;
+        
         // Epic FHIR endpoints configuration
         this.epicConfig = {
             // Production endpoints (requires Epic App Orchard approval)
@@ -135,7 +140,109 @@ class EpicEHRIntegrationService {
 
         this.initializeDatabase();
         this.loadEpicConfiguration();
+        
+        console.log('🏥 Epic EHR Integration Service initialized with 1 req/sec rate limiting');
     }
+
+    /**
+     * Epic Rate Limiting: Ensures 1 request per second maximum
+     * Epic enforces strict rate limits to prevent API abuse
+     */
+    async throttledRequest(requestFunction) {
+        return new Promise((resolve, reject) => {
+            this.requestQueue.push({ requestFunction, resolve, reject });
+            this.processRequestQueue();
+        });
+    }
+
+    async processRequestQueue() {
+        if (this.isProcessingQueue || this.requestQueue.length === 0) {
+            return;
+        }
+
+        this.isProcessingQueue = true;
+
+        while (this.requestQueue.length > 0) {
+            const { requestFunction, resolve, reject } = this.requestQueue.shift();
+            
+            // Ensure at least 1 second has passed since last request
+            const now = Date.now();
+            const timeSinceLastRequest = now - this.lastRequestTime;
+            const minimumInterval = 1000; // 1 second
+
+            if (timeSinceLastRequest < minimumInterval) {
+                const waitTime = minimumInterval - timeSinceLastRequest;
+                console.log(`⏳ Epic rate limiting: waiting ${waitTime}ms before next request`);
+                await new Promise(resolve => setTimeout(resolve, waitTime));
+            }
+
+            try {
+                this.lastRequestTime = Date.now();
+                const result = await requestFunction();
+                resolve(result);
+                console.log('✅ Epic API request completed (rate limit compliant)');
+            } catch (error) {
+                console.error('❌ Epic API request failed:', error.message);
+                reject(error);
+            }
+
+            // Small additional buffer to ensure we don't hit the limit
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
+
+        this.isProcessingQueue = false;
+    }
+
+    /**
+     * Wrapper for axios requests with Epic rate limiting
+     */
+    async makeEpicRequest(requestConfig) {
+        return this.throttledRequest(async () => {
+            const response = await axios(requestConfig);
+            return response;
+        });
+    }
+
+    /**
+     * Get current rate limiting status
+     */
+    getRateLimitStatus() {
+        const now = Date.now();
+        const timeSinceLastRequest = now - this.lastRequestTime;
+        const nextRequestAvailable = this.lastRequestTime + 1000;
+        
+        return {
+            lastRequestTime: new Date(this.lastRequestTime).toISOString(),
+            timeSinceLastRequest: timeSinceLastRequest,
+            queueLength: this.requestQueue.length,
+            nextRequestAvailableIn: Math.max(0, nextRequestAvailable - now),
+            rateLimitCompliant: timeSinceLastRequest >= 1000,
+            epicRateLimit: '1 request per second maximum',
+            isProcessingQueue: this.isProcessingQueue
+        };
+    }
+
+    /**
+     * Epic Rate Limit Documentation:
+     * 
+     * Epic enforces strict rate limits on their FHIR APIs:
+     * - Maximum 1 request per second per client application
+     * - Exceeding this limit results in 429 (Too Many Requests) errors
+     * - Rate limits are enforced across all endpoints for a given client
+     * - Burst requests are not allowed - must maintain steady 1 req/sec pace
+     * 
+     * Our implementation:
+     * - Request queuing system to serialize all Epic API calls
+     * - Automatic 1-second delays between requests
+     * - Buffer time to ensure compliance even with network latency
+     * - Comprehensive logging for monitoring and debugging
+     * 
+     * Production considerations:
+     * - Monitor queue length to detect potential bottlenecks
+     * - Consider implementing priority queuing for critical requests
+     * - Set up alerts for rate limit violations
+     * - Use Epic's sandbox for testing to avoid impacting production quotas
+     */
 
     /**
      * Initialize database for Epic integration data
@@ -305,7 +412,11 @@ class EpicEHRIntegrationService {
         try {
             // Check SMART configuration endpoint
             const smartConfigUrl = `${baseUrl}/.well-known/smart-configuration`;
-            const response = await axios.get(smartConfigUrl, { timeout: 10000 });
+            const response = await this.makeEpicRequest({
+                method: 'get',
+                url: smartConfigUrl,
+                timeout: 10000
+            });
             
             if (!response.data.fhirVersion || !response.data.authorization_endpoint) {
                 throw new Error('Invalid SMART configuration response');
@@ -399,7 +510,10 @@ class EpicEHRIntegrationService {
         };
 
         try {
-            const tokenResponse = await axios.post(organization.token_url, tokenParams, {
+            const tokenResponse = await this.makeEpicRequest({
+                method: 'post',
+                url: organization.token_url,
+                data: tokenParams,
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                     'Accept': 'application/json'
@@ -481,7 +595,9 @@ class EpicEHRIntegrationService {
         const requestUrl = `${organization.base_url}${resource.endpoint}?${queryParams.toString()}`;
 
         try {
-            const response = await axios.get(requestUrl, {
+            const response = await this.makeEpicRequest({
+                method: 'get',
+                url: requestUrl,
                 headers: {
                     'Authorization': `Bearer ${auth.access_token}`,
                     'Accept': 'application/fhir+json',

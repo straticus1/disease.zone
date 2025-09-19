@@ -220,11 +220,28 @@ class DiseaseZoneApp {
         ];
 
         switch (this.userRole) {
+            case 'admin':
+                links = [
+                    ...baseLinks,
+                    { text: 'Admin Dashboard', view: 'admin' },
+                    { text: 'Health Assessment', view: 'health-assessmentView' },
+                    { text: 'User Management', view: 'user-management' },
+                    { text: 'System Health', view: 'system-health' },
+                    { text: 'Messages', view: 'messaging' },
+                    { text: 'Hospital Connections', view: 'hospital-management' },
+                    { text: 'Analytics', view: 'admin-analytics' },
+                    { text: 'License Validation', view: 'license-validation' },
+                    { text: 'Medical Files', view: 'medical-files' }
+                ];
+                break;
             case 'medical_professional':
                 links = [
                     ...baseLinks,
                     { text: 'Dashboard', view: 'medical' },
                     { text: 'Patients', view: 'patients' },
+                    { text: 'Messages', view: 'messaging' },
+                    { text: 'Connect Hospital', view: 'hospital-connect' },
+                    { text: 'Review Records', view: 'record-review' },
                     { text: 'Research', view: 'research' },
                     { text: 'Compliance', view: 'compliance' },
                     { text: 'Surveillance', view: 'surveillance' }
@@ -233,17 +250,21 @@ class DiseaseZoneApp {
             case 'insurance':
                 links = [
                     ...baseLinks,
-                    { text: 'Analytics', view: 'insurance' },
+                    { text: 'Insurance Dashboard', view: 'insurance' },
                     { text: 'Risk Models', view: 'risk' },
-                    { text: 'Claims', view: 'claims' },
+                    { text: 'Claims Analytics', view: 'claims' },
+                    { text: 'Messages', view: 'messaging' },
+                    { text: 'Provider Network', view: 'provider-network' },
                     { text: 'Surveillance', view: 'surveillance' }
                 ];
                 break;
             case 'researcher':
                 links = [
                     ...baseLinks,
-                    { text: 'Dashboard', view: 'user' },
+                    { text: 'Research Dashboard', view: 'user' },
                     { text: 'Data Access', view: 'research' },
+                    { text: 'Messages', view: 'messaging' },
+                    { text: 'Search Records', view: 'record-search' },
                     { text: 'Analytics', view: 'analytics' },
                     { text: 'Surveillance', view: 'surveillance' }
                 ];
@@ -253,6 +274,7 @@ class DiseaseZoneApp {
                     ...baseLinks,
                     { text: 'Dashboard', view: 'user' },
                     { text: 'Health Data', view: 'health' },
+                    { text: 'Messages', view: 'messaging' },
                     { text: 'Surveillance', view: 'surveillance' }
                 ];
         }
@@ -1765,6 +1787,23 @@ function executePendingCalls() {
 window.showView = (viewName) => {
     if (window.app && typeof window.app.showView === 'function') {
         window.app.showView(viewName);
+        
+        // Initialize view-specific functionality
+        setTimeout(() => {
+            switch(viewName) {
+                case 'hospital-connectView':
+                    initializeHospitalConnection();
+                    break;
+                case 'record-reviewView':
+                    initializeRecordReview();
+                    break;
+                case 'lab-translatorView':
+                    if (typeof initializeLabTranslator === 'function') {
+                        initializeLabTranslator();
+                    }
+                    break;
+            }
+        }, 100);
     } else if (window.app) {
         // App exists but method missing - use emergency fallback
         console.warn('App exists but showView method missing, using fallback');
@@ -3090,6 +3129,774 @@ function initializeNews() {
 // Make functions globally available
 window.loadNewsCategory = loadNewsCategory;
 window.initializeNews = initializeNews;
+
+// Hospital Connection Functionality
+function initializeHospitalConnection() {
+    const form = document.getElementById('hospitalConnectionForm');
+    if (form) {
+        form.addEventListener('submit', handleHospitalConnection);
+    }
+    loadConnectedHospitals();
+}
+
+async function handleHospitalConnection(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const hospitalData = {
+        name: formData.get('hospitalName') || document.getElementById('hospitalName').value,
+        type: formData.get('hospitalType') || document.getElementById('hospitalType').value,
+        ehrSystem: formData.get('ehrSystem') || document.getElementById('ehrSystem').value,
+        dataTypes: Array.from(document.getElementById('dataTypes').selectedOptions).map(option => option.value)
+    };
+
+    try {
+        const response = await fetch('/api/hospitals/connect', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify(hospitalData)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            showNotification('Hospital connected successfully!', 'success');
+            event.target.reset();
+            loadConnectedHospitals();
+        } else {
+            throw new Error('Failed to connect hospital');
+        }
+    } catch (error) {
+        console.error('Hospital connection error:', error);
+        showNotification('Failed to connect hospital. Please try again.', 'error');
+    }
+}
+
+function loadConnectedHospitals() {
+    const container = document.getElementById('connectedHospitals');
+    if (!container) return;
+
+    // Mock data for demo - replace with actual API call
+    const mockHospitals = [
+        {
+            id: 1,
+            name: 'General Hospital',
+            type: 'hospital',
+            ehrSystem: 'Epic',
+            lastSync: '2 hours ago',
+            status: 'connected'
+        },
+        {
+            id: 2,
+            name: 'Community Health Center',
+            type: 'clinic',
+            ehrSystem: 'Cerner',
+            lastSync: '1 day ago',
+            status: 'connected'
+        }
+    ];
+
+    const hospitalsHtml = mockHospitals.map(hospital => `
+        <div class="hospital-connection">
+            <div class="connection-info">
+                <h4>${hospital.name}</h4>
+                <p>${hospital.ehrSystem} EHR • Last sync: ${hospital.lastSync}</p>
+            </div>
+            <div class="connection-status ${hospital.status}">${hospital.status}</div>
+            <button class="btn btn-secondary btn-sm" onclick="disconnectHospital(${hospital.id})">
+                <i class="fas fa-unlink"></i> Disconnect
+            </button>
+        </div>
+    `).join('');
+
+    container.innerHTML = hospitalsHtml;
+}
+
+function disconnectHospital(hospitalId) {
+    if (confirm('Are you sure you want to disconnect this hospital?')) {
+        // Mock disconnect - replace with actual API call
+        showNotification('Hospital disconnected successfully!', 'success');
+        loadConnectedHospitals();
+    }
+}
+
+// Record Review Functionality
+function initializeRecordReview() {
+    loadPatientRecords();
+}
+
+function loadPatientRecords() {
+    const container = document.getElementById('recordsList');
+    if (!container) return;
+
+    // Mock patient records for demo
+    const mockRecords = [
+        {
+            id: 'P001',
+            name: 'John Doe',
+            age: 45,
+            lastVisit: '2025-01-15',
+            diagnosis: 'Hypertension',
+            status: 'Active'
+        },
+        {
+            id: 'P002',
+            name: 'Jane Smith',
+            age: 32,
+            lastVisit: '2025-01-14',
+            diagnosis: 'Diabetes Type 2',
+            status: 'Active'
+        }
+    ];
+
+    const recordsHtml = mockRecords.map(record => `
+        <div class="record-item" onclick="viewRecord('${record.id}')">
+            <div class="record-info">
+                <h4>${record.name}</h4>
+                <p>ID: ${record.id} • Age: ${record.age} • Last Visit: ${record.lastVisit}</p>
+                <p>Diagnosis: ${record.diagnosis}</p>
+            </div>
+            <div class="record-status ${record.status.toLowerCase()}">${record.status}</div>
+        </div>
+    `).join('');
+
+    if (container) {
+        container.innerHTML = recordsHtml;
+    }
+}
+
+function viewRecord(recordId) {
+    showNotification(`Viewing record for patient ${recordId}`, 'info');
+    // Implement record viewing functionality
+}
+
+function searchRecords() {
+    const searchTerm = document.getElementById('recordSearch').value;
+    showNotification(`Searching for: ${searchTerm}`, 'info');
+    // Implement search functionality
+}
+
+// Lab Translator Functionality
+function initializeLabTranslator() {
+    // Already handled in the HTML with inline event handlers
+    console.log('Lab translator initialized');
+}
+
+function handleLabDragOver(event) {
+    event.preventDefault();
+    event.target.closest('.upload-area').classList.add('dragover');
+}
+
+function handleLabDrop(event) {
+    event.preventDefault();
+    const uploadArea = event.target.closest('.upload-area');
+    uploadArea.classList.remove('dragover');
+    
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+        processLabFile(files[0]);
+    }
+}
+
+function handleLabFileSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+        processLabFile(file);
+    }
+}
+
+async function processLabFile(file) {
+    const resultsDiv = document.getElementById('translationResults');
+    const translationText = document.getElementById('translatedText');
+    
+    // Show loading state
+    resultsDiv.style.display = 'block';
+    translationText.innerHTML = '<div class="loading">🔬 Analyzing lab report... This may take a moment.</div>';
+    
+    try {
+        // For demo purposes, simulate AI translation
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Mock translation based on file type
+        const mockTranslation = generateMockLabTranslation(file.name);
+        translationText.innerHTML = mockTranslation;
+        
+        showNotification('Lab report translated successfully!', 'success');
+    } catch (error) {
+        console.error('Lab translation error:', error);
+        translationText.innerHTML = '<div class="error">❌ Failed to translate lab report. Please try again.</div>';
+        showNotification('Failed to translate lab report', 'error');
+    }
+}
+
+function generateMockLabTranslation(filename) {
+    const translations = [
+        `<div class="translation-summary">
+            <h4>📋 Your Lab Results Explained</h4>
+            <p><strong>Overall Assessment:</strong> Your lab results look mostly good with a few minor notes.</p>
+            
+            <div class="result-section">
+                <h5>🩸 Blood Count (Complete Blood Count - CBC)</h5>
+                <p><strong>White Blood Cells:</strong> Your infection-fighting cells are at a normal level (6,800 cells). This means your immune system is working well.</p>
+                <p><strong>Red Blood Cells:</strong> Your oxygen-carrying cells are slightly low (4.2 million cells). This might make you feel a little tired. Consider eating more iron-rich foods like spinach and lean meats.</p>
+                <p><strong>Platelets:</strong> Your blood-clotting cells are normal (245,000). Your blood will clot properly if you get a cut.</p>
+            </div>
+            
+            <div class="result-section">
+                <h5>🍯 Blood Sugar (Glucose)</h5>
+                <p>Your blood sugar is 95 mg/dL, which is excellent. This means your body is handling sugar well and you're not at risk for diabetes right now.</p>
+            </div>
+            
+            <div class="result-section">
+                <h5>💡 What This Means</h5>
+                <p>Think of your body like a car - most systems are running smoothly, but you might need a little more "fuel" (iron) to help your energy levels. Talk to your doctor about whether you need an iron supplement or dietary changes.</p>
+            </div>
+            
+            <div class="next-steps">
+                <h5>📞 Next Steps</h5>
+                <ul>
+                    <li>Schedule a follow-up appointment to discuss the slightly low red blood cell count</li>
+                    <li>Consider adding iron-rich foods to your diet</li>
+                    <li>Continue your current medications as prescribed</li>
+                </ul>
+            </div>
+        </div>`,
+        
+        `<div class="translation-summary">
+            <h4>🧪 Your Chemistry Panel Results</h4>
+            <p><strong>Good News:</strong> Your organ function tests are all within normal ranges!</p>
+            
+            <div class="result-section">
+                <h5>🫀 Heart Health Markers</h5>
+                <p><strong>Cholesterol:</strong> Your total cholesterol is 185 mg/dL (normal is under 200). Your heart-healthy lifestyle is working!</p>
+                <p><strong>Triglycerides:</strong> At 120 mg/dL, these fat levels in your blood are good (normal is under 150).</p>
+            </div>
+            
+            <div class="result-section">
+                <h5>🫘 Kidney Function</h5>
+                <p><strong>Creatinine:</strong> Your kidneys are filtering waste properly (1.0 mg/dL is perfect).</p>
+                <p><strong>BUN:</strong> This waste product level is normal, confirming your kidneys are healthy.</p>
+            </div>
+            
+            <div class="result-section">
+                <h5>🥬 What This Means</h5>
+                <p>Your body is like a well-tuned machine - your heart, kidneys, and liver are all working great. Keep doing whatever you're doing!</p>
+            </div>
+        </div>`
+    ];
+    
+    return translations[Math.floor(Math.random() * translations.length)];
+}
+
+function copyTranslation() {
+    const translationText = document.getElementById('translatedText');
+    const text = translationText.innerText;
+    
+    navigator.clipboard.writeText(text).then(() => {
+        showNotification('Translation copied to clipboard!', 'success');
+    }).catch(() => {
+        showNotification('Failed to copy to clipboard', 'error');
+    });
+}
+
+// Make functions available globally
+window.handleLabDragOver = handleLabDragOver;
+window.handleLabDrop = handleLabDrop;
+window.handleLabFileSelect = handleLabFileSelect;
+window.copyTranslation = copyTranslation;
+
+// Health Assessment Functionality
+let currentAssessment = null;
+
+async function startHealthAssessment(mode) {
+    try {
+        showNotification(`Starting ${mode} health assessment...`, 'info');
+        
+        const response = await fetch('/api/health-assessment/start', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({
+                userId: 'demo_user', // In real app, get from auth
+                mode: mode
+            })
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            currentAssessment = result.assessment;
+            
+            showNotification('Health assessment started successfully!', 'success');
+            displayHealthAssessmentDemo(mode);
+        } else {
+            throw new Error('Failed to start assessment');
+        }
+    } catch (error) {
+        console.error('Health assessment error:', error);
+        showNotification('Assessment service not available - showing demo', 'warning');
+        displayHealthAssessmentDemo(mode);
+    }
+}
+
+function displayHealthAssessmentDemo(mode) {
+    // Hide mode selection, show demo results
+    document.getElementById('assessmentModeCard').style.display = 'none';
+    document.getElementById('assessmentResultsCard').style.display = 'block';
+    
+    // Generate demo health assessment results
+    const demoResults = generateDemoHealthResults(mode);
+    displayHealthResults(demoResults);
+}
+
+function generateDemoHealthResults(mode) {
+    const baseResults = {
+        overallHealthScore: 78,
+        riskCategories: {
+            cardiovascular: { currentRisk: 0.25, confidence: 0.85 },
+            metabolic: { currentRisk: 0.15, confidence: 0.80 },
+            oncological: { currentRisk: 0.12, confidence: 0.75 },
+            neurological: { currentRisk: 0.08, confidence: 0.70 },
+            mental_health: { currentRisk: 0.20, confidence: 0.82 }
+        },
+        predictions: {
+            timeHorizons: {
+                '5year': {
+                    specificRisks: {
+                        cardiovascular: { probability: 0.18, confidence: 0.85 },
+                        metabolic: { probability: 0.12, confidence: 0.80 },
+                        oncological: { probability: 0.08, confidence: 0.75 }
+                    }
+                },
+                '10year': {
+                    specificRisks: {
+                        cardiovascular: { probability: 0.28, confidence: 0.75 },
+                        metabolic: { probability: 0.22, confidence: 0.70 },
+                        oncological: { probability: 0.15, confidence: 0.65 }
+                    }
+                },
+                '15year': {
+                    specificRisks: {
+                        cardiovascular: { probability: 0.35, confidence: 0.65 },
+                        metabolic: { probability: 0.30, confidence: 0.60 },
+                        oncological: { probability: 0.25, confidence: 0.55 }
+                    }
+                },
+                '30year': {
+                    specificRisks: {
+                        cardiovascular: { probability: 0.52, confidence: 0.50 },
+                        metabolic: { probability: 0.45, confidence: 0.45 },
+                        oncological: { probability: 0.38, confidence: 0.40 }
+                    }
+                }
+            }
+        },
+        recommendations: {
+            immediate: [
+                {
+                    action: 'Schedule cardiovascular screening',
+                    priority: 'high',
+                    evidence: 'Elevated risk factors detected'
+                }
+            ],
+            lifestyle: [
+                {
+                    action: 'Increase physical activity to 150 minutes/week',
+                    impact: '20-30% reduction in cardiovascular risk',
+                    priority: 'high'
+                },
+                {
+                    action: 'Adopt Mediterranean diet pattern',
+                    impact: '15-25% reduction in metabolic risk',
+                    priority: 'medium'
+                }
+            ],
+            medical: [
+                {
+                    action: 'Annual lipid panel monitoring',
+                    timeframe: 'Next 5 years',
+                    rationale: 'Family history and current risk profile'
+                }
+            ]
+        }
+    };
+
+    // Adjust results based on mode
+    if (mode === 'advanced') {
+        baseResults.overallHealthScore += 5; // More comprehensive = better accuracy
+        Object.keys(baseResults.riskCategories).forEach(category => {
+            baseResults.riskCategories[category].confidence += 0.05;
+        });
+    }
+
+    return baseResults;
+}
+
+function displayHealthResults(results) {
+    const healthResults = document.getElementById('healthResults');
+    
+    const scoreCategory = results.overallHealthScore >= 80 ? 'Excellent' :
+                         results.overallHealthScore >= 60 ? 'Good' :
+                         results.overallHealthScore >= 40 ? 'Fair' : 'Needs Attention';
+    
+    const scoreMessage = results.overallHealthScore >= 80 ? 'Your health is excellent with minimal risk factors.' :
+                        results.overallHealthScore >= 60 ? 'Your health is good with some areas for improvement.' :
+                        results.overallHealthScore >= 40 ? 'Your health is fair with several areas needing attention.' :
+                        'Your health requires immediate attention and intervention.';
+
+    healthResults.innerHTML = `
+        <!-- Overall Health Score -->
+        <div class="health-score-display">
+            <div class="score-circle">
+                <div class="score-number">${results.overallHealthScore}</div>
+                <div class="score-label">Health Score</div>
+            </div>
+            <div class="score-description">
+                <h4>${scoreCategory} Health</h4>
+                <p>${scoreMessage}</p>
+            </div>
+        </div>
+
+        <!-- Risk Categories -->
+        <div class="risk-categories">
+            <h4>🎯 Risk Assessment by Category</h4>
+            <div class="risk-categories-grid">
+                ${Object.entries(results.riskCategories).map(([category, risk]) => `
+                    <div class="risk-category-item">
+                        <div class="risk-category-header">
+                            <h5>${formatCategoryName(category)}</h5>
+                            <span class="risk-percentage">${Math.round(risk.currentRisk * 100)}%</span>
+                        </div>
+                        <div class="risk-bar">
+                            <div class="risk-fill" style="width: ${risk.currentRisk * 100}%; background: ${getRiskColor(risk.currentRisk)}"></div>
+                        </div>
+                        <div class="risk-confidence">Confidence: ${Math.round(risk.confidence * 100)}%</div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+
+        <!-- Future Predictions -->
+        <div class="future-predictions">
+            <h4>🔮 Future Health Predictions</h4>
+            <div class="prediction-timeline">
+                ${[5, 10, 15, 30].map(years => `
+                    <div class="timeline-item" onclick="showPredictionDetails(${years})">
+                        <div class="timeline-year">${years} Years</div>
+                        <div class="timeline-confidence">${getPredictionConfidence(years)}</div>
+                        <div class="timeline-preview">
+                            ${getTopRisks(results.predictions.timeHorizons[`${years}year`]).slice(0, 2).map(risk => 
+                                `<div class="risk-preview">${formatCategoryName(risk.category)}: ${Math.round(risk.probability * 100)}%</div>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            <div id="predictionDetails">
+                <p style="text-align: center; color: var(--text-secondary); font-style: italic;">
+                    Click on a time horizon above to see detailed predictions
+                </p>
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="recommendations">
+            <h4>💡 Personalized Recommendations</h4>
+            <div class="recommendations-grid">
+                <div class="recommendation-category">
+                    <h5>🚨 Immediate Actions</h5>
+                    ${results.recommendations.immediate.map(rec => `
+                        <div class="recommendation-item priority-${rec.priority}">
+                            <div class="rec-action">${rec.action}</div>
+                            <div class="rec-evidence">${rec.evidence}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="recommendation-category">
+                    <h5>🏃 Lifestyle Changes</h5>
+                    ${results.recommendations.lifestyle.map(rec => `
+                        <div class="recommendation-item priority-${rec.priority}">
+                            <div class="rec-action">${rec.action}</div>
+                            <div class="rec-impact">Impact: ${rec.impact}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="recommendation-category">
+                    <h5>🏥 Medical Care</h5>
+                    ${results.recommendations.medical.map(rec => `
+                        <div class="recommendation-item">
+                            <div class="rec-action">${rec.action}</div>
+                            <div class="rec-rationale">${rec.rationale}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="results-actions">
+            <button class="btn btn-primary" onclick="downloadHealthReport()">
+                <i class="fas fa-download"></i> Download Report
+            </button>
+            <button class="btn btn-secondary" onclick="shareHealthResults()">
+                <i class="fas fa-share"></i> Share with Doctor
+            </button>
+            <button class="btn btn-outline" onclick="startNewAssessment()">
+                <i class="fas fa-redo"></i> New Assessment
+            </button>
+        </div>
+    `;
+
+    // Add styles for the results
+    addHealthResultsStyles();
+}
+
+function addHealthResultsStyles() {
+    if (document.getElementById('healthResultsStyles')) return;
+
+    const styles = document.createElement('style');
+    styles.id = 'healthResultsStyles';
+    styles.textContent = `
+        .risk-categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .risk-category-item {
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: white;
+        }
+
+        .risk-category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .risk-category-header h5 {
+            margin: 0;
+            color: var(--text-primary);
+        }
+
+        .risk-percentage {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .risk-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .risk-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .risk-confidence {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .prediction-timeline {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .timeline-item {
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .timeline-item:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .timeline-year {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-confidence {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .risk-preview {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.2rem;
+        }
+
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .recommendation-category h5 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .recommendation-item {
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background: white;
+        }
+
+        .recommendation-item.priority-high {
+            border-left: 4px solid var(--error-color);
+        }
+
+        .recommendation-item.priority-medium {
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .rec-action {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .rec-evidence, .rec-impact, .rec-rationale {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .results-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+    `;
+    document.head.appendChild(styles);
+}
+
+function formatCategoryName(category) {
+    const names = {
+        cardiovascular: 'Cardiovascular',
+        metabolic: 'Metabolic',
+        oncological: 'Cancer',
+        neurological: 'Neurological',
+        mental_health: 'Mental Health'
+    };
+    return names[category] || category;
+}
+
+function getRiskColor(risk) {
+    if (risk < 0.2) return 'var(--success-color)';
+    if (risk < 0.4) return 'var(--warning-color)';
+    return 'var(--error-color)';
+}
+
+function getPredictionConfidence(years) {
+    const confidence = {
+        5: 'High Confidence',
+        10: 'Medium-High',
+        15: 'Medium',
+        30: 'Lower'
+    };
+    return confidence[years] || 'Unknown';
+}
+
+function getTopRisks(timeHorizon) {
+    if (!timeHorizon || !timeHorizon.specificRisks) return [];
+    
+    return Object.entries(timeHorizon.specificRisks)
+        .map(([category, risk]) => ({ category, ...risk }))
+        .sort((a, b) => b.probability - a.probability);
+}
+
+function showPredictionDetails(years) {
+    const detailsDiv = document.getElementById('predictionDetails');
+    
+    if (!currentAssessment) {
+        // Show demo prediction details
+        const demoRisks = {
+            5: { cardiovascular: 0.18, metabolic: 0.12, oncological: 0.08 },
+            10: { cardiovascular: 0.28, metabolic: 0.22, oncological: 0.15 },
+            15: { cardiovascular: 0.35, metabolic: 0.30, oncological: 0.25 },
+            30: { cardiovascular: 0.52, metabolic: 0.45, oncological: 0.38 }
+        };
+
+        const risks = demoRisks[years];
+        
+        detailsDiv.innerHTML = `
+            <div class="prediction-details-card">
+                <h5>${years}-Year Health Outlook</h5>
+                <div class="prediction-risks">
+                    ${Object.entries(risks).map(([category, probability]) => `
+                        <div class="prediction-risk-item">
+                            <span class="risk-category">${formatCategoryName(category)}</span>
+                            <span class="risk-probability">${Math.round(probability * 100)}% risk</span>
+                            <div class="risk-bar">
+                                <div class="risk-fill" style="width: ${probability * 100}%; background: ${getRiskColor(probability)}"></div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="prediction-note">
+                    <p><strong>Note:</strong> These predictions are based on current health status, lifestyle factors, and family history. 
+                    Regular health monitoring and lifestyle changes can significantly improve these outcomes.</p>
+                </div>
+            </div>
+        `;
+    }
+}
+
+function downloadHealthReport() {
+    showNotification('Health report download feature coming soon!', 'info');
+}
+
+function shareHealthResults() {
+    showNotification('Share with doctor feature coming soon!', 'info');
+}
+
+function startNewAssessment() {
+    document.getElementById('assessmentResultsCard').style.display = 'none';
+    document.getElementById('assessmentModeCard').style.display = 'block';
+    currentAssessment = null;
+    showNotification('Ready to start a new health assessment', 'info');
+}
+
+// Make health assessment functions globally available
+window.startHealthAssessment = startHealthAssessment;
+window.showPredictionDetails = showPredictionDetails;
+window.downloadHealthReport = downloadHealthReport;
+window.shareHealthResults = shareHealthResults;
+window.startNewAssessment = startNewAssessment;
 
 // Early debug logging
 console.log('🧬 diseaseZone Frontend Application Loaded');

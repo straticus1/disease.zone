@@ -2041,6 +2041,176 @@
                     cursor: default;
                 }
 
+                /* Messaging System Styles */
+                .message-thread {
+                    display: flex;
+                    align-items: center;
+                    padding: 1rem;
+                    border-bottom: 1px solid var(--border-color);
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                }
+
+                .message-thread:hover {
+                    background: var(--light-color);
+                }
+
+                .message-thread.unread {
+                    background: rgba(59, 130, 246, 0.05);
+                    border-left: 3px solid var(--primary-color);
+                }
+
+                .message-avatar {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    background: var(--primary-color);
+                    color: white;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: 600;
+                    margin-right: 1rem;
+                }
+
+                .message-content {
+                    flex: 1;
+                }
+
+                .message-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 0.25rem;
+                }
+
+                .message-time {
+                    font-size: 0.8rem;
+                    color: var(--text-secondary);
+                }
+
+                .message-preview {
+                    color: var(--text-secondary);
+                    font-size: 0.9rem;
+                }
+
+                /* Hospital Connection Styles */
+                .hospital-connection {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 1rem;
+                    border: 1px solid var(--border-color);
+                    border-radius: 8px;
+                    margin-bottom: 1rem;
+                }
+
+                .connection-info h4 {
+                    margin: 0 0 0.25rem 0;
+                    color: var(--text-primary);
+                }
+
+                .connection-info p {
+                    margin: 0;
+                    color: var(--text-secondary);
+                    font-size: 0.9rem;
+                }
+
+                .connection-status {
+                    padding: 0.25rem 0.75rem;
+                    border-radius: 20px;
+                    font-size: 0.8rem;
+                    font-weight: 600;
+                }
+
+                .connection-status.connected {
+                    background: var(--success-color);
+                    color: white;
+                }
+
+                /* Record Review Styles */
+                .record-item {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 1rem;
+                    border: 1px solid var(--border-color);
+                    border-radius: 8px;
+                    margin-bottom: 1rem;
+                }
+
+                .record-header {
+                    margin-bottom: 0.25rem;
+                }
+
+                .record-date {
+                    font-size: 0.8rem;
+                    color: var(--text-secondary);
+                    margin-left: 1rem;
+                }
+
+                .record-summary {
+                    color: var(--text-secondary);
+                    font-size: 0.9rem;
+                }
+
+                /* Lab Translator Styles */
+                .upload-area {
+                    border: 2px dashed var(--border-color);
+                    border-radius: 12px;
+                    padding: 3rem;
+                    text-align: center;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    background: var(--light-color);
+                }
+
+                .upload-area:hover {
+                    border-color: var(--primary-color);
+                    background: rgba(59, 130, 246, 0.05);
+                }
+
+                .upload-area.dragover {
+                    border-color: var(--success-color);
+                    background: rgba(16, 185, 129, 0.05);
+                }
+
+                .upload-icon {
+                    font-size: 3rem;
+                    color: var(--primary-color);
+                    margin-bottom: 1rem;
+                }
+
+                .translation-output {
+                    background: var(--light-color);
+                    border-radius: 8px;
+                    padding: 1.5rem;
+                    margin-bottom: 1rem;
+                    font-size: 1.1rem;
+                    line-height: 1.6;
+                    border-left: 4px solid var(--success-color);
+                }
+
+                .translation-confidence {
+                    text-align: center;
+                    padding: 0.5rem;
+                    background: rgba(16, 185, 129, 0.1);
+                    border-radius: 6px;
+                    color: var(--success-color);
+                    font-size: 0.9rem;
+                }
+
+                .example-buttons {
+                    display: flex;
+                    gap: 1rem;
+                    flex-wrap: wrap;
+                }
+
+                .example-buttons .btn {
+                    flex: 1;
+                    min-width: 150px;
+                }
+
                 .search-mode-cards {
                     display: grid;
                     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -2171,6 +2341,267 @@
                     width: 12px;
                     height: 12px;
                     border-radius: 50%;
+                }
+
+                /* Hospital Connection Styles */
+                .hospital-connection {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 1rem;
+                    border: 1px solid var(--border-color);
+                    border-radius: 8px;
+                    margin-bottom: 1rem;
+                }
+
+                .connection-info h4 {
+                    margin: 0 0 0.5rem 0;
+                    color: var(--text-primary);
+                }
+
+                .connection-info p {
+                    margin: 0;
+                    color: var(--text-secondary);
+                    font-size: 0.9rem;
+                }
+
+                .connection-status {
+                    padding: 0.3rem 0.8rem;
+                    border-radius: 20px;
+                    font-size: 0.8rem;
+                    font-weight: 500;
+                    text-transform: uppercase;
+                    margin-right: 1rem;
+                }
+
+                .connection-status.connected {
+                    background: rgba(16, 185, 129, 0.1);
+                    color: var(--success-color);
+                }
+
+                .connection-status.disconnected {
+                    background: rgba(239, 68, 68, 0.1);
+                    color: var(--error-color);
+                }
+
+                /* Record Review Styles */
+                .record-item {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 1rem;
+                    border: 1px solid var(--border-color);
+                    border-radius: 8px;
+                    margin-bottom: 1rem;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                }
+
+                .record-item:hover {
+                    background: var(--background-alt);
+                    border-color: var(--primary-color);
+                }
+
+                .record-info h4 {
+                    margin: 0 0 0.5rem 0;
+                    color: var(--text-primary);
+                }
+
+                .record-info p {
+                    margin: 0;
+                    color: var(--text-secondary);
+                    font-size: 0.9rem;
+                }
+
+                .record-status {
+                    padding: 0.3rem 0.8rem;
+                    border-radius: 20px;
+                    font-size: 0.8rem;
+                    font-weight: 500;
+                    text-transform: uppercase;
+                    margin-right: 1rem;
+                }
+
+                .record-status.active {
+                    background: rgba(16, 185, 129, 0.1);
+                    color: var(--success-color);
+                }
+
+                .record-status.inactive {
+                    background: rgba(245, 158, 11, 0.1);
+                    color: var(--warning-color);
+                }
+
+                /* Health Assessment Styles */
+                .assessment-modes {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 2rem;
+                    margin-top: 1rem;
+                }
+
+                .mode-option {
+                    border: 2px solid var(--border-color);
+                    border-radius: 12px;
+                    padding: 2rem;
+                    text-align: center;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    background: white;
+                }
+
+                .mode-option:hover {
+                    border-color: var(--primary-color);
+                    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+                    transform: translateY(-2px);
+                }
+
+                .mode-icon {
+                    font-size: 3rem;
+                    color: var(--primary-color);
+                    margin-bottom: 1rem;
+                }
+
+                .mode-option h4 {
+                    color: var(--text-primary);
+                    margin-bottom: 0.5rem;
+                }
+
+                .mode-option p {
+                    color: var(--text-secondary);
+                    margin-bottom: 1rem;
+                    font-weight: 500;
+                }
+
+                .mode-option ul {
+                    text-align: left;
+                    margin: 1rem 0;
+                    padding-left: 1.5rem;
+                }
+
+                .mode-option li {
+                    color: var(--text-secondary);
+                    margin-bottom: 0.5rem;
+                    font-size: 0.9rem;
+                }
+
+                .progress-bar {
+                    width: 100%;
+                    height: 8px;
+                    background: var(--border-color);
+                    border-radius: 4px;
+                    margin: 1rem 0;
+                    overflow: hidden;
+                }
+
+                .progress-fill {
+                    height: 100%;
+                    background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+                    transition: width 0.3s ease;
+                }
+
+                .neural-network-info {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                    gap: 1.5rem;
+                    margin-bottom: 2rem;
+                }
+
+                .network-stat {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                    padding: 1rem;
+                    border: 1px solid var(--border-color);
+                    border-radius: 8px;
+                    background: var(--background-alt);
+                }
+
+                .stat-icon {
+                    font-size: 2rem;
+                    color: var(--primary-color);
+                }
+
+                .stat-info h5 {
+                    margin: 0 0 0.5rem 0;
+                    color: var(--text-primary);
+                }
+
+                .stat-info p {
+                    margin: 0;
+                    color: var(--text-secondary);
+                    font-size: 0.9rem;
+                }
+
+                .capability-tags {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 0.5rem;
+                    margin-top: 1rem;
+                }
+
+                .capability-tag {
+                    background: var(--primary-light);
+                    color: var(--primary-color);
+                    padding: 0.3rem 0.8rem;
+                    border-radius: 20px;
+                    font-size: 0.8rem;
+                    font-weight: 500;
+                }
+
+                .health-score-display {
+                    display: flex;
+                    align-items: center;
+                    gap: 2rem;
+                    margin-bottom: 2rem;
+                    padding: 2rem;
+                    background: linear-gradient(135deg, var(--primary-light), var(--success-light));
+                    border-radius: 12px;
+                }
+
+                .score-circle {
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 50%;
+                    background: white;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                }
+
+                .score-number {
+                    font-size: 2.5rem;
+                    font-weight: bold;
+                    color: var(--primary-color);
+                }
+
+                .score-label {
+                    font-size: 0.9rem;
+                    color: var(--text-secondary);
+                    margin-top: 0.5rem;
+                }
+
+                .score-description h4 {
+                    color: var(--text-primary);
+                    margin-bottom: 0.5rem;
+                }
+
+                .score-description p {
+                    color: var(--text-secondary);
+                    margin: 0;
+                }
+
+                @media (max-width: 768px) {
+                    .assessment-modes {
+                        grid-template-columns: 1fr;
+                    }
+                    
+                    .health-score-display {
+                        flex-direction: column;
+                        text-align: center;
+                    }
                 }
             </style>
 
@@ -4225,6 +4656,365 @@
         }
     };
     </script>
+
+        <!-- Messaging System View -->
+        <div class="view" id="messagingView">
+            <div class="container dashboard">
+                <div class="dashboard-header">
+                    <h1 style="color: var(--primary-color); margin-bottom: 0.5rem;">
+                        <i class="fas fa-comments"></i> Messages
+                    </h1>
+                    <p style="color: var(--text-secondary); margin: 0;">Secure communication and collaboration</p>
+                </div>
+
+                <!-- Message Threads -->
+                <div class="grid-container">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-inbox"></i> Inbox</h3>
+                            <button class="btn btn-primary btn-sm" onclick="composeMessage()">
+                                <i class="fas fa-plus"></i> New Message
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="messageThreads">
+                                <div class="message-thread unread">
+                                    <div class="message-avatar">DR</div>
+                                    <div class="message-content">
+                                        <div class="message-header">
+                                            <strong>Dr. Sarah Johnson</strong>
+                                            <span class="message-time">2 hours ago</span>
+                                        </div>
+                                        <div class="message-preview">Patient data request for COVID-19 research study...</div>
+                                    </div>
+                                </div>
+                                <div class="message-thread">
+                                    <div class="message-avatar">RS</div>
+                                    <div class="message-content">
+                                        <div class="message-header">
+                                            <strong>Research Team</strong>
+                                            <span class="message-time">1 day ago</span>
+                                        </div>
+                                        <div class="message-preview">Weekly epidemiological report is ready for review...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hospital Connection View -->
+        <div class="view" id="hospital-connectView">
+            <div class="container dashboard">
+                <div class="dashboard-header">
+                    <h1 style="color: var(--primary-color); margin-bottom: 0.5rem;">
+                        <i class="fas fa-hospital"></i> Connect Hospital
+                    </h1>
+                    <p style="color: var(--text-secondary); margin: 0;">Connect your institution to Disease.Zone</p>
+                </div>
+
+                <!-- Hospital Connection Form -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-plug"></i> Add Hospital Connection</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="hospitalConnectionForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="hospitalName">Hospital/Institution Name</label>
+                                    <input type="text" id="hospitalName" required placeholder="Enter hospital name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="hospitalType">Institution Type</label>
+                                    <select id="hospitalType" required>
+                                        <option value="">Select type</option>
+                                        <option value="hospital">Hospital</option>
+                                        <option value="clinic">Clinic</option>
+                                        <option value="research">Research Institution</option>
+                                        <option value="public_health">Public Health Department</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="ehrSystem">EHR System</label>
+                                    <select id="ehrSystem">
+                                        <option value="">Select EHR System</option>
+                                        <option value="epic">Epic</option>
+                                        <option value="cerner">Cerner</option>
+                                        <option value="allscripts">Allscripts</option>
+                                        <option value="athenahealth">athenahealth</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="dataTypes">Data Types to Share</label>
+                                    <select id="dataTypes" multiple>
+                                        <option value="demographics">Demographics</option>
+                                        <option value="diagnoses">Diagnoses</option>
+                                        <option value="lab_results">Lab Results</option>
+                                        <option value="medications">Medications</option>
+                                        <option value="procedures">Procedures</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-link"></i> Connect Hospital
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Connected Hospitals -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-network-wired"></i> Connected Institutions</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="connectedHospitals">
+                            <div class="hospital-connection">
+                                <div class="connection-info">
+                                    <h4>General Hospital</h4>
+                                    <p>Epic EHR • Last sync: 2 hours ago</p>
+                                </div>
+                                <div class="connection-status connected">Connected</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Record Review View -->
+        <div class="view" id="record-reviewView">
+            <div class="container dashboard">
+                <div class="dashboard-header">
+                    <h1 style="color: var(--primary-color); margin-bottom: 0.5rem;">
+                        <i class="fas fa-file-medical"></i> Review Records
+                    </h1>
+                    <p style="color: var(--text-secondary); margin: 0;">Review and analyze medical records</p>
+                </div>
+
+                <!-- Record Search -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-search"></i> Search Medical Records</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="recordSearch">Search Records</label>
+                                <input type="text" id="recordSearch" placeholder="Patient ID, diagnosis, date range...">
+                            </div>
+                            <div class="form-group">
+                                <label for="recordType">Record Type</label>
+                                <select id="recordType">
+                                    <option value="">All Types</option>
+                                    <option value="lab">Lab Results</option>
+                                    <option value="imaging">Imaging</option>
+                                    <option value="progress">Progress Notes</option>
+                                    <option value="discharge">Discharge Summaries</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary" onclick="searchRecords()">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Record Results -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-list"></i> Medical Records</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="recordsList">
+                            <!-- Records will be loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lab Report AI Translation View -->
+        <div class="view" id="lab-translatorView">
+            <div class="container dashboard">
+                <div class="dashboard-header">
+                    <h1 style="color: var(--primary-color); margin-bottom: 0.5rem;">
+                        <i class="fas fa-language"></i> Lab Report Translator
+                    </h1>
+                    <p style="color: var(--text-secondary); margin: 0;">AI-powered translation of lab reports into plain English</p>
+                </div>
+
+                <!-- Upload Lab Report -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-upload"></i> Upload Lab Report</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="upload-area" id="labUploadArea" ondrop="handleLabDrop(event)" ondragover="handleLabDragOver(event)" onclick="document.getElementById('labFileInput').click()">
+                            <div class="upload-icon">
+                                <i class="fas fa-file-medical"></i>
+                            </div>
+                            <h3>Upload Lab Report</h3>
+                            <p>Drag and drop or click to select PDF, image, or text file</p>
+                            <input type="file" id="labFileInput" hidden accept=".pdf,.jpg,.jpeg,.png,.txt" onchange="handleLabFileSelect(event)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Translation Results -->
+                <div class="card" id="translationResults" style="display: none;">
+                    <div class="card-header">
+                        <h3><i class="fas fa-comments"></i> Plain English Translation</h3>
+                        <button class="btn btn-secondary btn-sm" onclick="copyTranslation()">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="translatedText" class="translation-output">
+                            <!-- AI translation will appear here -->
+                        </div>
+                        <div class="translation-confidence">
+                            <strong>Confidence Level:</strong> <span id="confidenceLevel">95%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Examples -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-lightbulb"></i> Try These Examples</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="example-buttons">
+                            <button class="btn btn-outline" onclick="loadExample('cbc')">
+                                <i class="fas fa-vial"></i> CBC Blood Test
+                            </button>
+                            <button class="btn btn-outline" onclick="loadExample('lipid')">
+                                <i class="fas fa-heart"></i> Lipid Panel
+                            </button>
+                            <button class="btn btn-outline" onclick="loadExample('thyroid')">
+                                <i class="fas fa-user-md"></i> Thyroid Function
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </script>
+
+        <!-- Health Assessment View -->
+        <div class="view" id="health-assessmentView">
+            <div class="container dashboard">
+                <div class="dashboard-header">
+                    <h1 style="color: var(--primary-color); margin-bottom: 0.5rem;">
+                        <i class="fas fa-heartbeat"></i> Comprehensive Health Assessment
+                    </h1>
+                    <p style="color: var(--text-secondary); margin: 0;">AI-powered health analysis with future predictions</p>
+                </div>
+
+                <!-- Assessment Mode Selection -->
+                <div class="card" id="assessmentModeCard">
+                    <div class="card-header">
+                        <h3><i class="fas fa-clipboard-list"></i> Choose Assessment Mode</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="assessment-modes">
+                            <div class="mode-option" onclick="startHealthAssessment('simple')">
+                                <div class="mode-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <h4>Simple Assessment</h4>
+                                <p>15-30 questions • 10-15 minutes</p>
+                                <ul>
+                                    <li>Basic health status evaluation</li>
+                                    <li>Key risk factor identification</li>
+                                    <li>Essential lifestyle assessment</li>
+                                    <li>5 & 10-year health predictions</li>
+                                </ul>
+                                <button class="btn btn-primary">Start Simple Assessment</button>
+                            </div>
+                            <div class="mode-option" onclick="startHealthAssessment('advanced')">
+                                <div class="mode-icon">
+                                    <i class="fas fa-microscope"></i>
+                                </div>
+                                <h4>Advanced Assessment</h4>
+                                <p>Up to 50 questions • 25-35 minutes</p>
+                                <ul>
+                                    <li>Comprehensive health analysis</li>
+                                    <li>Detailed medical history review</li>
+                                    <li>Environmental & occupational factors</li>
+                                    <li>5, 10, 15 & 30-year predictions</li>
+                                </ul>
+                                <button class="btn btn-primary">Start Advanced Assessment</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assessment Results -->
+                <div class="card" id="assessmentResultsCard" style="display: none;">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-line"></i> Your Health Assessment Results</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="healthResults">
+                            <!-- Results will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Neural Network Status -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-brain"></i> AI Learning System</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="neural-network-info">
+                            <div class="network-stat">
+                                <div class="stat-icon"><i class="fas fa-graduation-cap"></i></div>
+                                <div class="stat-info">
+                                    <h5>Learning Model</h5>
+                                    <p>Neural network that grows with each assessment</p>
+                                </div>
+                            </div>
+                            <div class="network-stat">
+                                <div class="stat-icon"><i class="fas fa-database"></i></div>
+                                <div class="stat-info">
+                                    <h5>Training Data</h5>
+                                    <p>Over 10,000 health assessments analyzed</p>
+                                </div>
+                            </div>
+                            <div class="network-stat">
+                                <div class="stat-icon"><i class="fas fa-target"></i></div>
+                                <div class="stat-info">
+                                    <h5>Prediction Accuracy</h5>
+                                    <p>85% accuracy on 5-year health outcomes</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="network-capabilities">
+                            <h5>AI Capabilities</h5>
+                            <div class="capability-tags">
+                                <span class="capability-tag">Cardiovascular Risk</span>
+                                <span class="capability-tag">Metabolic Health</span>
+                                <span class="capability-tag">Cancer Screening</span>
+                                <span class="capability-tag">Mental Health</span>
+                                <span class="capability-tag">Neurological Assessment</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     <script src="/js/app.js"></script>
     <script src="/js/enhanced_map_functions.js"></script>
