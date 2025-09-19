@@ -8,36 +8,16 @@ const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
 const { apiCache } = require('../utils/simpleCache');
+const platformConfig = require('../config/platformConfig');
 
 // In-memory storage (replace with Redis/DB later)
 const apiKeys = new Map();
 const usageStats = new Map();
 const rateLimits = new Map();
+const overageCharges = new Map();
 
-// Tier configurations
-const API_TIERS = {
-    free: {
-        requestsPerDay: 1000,
-        requestsPerMinute: 10,
-        features: ['basic_data', 'outbreak_alerts', 'risk_assessment'],
-        price: 0,
-        analytics: 'basic'
-    },
-    pro: {
-        requestsPerDay: 50000,
-        requestsPerMinute: 500,
-        features: ['all_data', 'outbreak_alerts', 'risk_assessment', 'predictions', 'webhooks', 'priority_support'],
-        price: 49,
-        analytics: 'advanced'
-    },
-    enterprise: {
-        requestsPerDay: 1000000,
-        requestsPerMinute: 10000,
-        features: ['all_data', 'outbreak_alerts', 'risk_assessment', 'predictions', 'webhooks', 'priority_support', 'custom_integration', 'sla'],
-        price: 499,
-        analytics: 'enterprise'
-    }
-};
+// Get tier configurations from platform config
+const API_TIERS = platformConfig.getAllTiers('apiTiers');
 
 // Security Release 2: Enhanced input validation
 const validator = require('validator');
@@ -183,24 +163,50 @@ const validateApiKey = (req, res, next) => {
 
     const tier = API_TIERS[keyData.tier];
     if (usage.dailyRequests >= tier.requestsPerDay) {
-        // Track conversion trigger
-        usage.conversionTriggers.push({
-            trigger: 'daily_limit_reached',
-            timestamp: now,
-            attempts: (usage.conversionTriggers.filter(t => t.trigger === 'daily_limit_reached').length || 0) + 1
-        });
+        // Check if overage pricing is enabled and user is on a paid tier
+        if (platformConfig.isFeatureEnabled('usageBasedPricing') && 
+            tier.overageRate && tier.overageRate > 0 && 
+            keyData.tier !== 'free') {
+            
+            // Calculate overage charges
+            const overageRequests = usage.dailyRequests - tier.requestsPerDay + 1;
+            const overageCharge = Math.ceil(overageRequests / 1000) * tier.overageRate;
+            
+            // Track overage for billing
+            const dailyKey = `${apiKey}:${new Date().toDateString()}`;
+            const currentOverage = overageCharges.get(dailyKey) || 0;
+            overageCharges.set(dailyKey, currentOverage + tier.overageRate);
+            
+            // Allow request but track overage
+            usage.overageRequests = (usage.overageRequests || 0) + 1;
+            
+            // Add overage info to response headers
+            req.overageInfo = {
+                overageRequests: usage.overageRequests,
+                overageCharge: overageCharge,
+                tier: keyData.tier
+            };
+            
+        } else {
+            // Track conversion trigger for free tier or tiers without overage
+            usage.conversionTriggers.push({
+                trigger: 'daily_limit_reached',
+                timestamp: now,
+                attempts: (usage.conversionTriggers.filter(t => t.trigger === 'daily_limit_reached').length || 0) + 1
+            });
 
-        return res.status(429).json({
-            success: false,
-            error: 'Daily request limit exceeded',
-            limit: tier.requestsPerDay,
-            resetTime: new Date(usage.dailyResetTime).toISOString(),
-            upgrade: {
-                message: 'Upgrade to Pro for 50x more requests',
-                url: 'https://disease.zone/upgrade',
-                benefits: ['50,000 requests/day', 'Priority support', 'Advanced features']
-            }
-        });
+            return res.status(429).json({
+                success: false,
+                error: 'Daily request limit exceeded',
+                limit: tier.requestsPerDay,
+                resetTime: new Date(usage.dailyResetTime).toISOString(),
+                upgrade: {
+                    message: keyData.tier === 'free' ? 'Upgrade to Professional for more requests' : 'Upgrade to higher tier or enable overage billing',
+                    url: 'https://disease.zone/upgrade',
+                    benefits: keyData.tier === 'free' ? ['15,000 requests/day', 'Health assessments', 'Lab translations'] : ['Higher limits', 'Overage billing available']
+                }
+            });
+        }
     }
 
     // Check rate limits (simplified)
@@ -269,7 +275,7 @@ router.get('/v1/outbreak-alerts', validateApiKey, async (req, res) => {
             apiCache.set(cacheKey, alerts, 300000); // 5 minutes
         }
 
-        res.json({
+        const response = {
             success: true,
             data: alerts,
             meta: {
@@ -279,7 +285,18 @@ router.get('/v1/outbreak-alerts', validateApiKey, async (req, res) => {
                 tier: req.keyData.tier,
                 remainingRequests: API_TIERS[req.keyData.tier].requestsPerDay - req.usage.dailyRequests
             }
-        });
+        };
+
+        // Add overage information if applicable
+        if (req.overageInfo) {
+            response.billing = {
+                overageRequests: req.overageInfo.overageRequests,
+                overageCharge: `$${req.overageInfo.overageCharge.toFixed(2)}`,
+                message: 'Overage charges apply beyond daily limit'
+            };
+        }
+
+        res.json(response);
 
     } catch (error) {
         res.status(500).json({
@@ -429,15 +446,163 @@ router.get('/usage', validateApiKey, async (req, res) => {
 });
 
 // API documentation endpoint
+// New Professional tier endpoints
+router.get('/v1/health-assessment', validateApiKey, async (req, res) => {
+    try {
+        if (!req.keyData.features.includes('unlimited_health_assessments') && req.keyData.tier === 'free') {
+            return res.status(403).json({
+                success: false,
+                error: 'Health assessments limited on free tier',
+                upgrade: {
+                    message: 'Upgrade to Professional for unlimited health assessments',
+                    url: 'https://disease.zone/upgrade',
+                    benefits: ['Unlimited assessments', 'Lab translations', 'Epic integration']
+                }
+            });
+        }
+
+        const { symptoms, medications, demographics } = req.body;
+        
+        // Generate sample health assessment (in production, use HealthAssessmentService)
+        const assessment = {
+            riskScore: Math.random() * 100,
+            recommendations: ['Consult with primary care physician', 'Monitor symptoms'],
+            factors: symptoms || ['general_wellness'],
+            confidence: 0.85 + Math.random() * 0.1
+        };
+
+        res.json({
+            success: true,
+            data: assessment,
+            meta: {
+                tier: req.keyData.tier,
+                assessmentId: crypto.randomUUID(),
+                timestamp: new Date().toISOString()
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+router.get('/v1/lab-translation', validateApiKey, async (req, res) => {
+    try {
+        const tier = API_TIERS[req.keyData.tier];
+        
+        if (req.keyData.tier === 'free') {
+            // Check free tier limits
+            const usage = req.usage;
+            const monthlyTranslations = usage.monthlyLabTranslations || 0;
+            
+            if (monthlyTranslations >= 3) {
+                return res.status(403).json({
+                    success: false,
+                    error: 'Monthly lab translation limit exceeded',
+                    limit: 3,
+                    upgrade: {
+                        message: 'Upgrade to Professional for unlimited lab translations',
+                        url: 'https://disease.zone/upgrade'
+                    }
+                });
+            }
+        }
+
+        const { labReport } = req.body;
+        
+        // Generate sample translation (in production, use LabTranslationService)
+        const translation = {
+            summary: 'Your lab results show normal ranges for most values',
+            details: {
+                'Blood Glucose': 'Normal - indicates good blood sugar control',
+                'Cholesterol': 'Slightly elevated - consider dietary changes',
+                'White Blood Cells': 'Normal - no signs of infection'
+            },
+            recommendations: ['Maintain current diet', 'Regular exercise recommended'],
+            confidence: 0.92
+        };
+
+        res.json({
+            success: true,
+            data: translation,
+            meta: {
+                tier: req.keyData.tier,
+                translationId: crypto.randomUUID(),
+                timestamp: new Date().toISOString()
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// Enhanced billing endpoint
+router.get('/billing', validateApiKey, async (req, res) => {
+    try {
+        const usage = req.usage;
+        const keyData = req.keyData;
+        const tier = API_TIERS[keyData.tier];
+
+        // Calculate current month overage charges
+        const currentMonth = new Date().toISOString().slice(0, 7);
+        let monthlyOverageCharges = 0;
+        
+        for (const [key, charge] of overageCharges.entries()) {
+            if (key.startsWith(`${req.apiKey}:`) && key.includes(currentMonth)) {
+                monthlyOverageCharges += charge;
+            }
+        }
+
+        res.json({
+            success: true,
+            billing: {
+                tier: keyData.tier,
+                basePrice: tier.price,
+                currency: 'USD',
+                billingPeriod: 'monthly',
+                usage: {
+                    dailyRequests: usage.dailyRequests,
+                    dailyLimit: tier.requestsPerDay,
+                    overageRequests: usage.overageRequests || 0,
+                    overageRate: tier.overageRate || 0
+                },
+                charges: {
+                    baseCharge: tier.price,
+                    overageCharges: monthlyOverageCharges,
+                    totalEstimated: tier.price + monthlyOverageCharges
+                },
+                nextBillingDate: new Date(usage.dailyResetTime).toISOString(),
+                paymentMethod: 'stripe' // In production, get from user account
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
 router.get('/docs', (req, res) => {
+    const tiers = platformConfig.getAllTiers('apiTiers');
+    
     res.json({
         name: 'Disease.Zone API',
-        version: '1.0.0',
+        version: '2.0.0',
         description: 'Real-time disease intelligence and outbreak prediction API',
         pricing: {
-            free: { ...API_TIERS.free, signup: 'https://disease.zone/api/signup' },
-            pro: { ...API_TIERS.pro, signup: 'https://disease.zone/upgrade' },
-            enterprise: { ...API_TIERS.enterprise, contact: 'https://disease.zone/contact' }
+            free: { ...tiers.free, signup: 'https://disease.zone/api/signup' },
+            professional: { ...tiers.professional, signup: 'https://disease.zone/upgrade' },
+            pro: { ...tiers.pro, signup: 'https://disease.zone/upgrade' },
+            enterprise: { ...tiers.enterprise, contact: 'https://disease.zone/contact' }
         },
         endpoints: {
             'POST /api/signup': 'Generate API key',

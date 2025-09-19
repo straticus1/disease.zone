@@ -1,5 +1,30 @@
 # Changelog
 
+## [3.9.1] - 2025-01-19
+
+### 📁 **DOCUMENTATION REORGANIZATION**
+
+#### **🗂️ DOCUMENTATION STRUCTURE CLEANUP:**
+- **📋 Moved Documentation to `docs/` Directory** - Organized all documentation files into dedicated docs folder
+  - `DEPLOYMENT.md` → `docs/DEPLOYMENT.md`
+  - `README-Docker.md` → `docs/README-Docker.md` 
+  - `DNS_CONFIGURATION_SUMMARY.md` → `docs/DNS_CONFIGURATION_SUMMARY.md`
+  - `MAPPING_FIXES_SUMMARY.md` → `docs/MAPPING_FIXES_SUMMARY.md`
+  - `README_STI_API.md` → `docs/README_STI_API.md`
+  - `REAL_DATA_IMPROVEMENTS.md` → `docs/REAL_DATA_IMPROVEMENTS.md`
+  - `WALLET_IMPLEMENTATION_SUMMARY.md` → `docs/WALLET_IMPLEMENTATION_SUMMARY.md`
+
+#### **📊 TERRAFORM CONFIGURATION UPDATES:**
+- **⚙️ Enhanced ECS Configuration** - Updated terraform configuration for improved deployment
+- **🔧 Infrastructure Improvements** - Additional configuration optimizations
+
+#### **🎯 DEVELOPMENT EXPERIENCE:**
+- **📚 Better Documentation Structure** - Improved organization for developers and contributors
+- **🔗 Cleaner Repository** - Reduced root directory clutter with proper file organization
+- **📋 Enhanced Maintainability** - Better file structure for long-term project maintenance
+
+---
+
 ## [3.9.0] - 2025-09-18
 
 ### 🏥 **EPIC EHR INTEGRATION & APP ORCHARD CERTIFICATION**

@@ -1,6 +1,7 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
+const platformConfig = require('../config/platformConfig');
 
 /**
  * License Validation Pricing Service
@@ -12,85 +13,8 @@ class LicenseValidationPricingService {
     constructor() {
         this.dbPath = path.join(__dirname, '../data/license_subscriptions.db');
         
-        // Subscription tier definitions
-        this.subscriptionTiers = {
-            free: {
-                name: 'Free',
-                price: 0,
-                monthly_price: 0,
-                annual_price: 0,
-                daily_search_limit: 25,
-                features: {
-                    basic_license_lookup: true,
-                    provider_search: true,
-                    license_status: true,
-                    state_board_links: true,
-                    violation_count: false,
-                    violation_details: false,
-                    bulk_export: false,
-                    api_access: false,
-                    priority_support: false,
-                    historical_data: false
-                },
-                rate_limit: {
-                    per_minute: 5,
-                    per_hour: 25,
-                    per_day: 25
-                }
-            },
-            
-            premium: {
-                name: 'Premium',
-                price: 9.99,
-                monthly_price: 9.99,
-                annual_price: 99.99, // 2 months free
-                daily_search_limit: 100,
-                features: {
-                    basic_license_lookup: true,
-                    provider_search: true,
-                    license_status: true,
-                    state_board_links: true,
-                    violation_count: true,
-                    violation_details: true,
-                    bulk_export: false,
-                    api_access: 'limited', // 1000 calls/month
-                    priority_support: false,
-                    historical_data: '2_years'
-                },
-                rate_limit: {
-                    per_minute: 20,
-                    per_hour: 100,
-                    per_day: 100
-                }
-            },
-            
-            enterprise: {
-                name: 'Enterprise',
-                price: 49.99,
-                monthly_price: 49.99,
-                annual_price: 499.99, // 2 months free
-                daily_search_limit: 'unlimited',
-                features: {
-                    basic_license_lookup: true,
-                    provider_search: true,
-                    license_status: true,
-                    state_board_links: true,
-                    violation_count: true,
-                    violation_details: true,
-                    bulk_export: true,
-                    api_access: 'full', // 50,000 calls/month
-                    priority_support: true,
-                    historical_data: 'unlimited',
-                    custom_reports: true,
-                    white_label: true
-                },
-                rate_limit: {
-                    per_minute: 100,
-                    per_hour: 'unlimited',
-                    per_day: 'unlimited'
-                }
-            }
-        };
+        // Get subscription tier definitions from platform config
+        this.subscriptionTiers = platformConfig.getAllTiers('licenseValidationTiers');
 
         this.initializeDatabase();
     }
@@ -315,14 +239,14 @@ class LicenseValidationPricingService {
                 allowed: true,
                 tier: subscription.tier,
                 usage: usage,
-                limits: tierInfo.rate_limit,
+                limits: tierInfo.features,
                 remaining: {},
                 resetTime: null
             };
 
             // Check daily limits
             if (actionType === 'search') {
-                const dailyLimit = tierInfo.daily_search_limit;
+                const dailyLimit = tierInfo.dailySearchLimit;
                 if (dailyLimit !== 'unlimited') {
                     const used = usage.daily_searches || 0;
                     result.remaining.daily = Math.max(0, dailyLimit - used);
@@ -335,16 +259,46 @@ class LicenseValidationPricingService {
                 }
             }
 
-            // Check API call limits for premium/enterprise
+            // Check API call limits for premium/hospital/enterprise
             if (actionType === 'api_call' && subscription.tier !== 'free') {
-                const monthlyLimit = subscription.tier === 'premium' ? 1000 : 50000;
-                const used = usage.monthly_api_calls || 0;
-                result.remaining.monthly_api = Math.max(0, monthlyLimit - used);
-                
-                if (used >= monthlyLimit) {
-                    result.allowed = false;
-                    result.error = 'Monthly API limit exceeded';
+                let monthlyLimit;
+                switch (subscription.tier) {
+                    case 'premium':
+                        monthlyLimit = 1000;
+                        break;
+                    case 'hospital':
+                        monthlyLimit = 5000;
+                        break;
+                    case 'enterprise':
+                        monthlyLimit = 'unlimited';
+                        break;
+                    default:
+                        monthlyLimit = 0;
                 }
+                
+                if (monthlyLimit !== 'unlimited') {
+                    const used = usage.monthly_api_calls || 0;
+                    result.remaining.monthly_api = Math.max(0, monthlyLimit - used);
+                    
+                    if (used >= monthlyLimit) {
+                        result.allowed = false;
+                        result.error = 'Monthly API limit exceeded';
+                    }
+                }
+            }
+
+            // Check bulk verification access for hospital tier
+            if (actionType === 'bulk_verification' && !tierInfo.features.bulkVerificationTools) {
+                result.allowed = false;
+                result.error = 'Bulk verification not available in your tier';
+                result.upgradeMessage = 'Upgrade to Hospital tier for bulk verification tools';
+            }
+
+            // Check compliance reporting access
+            if (actionType === 'compliance_reporting' && !tierInfo.features.automatedComplianceReporting) {
+                result.allowed = false;
+                result.error = 'Compliance reporting not available in your tier';
+                result.upgradeMessage = 'Upgrade to Hospital tier for automated compliance reporting';
             }
 
             return result;
@@ -482,8 +436,9 @@ class LicenseValidationPricingService {
      */
     getUpgradeMessage(currentTier) {
         const messages = {
-            free: 'Upgrade to Premium ($9.99/month) for 100 daily searches and violation history access.',
-            premium: 'Upgrade to Enterprise ($49.99/month) for unlimited searches and full API access.',
+            free: 'Upgrade to Premium ($14.99/month) for 250 daily searches and violation history access.',
+            premium: 'Upgrade to Hospital ($29.99/month) for bulk verification tools and compliance reporting.',
+            hospital: 'Upgrade to Enterprise ($69.99/month) for unlimited searches and dedicated support.',
             enterprise: 'You are on the highest tier available.'
         };
 

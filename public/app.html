@@ -5016,7 +5016,511 @@
             </div>
         </div>
 
+        <!-- Platform Configuration View -->
+        <div class="view" id="platform-configuration" style="display: none;">
+            <div class="container">
+                <div class="dashboard-header">
+                    <h1><i class="fas fa-cogs"></i> Platform Configuration</h1>
+                    <p>Manage platform features, pricing, and system settings</p>
+                </div>
+
+                <div class="grid grid-2">
+                    <!-- Feature Flags -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Feature Flags</h3>
+                            <p>Enable or disable platform features</p>
+                        </div>
+                        <div class="card-body">
+                            <div id="featureFlagsContainer">
+                                <!-- Feature flags will be loaded here -->
+                            </div>
+                            <button class="btn btn-primary" onclick="saveFeatureFlags()">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- System Status -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">System Status</h3>
+                            <p>Platform health and performance metrics</p>
+                        </div>
+                        <div class="card-body">
+                            <div class="status-grid">
+                                <div class="status-item">
+                                    <div class="status-indicator status-healthy"></div>
+                                    <span>API Services</span>
+                                </div>
+                                <div class="status-item">
+                                    <div class="status-indicator status-healthy"></div>
+                                    <span>Database</span>
+                                </div>
+                                <div class="status-item">
+                                    <div class="status-indicator status-healthy"></div>
+                                    <span>Webhooks</span>
+                                </div>
+                                <div class="status-item">
+                                    <div class="status-indicator status-warning"></div>
+                                    <span>External APIs</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuration Export/Import -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Configuration Management</h3>
+                        <p>Export, import, and backup platform configuration</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-3">
+                            <button class="btn btn-secondary" onclick="exportConfiguration()">
+                                <i class="fas fa-download"></i> Export Config
+                            </button>
+                            <button class="btn btn-warning" onclick="importConfiguration()">
+                                <i class="fas fa-upload"></i> Import Config
+                            </button>
+                            <button class="btn btn-danger" onclick="resetConfiguration()">
+                                <i class="fas fa-undo"></i> Reset to Defaults
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pricing Management View -->
+        <div class="view" id="pricing-management" style="display: none;">
+            <div class="container">
+                <div class="dashboard-header">
+                    <h1><i class="fas fa-tags"></i> Pricing Management</h1>
+                    <p>Configure pricing tiers and service rates</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">API Pricing Tiers</h3>
+                        <p>Manage API service pricing and limits</p>
+                    </div>
+                    <div class="card-body">
+                        <div id="apiTiersContainer">
+                            <!-- API tiers will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">License Validation Pricing</h3>
+                        <p>Configure license validation service pricing</p>
+                    </div>
+                    <div class="card-body">
+                        <div id="licenseValidationTiersContainer">
+                            <!-- License validation tiers will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Webhook Management View -->
+        <div class="view" id="webhook-management" style="display: none;">
+            <div class="container">
+                <div class="dashboard-header">
+                    <h1><i class="fas fa-satellite-dish"></i> Webhook Management</h1>
+                    <p>Configure real-time event notifications</p>
+                </div>
+
+                <div class="grid grid-2">
+                    <!-- Webhook Endpoints -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Webhook Endpoints</h3>
+                            <button class="btn btn-primary btn-sm" onclick="showCreateWebhookModal()">
+                                <i class="fas fa-plus"></i> Add Webhook
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="webhookEndpointsContainer">
+                                <!-- Webhook endpoints will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Event Types -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Supported Event Types</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="event-types-list">
+                                <div class="event-type">
+                                    <div class="event-name">license_status_change</div>
+                                    <div class="event-desc">Provider license status updates</div>
+                                </div>
+                                <div class="event-type">
+                                    <div class="event-name">violation_detected</div>
+                                    <div class="event-desc">New disciplinary actions</div>
+                                </div>
+                                <div class="event-type">
+                                    <div class="event-name">outbreak_alert</div>
+                                    <div class="event-desc">Disease outbreak notifications</div>
+                                </div>
+                                <div class="event-type">
+                                    <div class="event-name">api_limit_reached</div>
+                                    <div class="event-desc">Usage limit notifications</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Package Management View -->
+        <div class="view" id="package-management" style="display: none;">
+            <div class="container">
+                <div class="dashboard-header">
+                    <h1><i class="fas fa-boxes"></i> Package Management</h1>
+                    <p>Manage vertical packages and custom configurations</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Available Packages</h3>
+                        <p>Configure and monitor vertical service packages</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="package-grid">
+                            <div class="package-card">
+                                <div class="package-header">
+                                    <h4>Hospital Systems</h4>
+                                    <div class="package-price">$199.99/mo</div>
+                                </div>
+                                <div class="package-features">
+                                    <div>Epic Integration (Full)</div>
+                                    <div>License Validation (Hospital)</div>
+                                    <div>Health Assessments (Unlimited)</div>
+                                </div>
+                                <div class="package-stats">
+                                    <div>Active Subscriptions: <strong>12</strong></div>
+                                    <div>Monthly Revenue: <strong>$2,399.88</strong></div>
+                                </div>
+                            </div>
+
+                            <div class="package-card">
+                                <div class="package-header">
+                                    <h4>Insurance Company</h4>
+                                    <div class="package-price">$299.99/mo</div>
+                                </div>
+                                <div class="package-features">
+                                    <div>Risk Assessment (Advanced)</div>
+                                    <div>Claims Validation</div>
+                                    <div>Provider Verification</div>
+                                </div>
+                                <div class="package-stats">
+                                    <div>Active Subscriptions: <strong>5</strong></div>
+                                    <div>Monthly Revenue: <strong>$1,499.95</strong></div>
+                                </div>
+                            </div>
+
+                            <div class="package-card">
+                                <div class="package-header">
+                                    <h4>Telemedicine Platform</h4>
+                                    <div class="package-price">$149.99/mo</div>
+                                </div>
+                                <div class="package-features">
+                                    <div>Provider Verification</div>
+                                    <div>Patient Assessments</div>
+                                    <div>Epic Integration (Basic)</div>
+                                </div>
+                                <div class="package-stats">
+                                    <div>Active Subscriptions: <strong>18</strong></div>
+                                    <div>Monthly Revenue: <strong>$2,699.82</strong></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional CSS for Configuration Views -->
+        <style>
+            .status-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+            }
+
+            .status-item {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.75rem;
+                background: var(--light-color);
+                border-radius: var(--border-radius);
+                border: 1px solid var(--border-color);
+            }
+
+            .status-indicator {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+            }
+
+            .status-healthy { background-color: var(--success-color); }
+            .status-warning { background-color: var(--warning-color); }
+            .status-error { background-color: var(--error-color); }
+
+            .feature-flag {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem;
+                border: 1px solid var(--border-color);
+                border-radius: var(--border-radius);
+                margin-bottom: 0.5rem;
+            }
+
+            .feature-flag-info {
+                flex: 1;
+            }
+
+            .feature-flag-name {
+                font-weight: 600;
+                margin-bottom: 0.25rem;
+            }
+
+            .feature-flag-desc {
+                font-size: 0.875rem;
+                color: var(--text-secondary);
+            }
+
+            .toggle-switch {
+                position: relative;
+                width: 60px;
+                height: 30px;
+                background-color: #ccc;
+                border-radius: 15px;
+                cursor: pointer;
+                transition: var(--transition);
+            }
+
+            .toggle-switch.active {
+                background-color: var(--primary-color);
+            }
+
+            .toggle-handle {
+                position: absolute;
+                top: 2px;
+                left: 2px;
+                width: 26px;
+                height: 26px;
+                background-color: white;
+                border-radius: 50%;
+                transition: var(--transition);
+            }
+
+            .toggle-switch.active .toggle-handle {
+                transform: translateX(30px);
+            }
+
+            .package-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 1.5rem;
+            }
+
+            .package-card {
+                border: 1px solid var(--border-color);
+                border-radius: var(--border-radius);
+                padding: 1.5rem;
+                background: white;
+            }
+
+            .package-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1rem;
+                padding-bottom: 1rem;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .package-header h4 {
+                margin: 0;
+                color: var(--primary-color);
+            }
+
+            .package-price {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: var(--success-color);
+            }
+
+            .package-features {
+                margin-bottom: 1rem;
+            }
+
+            .package-features div {
+                padding: 0.5rem 0;
+                font-size: 0.9rem;
+                color: var(--text-secondary);
+                border-bottom: 1px solid #f0f0f0;
+            }
+
+            .package-stats {
+                font-size: 0.875rem;
+            }
+
+            .package-stats div {
+                margin-bottom: 0.5rem;
+            }
+
+            .event-types-list {
+                max-height: 400px;
+                overflow-y: auto;
+            }
+
+            .event-type {
+                padding: 1rem;
+                border: 1px solid var(--border-color);
+                border-radius: var(--border-radius);
+                margin-bottom: 0.5rem;
+                background: white;
+            }
+
+            .event-name {
+                font-family: 'Courier New', monospace;
+                font-weight: 600;
+                color: var(--primary-color);
+                margin-bottom: 0.25rem;
+            }
+
+            .event-desc {
+                font-size: 0.875rem;
+                color: var(--text-secondary);
+            }
+        </style>
+
     <script src="/js/app.js"></script>
     <script src="/js/enhanced_map_functions.js"></script>
+    <script>
+        // Configuration Management Functions
+        async function loadFeatureFlags() {
+            // Mock data for demonstration
+            const features = {
+                professionalTier: true,
+                hospitalTier: true,
+                usageBasedPricing: true,
+                webhookSystem: true,
+                verticalPackages: true,
+                internationalSupport: false,
+                blockchainAudit: false,
+                graphqlApi: false,
+                mobileSDK: false,
+                aiPredictiveCredentialing: false
+            };
+            
+            const container = document.getElementById('featureFlagsContainer');
+            container.innerHTML = '';
+            
+            for (const [featureName, enabled] of Object.entries(features)) {
+                const flagDiv = document.createElement('div');
+                flagDiv.className = 'feature-flag';
+                flagDiv.innerHTML = `
+                    <div class="feature-flag-info">
+                        <div class="feature-flag-name">${featureName.replace(/([A-Z])/g, ' $1').trim()}</div>
+                        <div class="feature-flag-desc">Enable or disable ${featureName.toLowerCase()}</div>
+                    </div>
+                    <div class="toggle-switch ${enabled ? 'active' : ''}" onclick="toggleFeature('${featureName}', this)">
+                        <div class="toggle-handle"></div>
+                    </div>
+                `;
+                container.appendChild(flagDiv);
+            }
+        }
+
+        function toggleFeature(featureName, toggleElement) {
+            toggleElement.classList.toggle('active');
+        }
+
+        async function saveFeatureFlags() {
+            showNotification('Feature flags saved successfully', 'success');
+        }
+
+        async function exportConfiguration() {
+            const config = {
+                timestamp: new Date().toISOString(),
+                version: '2.0.0',
+                features: {
+                    professionalTier: true,
+                    hospitalTier: true,
+                    usageBasedPricing: true
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `disease-zone-config-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+            showNotification('Configuration exported successfully', 'success');
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                background: ${type === 'success' ? 'var(--success-color)' : 'var(--error-color)'};
+                color: white;
+                border-radius: var(--border-radius);
+                z-index: 10000;
+                font-weight: 600;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Override showView to load configuration data
+        const originalShowView = window.showView;
+        window.showView = function(viewId) {
+            if (originalShowView) {
+                originalShowView(viewId);
+            } else {
+                // Hide all views
+                document.querySelectorAll('.view').forEach(view => {
+                    view.style.display = 'none';
+                });
+                
+                // Show selected view
+                const targetView = document.getElementById(viewId);
+                if (targetView) {
+                    targetView.style.display = 'block';
+                }
+            }
+            
+            // Load data for configuration views
+            if (viewId === 'platform-configuration') {
+                loadFeatureFlags();
+            }
+        };
+    </script>
 </body>
 </html>
