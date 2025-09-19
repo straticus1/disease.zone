@@ -256,13 +256,13 @@ app.get('/', (req, res) => {
   // If it's the api subdomain, serve the API portal
   if (host.startsWith('api.') || host.includes('api.disease.zone') || host.includes('api.disease.app')) {
     console.log('✅ Serving API portal for subdomain:', host);
-    return serveApiHomepage(req, res);
+    return serveApiHomepage(req, res, host);
   }
   
   // If it's the ledger subdomain, serve the ledger platform
   if (host.startsWith('ledger.') || host.includes('ledger.disease.zone') || host.includes('ledger.disease.app')) {
     console.log('✅ Serving ledger platform for subdomain:', host);
-    return serveLedgerHomepage(req, res);
+    return serveLedgerHomepage(req, res, host);
   }
   
   // For main domain, serve the app.html content directly
@@ -291,7 +291,7 @@ app.use((req, res, next) => {
 });
 
 // Function to serve the API homepage
-function serveApiHomepage(req, res) {
+function serveApiHomepage(req, res, host) {
   const html = `
 <!DOCTYPE html>
 <html lang="en">
@@ -748,7 +748,7 @@ function serveApiHomepage(req, res) {
 }
 
 // Function to serve the Ledger homepage
-function serveLedgerHomepage(req, res) {
+function serveLedgerHomepage(req, res, host) {
   const html = `
 <!DOCTYPE html>
 <html lang="en">
