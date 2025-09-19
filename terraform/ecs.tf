@@ -88,7 +88,7 @@ resource "aws_ecs_task_definition" "main" {
       environment = [
         {
           name  = "NODE_ENV"
-          value = var.environment
+          value = "production"
         },
         {
           name  = "PORT"
@@ -105,6 +105,10 @@ resource "aws_ecs_task_definition" "main" {
         {
           name  = "MAPPING_CACHE_TTL"
           value = "3600"
+        },
+        {
+          name  = "API_RATE_LIMIT_ENABLED"
+          value = "true"
         }
       ]
 
@@ -116,6 +120,14 @@ resource "aws_ecs_task_definition" "main" {
         {
           name      = "GOOGLE_MAPS_API_KEY"
           valueFrom = aws_ssm_parameter.google_maps_key.arn
+        },
+        {
+          name      = "JWT_SECRET"
+          valueFrom = aws_ssm_parameter.jwt_secret.arn
+        },
+        {
+          name      = "SESSION_SECRET"
+          valueFrom = aws_ssm_parameter.session_secret.arn
         }
       ]
 
@@ -209,6 +221,34 @@ resource "aws_ssm_parameter" "google_maps_key" {
 
   tags = {
     Name = "${var.project_name}-google-maps-key-${var.environment}"
+  }
+
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
+resource "aws_ssm_parameter" "jwt_secret" {
+  name  = "/${var.project_name}/${var.environment}/jwt-secret"
+  type  = "SecureString"
+  value = "placeholder" # Set actual value after creation
+
+  tags = {
+    Name = "${var.project_name}-jwt-secret-${var.environment}"
+  }
+
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
+resource "aws_ssm_parameter" "session_secret" {
+  name  = "/${var.project_name}/${var.environment}/session-secret"
+  type  = "SecureString"
+  value = "placeholder" # Set actual value after creation
+
+  tags = {
+    Name = "${var.project_name}-session-secret-${var.environment}"
   }
 
   lifecycle {

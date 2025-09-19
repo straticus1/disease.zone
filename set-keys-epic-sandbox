@@ -1,0 +1,10 @@
+#!/bin/bash
+
+_client_id="$1";
+_client_secret="$2";
+
+if [ -n "${_client_id}" -a -n "${_client_secret}" ]; then
+	aws ssm put-parameter --name "/diseasezone/prod/epic-sandbox-client-id" --value "${_client_id}" --type "SecureString"
+	aws ssm put-parameter --name "/diseasezone/prod/epic-sandbox-client-secret" --value "${_client_secret}" --type "SecureString"
+fi
+
