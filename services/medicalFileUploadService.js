@@ -366,9 +366,7 @@ class MedicalFileUploadService {
   async storeFileMetadata(fileInfo) {
     try {
       // Store in SQLite database
-      const db = await this.databaseService.getDatabase();
-      
-      await db.run(`
+      await this.databaseService.run(`
         INSERT INTO uploaded_files (
           id, original_name, filename, file_path, file_size, 
           mimetype, file_type, file_hash, uploaded_at, metadata
@@ -396,9 +394,7 @@ class MedicalFileUploadService {
   async createResearchCase(fileIds, caseData) {
     try {
       const caseId = uuidv4();
-      const db = await this.databaseService.getDatabase();
-      
-      await db.run(`
+      const result = await this.databaseService.run(`
         INSERT INTO research_cases (
           id, title, description, submitter_email, submitter_name,
           file_ids, status, created_at, updated_at
@@ -457,9 +453,7 @@ class MedicalFileUploadService {
 
   async searchFiles(query, filters = {}) {
     try {
-      const db = await this.databaseService.getDatabase();
-      let sql = `
-        SELECT * FROM uploaded_files 
+      const files = await this.databaseService.all(`
         WHERE (original_name LIKE ? OR file_type LIKE ?)
       `;
       const params = [`%${query}%`, `%${query}%`];
@@ -494,9 +488,7 @@ class MedicalFileUploadService {
 
   async assignFileToDoctor(fileId, doctorId, groupId = null) {
     try {
-      const db = await this.databaseService.getDatabase();
-      
-      await db.run(`
+      const result = await this.databaseService.run(`
         INSERT INTO file_assignments (
           file_id, doctor_id, group_id, assigned_at, status
         ) VALUES (?, ?, ?, ?, ?)
@@ -511,9 +503,7 @@ class MedicalFileUploadService {
 
   async takeOwnership(fileId, doctorId) {
     try {
-      const db = await this.databaseService.getDatabase();
-      
-      await db.run(`
+      await this.databaseService.run(`
         UPDATE file_assignments 
         SET status = 'owned', owned_at = ? 
         WHERE file_id = ? AND doctor_id = ?
@@ -563,8 +553,7 @@ class MedicalFileUploadService {
 
   async getUserTier(userId) {
     try {
-      const db = await this.databaseService.getDatabase();
-      const user = await db.get('SELECT subscription_tier FROM users WHERE id = ?', [userId]);
+      const user = await this.databaseService.get('SELECT subscription_tier FROM users WHERE id = ?', [userId]);
       return user?.subscription_tier || 'free';
     } catch (error) {
       console.warn('Could not determine user tier:', error.message);
@@ -606,10 +595,13 @@ class MedicalFileUploadService {
   // Initialize database tables
   async initializeDatabase() {
     try {
-      const db = await this.databaseService.getDatabase();
+      // Initialize the database service if not already done
+      if (!this.databaseService.db) {
+        await this.databaseService.init();
+      }
       
       // Create uploaded_files table
-      await db.run(`
+      await this.databaseService.run(`
         CREATE TABLE IF NOT EXISTS uploaded_files (
           id TEXT PRIMARY KEY,
           original_name TEXT NOT NULL,
@@ -625,7 +617,7 @@ class MedicalFileUploadService {
       `);
 
       // Create research_cases table
-      await db.run(`
+      await this.databaseService.run(`
         CREATE TABLE IF NOT EXISTS research_cases (
           id TEXT PRIMARY KEY,
           title TEXT NOT NULL,
@@ -640,7 +632,7 @@ class MedicalFileUploadService {
       `);
 
       // Create file_assignments table
-      await db.run(`
+      await this.databaseService.run(`
         CREATE TABLE IF NOT EXISTS file_assignments (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           file_id TEXT NOT NULL,
