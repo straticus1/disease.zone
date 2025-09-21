@@ -453,7 +453,8 @@ class MedicalFileUploadService {
 
   async searchFiles(query, filters = {}) {
     try {
-      const files = await this.databaseService.all(`
+      let sql = `
+        SELECT * FROM uploaded_files 
         WHERE (original_name LIKE ? OR file_type LIKE ?)
       `;
       const params = [`%${query}%`, `%${query}%`];
@@ -475,7 +476,7 @@ class MedicalFileUploadService {
 
       sql += ' ORDER BY uploaded_at DESC LIMIT 50';
 
-      const files = await db.all(sql, params);
+      const files = await this.databaseService.all(sql, params);
       return files.map(file => ({
         ...file,
         metadata: JSON.parse(file.metadata || '{}')
