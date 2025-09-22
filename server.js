@@ -184,6 +184,7 @@ async function initializeServices() {
 
     // Make services available to routes
     app.locals.db = databaseService;
+    app.locals.databaseService = databaseService;
     app.locals.auth = authMiddleware;
     app.locals.userService = userService;
     app.locals.walletUserService = walletUserService;
@@ -1239,6 +1240,10 @@ app.use('/api/demo', demoRoutes);
 // Health Assessment and Prediction routes
 const healthAssessmentRoutes = require('./routes/healthAssessmentRoutes');
 app.use('/api/health-assessment', healthAssessmentRoutes);
+
+// Compliance portal routes
+const complianceRoutes = require('./routes/compliance');
+app.use('/api/compliance', complianceRoutes);
 
 // Authentication endpoints
 app.post('/api/auth/register',

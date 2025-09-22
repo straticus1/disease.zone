@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compliance Portal - Disease Zone</title>
+    <style>
+        :root {
+            --primary-color: #059669;
+            --secondary-color: #047857;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-color: #1f2937;
+            --light-color: #f0fdf4;
+            --border-color: #d1fae5;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--primary-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .user-info {
+            background: var(--light-color);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .navigation {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .nav-tab {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .nav-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .nav-tab:hover {
+            color: var(--primary-color);
+            background: rgba(5, 150, 105, 0.05);
+        }
+
+        .nav-tab:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .content-area {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            min-height: 400px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-header {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .section-description {
+            color: var(--text-secondary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--light-color);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .table th,
+        .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-implemented {
+            background: #d1fae5;
+            color: #047857;
+        }
+
+        .status-in-progress {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-not-started {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .success-message {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #047857;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <div class="header-icon">🛡️</div>
+                Compliance Portal
+            </h1>
+            <p class="subtitle">HIPAA & HITRUST Compliance Management Dashboard</p>
+            <div class="user-info">
+                <strong>User:</strong> <span id="user-name">Loading...</span> | 
+                <strong>Role:</strong> <span id="user-role">Loading...</span> | 
+                <strong>Access Level:</strong> <span id="access-level">Loading...</span>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-tab="dashboard">Dashboard</button>
+                <button class="nav-tab" data-tab="compliance" disabled>Compliance Status</button>
+                <button class="nav-tab" data-tab="tickets" disabled>Ticketing System</button>
+                <button class="nav-tab" data-tab="changes" disabled>Change Management</button>
+                <button class="nav-tab" data-tab="documentation" disabled>Documentation</button>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <div class="section-header">
+                    <h2 class="section-title">Compliance Dashboard</h2>
+                    <p class="section-description">Overview of current compliance status and recent activities</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="hipaa-score">--</div>
+                        <div class="stat-label">HIPAA Compliance</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="hitrust-score">--</div>
+                        <div class="stat-label">HITRUST Readiness</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="open-tickets">--</div>
+                        <div class="stat-label">Open Tickets</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="pending-changes">--</div>
+                        <div class="stat-label">Pending Changes</div>
+                    </div>
+                </div>
+
+                <div id="loading-message">
+                    <p><span class="loading"></span> Loading compliance data...</p>
+                </div>
+
+                <div id="access-denied" class="error-message hidden">
+                    <strong>Access Denied:</strong> You don't have permission to access the compliance portal. 
+                    Contact your administrator for access.
+                </div>
+            </div>
+
+            <!-- Compliance Status Tab -->
+            <div id="compliance" class="tab-content">
+                <div class="section-header">
+                    <h2 class="section-title">Compliance Status</h2>
+                    <p class="section-description">Track implementation status of HIPAA and HITRUST controls</p>
+                </div>
+                <div id="compliance-content">Loading compliance data...</div>
+            </div>
+
+            <!-- Ticketing System Tab -->
+            <div id="tickets" class="tab-content">
+                <div class="section-header">
+                    <h2 class="section-title">Ticketing System</h2>
+                    <p class="section-description">HIPAA compliant support ticketing system</p>
+                </div>
+                <div id="tickets-content">Loading tickets...</div>
+            </div>
+
+            <!-- Change Management Tab -->
+            <div id="changes" class="tab-content">
+                <div class="section-header">
+                    <h2 class="section-title">Change Management</h2>
+                    <p class="section-description">Formal change request and approval workflow</p>
+                </div>
+                <div id="changes-content">Loading change requests...</div>
+            </div>
+
+            <!-- Documentation Tab -->
+            <div id="documentation" class="tab-content">
+                <div class="section-header">
+                    <h2 class="section-title">Compliance Documentation</h2>
+                    <p class="section-description">Access compliance policies, procedures, and training materials</p>
+                </div>
+                <div id="documentation-content">
+                    <h3>Available Documentation</h3>
+                    <ul>
+                        <li><a href="/security/hipaa-contingency-plan.md" target="_blank">HIPAA Contingency Plan</a></li>
+                        <li><a href="/security/physical-infrastructure-security-policy.md" target="_blank">Physical & Infrastructure Security Policy</a></li>
+                        <li><a href="/security/personnel-security-program.md" target="_blank">Personnel Security Program</a></li>
+                        <li><a href="/security/security-officer-designation.md" target="_blank">Security Officer Designation</a></li>
+                        <li><a href="/security/hipaa-training-program.md" target="_blank">HIPAA Training Program</a></li>
+                        <li><a href="/security/compliance-checklist.md" target="_blank">Compliance Checklist</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let userPermissions = {};
+        let currentUser = {};
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadUserPermissions();
+            setupTabNavigation();
+        });
+
+        // Load user permissions and access levels
+        async function loadUserPermissions() {
+            try {
+                const response = await fetch('/api/compliance/access', {
+                    headers: {
+                        'Authorization': getAuthToken()
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.user;
+                    userPermissions = data.permissions;
+                    
+                    // Update user info
+                    document.getElementById('user-name').textContent = data.user.name;
+                    document.getElementById('user-role').textContent = data.user.role;
+                    document.getElementById('access-level').textContent = getAccessLevel();
+                    
+                    // Enable tabs based on permissions
+                    enableTabsBasedOnPermissions();
+                    
+                    // Load initial data
+                    await loadDashboardData();
+                    
+                    // Hide loading message
+                    document.getElementById('loading-message').classList.add('hidden');
+                } else {
+                    showAccessDenied();
+                }
+            } catch (error) {
+                console.error('Error loading permissions:', error);
+                showAccessDenied();
+            }
+        }
+
+        // Get access level description
+        function getAccessLevel() {
+            const grantedSections = Object.values(userPermissions)
+                .filter(p => p.granted)
+                .length;
+            
+            if (grantedSections >= 5) return 'Full Access';
+            if (grantedSections >= 3) return 'Standard Access';
+            if (grantedSections >= 1) return 'Limited Access';
+            return 'No Access';
+        }
+
+        // Enable tabs based on user permissions
+        function enableTabsBasedOnPermissions() {
+            const tabs = {
+                'compliance': userPermissions.compliance_status?.granted,
+                'tickets': userPermissions.tickets?.granted,
+                'changes': userPermissions.change_management?.granted,
+                'documentation': userPermissions.documentation?.granted
+            };
+
+            Object.keys(tabs).forEach(tabId => {
+                const tabButton = document.querySelector(`[data-tab="${tabId}"]`);
+                if (tabs[tabId]) {
+                    tabButton.disabled = false;
+                } else {
+                    tabButton.disabled = true;
+                }
+            });
+        }
+
+        // Setup tab navigation
+        function setupTabNavigation() {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    if (this.disabled) return;
+                    
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    document.getElementById(this.dataset.tab).classList.add('active');
+                    
+                    // Load tab content if needed
+                    loadTabContent(this.dataset.tab);
+                });
+            });
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                // Load compliance stats
+                if (userPermissions.compliance_status?.granted) {
+                    const statsResponse = await fetch('/api/compliance/compliance-stats', {
+                        headers: { 'Authorization': getAuthToken() }
+                    });
+                    
+                    if (statsResponse.ok) {
+                        const stats = await statsResponse.json();
+                        updateComplianceStats(stats);
+                    }
+                }
+
+                // Load ticket count
+                if (userPermissions.tickets?.granted) {
+                    const ticketsResponse = await fetch('/api/compliance/tickets?limit=1', {
+                        headers: { 'Authorization': getAuthToken() }
+                    });
+                    
+                    if (ticketsResponse.ok) {
+                        const ticketsData = await ticketsResponse.json();
+                        document.getElementById('open-tickets').textContent = ticketsData.pagination.total || 0;
+                    }
+                }
+
+                // Load change requests count
+                if (userPermissions.change_management?.granted) {
+                    const changesResponse = await fetch('/api/compliance/change-requests?limit=1', {
+                        headers: { 'Authorization': getAuthToken() }
+                    });
+                    
+                    if (changesResponse.ok) {
+                        const changesData = await changesResponse.json();
+                        document.getElementById('pending-changes').textContent = changesData.changeRequests.length || 0;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Update compliance statistics
+        function updateComplianceStats(stats) {
+            let hipaaPercentage = 0;
+            let hitrustPercentage = 0;
+
+            stats.forEach(framework => {
+                const percentage = Math.round((framework.implemented / framework.total_controls) * 100);
+                
+                if (framework.framework === 'HIPAA') {
+                    hipaaPercentage = percentage;
+                } else if (framework.framework === 'HITRUST') {
+                    hitrustPercentage = percentage;
+                }
+            });
+
+            document.getElementById('hipaa-score').textContent = hipaaPercentage + '%';
+            document.getElementById('hitrust-score').textContent = hitrustPercentage + '%';
+        }
+
+        // Load content for specific tabs
+        async function loadTabContent(tabId) {
+            const contentElement = document.getElementById(tabId + '-content');
+            if (!contentElement || contentElement.dataset.loaded) return;
+
+            contentElement.innerHTML = '<p><span class="loading"></span> Loading...</p>';
+
+            try {
+                switch (tabId) {
+                    case 'compliance':
+                        await loadComplianceContent();
+                        break;
+                    case 'tickets':
+                        await loadTicketsContent();
+                        break;
+                    case 'changes':
+                        await loadChangesContent();
+                        break;
+                }
+                contentElement.dataset.loaded = 'true';
+            } catch (error) {
+                console.error(`Error loading ${tabId} content:`, error);
+                contentElement.innerHTML = `<div class="error-message">Error loading content: ${error.message}</div>`;
+            }
+        }
+
+        // Load compliance content
+        async function loadComplianceContent() {
+            const response = await fetch('/api/compliance/compliance-items', {
+                headers: { 'Authorization': getAuthToken() }
+            });
+
+            if (response.ok) {
+                const items = await response.json();
+                const contentHtml = generateComplianceTable(items);
+                document.getElementById('compliance-content').innerHTML = contentHtml;
+            }
+        }
+
+        // Generate compliance table HTML
+        function generateComplianceTable(items) {
+            const hipaaItems = items.filter(item => item.framework === 'HIPAA');
+            const hitrustItems = items.filter(item => item.framework === 'HITRUST');
+
+            return `
+                <h3>HIPAA Controls</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Control ID</th>
+                            <th>Control Name</th>
+                            <th>Status</th>
+                            <th>Target Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${hipaaItems.map(item => `
+                            <tr>
+                                <td>${item.control_id}</td>
+                                <td>${item.control_name}</td>
+                                <td><span class="status-badge status-${item.status.replace('_', '-')}">${item.status.replace('_', ' ')}</span></td>
+                                <td>${item.target_completion_date || 'N/A'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+
+                <h3>HITRUST Controls</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Control ID</th>
+                            <th>Control Name</th>
+                            <th>Status</th>
+                            <th>Target Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${hitrustItems.map(item => `
+                            <tr>
+                                <td>${item.control_id}</td>
+                                <td>${item.control_name}</td>
+                                <td><span class="status-badge status-${item.status.replace('_', '-')}">${item.status.replace('_', ' ')}</span></td>
+                                <td>${item.target_completion_date || 'N/A'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Load tickets content
+        async function loadTicketsContent() {
+            const response = await fetch('/api/compliance/tickets', {
+                headers: { 'Authorization': getAuthToken() }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const contentHtml = generateTicketsTable(data.tickets);
+                document.getElementById('tickets-content').innerHTML = contentHtml;
+            }
+        }
+
+        // Generate tickets table HTML
+        function generateTicketsTable(tickets) {
+            if (tickets.length === 0) {
+                return '<p>No tickets found.</p>';
+            }
+
+            return `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Ticket #</th>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tickets.map(ticket => `
+                            <tr>
+                                <td>${ticket.ticket_number}</td>
+                                <td>${ticket.title}</td>
+                                <td>${ticket.ticket_type_name}</td>
+                                <td><span class="status-badge status-${ticket.status}">${ticket.status}</span></td>
+                                <td>${getPriorityLabel(ticket.priority)}</td>
+                                <td>${new Date(ticket.created_at).toLocaleDateString()}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Load changes content
+        async function loadChangesContent() {
+            const response = await fetch('/api/compliance/change-requests', {
+                headers: { 'Authorization': getAuthToken() }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const contentHtml = generateChangesTable(data.changeRequests);
+                document.getElementById('changes-content').innerHTML = contentHtml;
+            }
+        }
+
+        // Generate changes table HTML
+        function generateChangesTable(changes) {
+            if (changes.length === 0) {
+                return '<p>No change requests found.</p>';
+            }
+
+            return `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Change #</th>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Risk Level</th>
+                            <th>Requested By</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${changes.map(change => `
+                            <tr>
+                                <td>${change.change_number}</td>
+                                <td>${change.title}</td>
+                                <td>${change.change_type}</td>
+                                <td><span class="status-badge status-${change.status}">${change.status}</span></td>
+                                <td>${change.risk_level}</td>
+                                <td>${change.requestor_first_name} ${change.requestor_last_name}</td>
+                                <td>${new Date(change.created_at).toLocaleDateString()}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Helper functions
+        function getAuthToken() {
+            const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+            return token ? `Bearer ${token}` : '';
+        }
+
+        function getPriorityLabel(priority) {
+            const labels = {
+                1: 'Low',
+                2: 'Medium',
+                3: 'High',
+                4: 'Critical',
+                5: 'Emergency'
+            };
+            return labels[priority] || 'Unknown';
+        }
+
+        function showAccessDenied() {
+            document.getElementById('loading-message').classList.add('hidden');
+            document.getElementById('access-denied').classList.remove('hidden');
+            document.getElementById('user-name').textContent = 'Unknown';
+            document.getElementById('user-role').textContent = 'Unknown';
+            document.getElementById('access-level').textContent = 'No Access';
+        }
+    </script>
+</body>
+</html>
