@@ -6,7 +6,7 @@
 
 *Previously known as covid19lookup.nyc*
 
-[![Version](https://img.shields.io/badge/version-3.8.0-blue.svg)](https://github.com/straticus1/disease.zone)
+[![Version](https://img.shields.io/badge/version-3.10.0-blue.svg)](https://github.com/straticus1/disease.zone)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-brightgreen.svg)](./MEDICAL_COMPLIANCE_REVIEW.md)
 [![GDPR](https://img.shields.io/badge/GDPR-Compliant-brightgreen.svg)](./GLOBAL_COMPLIANCE_FRAMEWORK.md)
@@ -14,7 +14,19 @@
 
 ## 🌟 Features
 
-### 🏥 **NEW IN v3.9.0: Epic EHR Integration & App Orchard Certification**
+### 🚀 **NEW IN v3.10.0: Enhanced Platform Configuration & Vertical Packages**
+- **⚙️ Dynamic Configuration Management** - Centralized platform configuration with feature flags and real-time updates
+- **🔧 CLI Configuration Tool** - Interactive command-line interface for configuration management (`cli-config.js`)
+- **💼 Vertical Package System** - Industry-specific bundled solutions with 20-40% cost savings:
+  - **🏥 Hospital Systems Package ($199.99/month)** - Epic + License + Health Assessments for 100 users
+  - **🏢 Insurance Company Package ($299.99/month)** - Risk Assessment + Claims + Provider Verification
+  - **📱 Telemedicine Platform Package ($149.99/month)** - Provider Verification + Patient Assessments + Epic
+- **🎯 Enhanced API Pricing Tiers** - Professional ($19.99/month) and Hospital License Validation ($29.99/month)
+- **🔗 Webhook System** - Real-time notifications with 8 event types and delivery tracking
+- **💳 Usage-Based Pricing** - Seamless overage billing with tier-specific rates
+- **📚 Comprehensive Documentation** - CLI guides, webhook integration, and vertical package documentation
+
+### 🏥 **v3.9.0: Epic EHR Integration & App Orchard Certification**
 - **🏛️ Epic FHIR R4 API** - Complete integration with Epic's healthcare platform serving 78% of US hospitals
 - **🔐 SMART on FHIR OAuth 2.0** - Secure patient authorization with PKCE and state validation
 - **📱 MyChart Patient Portal** - Seamless patient-facing integration for health record connections

@@ -580,7 +580,7 @@
                     <li><a href="#" onclick="showView('guest'); return false;" class="nav-link">Home</a></li>
                     <li><a href="#" onclick="showView('surveillance'); return false;" class="nav-link">Surveillance</a></li>
                     <li><a href="#" onclick="showView('research'); return false;" class="nav-link">Research</a></li>
-                    <li><a href="#" onclick="showView('medical-files'); return false;" class="nav-link" style="color: var(--medical-color);"><i class="fas fa-file-medical"></i> Medical Files</a></li>
+                    <li id="medicalFilesNavItem" style="display: none;"><a href="#" onclick="showView('medical-files'); return false;" class="nav-link" style="color: var(--medical-color);"><i class="fas fa-file-medical"></i> Medical Files</a></li>
                     <li><a href="#" onclick="showView('metasearch'); return false;" class="nav-link" style="color: var(--success-color);"><i class="fas fa-search"></i> Search</a></li>
                     <li><a href="#" onclick="showView('resources'); return false;" class="nav-link">Resources</a></li>
                     <li><a href="//ledger.disease.zone" target="_blank" class="nav-link">Ledger <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i></a></li>
@@ -4647,14 +4647,51 @@
         refreshScanningStats();
     }
 
+    // Utility function to get cookie value
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+
+    // Function to check if user is authenticated
+    function isAuthenticated() {
+        const token = localStorage.getItem('authToken') || getCookie('authToken');
+        return !!token;
+    }
+
+    // Function to update navigation visibility based on authentication
+    function updateNavigationVisibility() {
+        const medicalFilesNavItem = document.getElementById('medicalFilesNavItem');
+        if (medicalFilesNavItem) {
+            medicalFilesNavItem.style.display = isAuthenticated() ? 'block' : 'none';
+        }
+    }
+
     // Add to existing showView function to initialize when medical-files view is shown
     const originalShowView = window.showView;
     window.showView = function(viewName) {
-        if (originalShowView) originalShowView(viewName);
+        // Security check for medical files - require authentication
         if (viewName === 'medical-files') {
+            if (!isAuthenticated()) {
+                alert('⚠️ Authentication Required\n\nAccess to Medical File Management requires login.\nPlease log in to continue.');
+                showView('guest'); // Redirect to home page
+                return;
+            }
             initializeMedicalFilesView();
         }
+        
+        if (originalShowView) originalShowView(viewName);
     };
+
+    // Update navigation visibility on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateNavigationVisibility();
+        
+        // Set up periodic checks for authentication changes
+        setInterval(updateNavigationVisibility, 1000);
+    });
     </script>
 
         <!-- Messaging System View -->

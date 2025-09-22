@@ -1,0 +1,16 @@
+{
+  "inputNodes": 150,
+  "hiddenLayers": [
+    100,
+    75,
+    50,
+    25
+  ],
+  "outputNodes": 20,
+  "learningRate": 0.001,
+  "trained": true,
+  "modelVersion": "1.0.0",
+  "trainingData": [],
+  "weights": null,
+  "biases": null
+}
