@@ -69,6 +69,12 @@ class HIPAAService {
                     return { granted: true, reason: 'Own data access' };
                 } else if (user.role === 'medical_professional' && action === 'READ') {
                     return { granted: true, reason: 'Medical professional read access' };
+                } else if (user.role === 'researcher' && action === 'READ') {
+                    return { granted: true, reason: 'Researcher read access' };
+                } else if (user.role === 'compliance' && ['READ', 'AUDIT'].includes(action)) {
+                    return { granted: true, reason: 'Compliance audit access' };
+                } else if (user.role === 'admin') {
+                    return { granted: true, reason: 'Admin full access' };
                 } else {
                     return {
                         granted: false,
@@ -91,6 +97,12 @@ class HIPAAService {
                     return { granted: true, reason: 'Own family data access' };
                 } else if (user.role === 'medical_professional' && action === 'READ') {
                     return { granted: true, reason: 'Medical professional research access' };
+                } else if (user.role === 'researcher' && action === 'READ') {
+                    return { granted: true, reason: 'Researcher access to de-identified data' };
+                } else if (user.role === 'compliance' && ['READ', 'AUDIT'].includes(action)) {
+                    return { granted: true, reason: 'Compliance audit access' };
+                } else if (user.role === 'admin') {
+                    return { granted: true, reason: 'Admin full access' };
                 } else {
                     return {
                         granted: false,
@@ -201,6 +213,43 @@ class HIPAAService {
     }
 
     /**
+     * Check if user has access to compliance portal features
+     * @param {object} user - User object with role information
+     * @param {string} section - Compliance portal section (change_management, compliance_status, documentation, tickets)
+     * @returns {object} - Access permission result
+     */
+    checkCompliancePortalAccess(user, section) {
+        if (!user) {
+            return { granted: false, reason: 'User not authenticated' };
+        }
+
+        // Define role-based access to compliance portal sections
+        const roleAccess = {
+            'admin': ['change_management', 'compliance_status', 'documentation', 'tickets', 'user_management'],
+            'compliance': ['change_management', 'compliance_status', 'documentation', 'tickets', 'audit_logs'],
+            'medical_professional': ['compliance_status', 'documentation', 'tickets'],
+            'researcher': ['compliance_status', 'documentation', 'tickets'],
+            'user': ['tickets'] // Regular users can only access ticketing system
+        };
+
+        const allowedSections = roleAccess[user.role] || [];
+        
+        if (allowedSections.includes(section)) {
+            return {
+                granted: true,
+                reason: `${user.role} has access to ${section}`,
+                allowedSections: allowedSections
+            };
+        }
+
+        return {
+            granted: false,
+            reason: `${user.role} does not have access to ${section}`,
+            allowedSections: allowedSections
+        };
+    }
+
+}
      * Validate minimum necessary access
      * @param {string} requestedFields - Comma-separated list of requested fields
      * @param {string} purpose - Purpose of data access

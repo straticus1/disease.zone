@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
-    role TEXT NOT NULL DEFAULT 'user', -- 'user', 'medical_professional', 'admin'
+    role TEXT NOT NULL DEFAULT 'user', -- 'user', 'medical_professional', 'researcher', 'compliance', 'admin'
     verified BOOLEAN DEFAULT FALSE,
     verification_token TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -186,6 +186,148 @@ CREATE TABLE IF NOT EXISTS user_sessions (
     user_agent TEXT,
 
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Ticket types configuration (admin can modify)
+CREATE TABLE IF NOT EXISTS ticket_types (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL,
+    description TEXT,
+    priority_level INTEGER DEFAULT 2, -- 1=Low, 2=Medium, 3=High, 4=Critical, 5=Emergency
+    auto_assign_role TEXT, -- Role to auto-assign tickets to
+    sla_response_hours INTEGER DEFAULT 24,
+    sla_resolution_hours INTEGER DEFAULT 72,
+    active BOOLEAN DEFAULT TRUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_by_user_id INTEGER,
+    FOREIGN KEY (created_by_user_id) REFERENCES users(id)
+);
+
+-- HIPAA compliant ticketing system
+CREATE TABLE IF NOT EXISTS tickets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ticket_number TEXT UNIQUE NOT NULL, -- Format: TICK-YYYY-NNNNNN
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    ticket_type_id INTEGER NOT NULL,
+    
+    -- User information
+    created_by_user_id INTEGER NOT NULL,
+    assigned_to_user_id INTEGER,
+    
+    -- Status and priority
+    status TEXT DEFAULT 'open', -- 'open', 'in_progress', 'pending', 'resolved', 'closed'
+    priority INTEGER DEFAULT 2, -- 1=Low, 2=Medium, 3=High, 4=Critical, 5=Emergency
+    
+    -- HIPAA compliance flags
+    contains_phi BOOLEAN DEFAULT FALSE,
+    phi_fields TEXT, -- JSON array of PHI field names if applicable
+    encryption_required BOOLEAN DEFAULT TRUE,
+    
+    -- SLA tracking
+    sla_response_due DATETIME,
+    sla_resolution_due DATETIME,
+    first_response_at DATETIME,
+    resolved_at DATETIME,
+    
+    -- Metadata
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (created_by_user_id) REFERENCES users(id),
+    FOREIGN KEY (assigned_to_user_id) REFERENCES users(id),
+    FOREIGN KEY (ticket_type_id) REFERENCES ticket_types(id)
+);
+
+-- Ticket comments/updates
+CREATE TABLE IF NOT EXISTS ticket_comments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ticket_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    comment_text TEXT NOT NULL,
+    is_internal BOOLEAN DEFAULT FALSE, -- Internal comments not visible to ticket creator
+    is_status_change BOOLEAN DEFAULT FALSE,
+    previous_status TEXT,
+    new_status TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Change management system
+CREATE TABLE IF NOT EXISTS change_requests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    change_number TEXT UNIQUE NOT NULL, -- Format: CHG-YYYY-NNNNNN
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    change_type TEXT NOT NULL, -- 'security', 'infrastructure', 'application', 'policy', 'emergency'
+    
+    -- Requestor information
+    requested_by_user_id INTEGER NOT NULL,
+    business_justification TEXT NOT NULL,
+    
+    -- Risk assessment
+    risk_level TEXT DEFAULT 'medium', -- 'low', 'medium', 'high', 'critical'
+    risk_assessment TEXT,
+    impact_assessment TEXT,
+    rollback_plan TEXT,
+    
+    -- Approval workflow
+    status TEXT DEFAULT 'pending', -- 'pending', 'approved', 'rejected', 'implemented', 'closed'
+    approved_by_user_id INTEGER,
+    approved_at DATETIME,
+    approval_notes TEXT,
+    
+    -- Implementation
+    scheduled_start DATETIME,
+    scheduled_end DATETIME,
+    implemented_by_user_id INTEGER,
+    implemented_at DATETIME,
+    implementation_notes TEXT,
+    
+    -- HIPAA compliance
+    affects_phi BOOLEAN DEFAULT FALSE,
+    hipaa_impact_assessment TEXT,
+    
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (requested_by_user_id) REFERENCES users(id),
+    FOREIGN KEY (approved_by_user_id) REFERENCES users(id),
+    FOREIGN KEY (implemented_by_user_id) REFERENCES users(id)
+);
+
+-- Compliance tracking
+CREATE TABLE IF NOT EXISTS compliance_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    framework TEXT NOT NULL, -- 'HIPAA', 'HITRUST', 'GDPR', etc.
+    control_id TEXT NOT NULL, -- e.g., '164.308(a)(1)' for HIPAA
+    control_name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    
+    -- Implementation status
+    status TEXT DEFAULT 'not_started', -- 'not_started', 'in_progress', 'implemented', 'verified'
+    implementation_notes TEXT,
+    evidence_location TEXT, -- File path or URL to evidence
+    
+    -- Responsible parties
+    assigned_to_user_id INTEGER,
+    verified_by_user_id INTEGER,
+    
+    -- Dates
+    target_completion_date DATE,
+    completed_at DATETIME,
+    last_reviewed_at DATETIME,
+    next_review_date DATE,
+    
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (assigned_to_user_id) REFERENCES users(id),
+    FOREIGN KEY (verified_by_user_id) REFERENCES users(id),
+    
+    UNIQUE(framework, control_id)
 );
 
 -- Audit log for sensitive operations
