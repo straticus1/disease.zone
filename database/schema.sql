@@ -330,6 +330,23 @@ CREATE TABLE IF NOT EXISTS compliance_items (
     UNIQUE(framework, control_id)
 );
 
+-- HIPAA PHI Access Log for compliance tracking
+CREATE TABLE IF NOT EXISTS phi_access_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    action TEXT NOT NULL, -- CREATE, READ, UPDATE, DELETE
+    resource_type TEXT NOT NULL,
+    resource_id TEXT,
+    phi_fields_accessed TEXT, -- JSON array
+    user_ip TEXT,
+    user_agent TEXT,
+    access_granted BOOLEAN NOT NULL,
+    denial_reason TEXT,
+    access_timestamp DATETIME NOT NULL,
+    
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 -- Audit log for sensitive operations
 CREATE TABLE IF NOT EXISTS audit_log (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

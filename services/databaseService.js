@@ -49,6 +49,15 @@ class DatabaseService {
         console.log('Database seeded with initial disease data');
       }
 
+      // Check if ticket types table is empty and seed if needed
+      const ticketTypeCount = await this.get('SELECT COUNT(*) as count FROM ticket_types');
+      if (ticketTypeCount.count === 0) {
+        const ticketSeedPath = path.join(__dirname, '../database/seed_ticket_types.sql');
+        const ticketSeedData = fs.readFileSync(ticketSeedPath, 'utf8');
+        await this.executeScript(ticketSeedData);
+        console.log('Database seeded with ticket types and compliance items');
+      }
+
     } catch (error) {
       console.error('Error setting up database:', error);
       throw error;
@@ -314,6 +323,292 @@ class DatabaseService {
     `;
 
     return await this.run(sql, [user_id, action, resource_type, resource_id, JSON.stringify(details), ip_address, user_agent]);
+  }
+
+  // Ticket Types Management
+  async getAllTicketTypes() {
+    return await this.all('SELECT * FROM ticket_types WHERE active = TRUE ORDER BY name');
+  }
+
+  async getTicketTypeById(id) {
+    return await this.get('SELECT * FROM ticket_types WHERE id = ? AND active = TRUE', [id]);
+  }
+
+  async createTicketType(ticketTypeData) {
+    const { name, description, priority_level, auto_assign_role, sla_response_hours, sla_resolution_hours, created_by_user_id } = ticketTypeData;
+    const sql = `
+      INSERT INTO ticket_types (name, description, priority_level, auto_assign_role, sla_response_hours, sla_resolution_hours, created_by_user_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+    return await this.run(sql, [name, description, priority_level, auto_assign_role, sla_response_hours, sla_resolution_hours, created_by_user_id]);
+  }
+
+  async updateTicketType(id, updates) {
+    const updateFields = [];
+    const values = [];
+    Object.keys(updates).forEach(key => {
+      if (key !== 'id' && updates[key] !== undefined) {
+        updateFields.push(`${key} = ?`);
+        values.push(updates[key]);
+      }
+    });
+    if (updateFields.length === 0) throw new Error('No fields to update');
+    values.push(id);
+    const sql = `UPDATE ticket_types SET ${updateFields.join(', ')} WHERE id = ?`;
+    return await this.run(sql, values);
+  }
+
+  // Ticketing System
+  async generateTicketNumber() {
+    const year = new Date().getFullYear();
+    const count = await this.get(`SELECT COUNT(*) as count FROM tickets WHERE ticket_number LIKE 'TICK-${year}-%'`);
+    const nextNumber = (count.count + 1).toString().padStart(6, '0');
+    return `TICK-${year}-${nextNumber}`;
+  }
+
+  async createTicket(ticketData) {
+    const { title, description, ticket_type_id, created_by_user_id, priority, contains_phi, phi_fields } = ticketData;
+    const ticket_number = await this.generateTicketNumber();
+    
+    // Get SLA times from ticket type
+    const ticketType = await this.getTicketTypeById(ticket_type_id);
+    const sla_response_due = new Date(Date.now() + (ticketType.sla_response_hours * 60 * 60 * 1000)).toISOString();
+    const sla_resolution_due = new Date(Date.now() + (ticketType.sla_resolution_hours * 60 * 60 * 1000)).toISOString();
+    
+    const sql = `
+      INSERT INTO tickets (ticket_number, title, description, ticket_type_id, created_by_user_id, priority, contains_phi, phi_fields, sla_response_due, sla_resolution_due)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    
+    return await this.run(sql, [ticket_number, title, description, ticket_type_id, created_by_user_id, priority, contains_phi, JSON.stringify(phi_fields || []), sla_response_due, sla_resolution_due]);
+  }
+
+  async getTicketById(id) {
+    const sql = `
+      SELECT t.*, tt.name as ticket_type_name, 
+             creator.first_name as creator_first_name, creator.last_name as creator_last_name,
+             assignee.first_name as assignee_first_name, assignee.last_name as assignee_last_name
+      FROM tickets t
+      JOIN ticket_types tt ON t.ticket_type_id = tt.id
+      JOIN users creator ON t.created_by_user_id = creator.id
+      LEFT JOIN users assignee ON t.assigned_to_user_id = assignee.id
+      WHERE t.id = ?
+    `;
+    const ticket = await this.get(sql, [id]);
+    if (ticket && ticket.phi_fields) {
+      ticket.phi_fields = JSON.parse(ticket.phi_fields);
+    }
+    return ticket;
+  }
+
+  async getTicketsByUser(user_id, role, limit = 50, offset = 0) {
+    let sql;
+    let params;
+    
+    if (role === 'admin' || role === 'compliance') {
+      // Admin and compliance can see all tickets
+      sql = `
+        SELECT t.*, tt.name as ticket_type_name, creator.first_name as creator_first_name, creator.last_name as creator_last_name
+        FROM tickets t
+        JOIN ticket_types tt ON t.ticket_type_id = tt.id
+        JOIN users creator ON t.created_by_user_id = creator.id
+        ORDER BY t.created_at DESC
+        LIMIT ? OFFSET ?
+      `;
+      params = [limit, offset];
+    } else {
+      // Others can see tickets they created or are assigned to
+      sql = `
+        SELECT t.*, tt.name as ticket_type_name, creator.first_name as creator_first_name, creator.last_name as creator_last_name
+        FROM tickets t
+        JOIN ticket_types tt ON t.ticket_type_id = tt.id
+        JOIN users creator ON t.created_by_user_id = creator.id
+        WHERE t.created_by_user_id = ? OR t.assigned_to_user_id = ?
+        ORDER BY t.created_at DESC
+        LIMIT ? OFFSET ?
+      `;
+      params = [user_id, user_id, limit, offset];
+    }
+    
+    const tickets = await this.all(sql, params);
+    return tickets.map(ticket => {
+      if (ticket.phi_fields) {
+        ticket.phi_fields = JSON.parse(ticket.phi_fields);
+      }
+      return ticket;
+    });
+  }
+
+  async updateTicket(id, updates) {
+    const updateFields = [];
+    const values = [];
+    Object.keys(updates).forEach(key => {
+      if (key !== 'id' && updates[key] !== undefined) {
+        updateFields.push(`${key} = ?`);
+        if (key === 'phi_fields' && Array.isArray(updates[key])) {
+          values.push(JSON.stringify(updates[key]));
+        } else {
+          values.push(updates[key]);
+        }
+      }
+    });
+    updateFields.push('updated_at = CURRENT_TIMESTAMP');
+    if (updateFields.length === 1) throw new Error('No fields to update');
+    values.push(id);
+    const sql = `UPDATE tickets SET ${updateFields.join(', ')} WHERE id = ?`;
+    return await this.run(sql, values);
+  }
+
+  // Ticket Comments
+  async createTicketComment(commentData) {
+    const { ticket_id, user_id, comment_text, is_internal, is_status_change, previous_status, new_status } = commentData;
+    const sql = `
+      INSERT INTO ticket_comments (ticket_id, user_id, comment_text, is_internal, is_status_change, previous_status, new_status)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+    return await this.run(sql, [ticket_id, user_id, comment_text, is_internal, is_status_change, previous_status, new_status]);
+  }
+
+  async getTicketComments(ticket_id, user_role, user_id) {
+    let sql = `
+      SELECT tc.*, u.first_name, u.last_name
+      FROM ticket_comments tc
+      JOIN users u ON tc.user_id = u.id
+      WHERE tc.ticket_id = ?
+    `;
+    
+    // Regular users can't see internal comments unless they created the ticket
+    if (user_role !== 'admin' && user_role !== 'compliance') {
+      const ticket = await this.get('SELECT created_by_user_id FROM tickets WHERE id = ?', [ticket_id]);
+      if (ticket.created_by_user_id !== user_id) {
+        sql += ' AND tc.is_internal = FALSE';
+      }
+    }
+    
+    sql += ' ORDER BY tc.created_at ASC';
+    return await this.all(sql, [ticket_id]);
+  }
+
+  // Change Management
+  async generateChangeNumber() {
+    const year = new Date().getFullYear();
+    const count = await this.get(`SELECT COUNT(*) as count FROM change_requests WHERE change_number LIKE 'CHG-${year}-%'`);
+    const nextNumber = (count.count + 1).toString().padStart(6, '0');
+    return `CHG-${year}-${nextNumber}`;
+  }
+
+  async createChangeRequest(changeData) {
+    const { title, description, change_type, requested_by_user_id, business_justification, risk_level, risk_assessment, impact_assessment, rollback_plan, affects_phi, hipaa_impact_assessment, scheduled_start, scheduled_end } = changeData;
+    const change_number = await this.generateChangeNumber();
+    
+    const sql = `
+      INSERT INTO change_requests (change_number, title, description, change_type, requested_by_user_id, business_justification, risk_level, risk_assessment, impact_assessment, rollback_plan, affects_phi, hipaa_impact_assessment, scheduled_start, scheduled_end)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    
+    return await this.run(sql, [change_number, title, description, change_type, requested_by_user_id, business_justification, risk_level, risk_assessment, impact_assessment, rollback_plan, affects_phi, hipaa_impact_assessment, scheduled_start, scheduled_end]);
+  }
+
+  async getChangeRequestById(id) {
+    const sql = `
+      SELECT cr.*, 
+             requestor.first_name as requestor_first_name, requestor.last_name as requestor_last_name,
+             approver.first_name as approver_first_name, approver.last_name as approver_last_name
+      FROM change_requests cr
+      JOIN users requestor ON cr.requested_by_user_id = requestor.id
+      LEFT JOIN users approver ON cr.approved_by_user_id = approver.id
+      WHERE cr.id = ?
+    `;
+    return await this.get(sql, [id]);
+  }
+
+  async getAllChangeRequests(limit = 50, offset = 0) {
+    const sql = `
+      SELECT cr.*, requestor.first_name as requestor_first_name, requestor.last_name as requestor_last_name
+      FROM change_requests cr
+      JOIN users requestor ON cr.requested_by_user_id = requestor.id
+      ORDER BY cr.created_at DESC
+      LIMIT ? OFFSET ?
+    `;
+    return await this.all(sql, [limit, offset]);
+  }
+
+  async updateChangeRequest(id, updates) {
+    const updateFields = [];
+    const values = [];
+    Object.keys(updates).forEach(key => {
+      if (key !== 'id' && updates[key] !== undefined) {
+        updateFields.push(`${key} = ?`);
+        values.push(updates[key]);
+      }
+    });
+    updateFields.push('updated_at = CURRENT_TIMESTAMP');
+    if (updateFields.length === 1) throw new Error('No fields to update');
+    values.push(id);
+    const sql = `UPDATE change_requests SET ${updateFields.join(', ')} WHERE id = ?`;
+    return await this.run(sql, values);
+  }
+
+  // Compliance Items
+  async getAllComplianceItems(framework = null) {
+    let sql = 'SELECT * FROM compliance_items';
+    const params = [];
+    if (framework) {
+      sql += ' WHERE framework = ?';
+      params.push(framework);
+    }
+    sql += ' ORDER BY framework, control_id';
+    return await this.all(sql, params);
+  }
+
+  async getComplianceItemById(id) {
+    return await this.get('SELECT * FROM compliance_items WHERE id = ?', [id]);
+  }
+
+  async updateComplianceItem(id, updates) {
+    const updateFields = [];
+    const values = [];
+    Object.keys(updates).forEach(key => {
+      if (key !== 'id' && updates[key] !== undefined) {
+        updateFields.push(`${key} = ?`);
+        values.push(updates[key]);
+      }
+    });
+    updateFields.push('updated_at = CURRENT_TIMESTAMP');
+    if (updateFields.length === 1) throw new Error('No fields to update');
+    values.push(id);
+    const sql = `UPDATE compliance_items SET ${updateFields.join(', ')} WHERE id = ?`;
+    return await this.run(sql, values);
+  }
+
+  async getComplianceStats() {
+    const sql = `
+      SELECT 
+        framework,
+        COUNT(*) as total_controls,
+        SUM(CASE WHEN status = 'implemented' THEN 1 ELSE 0 END) as implemented,
+        SUM(CASE WHEN status = 'verified' THEN 1 ELSE 0 END) as verified,
+        SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as in_progress,
+        SUM(CASE WHEN status = 'not_started' THEN 1 ELSE 0 END) as not_started
+      FROM compliance_items 
+      GROUP BY framework
+    `;
+    return await this.all(sql);
+  }
+
+  // HIPAA Audit Log (PHI Access Logging)
+  async createPHIAccessLog(logData) {
+    const { user_id, action, resource_type, resource_id, phi_fields_accessed, user_ip, user_agent, access_granted, denial_reason, access_timestamp } = logData;
+    const sql = `
+      INSERT INTO phi_access_log (user_id, action, resource_type, resource_id, phi_fields_accessed, user_ip, user_agent, access_granted, denial_reason, access_timestamp)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    return await this.run(sql, [user_id, action, resource_type, resource_id, phi_fields_accessed, user_ip, user_agent, access_granted, denial_reason, access_timestamp]);
+  }
+
+  async getFamilyDiseaseById(id) {
+    const sql = 'SELECT * FROM family_diseases WHERE id = ?';
+    return await this.get(sql, [id]);
   }
 
   async close() {
