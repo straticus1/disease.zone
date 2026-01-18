@@ -134,6 +134,39 @@
             background-clip: text;
         }
 
+        /* Navigation */
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            border-color: var(--primary);
+            background: rgba(0, 212, 170, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .nav-icon {
+            font-size: 1.125rem;
+        }
+
         /* Tagline */
         .tagline {
             font-size: 1.5rem;
@@ -387,6 +420,25 @@
             <span class="logo-icon">🦠</span>
             <span class="logo-text">Disease.Zone</span>
         </div>
+
+        <nav class="nav-links">
+            <a href="https://portal.disease.zone" class="nav-link">
+                <span class="nav-icon">🏥</span>
+                Patient Portal
+            </a>
+            <a href="https://doctors.disease.zone" class="nav-link">
+                <span class="nav-icon">👨‍⚕️</span>
+                Provider Portal
+            </a>
+            <a href="https://api.disease.zone" class="nav-link">
+                <span class="nav-icon">🔌</span>
+                API
+            </a>
+            <a href="https://ledger.disease.zone" class="nav-link">
+                <span class="nav-icon">⛓️</span>
+                Blockchain
+            </a>
+        </nav>
 
         <p class="tagline">
             Global health intelligence platform with real-time disease tracking,
