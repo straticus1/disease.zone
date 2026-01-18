@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disease.Zone - Global Health Intelligence Platform</title>
+    <meta name="description" content="Real-time disease tracking, outbreak detection, and health intelligence. Launching February 2, 2026.">
+    <meta name="keywords" content="disease tracking, outbreak detection, health intelligence, epidemic monitoring, public health">
+    <meta property="og:title" content="Disease.Zone - Coming Soon">
+    <meta property="og:description" content="Global health intelligence platform with real-time disease tracking and AI-powered outbreak detection.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://disease.zone">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦠</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00d4aa;
+            --primary-dark: #00a888;
+            --secondary: #6366f1;
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --text: #e4e4e7;
+            --text-muted: #71717a;
+            --border: #27272a;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at center, rgba(0, 212, 170, 0.08) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 20%, rgba(99, 102, 241, 0.06) 0%, transparent 40%),
+                        radial-gradient(ellipse at 20% 80%, rgba(0, 212, 170, 0.04) 0%, transparent 40%);
+            animation: bgPulse 15s ease-in-out infinite;
+        }
+
+        @keyframes bgPulse {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.1) rotate(5deg); opacity: 0.8; }
+        }
+
+        /* DNA Helix animation */
+        .dna-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        .dna-strand {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: dnaFloat 20s linear infinite;
+        }
+
+        @keyframes dnaFloat {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Main container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* Logo */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .logo-icon {
+            font-size: 4rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .logo-text {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Tagline */
+        .tagline {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            max-width: 600px;
+        }
+
+        /* Countdown */
+        .countdown-container {
+            margin-bottom: 3rem;
+        }
+
+        .countdown-label {
+            font-size: 1rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 1.5rem;
+        }
+
+        .countdown {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .countdown-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem 2rem;
+            min-width: 120px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .countdown-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .countdown-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .countdown-unit {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 0.5rem;
+        }
+
+        /* Features preview */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .feature {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        .feature:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 40px rgba(0, 212, 170, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Email signup */
+        .signup {
+            margin-bottom: 2rem;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .signup-form {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .signup-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 1rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .signup-input:focus {
+            border-color: var(--primary);
+        }
+
+        .signup-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .signup-btn {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border: none;
+            border-radius: 0.75rem;
+            color: var(--bg-dark);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .signup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 170, 0.3);
+        }
+
+        .signup-note {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.75rem;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: auto;
+            padding-top: 2rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .powered-by {
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .powered-by img {
+            height: 20px;
+            opacity: 0.7;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .logo-text {
+                font-size: 2rem;
+            }
+
+            .logo-icon {
+                font-size: 3rem;
+            }
+
+            .tagline {
+                font-size: 1.125rem;
+            }
+
+            .countdown-item {
+                min-width: 80px;
+                padding: 1rem 1.25rem;
+            }
+
+            .countdown-number {
+                font-size: 2rem;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Success message */
+        .success-message {
+            display: none;
+            background: rgba(0, 212, 170, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            color: var(--primary);
+            margin-top: 1rem;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    <div class="dna-container" id="dnaContainer"></div>
+
+    <div class="container">
+        <div class="logo">
+            <span class="logo-icon">🦠</span>
+            <span class="logo-text">Disease.Zone</span>
+        </div>
+
+        <p class="tagline">
+            Global health intelligence platform with real-time disease tracking,
+            AI-powered outbreak detection, and blockchain-secured medical records.
+        </p>
+
+        <div class="countdown-container">
+            <div class="countdown-label">Launching In</div>
+            <div class="countdown" id="countdown">
+                <div class="countdown-item">
+                    <div class="countdown-number" id="days">00</div>
+                    <div class="countdown-unit">Days</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="hours">00</div>
+                    <div class="countdown-unit">Hours</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="minutes">00</div>
+                    <div class="countdown-unit">Minutes</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="seconds">00</div>
+                    <div class="countdown-unit">Seconds</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🌍</div>
+                <div class="feature-title">Global Outbreak Tracking</div>
+                <div class="feature-desc">Real-time surveillance from WHO, CDC, ECDC and 15+ health agencies worldwide.</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🤖</div>
+                <div class="feature-title">AI Symptom Analysis</div>
+                <div class="feature-desc">Intelligent symptom checker with ML-powered disease prediction and risk assessment.</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">⛓️</div>
+                <div class="feature-title">Blockchain Health Records</div>
+                <div class="feature-desc">Secure, patient-controlled medical records powered by BlueBlocks.</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">👨‍⚕️</div>
+                <div class="feature-title">Provider Portal</div>
+                <div class="feature-desc">HIPAA-compliant tools for healthcare professionals with Epic EHR integration.</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔬</div>
+                <div class="feature-title">STI Surveillance</div>
+                <div class="feature-desc">Comprehensive tracking for HIV, HPV, herpes and more with privacy-first design.</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🚨</div>
+                <div class="feature-title">Outbreak Alerts</div>
+                <div class="feature-desc">16 detection algorithms including CUSUM, EWMA, and spatial scan statistics.</div>
+            </div>
+        </div>
+
+        <div class="signup">
+            <form class="signup-form" id="signupForm">
+                <input type="email" class="signup-input" id="emailInput" placeholder="Enter your email for early access" required>
+                <button type="submit" class="signup-btn">Notify Me</button>
+            </form>
+            <p class="signup-note">Be the first to know when we launch. No spam, ever.</p>
+            <div class="success-message" id="successMessage">
+                Thanks! We'll notify you when Disease.Zone launches.
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>Part of the <a href="https://blueblocks.xyz" target="_blank">BlueBlocks</a> healthcare ecosystem</p>
+            <div class="powered-by">
+                <span>Powered by</span>
+                <a href="https://afterdark.systems" target="_blank">AfterDark Systems</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Countdown to February 2, 2026 00:00:00 UTC
+        const launchDate = new Date('2026-02-02T00:00:00Z').getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = launchDate - now;
+
+            if (distance < 0) {
+                document.getElementById('countdown').innerHTML = '<div class="countdown-item"><div class="countdown-number" style="font-size: 1.5rem;">We\'re Live!</div></div>';
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('days').textContent = String(days).padStart(2, '0');
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+
+        // DNA animation
+        const dnaContainer = document.getElementById('dnaContainer');
+        function createDNAStrand() {
+            const strand = document.createElement('div');
+            strand.className = 'dna-strand';
+            strand.style.left = Math.random() * 100 + '%';
+            strand.style.animationDuration = (15 + Math.random() * 10) + 's';
+            strand.style.animationDelay = Math.random() * 5 + 's';
+            strand.style.width = (2 + Math.random() * 4) + 'px';
+            strand.style.height = strand.style.width;
+            strand.style.background = Math.random() > 0.5 ? 'var(--primary)' : 'var(--secondary)';
+            dnaContainer.appendChild(strand);
+
+            setTimeout(() => strand.remove(), 25000);
+        }
+
+        for (let i = 0; i < 20; i++) {
+            setTimeout(createDNAStrand, i * 500);
+        }
+        setInterval(createDNAStrand, 1000);
+
+        // Email signup
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('emailInput').value;
+
+            // Store in localStorage for now (would send to API in production)
+            const signups = JSON.parse(localStorage.getItem('disease_zone_signups') || '[]');
+            if (!signups.includes(email)) {
+                signups.push(email);
+                localStorage.setItem('disease_zone_signups', JSON.stringify(signups));
+            }
+
+            document.getElementById('successMessage').classList.add('show');
+            document.getElementById('emailInput').value = '';
+
+            setTimeout(() => {
+                document.getElementById('successMessage').classList.remove('show');
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

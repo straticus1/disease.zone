@@ -1,0 +1,121 @@
+version: '3.8'
+
+# Disease.Zone Production Docker Compose for OCI
+# This is for the FULL platform deployment (post-countdown)
+
+services:
+  # Main Disease Zone API & Web Server
+  disease-zone:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: disease-zone-app
+    restart: unless-stopped
+    ports:
+      - "5060:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgresql://diseaseZone:${POSTGRES_PASSWORD}@postgres:5432/disease_zone
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - BLOCKCHAIN_INTEGRATION_ENABLED=true
+      - LEDGER_API_URL=http://blockchain-api:4000
+      # Keycloak
+      - KEYCLOAK_URL=${KEYCLOAK_URL:-https://auth.blueblocks.xyz}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM:-disease-zone}
+      - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID:-disease-zone-app}
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
+      # BlueBlocks
+      - BLUEBLOCKS_API_URL=${BLUEBLOCKS_API_URL:-https://api.blueblocks.xyz}
+      - BLUEBLOCKS_CHAIN_ID=${BLUEBLOCKS_CHAIN_ID:-1}
+    volumes:
+      - disease-zone-data:/app/data
+      - disease-zone-logs:/app/logs
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - disease-zone-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: disease-zone-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=disease_zone
+      - POSTGRES_USER=diseaseZone
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ../database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    networks:
+      - disease-zone-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U diseaseZone -d disease_zone"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for Sessions and Caching
+  redis:
+    image: redis:7-alpine
+    container_name: disease-zone-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    networks:
+      - disease-zone-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Blockchain API (connects to BlueBlocks)
+  blockchain-api:
+    build:
+      context: ../ledger
+      dockerfile: docker/Dockerfile.api
+    container_name: disease-zone-blockchain
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - MAIN_API_URL=http://disease-zone:3000
+      - BLUEBLOCKS_RPC_URL=${BLUEBLOCKS_RPC_URL:-https://rpc.blueblocks.xyz}
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - disease-zone-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  disease-zone-network:
+    driver: bridge
+    name: disease-zone-net
+
+volumes:
+  postgres-data:
+    name: disease-zone-postgres
+  redis-data:
+    name: disease-zone-redis
+  disease-zone-data:
+    name: disease-zone-data
+  disease-zone-logs:
+    name: disease-zone-logs

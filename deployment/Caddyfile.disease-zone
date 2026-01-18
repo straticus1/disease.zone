@@ -1,0 +1,114 @@
+# Disease.Zone Caddy Configuration
+# Add this to the main Caddyfile on 129.153.158.177
+
+# Apex domain
+disease.zone {
+    # For countdown phase - serve static files
+    root * /srv/disease-zone/countdown
+    file_server
+
+    # Security headers
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy strict-origin-when-cross-origin
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    }
+
+    # Enable compression
+    encode gzip zstd
+
+    # Logging
+    log {
+        output file /var/log/caddy/disease-zone.log {
+            roll_size 10mb
+            roll_keep 5
+        }
+        format json
+    }
+
+    # When ready for full platform, uncomment:
+    # reverse_proxy localhost:5060
+}
+
+# WWW redirect to apex
+www.disease.zone {
+    redir https://disease.zone{uri} permanent
+}
+
+# API subdomain (for full platform)
+api.disease.zone {
+    # For countdown phase - return coming soon JSON
+    respond "{ \"status\": \"coming_soon\", \"launch\": \"2026-02-02T00:00:00Z\", \"message\": \"Disease.Zone API launching February 2, 2026\" }" 200 {
+        header Content-Type application/json
+    }
+
+    # When ready for full platform, uncomment:
+    # reverse_proxy localhost:5060
+
+    header {
+        X-Content-Type-Options nosniff
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
+    }
+
+    log {
+        output file /var/log/caddy/disease-zone-api.log {
+            roll_size 10mb
+            roll_keep 5
+        }
+        format json
+    }
+}
+
+# Portal subdomain (patient portal)
+portal.disease.zone {
+    root * /srv/disease-zone/countdown
+    file_server
+
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    }
+
+    encode gzip zstd
+
+    # When ready for full platform:
+    # reverse_proxy localhost:5060
+
+    log {
+        output file /var/log/caddy/disease-zone-portal.log {
+            roll_size 10mb
+            roll_keep 5
+        }
+        format json
+    }
+}
+
+# Doctors subdomain (provider portal)
+doctors.disease.zone {
+    root * /srv/disease-zone/countdown
+    file_server
+
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    }
+
+    encode gzip zstd
+
+    # When ready for full platform:
+    # reverse_proxy localhost:5060
+
+    log {
+        output file /var/log/caddy/disease-zone-doctors.log {
+            roll_size 10mb
+            roll_keep 5
+        }
+        format json
+    }
+}
